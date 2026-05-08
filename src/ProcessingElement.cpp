@@ -37,6 +37,8 @@ void ProcessingElement::txProcess()
 	req_tx.write(0);
 	current_level_tx = 0;
 	transmittedAtPreviousCycle = false;
+	total_injected_packets = 0;
+	total_injected_flits = 0;
     } else {
 
     if(GlobalParams::traffic_distribution != TRAFFIC_HARDCODED) {
@@ -103,18 +105,45 @@ Flit ProcessingElement::nextFlit()
 
     flit.hub_relay_node = NOT_VALID;
 
-    if (packet.size == packet.flit_left)
+    bool is_head = packet.size == packet.flit_left;
+    if (is_head)
 	flit.flit_type = FLIT_TYPE_HEAD;
     else if (packet.flit_left == 1)
 	flit.flit_type = FLIT_TYPE_TAIL;
     else
 	flit.flit_type = FLIT_TYPE_BODY;
 
+    if (is_head)
+	recordInjectedPacket(packet,
+			     sc_time_stamp().to_double() /
+			     GlobalParams::clock_period_ps);
+
     packet_queue.front().flit_left--;
     if (packet_queue.front().flit_left == 0)
 	packet_queue.pop();
 
     return flit;
+}
+
+void ProcessingElement::recordInjectedPacket(const Packet &packet,
+					     double injection_time)
+{
+    if (injection_time - GlobalParams::reset_time <
+	GlobalParams::stats_warm_up_time)
+	return;
+
+    total_injected_packets++;
+    total_injected_flits += packet.size;
+}
+
+unsigned int ProcessingElement::getInjectedPackets() const
+{
+    return total_injected_packets;
+}
+
+unsigned int ProcessingElement::getInjectedFlits() const
+{
+    return total_injected_flits;
 }
 
 bool ProcessingElement::canShot(Packet & packet)
@@ -526,4 +555,3 @@ unsigned int ProcessingElement::getQueueSize() const
 {
     return packet_queue.size();
 }
-

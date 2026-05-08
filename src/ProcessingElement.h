@@ -46,12 +46,17 @@ SC_MODULE(ProcessingElement)
     bool current_level_tx;	// Current level for Alternating Bit Protocol (ABP)
     queue < Packet > packet_queue;	// Local queue of packets
     bool transmittedAtPreviousCycle;	// Used for distributions with memory
+    unsigned int total_injected_packets;
+    unsigned int total_injected_flits;
 
     // Functions
     void rxProcess();		// The receiving process
     void txProcess();		// The transmitting process
     bool canShot(Packet & packet);	// True when the packet must be shot
     Flit nextFlit();	// Take the next flit of the current packet
+    void recordInjectedPacket(const Packet &packet, double injection_time);
+    unsigned int getInjectedPackets() const;
+    unsigned int getInjectedFlits() const;
     Packet trafficTest();	// used for testing traffic
     Packet trafficRandom();	// Random destination distribution
     Packet trafficTranspose1();	// Transpose 1 destination distribution

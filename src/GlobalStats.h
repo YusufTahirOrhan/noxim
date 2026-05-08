@@ -64,6 +64,15 @@ class GlobalStats {
     // Returns the total number of received flits
     unsigned int getReceivedFlits();
 
+    // Returns the total number of injected packets
+    unsigned int getInjectedPackets();
+
+    // Returns the total number of injected flits
+    unsigned int getInjectedFlits();
+
+    // Returns delivered packets divided by injected packets
+    double getReachability();
+
     // number of packets that used the wireless network
     unsigned int getWirelessPackets();
 

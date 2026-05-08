@@ -10,6 +10,7 @@
 
 #include "GlobalStats.h"
 #include "DeftTopology.h"
+#include "DeftVerticalLinkLut.h"
 
 #include <cmath>
 #include <fstream>
@@ -51,8 +52,11 @@ int statsIpCount()
 }
 
 struct SummaryMetrics {
+    unsigned int total_injected_packets;
+    unsigned int total_injected_flits;
     unsigned int total_received_packets;
     unsigned int total_received_flits;
+    double reachability_ratio;
     double received_ideal_flits_ratio;
     double average_wireless_utilization;
     double global_average_delay_cycles;
@@ -68,8 +72,11 @@ struct SummaryMetrics {
 SummaryMetrics buildSummaryMetrics(GlobalStats &stats)
 {
     SummaryMetrics metrics;
+    metrics.total_injected_packets = stats.getInjectedPackets();
+    metrics.total_injected_flits = stats.getInjectedFlits();
     metrics.total_received_packets = stats.getReceivedPackets();
     metrics.total_received_flits = stats.getReceivedFlits();
+    metrics.reachability_ratio = stats.getReachability();
     metrics.received_ideal_flits_ratio = stats.getReceivedIdealFlitRatio();
     metrics.average_wireless_utilization =
         stats.getWirelessPackets() / (double)metrics.total_received_packets;
@@ -137,9 +144,20 @@ string jsonNumber(double value)
     return out.str();
 }
 
+string deftFaultMaskIdForExport()
+{
+    if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D)
+        return DeftVerticalLinkLut::currentFaultMaskId();
+
+    return "";
+}
+
 void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
 {
     out << "topology"
+        << ",routing_algorithm"
+        << ",traffic_distribution"
+        << ",deft_active_fault_mask"
         << ",mesh_dim_x"
         << ",mesh_dim_y"
         << ",n_delta_tiles"
@@ -148,8 +166,11 @@ void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
         << ",stats_warm_up_time_cycles"
         << ",executed_cycles"
         << ",rnd_generator_seed"
+        << ",total_injected_packets"
+        << ",total_injected_flits"
         << ",total_received_packets"
         << ",total_received_flits"
+        << ",reachability_ratio"
         << ",received_ideal_flits_ratio"
         << ",average_wireless_utilization"
         << ",global_average_delay_cycles"
@@ -162,6 +183,9 @@ void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
         << endl;
 
     out << GlobalParams::topology
+        << "," << GlobalParams::routing_algorithm
+        << "," << GlobalParams::traffic_distribution
+        << "," << deftFaultMaskIdForExport()
         << "," << GlobalParams::mesh_dim_x
         << "," << GlobalParams::mesh_dim_y
         << "," << GlobalParams::n_delta_tiles
@@ -170,8 +194,11 @@ void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
         << "," << GlobalParams::stats_warm_up_time
         << "," << csvNumber(metrics.executed_cycles)
         << "," << GlobalParams::rnd_generator_seed
+        << "," << metrics.total_injected_packets
+        << "," << metrics.total_injected_flits
         << "," << metrics.total_received_packets
         << "," << metrics.total_received_flits
+        << "," << csvNumber(metrics.reachability_ratio)
         << "," << csvNumber(metrics.received_ideal_flits_ratio)
         << "," << csvNumber(metrics.average_wireless_utilization)
         << "," << csvNumber(metrics.global_average_delay_cycles)
@@ -189,6 +216,12 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     out << "{" << endl;
     out << "  \"config\": {" << endl;
     out << "    \"topology\": " << jsonString(GlobalParams::topology) << "," << endl;
+    out << "    \"routing_algorithm\": "
+        << jsonString(GlobalParams::routing_algorithm) << "," << endl;
+    out << "    \"traffic_distribution\": "
+        << jsonString(GlobalParams::traffic_distribution) << "," << endl;
+    out << "    \"deft_active_fault_mask\": "
+        << jsonString(deftFaultMaskIdForExport()) << "," << endl;
     out << "    \"mesh_dim_x\": " << GlobalParams::mesh_dim_x << "," << endl;
     out << "    \"mesh_dim_y\": " << GlobalParams::mesh_dim_y << "," << endl;
     out << "    \"n_delta_tiles\": " << GlobalParams::n_delta_tiles << "," << endl;
@@ -199,8 +232,11 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     out << "  }," << endl;
     out << "  \"summary\": {" << endl;
     out << "    \"executed_cycles\": " << jsonNumber(metrics.executed_cycles) << "," << endl;
+    out << "    \"total_injected_packets\": " << metrics.total_injected_packets << "," << endl;
+    out << "    \"total_injected_flits\": " << metrics.total_injected_flits << "," << endl;
     out << "    \"total_received_packets\": " << metrics.total_received_packets << "," << endl;
     out << "    \"total_received_flits\": " << metrics.total_received_flits << "," << endl;
+    out << "    \"reachability_ratio\": " << jsonNumber(metrics.reachability_ratio) << "," << endl;
     out << "    \"received_ideal_flits_ratio\": " << jsonNumber(metrics.received_ideal_flits_ratio) << "," << endl;
     out << "    \"average_wireless_utilization\": " << jsonNumber(metrics.average_wireless_utilization) << "," << endl;
     out << "    \"global_average_delay_cycles\": " << jsonNumber(metrics.global_average_delay_cycles) << "," << endl;
@@ -452,6 +488,53 @@ unsigned int GlobalStats::getReceivedFlits()
     }
 
     return n;
+}
+
+unsigned int GlobalStats::getInjectedPackets()
+{
+    unsigned int n = 0;
+
+    if (isMeshStatsTopology())
+    {
+	for (int y = 0; y < statsDimY(); y++)
+	    for (int x = 0; x < statsDimX(); x++)
+		n += noc->t[x][y]->pe->getInjectedPackets();
+    }
+    else // other delta topologies
+    {
+	for (int y = 0; y < GlobalParams::n_delta_tiles; y++)
+	    n += noc->core[y]->pe->getInjectedPackets();
+    }
+
+    return n;
+}
+
+unsigned int GlobalStats::getInjectedFlits()
+{
+    unsigned int n = 0;
+
+    if (isMeshStatsTopology())
+    {
+	for (int y = 0; y < statsDimY(); y++)
+	    for (int x = 0; x < statsDimX(); x++)
+		n += noc->t[x][y]->pe->getInjectedFlits();
+    }
+    else // other delta topologies
+    {
+	for (int y = 0; y < GlobalParams::n_delta_tiles; y++)
+	    n += noc->core[y]->pe->getInjectedFlits();
+    }
+
+    return n;
+}
+
+double GlobalStats::getReachability()
+{
+    const unsigned int injected_packets = getInjectedPackets();
+    if (injected_packets == 0)
+	return numeric_limits<double>::quiet_NaN();
+
+    return (double)getReceivedPackets() / (double)injected_packets;
 }
 
 double GlobalStats::getThroughput()
