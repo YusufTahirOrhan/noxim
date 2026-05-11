@@ -1,0 +1,2 @@
+% One inter-chiplet IA-XY smoke packet: chiplet 0 router 0 to chiplet 3 router 63.
+0 63

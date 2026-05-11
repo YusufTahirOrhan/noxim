@@ -394,6 +394,7 @@ void showHelp(char selfname[])
          << "\t\tOMEGA\t\tDelta network Omega" << endl
          << "\t-routing TYPE\t\tSet the routing algorithm to one of the following:" << endl
          << "\t\tXY\t\tXY routing algorithm" << endl
+         << "\t\tINTERPOSER_AWARE_XY\tInterposer-aware XY baseline for DEFT_2_5D" << endl
          << "\t\tDEFT\t\tDeFT fault-aware VL LUT routing algorithm" << endl
          << "\t\tWEST_FIRST\tWest-First routing algorithm" << endl
          << "\t\tNORTH_LAST\tNorth-Last routing algorithm" << endl
@@ -566,6 +567,13 @@ void checkConfiguration()
          !GlobalParams::deft_vl_lut_filename.empty()))
     {
         cerr << "Error: DeFT VL options require DEFT_2_5D topology" << endl;
+        exit(1);
+    }
+
+    if (GlobalParams::routing_algorithm == ROUTING_INTERPOSER_AWARE_XY &&
+        GlobalParams::topology != TOPOLOGY_DEFT_2_5D)
+    {
+        cerr << "Error: INTERPOSER_AWARE_XY requires DEFT_2_5D topology" << endl;
         exit(1);
     }
 
