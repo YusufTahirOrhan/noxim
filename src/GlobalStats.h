@@ -73,6 +73,11 @@ class GlobalStats {
     // Returns delivered packets divided by injected packets
     double getReachability();
 
+    unsigned int getPendingSourcePackets();
+    unsigned int getBufferedFlitCount();
+    unsigned int getReservationCount();
+    unsigned int getPendingHandshakeCount();
+
     // number of packets that used the wireless network
     unsigned int getWirelessPackets();
 

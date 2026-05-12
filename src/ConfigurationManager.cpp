@@ -257,6 +257,18 @@ void loadConfiguration() {
     GlobalParams::n_virtual_channels = readParam<int>(config, "n_virtual_channels");
     GlobalParams::reset_time = readParam<int>(config, "reset_time");
     GlobalParams::stats_warm_up_time = readParam<int>(config, "stats_warm_up_time");
+    GlobalParams::drain_mode_enabled = readParam<bool>(config, "drain_mode_enabled", false);
+    GlobalParams::drain_source_cutoff_cycles =
+        readParam<int>(config, "drain_source_cutoff_cycles", 0);
+    GlobalParams::drain_timeout_cycles =
+        readParam<int>(config, "drain_timeout_cycles", 0);
+    GlobalParams::drain_stop_reason = "";
+    GlobalParams::drain_measurement_start_cycle = NOT_VALID;
+    GlobalParams::drain_source_cutoff_cycle = NOT_VALID;
+    GlobalParams::drain_start_cycle = NOT_VALID;
+    GlobalParams::drain_sources_quiesced_cycle = NOT_VALID;
+    GlobalParams::drain_completed_cycle = NOT_VALID;
+    GlobalParams::drain_stop_cycle = NOT_VALID;
     GlobalParams::rnd_generator_seed = readParam<int>(config, "rnd_generator_seed", (int) time(NULL));
     GlobalParams::detailed = readParam<bool>(config, "detailed");
     GlobalParams::dyad_threshold = readParam<double>(config, "dyad_threshold");
@@ -423,6 +435,9 @@ void showHelp(char selfname[])
          <<	"\t\ttable FILENAME\tTraffic Table Based traffic distribution with table in the specified file" << endl
          << "\t-hs ID P\t\tAdd node ID to hotspot nodes, with percentage P (0..1) (Only for 'random' traffic)" << endl
          << "\t-warmup N\t\tStart to collect statistics after N cycles" << endl
+         << "\t-drain_mode\t\tEnable opt-in source-cutoff plus drain/timeout mode" << endl
+         << "\t-drain_source_cutoff N\tMeasured source-admission cycles after warm-up" << endl
+         << "\t-drain_timeout N\tDrain timeout cycles after source cutoff" << endl
          << "\t-seed N\t\t\tSet the seed of the random generator (default time())" << endl
          << "\t-deft_vl_fault_count N\tRandomly mark N physical DEFT_2_5D VLs faulty" << endl
          << "\t-deft_faulty_vls LIST\tComma-separated explicit DEFT_2_5D VL fault IDs" << endl
@@ -472,6 +487,9 @@ void showConfig()
          << "- clock_period = " << GlobalParams::clock_period_ps << "ps" << endl
          << "- simulation_time = " << GlobalParams::simulation_time << endl
          << "- warm_up_time = " << GlobalParams::stats_warm_up_time << endl
+         << "- drain_mode_enabled = " << (GlobalParams::drain_mode_enabled ? "true" : "false") << endl
+         << "- drain_source_cutoff_cycles = " << GlobalParams::drain_source_cutoff_cycles << endl
+         << "- drain_timeout_cycles = " << GlobalParams::drain_timeout_cycles << endl
          << "- rnd_generator_seed = " << GlobalParams::rnd_generator_seed << endl;
 }
 
@@ -657,6 +675,21 @@ void checkConfiguration()
 	cerr << "Error: warmup time must be less than simulation time" <<
 	    endl;
 	exit(1);
+    }
+
+    if (GlobalParams::drain_mode_enabled) {
+	if (GlobalParams::drain_source_cutoff_cycles <= 0) {
+	    cerr << "Error: drain_source_cutoff_cycles must be greater than 0 when drain mode is enabled" << endl;
+	    exit(1);
+	}
+	if (GlobalParams::drain_timeout_cycles <= 0) {
+	    cerr << "Error: drain_timeout_cycles must be greater than 0 when drain mode is enabled" << endl;
+	    exit(1);
+	}
+	if (GlobalParams::max_volume_to_be_drained > 0) {
+	    cerr << "Error: drain mode cannot be combined with -volume; use one stop policy at a time" << endl;
+	    exit(1);
+	}
     }
 
     if (GlobalParams::locality<0 || GlobalParams::locality>1)
@@ -862,6 +895,14 @@ void parseCmdLine(int arg_num, char *arg_vet[])
 	    } 
 	    else if (!strcmp(arg_vet[i], "-warmup"))
 		GlobalParams::stats_warm_up_time = atoi(requireOptionValue(i, arg_num, arg_vet, "-warmup"));
+	    else if (!strcmp(arg_vet[i], "-drain_mode") || !strcmp(arg_vet[i], "-drain"))
+		GlobalParams::drain_mode_enabled = true;
+	    else if (!strcmp(arg_vet[i], "-drain_source_cutoff"))
+		GlobalParams::drain_source_cutoff_cycles =
+		    atoi(requireOptionValue(i, arg_num, arg_vet, "-drain_source_cutoff"));
+	    else if (!strcmp(arg_vet[i], "-drain_timeout"))
+		GlobalParams::drain_timeout_cycles =
+		    atoi(requireOptionValue(i, arg_num, arg_vet, "-drain_timeout"));
 	    else if (!strcmp(arg_vet[i], "-seed"))
 		GlobalParams::rnd_generator_seed = atoi(requireOptionValue(i, arg_num, arg_vet, "-seed"));
         else if (!strcmp(arg_vet[i], "-deft_vl_fault_count"))

@@ -67,6 +67,27 @@ struct SummaryMetrics {
     double dynamic_energy_j;
     double static_energy_j;
     double executed_cycles;
+    string denominator_mode;
+    string drain_stop_reason;
+    int drain_measurement_start_cycle;
+    int drain_source_cutoff_cycle;
+    int drain_start_cycle;
+    int drain_sources_quiesced_cycle;
+    int drain_completed_cycle;
+    int drain_stop_cycle;
+    unsigned int measured_injected_packets;
+    unsigned int measured_injected_flits;
+    unsigned int measured_received_packets;
+    unsigned int measured_received_flits;
+    unsigned int undelivered_packets_at_stop;
+    unsigned int undelivered_flits_at_stop;
+    int drain_elapsed_cycles;
+    int total_measured_elapsed_cycles;
+    double drain_mode_network_throughput_flits_per_cycle;
+    unsigned int source_queue_packets_at_stop;
+    unsigned int router_buffer_flits_at_stop;
+    unsigned int router_reservations_at_stop;
+    unsigned int pending_handshakes_at_stop;
 };
 
 SummaryMetrics buildSummaryMetrics(GlobalStats &stats)
@@ -88,6 +109,55 @@ SummaryMetrics buildSummaryMetrics(GlobalStats &stats)
     metrics.dynamic_energy_j = stats.getDynamicPower();
     metrics.static_energy_j = stats.getStaticPower();
     metrics.executed_cycles = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    metrics.denominator_mode =
+        GlobalParams::drain_mode_enabled ? "drain" : "fixed_window";
+    metrics.drain_stop_reason = GlobalParams::drain_stop_reason;
+    metrics.drain_measurement_start_cycle =
+        GlobalParams::drain_measurement_start_cycle;
+    metrics.drain_source_cutoff_cycle =
+        GlobalParams::drain_source_cutoff_cycle;
+    metrics.drain_start_cycle = GlobalParams::drain_start_cycle;
+    metrics.drain_sources_quiesced_cycle =
+        GlobalParams::drain_sources_quiesced_cycle;
+    metrics.drain_completed_cycle = GlobalParams::drain_completed_cycle;
+    metrics.drain_stop_cycle = GlobalParams::drain_stop_cycle;
+    metrics.measured_injected_packets = metrics.total_injected_packets;
+    metrics.measured_injected_flits = metrics.total_injected_flits;
+    metrics.measured_received_packets = metrics.total_received_packets;
+    metrics.measured_received_flits = metrics.total_received_flits;
+    metrics.undelivered_packets_at_stop =
+        metrics.measured_injected_packets >= metrics.measured_received_packets ?
+        metrics.measured_injected_packets - metrics.measured_received_packets :
+        0;
+    metrics.undelivered_flits_at_stop =
+        metrics.measured_injected_flits >= metrics.measured_received_flits ?
+        metrics.measured_injected_flits - metrics.measured_received_flits :
+        0;
+    metrics.drain_elapsed_cycles =
+        GlobalParams::drain_stop_cycle != NOT_VALID &&
+        GlobalParams::drain_start_cycle != NOT_VALID ?
+        GlobalParams::drain_stop_cycle - GlobalParams::drain_start_cycle :
+        NOT_VALID;
+    metrics.total_measured_elapsed_cycles =
+        GlobalParams::drain_stop_cycle != NOT_VALID &&
+        GlobalParams::drain_measurement_start_cycle != NOT_VALID ?
+        GlobalParams::drain_stop_cycle -
+            GlobalParams::drain_measurement_start_cycle :
+        NOT_VALID;
+    metrics.drain_mode_network_throughput_flits_per_cycle =
+        metrics.total_measured_elapsed_cycles > 0 ?
+        (double)metrics.measured_received_flits /
+            (double)metrics.total_measured_elapsed_cycles :
+        numeric_limits<double>::quiet_NaN();
+    metrics.source_queue_packets_at_stop = stats.getPendingSourcePackets();
+    metrics.router_buffer_flits_at_stop = stats.getBufferedFlitCount();
+    metrics.router_reservations_at_stop = stats.getReservationCount();
+    metrics.pending_handshakes_at_stop = stats.getPendingHandshakeCount();
+
+    if (GlobalParams::drain_mode_enabled)
+        metrics.network_throughput_flits_per_cycle =
+            metrics.drain_mode_network_throughput_flits_per_cycle;
+
     return metrics;
 }
 
@@ -179,8 +249,32 @@ void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
         << ",average_ip_throughput_flits_per_cycle_per_ip"
         << ",total_energy_j"
         << ",dynamic_energy_j"
-        << ",static_energy_j"
-        << endl;
+        << ",static_energy_j";
+
+    if (GlobalParams::drain_mode_enabled)
+        out << ",denominator_mode"
+            << ",drain_stop_reason"
+            << ",drain_measurement_start_cycle"
+            << ",drain_source_cutoff_cycle"
+            << ",drain_start_cycle"
+            << ",drain_sources_quiesced_cycle"
+            << ",drain_completed_cycle"
+            << ",drain_stop_cycle"
+            << ",measured_injected_packets"
+            << ",measured_injected_flits"
+            << ",measured_received_packets"
+            << ",measured_received_flits"
+            << ",undelivered_packets_at_stop"
+            << ",undelivered_flits_at_stop"
+            << ",drain_elapsed_cycles"
+            << ",total_measured_elapsed_cycles"
+            << ",drain_mode_network_throughput_flits_per_cycle"
+            << ",source_queue_packets_at_stop"
+            << ",router_buffer_flits_at_stop"
+            << ",router_reservations_at_stop"
+            << ",pending_handshakes_at_stop";
+
+    out << endl;
 
     out << GlobalParams::topology
         << "," << GlobalParams::routing_algorithm
@@ -207,8 +301,32 @@ void writeCsvSummary(ostream &out, const SummaryMetrics &metrics)
         << "," << csvNumber(metrics.average_ip_throughput_flits_per_cycle_per_ip)
         << "," << csvNumber(metrics.total_energy_j)
         << "," << csvNumber(metrics.dynamic_energy_j)
-        << "," << csvNumber(metrics.static_energy_j)
-        << endl;
+        << "," << csvNumber(metrics.static_energy_j);
+
+    if (GlobalParams::drain_mode_enabled)
+        out << "," << metrics.denominator_mode
+            << "," << metrics.drain_stop_reason
+            << "," << metrics.drain_measurement_start_cycle
+            << "," << metrics.drain_source_cutoff_cycle
+            << "," << metrics.drain_start_cycle
+            << "," << metrics.drain_sources_quiesced_cycle
+            << "," << metrics.drain_completed_cycle
+            << "," << metrics.drain_stop_cycle
+            << "," << metrics.measured_injected_packets
+            << "," << metrics.measured_injected_flits
+            << "," << metrics.measured_received_packets
+            << "," << metrics.measured_received_flits
+            << "," << metrics.undelivered_packets_at_stop
+            << "," << metrics.undelivered_flits_at_stop
+            << "," << metrics.drain_elapsed_cycles
+            << "," << metrics.total_measured_elapsed_cycles
+            << "," << csvNumber(metrics.drain_mode_network_throughput_flits_per_cycle)
+            << "," << metrics.source_queue_packets_at_stop
+            << "," << metrics.router_buffer_flits_at_stop
+            << "," << metrics.router_reservations_at_stop
+            << "," << metrics.pending_handshakes_at_stop;
+
+    out << endl;
 }
 
 void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
@@ -228,7 +346,17 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     out << "    \"simulation_time_cycles\": " << GlobalParams::simulation_time << "," << endl;
     out << "    \"reset_time_cycles\": " << GlobalParams::reset_time << "," << endl;
     out << "    \"stats_warm_up_time_cycles\": " << GlobalParams::stats_warm_up_time << "," << endl;
-    out << "    \"rnd_generator_seed\": " << GlobalParams::rnd_generator_seed << endl;
+    out << "    \"rnd_generator_seed\": " << GlobalParams::rnd_generator_seed;
+    if (GlobalParams::drain_mode_enabled) {
+        out << "," << endl;
+        out << "    \"drain_mode_enabled\": true," << endl;
+        out << "    \"drain_source_cutoff_cycles\": "
+            << GlobalParams::drain_source_cutoff_cycles << "," << endl;
+        out << "    \"drain_timeout_cycles\": "
+            << GlobalParams::drain_timeout_cycles << endl;
+    } else {
+        out << endl;
+    }
     out << "  }," << endl;
     out << "  \"summary\": {" << endl;
     out << "    \"executed_cycles\": " << jsonNumber(metrics.executed_cycles) << "," << endl;
@@ -245,7 +373,55 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     out << "    \"average_ip_throughput_flits_per_cycle_per_ip\": " << jsonNumber(metrics.average_ip_throughput_flits_per_cycle_per_ip) << "," << endl;
     out << "    \"total_energy_j\": " << jsonNumber(metrics.total_energy_j) << "," << endl;
     out << "    \"dynamic_energy_j\": " << jsonNumber(metrics.dynamic_energy_j) << "," << endl;
-    out << "    \"static_energy_j\": " << jsonNumber(metrics.static_energy_j) << endl;
+    out << "    \"static_energy_j\": " << jsonNumber(metrics.static_energy_j);
+    if (GlobalParams::drain_mode_enabled) {
+        out << "," << endl;
+        out << "    \"denominator_mode\": "
+            << jsonString(metrics.denominator_mode) << "," << endl;
+        out << "    \"drain_stop_reason\": "
+            << jsonString(metrics.drain_stop_reason) << "," << endl;
+        out << "    \"drain_measurement_start_cycle\": "
+            << metrics.drain_measurement_start_cycle << "," << endl;
+        out << "    \"drain_source_cutoff_cycle\": "
+            << metrics.drain_source_cutoff_cycle << "," << endl;
+        out << "    \"drain_start_cycle\": "
+            << metrics.drain_start_cycle << "," << endl;
+        out << "    \"drain_sources_quiesced_cycle\": "
+            << metrics.drain_sources_quiesced_cycle << "," << endl;
+        out << "    \"drain_completed_cycle\": "
+            << metrics.drain_completed_cycle << "," << endl;
+        out << "    \"drain_stop_cycle\": "
+            << metrics.drain_stop_cycle << "," << endl;
+        out << "    \"measured_injected_packets\": "
+            << metrics.measured_injected_packets << "," << endl;
+        out << "    \"measured_injected_flits\": "
+            << metrics.measured_injected_flits << "," << endl;
+        out << "    \"measured_received_packets\": "
+            << metrics.measured_received_packets << "," << endl;
+        out << "    \"measured_received_flits\": "
+            << metrics.measured_received_flits << "," << endl;
+        out << "    \"undelivered_packets_at_stop\": "
+            << metrics.undelivered_packets_at_stop << "," << endl;
+        out << "    \"undelivered_flits_at_stop\": "
+            << metrics.undelivered_flits_at_stop << "," << endl;
+        out << "    \"drain_elapsed_cycles\": "
+            << metrics.drain_elapsed_cycles << "," << endl;
+        out << "    \"total_measured_elapsed_cycles\": "
+            << metrics.total_measured_elapsed_cycles << "," << endl;
+        out << "    \"drain_mode_network_throughput_flits_per_cycle\": "
+            << jsonNumber(metrics.drain_mode_network_throughput_flits_per_cycle)
+            << "," << endl;
+        out << "    \"source_queue_packets_at_stop\": "
+            << metrics.source_queue_packets_at_stop << "," << endl;
+        out << "    \"router_buffer_flits_at_stop\": "
+            << metrics.router_buffer_flits_at_stop << "," << endl;
+        out << "    \"router_reservations_at_stop\": "
+            << metrics.router_reservations_at_stop << "," << endl;
+        out << "    \"pending_handshakes_at_stop\": "
+            << metrics.pending_handshakes_at_stop << endl;
+    } else {
+        out << endl;
+    }
     out << "  }" << endl;
     out << "}" << endl;
 }
@@ -439,6 +615,17 @@ double GlobalStats::getAverageThroughput()
 
 double GlobalStats::getAggregatedThroughput()
 {
+    if (GlobalParams::drain_mode_enabled &&
+        GlobalParams::drain_stop_cycle != NOT_VALID &&
+        GlobalParams::drain_measurement_start_cycle != NOT_VALID) {
+        const int total_cycles =
+            GlobalParams::drain_stop_cycle -
+            GlobalParams::drain_measurement_start_cycle;
+        if (total_cycles <= 0)
+            return numeric_limits<double>::quiet_NaN();
+        return (double)getReceivedFlits() / (double)total_cycles;
+    }
+
     int total_cycles = GlobalParams::simulation_time - GlobalParams::stats_warm_up_time;
 
     return (double)getReceivedFlits()/(double)(total_cycles);
@@ -535,6 +722,26 @@ double GlobalStats::getReachability()
 	return numeric_limits<double>::quiet_NaN();
 
     return (double)getReceivedPackets() / (double)injected_packets;
+}
+
+unsigned int GlobalStats::getPendingSourcePackets()
+{
+    return noc->getPendingSourcePackets();
+}
+
+unsigned int GlobalStats::getBufferedFlitCount()
+{
+    return noc->getBufferedFlitCount();
+}
+
+unsigned int GlobalStats::getReservationCount()
+{
+    return noc->getReservationCount();
+}
+
+unsigned int GlobalStats::getPendingHandshakeCount()
+{
+    return noc->getPendingHandshakeCount();
 }
 
 double GlobalStats::getThroughput()

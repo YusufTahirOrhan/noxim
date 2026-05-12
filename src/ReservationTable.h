@@ -65,6 +65,9 @@ class ReservationTable {
     // check whether port_out has no reservations
     bool isNotReserved(const int port_out);
 
+    bool empty() const;
+    unsigned int size() const;
+
     void setSize(const int n_outputs);
 
     void print();

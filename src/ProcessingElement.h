@@ -57,6 +57,8 @@ SC_MODULE(ProcessingElement)
     void recordInjectedPacket(const Packet &packet, double injection_time);
     unsigned int getInjectedPackets() const;
     unsigned int getInjectedFlits() const;
+    bool sourceAdmissionEnabled() const;
+    bool hasPendingTraffic() const;
     Packet trafficTest();	// used for testing traffic
     Packet trafficRandom();	// Random destination distribution
     Packet trafficTranspose1();	// Transpose 1 destination distribution

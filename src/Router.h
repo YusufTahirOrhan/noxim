@@ -88,6 +88,9 @@ SC_MODULE(Router)
 		   GlobalRoutingTable & grt);
 
     unsigned long getRoutedFlits();	// Returns the number of routed flits 
+    unsigned int getBufferedFlitCount() const;
+    unsigned int getReservationCount() const;
+    unsigned int getPendingHandshakeCount() const;
 
     // Constructor
 

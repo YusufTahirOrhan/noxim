@@ -159,6 +159,12 @@ SC_MODULE(NoC)
 
     // Support methods
     Tile *searchNode(const int id) const;
+    unsigned int getPendingSourcePackets() const;
+    unsigned int getBufferedFlitCount() const;
+    unsigned int getReservationCount() const;
+    unsigned int getPendingHandshakeCount() const;
+    bool sourceQueuesEmpty() const;
+    bool drainCarrierStateEmpty() const;
 
   private:
 

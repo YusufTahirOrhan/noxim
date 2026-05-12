@@ -43,6 +43,19 @@ bool ReservationTable::isNotReserved(const int port_out)
     return (rtable[port_out].reservations.size()==0);
 }
 
+bool ReservationTable::empty() const
+{
+    return size() == 0;
+}
+
+unsigned int ReservationTable::size() const
+{
+    unsigned int total = 0;
+    for (int o = 0; o < n_outputs; o++)
+	total += rtable[o].reservations.size();
+    return total;
+}
+
 /* For a given input, returns the set of output/vc reserved from that input.
  * An index is required for each output entry, to avoid that multiple invokations
  * with different inputs returns the same output in the same clock cycle. */
@@ -179,4 +192,3 @@ void ReservationTable::updateIndex()
 	    rtable[o].index = (rtable[o].index+1)%(rtable[o].reservations.size());
     }
 }
-

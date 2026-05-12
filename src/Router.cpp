@@ -661,6 +661,34 @@ unsigned long Router::getRoutedFlits()
     return routed_flits;
 }
 
+unsigned int Router::getBufferedFlitCount() const
+{
+    unsigned int total = 0;
+    for (int direction = 0; direction < DIRECTIONS + 2; direction++)
+	for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++)
+	    total += buffer[direction][vc].Size();
+
+    return total;
+}
+
+unsigned int Router::getReservationCount() const
+{
+    return reservation_table.size();
+}
+
+unsigned int Router::getPendingHandshakeCount() const
+{
+    unsigned int total = 0;
+    for (int direction = 0; direction < DIRECTIONS + 2; direction++) {
+	if (current_level_tx[direction] != ack_tx[direction].read())
+	    total++;
+	if (req_rx[direction].read() != current_level_rx[direction])
+	    total++;
+    }
+
+    return total;
+}
+
 
 int Router::reflexDirection(int direction) const
 {

@@ -181,6 +181,16 @@ struct GlobalParams {
     static int n_virtual_channels;
     static int reset_time;
     static int stats_warm_up_time;
+    static bool drain_mode_enabled;
+    static int drain_source_cutoff_cycles;
+    static int drain_timeout_cycles;
+    static string drain_stop_reason;
+    static int drain_measurement_start_cycle;
+    static int drain_source_cutoff_cycle;
+    static int drain_start_cycle;
+    static int drain_sources_quiesced_cycle;
+    static int drain_completed_cycle;
+    static int drain_stop_cycle;
     static int rnd_generator_seed;
     static bool detailed;
     static vector <pair <int, double> > hotspots;

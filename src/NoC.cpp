@@ -2808,6 +2808,94 @@ Tile *NoC::searchNode(const int id) const
     return NULL;
 }
 
+unsigned int NoC::getPendingSourcePackets() const
+{
+    unsigned int total = 0;
+
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+	for (int y = 0; y < GlobalParams::mesh_dim_y; y++)
+	    for (int x = 0; x < GlobalParams::mesh_dim_x; x++)
+		total += t[x][y]->pe->getQueueSize();
+    } else if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+	for (int id = 0; id < DeftTopology::TotalRouters; id++)
+	    total += core[id]->pe->getQueueSize();
+    } else {
+	for (int id = 0; id < GlobalParams::n_delta_tiles; id++)
+	    total += core[id]->pe->getQueueSize();
+    }
+
+    return total;
+}
+
+unsigned int NoC::getBufferedFlitCount() const
+{
+    unsigned int total = 0;
+
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+	for (int y = 0; y < GlobalParams::mesh_dim_y; y++)
+	    for (int x = 0; x < GlobalParams::mesh_dim_x; x++)
+		total += t[x][y]->r->getBufferedFlitCount();
+    } else if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+	for (int id = 0; id < DeftTopology::TotalRouters; id++)
+	    total += core[id]->r->getBufferedFlitCount();
+    } else {
+	for (int id = 0; id < GlobalParams::n_delta_tiles; id++)
+	    total += core[id]->r->getBufferedFlitCount();
+    }
+
+    return total;
+}
+
+unsigned int NoC::getReservationCount() const
+{
+    unsigned int total = 0;
+
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+	for (int y = 0; y < GlobalParams::mesh_dim_y; y++)
+	    for (int x = 0; x < GlobalParams::mesh_dim_x; x++)
+		total += t[x][y]->r->getReservationCount();
+    } else if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+	for (int id = 0; id < DeftTopology::TotalRouters; id++)
+	    total += core[id]->r->getReservationCount();
+    } else {
+	for (int id = 0; id < GlobalParams::n_delta_tiles; id++)
+	    total += core[id]->r->getReservationCount();
+    }
+
+    return total;
+}
+
+unsigned int NoC::getPendingHandshakeCount() const
+{
+    unsigned int total = 0;
+
+    if (GlobalParams::topology == TOPOLOGY_MESH) {
+	for (int y = 0; y < GlobalParams::mesh_dim_y; y++)
+	    for (int x = 0; x < GlobalParams::mesh_dim_x; x++)
+		total += t[x][y]->r->getPendingHandshakeCount();
+    } else if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+	for (int id = 0; id < DeftTopology::TotalRouters; id++)
+	    total += core[id]->r->getPendingHandshakeCount();
+    } else {
+	for (int id = 0; id < GlobalParams::n_delta_tiles; id++)
+	    total += core[id]->r->getPendingHandshakeCount();
+    }
+
+    return total;
+}
+
+bool NoC::sourceQueuesEmpty() const
+{
+    return getPendingSourcePackets() == 0;
+}
+
+bool NoC::drainCarrierStateEmpty() const
+{
+    return getBufferedFlitCount() == 0 &&
+           getReservationCount() == 0 &&
+           getPendingHandshakeCount() == 0;
+}
+
 void NoC::asciiMonitor()
 {
 	//cout << sc_time_stamp().to_double()/GlobalParams::clock_period_ps << endl;

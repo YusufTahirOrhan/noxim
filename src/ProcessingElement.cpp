@@ -41,7 +41,9 @@ void ProcessingElement::txProcess()
 	total_injected_flits = 0;
     } else {
 
-    if(GlobalParams::traffic_distribution != TRAFFIC_HARDCODED) {
+    if (!sourceAdmissionEnabled()) {
+		transmittedAtPreviousCycle = false;
+    } else if(GlobalParams::traffic_distribution != TRAFFIC_HARDCODED) {
 		Packet packet;
 		if (canShot(packet)) {
 			packet_queue.push(packet);
@@ -144,6 +146,26 @@ unsigned int ProcessingElement::getInjectedPackets() const
 unsigned int ProcessingElement::getInjectedFlits() const
 {
     return total_injected_flits;
+}
+
+bool ProcessingElement::sourceAdmissionEnabled() const
+{
+    if (!GlobalParams::drain_mode_enabled)
+	return true;
+
+    const double now =
+	sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    const int measurement_start =
+	GlobalParams::reset_time + GlobalParams::stats_warm_up_time;
+    const int source_cutoff =
+	measurement_start + GlobalParams::drain_source_cutoff_cycles;
+
+    return now >= measurement_start && now < source_cutoff;
+}
+
+bool ProcessingElement::hasPendingTraffic() const
+{
+    return !packet_queue.empty();
 }
 
 bool ProcessingElement::canShot(Packet & packet)

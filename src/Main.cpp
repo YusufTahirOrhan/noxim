@@ -263,6 +263,101 @@ void traceWirelessSignals(sc_trace_file *tf, NoC *noc, int dim_x, int dim_y)
     }
 }
 
+int currentCycle()
+{
+    return (int)(sc_time_stamp().to_double() /
+                 GlobalParams::clock_period_ps + 0.5);
+}
+
+void runCycles(int cycles)
+{
+    if (cycles <= 0)
+        return;
+
+    sc_start(sc_time((double)cycles * GlobalParams::clock_period_ps, SC_PS));
+}
+
+void initializeDrainRuntime()
+{
+    GlobalParams::drain_measurement_start_cycle =
+        GlobalParams::reset_time + GlobalParams::stats_warm_up_time;
+    GlobalParams::drain_source_cutoff_cycle =
+        GlobalParams::drain_measurement_start_cycle +
+        GlobalParams::drain_source_cutoff_cycles;
+    GlobalParams::drain_start_cycle = GlobalParams::drain_source_cutoff_cycle;
+    GlobalParams::drain_sources_quiesced_cycle = NOT_VALID;
+    GlobalParams::drain_completed_cycle = NOT_VALID;
+    GlobalParams::drain_stop_cycle = NOT_VALID;
+    GlobalParams::drain_stop_reason = "running";
+}
+
+bool measuredCountsBalanced(GlobalStats &stats)
+{
+    return stats.getInjectedPackets() == stats.getReceivedPackets() &&
+           stats.getInjectedFlits() == stats.getReceivedFlits();
+}
+
+bool drainEmpty(GlobalStats &stats)
+{
+    return n->sourceQueuesEmpty() &&
+           n->drainCarrierStateEmpty() &&
+           measuredCountsBalanced(stats);
+}
+
+void runDrainSimulation()
+{
+    initializeDrainRuntime();
+
+    cout << " Now running drain mode: measurement_start_cycle="
+         << GlobalParams::drain_measurement_start_cycle
+         << ", source_cutoff_cycle="
+         << GlobalParams::drain_source_cutoff_cycle
+         << ", drain_timeout_cycles="
+         << GlobalParams::drain_timeout_cycles << endl;
+
+    const int cycles_to_cutoff =
+        GlobalParams::drain_source_cutoff_cycle - currentCycle();
+    runCycles(cycles_to_cutoff);
+
+    while (true) {
+        const int cycle = currentCycle();
+
+        if (GlobalParams::drain_sources_quiesced_cycle == NOT_VALID &&
+            n->sourceQueuesEmpty())
+            GlobalParams::drain_sources_quiesced_cycle = cycle;
+
+        GlobalStats stats(n);
+        if (drainEmpty(stats)) {
+            GlobalParams::drain_stop_reason = "drain_completed";
+            GlobalParams::drain_completed_cycle = cycle;
+            GlobalParams::drain_stop_cycle = cycle;
+            break;
+        }
+
+        if (cycle >= GlobalParams::drain_start_cycle +
+                     GlobalParams::drain_timeout_cycles) {
+            GlobalParams::drain_stop_reason = "drain_timeout";
+            GlobalParams::drain_stop_cycle = cycle;
+            break;
+        }
+
+        runCycles(1);
+    }
+
+    cout << " Drain mode stopped: reason="
+         << GlobalParams::drain_stop_reason
+         << ", stop_cycle=" << GlobalParams::drain_stop_cycle
+         << ", pending_source_packets="
+         << n->getPendingSourcePackets()
+         << ", router_buffer_flits="
+         << n->getBufferedFlitCount()
+         << ", router_reservations="
+         << n->getReservationCount()
+         << ", pending_handshakes="
+         << n->getPendingHandshakeCount()
+         << endl;
+}
+
 } // namespace
 
 void signalHandler( int signum )
@@ -342,10 +437,14 @@ int sc_main(int arg_num, char *arg_vet[])
 
     reset.write(0);
     cout << " done! " << endl;
-    cout << " Now running for " << GlobalParams:: simulation_time << " cycles..." << endl;
-    // fix clock periods different from 1ns
-    //sc_start(GlobalParams::simulation_time, SC_NS);
-    sc_start(sc_time((double)GlobalParams::simulation_time * GlobalParams::clock_period_ps, SC_PS));
+    if (GlobalParams::drain_mode_enabled) {
+        runDrainSimulation();
+    } else {
+        cout << " Now running for " << GlobalParams:: simulation_time << " cycles..." << endl;
+        // fix clock periods different from 1ns
+        //sc_start(GlobalParams::simulation_time, SC_NS);
+        sc_start(sc_time((double)GlobalParams::simulation_time * GlobalParams::clock_period_ps, SC_PS));
+    }
 
 
     // Close the simulation
