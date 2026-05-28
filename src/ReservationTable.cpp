@@ -117,9 +117,8 @@ int ReservationTable::checkReservation(const TReservation r, const int port_out)
 	if (rtable[port_out].reservations[i] == r)
 	    return RT_ALREADY_SAME;
 
-	// the same output VC for that output has been reserved by another input
-	if (rtable[port_out].reservations[i].input != r.input &&
-	    effectiveOutputVc(rtable[port_out].reservations[i]) == effectiveOutputVc(r))
+	// the same output VC for that output has already been reserved
+	if (effectiveOutputVc(rtable[port_out].reservations[i]) == effectiveOutputVc(r))
 	    return RT_OUTVC_BUSY;
     }
     return RT_AVAILABLE;
@@ -169,8 +168,8 @@ void ReservationTable::release(const TReservation r, const int port_out)
     {
 	if (*i == r)
 	{
-	    rtable[port_out].reservations.erase(i);
 	    vector<TReservation>::size_type removed_index = i - rtable[port_out].reservations.begin();
+	    rtable[port_out].reservations.erase(i);
 
 	    if (removed_index < rtable[port_out].index)
 		rtable[port_out].index--;

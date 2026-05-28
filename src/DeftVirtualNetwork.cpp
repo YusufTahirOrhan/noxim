@@ -60,10 +60,17 @@ bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id)
     if (DeftTopology::isInterposerRouter(src_id))
         return true;
 
-    if (DeftTopology::isBoundaryRouter(src_id))
+    if (!isInterChipletTraffic(src_id, dst_id))
         return true;
 
-    return !isInterChipletTraffic(src_id, dst_id);
+    if (DeftTopology::isBoundaryRouter(src_id))
+    {
+        const DeftTopology::VerticalLinkInfo *link =
+            DeftTopology::verticalLinkForBoundaryRouter(src_id);
+        return link != 0 && link->is_functional;
+    }
+
+    return false;
 }
 
 int physicalOutputDirection(int output_direction)
