@@ -11,7 +11,9 @@ Patterns (64 chiplet routers, 4 chiplets of 4x4, chiplet c = (y//4)*2 + x//4):
   chipperm    100 % inter-chiplet; chiplet c sends only to chiplet 3-c (diagonal pairs 0<->3, 1<->2)
   movinghot   phases of T cycles; in phase k, 40 % of every source's traffic goes to chiplet k
               (uniform over its 16 routers), 60 % uniform; 4 phases repeat
-Usage: python3 gen_traffic.py OUTDIR
+Usage: python3 gen_traffic.py OUTDIR [half]
+  half: only the odd multiples of 0.0005 (0.0005, 0.0015, ..., 0.0395), used by the v2
+        evaluation for scenarios with a low saturation rate; the 0.001 grid is unchanged.
 """
 import os
 import sys
@@ -84,6 +86,13 @@ def write(path, pattern, rate):
 if __name__ == '__main__':
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
+    if len(sys.argv) > 2 and sys.argv[2] == 'half':
+        for pat in ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']:
+            for i in range(40):
+                r = round(0.0005 * (2 * i + 1), 4)
+                write(os.path.join(out, f'{pat}_{r:.4f}.txt'), pat, r)
+        print('written 200 half-step tables to', out)
+        sys.exit(0)
     rates = [round(0.001 * i, 4) for i in range(1, 41)]   # 0.001 .. 0.040 packets/cycle
     for pat in ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']:
         for r in rates:

@@ -49,3 +49,18 @@ new methods).
 11. **QL-LA uses the local weights (w, busy) tuned for the lookahead heuristic of the
     same scope.** QL uses those of the plain heuristic. This mirrors v1, so each learner
     differs from its heuristic only by the learned residual.
+
+## Stage 4 (run before stage 3): load points
+12. **Stage 4 ran before stage 3.** The tuning loads (~0.8 and ~1.1 Lsat of each tuning
+    cell) need the per-scenario Lsat, including uniform 0x1111.
+13. **0.0005 rate grid.** On the 0.001 grid, scenarios with Lsat <= 0.0045 cannot hold 7
+    distinct points between 0.2 and 1.6 Lsat. gen_traffic.py gained a `half` mode that
+    writes only the odd multiples of 0.0005; the existing tables are unchanged (checksums
+    verified).
+14. **Lsat criterion: the first crossing.** Lsat is the largest swept rate before latency
+    *first* exceeds 3x L0, with L0 the latency at 0.001 as in v1. One DeFT seed (101) is
+    used, as in v1.
+15. **Load points come from DeFT's Lsat.** DeFT_tm saturates later on chipperm, and so may
+    the late-binding variants. Wherever a variant still accepts >= 95 % of the highest
+    offered load, its saturation throughput is reported as a lower bound and flagged.
+    The load range was not widened beyond 1.6 x DeFT's Lsat (instructions).
