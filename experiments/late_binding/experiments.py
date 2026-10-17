@@ -4,6 +4,9 @@ Stages:
   sat   - DeFT load sweep per traffic pattern (seed 101) to locate saturation
   tune  - parameter grids on tuning seeds 101, 102 (never used for evaluation)
   eval  - all variants, evaluation seeds 1..5
+  eval_vl - DEFT_LB with exit/entry from the DeFT LUT (XY): traffic-identical to DeFT
+            (only the energy model differs), run on the eval cells because DEFT routing
+            does not count VL usage; supplies DeFT's VL counts for the imbalance metric
 Simulation: 2000 warm-up + 8000 measured cycles (Noxim -sim 10000 -warmup 2000).
 Usage: python3 experiments.py STAGE [nproc]
 """
@@ -93,6 +96,12 @@ def eval_jobs():
     return js
 
 
+def eval_vl_jobs():
+    lp = load_points()
+    return [job('evalvl', 'DeFT', V.inj('lut'), pat, mask, rate, seed)
+            for pat, mask in EVAL_SCENARIOS for rate in lp[pat]['eval'] for seed in EVAL_SEEDS]
+
+
 if __name__ == '__main__':
     stage = sys.argv[1]
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 2
@@ -105,8 +114,10 @@ if __name__ == '__main__':
         js = tune_jobs(tune_ql_grid(best['heur_w'], best['heur_busy']))
     elif stage == 'eval':
         js = eval_jobs()
+    elif stage == 'eval_vl':
+        js = eval_vl_jobs()
     else:
         raise SystemExit('unknown stage')
     print(stage, 'jobs:', len(js), flush=True)
-    res = run_jobs(js, os.path.join(HERE, 'results', stage.split('_')[0] + '_raw'), nproc=nproc, timeout=7200)
+    res = run_jobs(js, os.path.join(HERE, 'results', {'eval_vl': 'evalvl'}.get(stage, stage.split('_')[0]) + '_raw'), nproc=nproc, timeout=7200)
     print('done; missing outputs:', sum(1 for v in res.values() if v is None), flush=True)
