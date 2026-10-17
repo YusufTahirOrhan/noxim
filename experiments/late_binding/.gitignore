@@ -6,3 +6,5 @@ results/*.log
 __pycache__/
 formal/__pycache__/
 formal/impl_relation_check_all.txt
+results_v2/*_raw/
+results_v2/*.log

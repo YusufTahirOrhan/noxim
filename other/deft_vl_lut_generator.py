@@ -5,6 +5,12 @@ Generate deterministic DeFT offline Vertical Link lookup tables.
 The output follows the project schema `deft_vl_lut.v1`. This generator is
 standalone by design: it mirrors the current DEFT_2_5D topology constants and
 does not load, link, or modify the Noxim simulator runtime.
+
+By default every inter-chiplet source/destination pair carries one unit of
+demand. With --demand-table, the demand is read from a Noxim traffic table
+(time-averaged over each line's on/off period) and weights the load-imbalance
+terms of the cost; the distance term is unchanged. Equal weights reproduce the
+default LUT exactly.
 """
 
 from __future__ import annotations
@@ -145,28 +151,40 @@ def manhattan_distance(point: DemandPoint, link: VerticalLink) -> int:
     return abs(point.footprint_x - link.footprint_x) + abs(point.footprint_y - link.footprint_y)
 
 
-def load_cost_for_counts(counts: Sequence[int], demand_count: int) -> Fraction:
+def load_cost_for_counts(counts: Sequence[Fraction], demand_count: Fraction) -> Fraction:
+    """Sum of relative deviations of the per-VL loads from their mean.
+
+    `counts` are per-VL loads (assigned demand weight; unit weights give counts)
+    and `demand_count` is the total weight."""
     if demand_count == 0:
         return Fraction(0, 1)
 
-    average = Fraction(demand_count, len(counts))
+    average = Fraction(demand_count) / len(counts)
     if average == 0:
         return Fraction(0, 1)
 
-    return sum(abs(Fraction(count, 1) - average) / average for count in counts)
+    return sum(abs(Fraction(count) - average) / average for count in counts)
 
 
 def optimize_assignments(
     demand_points: Sequence[DemandPoint],
     candidate_vls: Sequence[VerticalLink],
     rho: Fraction,
+    weights: Dict[Tuple[int, ...], Fraction] | None = None,
 ) -> OptimizationResult:
+    """Exact dynamic programme over per-VL load vectors.
+
+    `weights` maps a demand point key to its demand (default: 1 for every
+    point). Partial assignments with equal load vectors are merged keeping the
+    smallest (distance, assignment), as in the unit-weight case."""
     if not candidate_vls:
         raise ValueError("cannot optimize without functional candidate VLs")
     if not demand_points:
         raise ValueError("cannot optimize without demand points")
 
     candidates = tuple(sorted(candidate_vls, key=lambda link: link.vl_id))
+    total_weight = (len(demand_points) if weights is None
+                    else sum((weights[point.key] for point in demand_points), Fraction(0)))
     zero_counts = tuple(0 for _ in candidates)
     states: Dict[Tuple[int, ...], Tuple[int, Tuple[int, ...]]] = {zero_counts: (0, tuple())}
 
@@ -176,7 +194,7 @@ def optimize_assignments(
             distance_sum, assignment = state
             for candidate_index, link in enumerate(candidates):
                 next_counts = list(counts)
-                next_counts[candidate_index] += 1
+                next_counts[candidate_index] += 1 if weights is None else weights[point.key]
                 next_counts_tuple = tuple(next_counts)
                 next_distance_sum = distance_sum + manhattan_distance(point, link)
                 next_assignment = assignment + (link.vl_id,)
@@ -194,7 +212,7 @@ def optimize_assignments(
 
     for counts, state in states.items():
         distance_sum, assignment = state
-        load_cost = load_cost_for_counts(counts, len(demand_points))
+        load_cost = load_cost_for_counts(counts, total_weight)
         total = rho * distance_sum + load_cost
         ranking_key = (total, load_cost, distance_sum, assignment)
         if best_key is None or ranking_key < best_key:
@@ -220,9 +238,10 @@ def optimize_assignments(
         link.vl_id: best_counts[index]
         for index, link in enumerate(candidates)
     }
-    average_load = Fraction(len(demand_points), len(candidates))
+    average_load = Fraction(total_weight) / len(candidates)
     load_cost_by_vl = {
-        link.vl_id: abs(Fraction(counts_by_vl[link.vl_id], 1) - average_load) / average_load
+        link.vl_id: (abs(Fraction(counts_by_vl[link.vl_id]) - average_load) / average_load
+                     if average_load != 0 else Fraction(0, 1))
         for link in candidates
     }
 
@@ -271,6 +290,63 @@ def destination_demand_points(
                 )
             )
     return tuple(points)
+
+
+def read_demand_table(path: Path) -> Dict[Tuple[int, int], Fraction]:
+    """Time-averaged demand (packets/cycle) per (source, destination) router.
+
+    Noxim activates a line in cycle c when t_on < c % t_period < t_off, so a
+    line with timing fields is active (t_off - t_on - 1) / t_period of the
+    time; a line without them is always active."""
+    demand: Dict[Tuple[int, int], Fraction] = {}
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("%"):
+            continue
+        fields = line.split()
+        if len(fields) < 3:
+            raise ValueError(f"demand table line without a rate: {raw}")
+        src, dst, pir = int(fields[0]), int(fields[1]), Fraction(fields[2])
+        if len(fields) >= 7:
+            t_on, t_off, t_period = int(fields[4]), int(fields[5]), int(fields[6])
+            pir *= Fraction(t_off - t_on - 1, t_period)
+        elif len(fields) > 4:
+            raise ValueError(f"unsupported partial timing fields: {raw}")
+        if not (0 <= src < CHIPLET_ROUTER_COUNT and 0 <= dst < CHIPLET_ROUTER_COUNT):
+            raise ValueError(f"demand table router id out of range: {raw}")
+        demand[(src, dst)] = demand.get((src, dst), Fraction(0)) + pir
+    return demand
+
+
+def source_weights(
+    chiplet_id: int, demand: Dict[Tuple[int, int], Fraction]
+) -> Dict[Tuple[int, ...], Fraction]:
+    """Inter-chiplet demand leaving each router of the chiplet."""
+    return {
+        (router_id,): sum(
+            (rate for (src, dst), rate in demand.items()
+             if src == router_id and chiplet_id_for_router(dst) != chiplet_id),
+            Fraction(0),
+        )
+        for router_id in chiplet_routers(chiplet_id)
+    }
+
+
+def destination_weights(
+    destination_chiplet_id: int, demand: Dict[Tuple[int, int], Fraction]
+) -> Dict[Tuple[int, ...], Fraction]:
+    """Demand from every other-chiplet router into the destination chiplet."""
+    weights: Dict[Tuple[int, ...], Fraction] = {}
+    for source_chiplet_id in range(CHIPLET_COUNT):
+        if source_chiplet_id == destination_chiplet_id:
+            continue
+        for source_router_id in chiplet_routers(source_chiplet_id):
+            weights[(source_chiplet_id, source_router_id)] = sum(
+                (rate for (src, dst), rate in demand.items()
+                 if src == source_router_id and chiplet_id_for_router(dst) == destination_chiplet_id),
+                Fraction(0),
+            )
+    return weights
 
 
 def parse_fraction(value: str) -> Fraction:
@@ -430,6 +506,7 @@ def generate_lut_text(
     rho: Fraction = Fraction(DEFAULT_RHO),
     traffic_profile_id: str = DEFAULT_TRAFFIC_PROFILE_ID,
     include_costs: bool = True,
+    demand: Dict[Tuple[int, int], Fraction] | None = None,
 ) -> str:
     lines: List[str] = []
     lines.append(f"schema: {SCHEMA}")
@@ -446,7 +523,10 @@ def generate_lut_text(
     lines.append("  objective: rho_distance_plus_load_imbalance")
     lines.append(f"  rho: {decimal_string(rho)}")
     lines.append(f"  traffic_profile_id: {traffic_profile_id}")
-    lines.append("  traffic_assumption: uniform_unit_interchiplet_demand")
+    if demand is None:
+        lines.append("  traffic_assumption: uniform_unit_interchiplet_demand")
+    else:
+        lines.append("  traffic_assumption: demand_matrix_from_traffic_table_time_averaged")
     lines.append("  source_selection_model: exhaustive_dynamic_programming_per_chiplet")
     lines.append("  destination_entry_model: interposer_context_assignment_without_destination_router_id")
     lines.append("fault_scenarios:")
@@ -467,6 +547,7 @@ def generate_lut_text(
                 source_demand_points(chiplet_id),
                 links_for_chiplet(chiplet_id, functional),
                 rho,
+                None if demand is None else source_weights(chiplet_id, demand),
             )
 
         destination_results: Dict[int, OptimizationResult] = {}
@@ -475,6 +556,7 @@ def generate_lut_text(
                 destination_demand_points(chiplet_id, source_results),
                 links_for_chiplet(chiplet_id, functional),
                 rho,
+                None if demand is None else destination_weights(chiplet_id, demand),
             )
 
         for source_chiplet_id in range(CHIPLET_COUNT):
@@ -602,6 +684,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help=f"Traffic profile identifier recorded in the LUT. Default: {DEFAULT_TRAFFIC_PROFILE_ID}.",
     )
     parser.add_argument(
+        "--demand-table",
+        type=Path,
+        default=None,
+        help="Noxim traffic table whose time-averaged demand weights the load terms "
+             "(default: uniform unit inter-chiplet demand).",
+    )
+    parser.add_argument(
         "--omit-costs",
         action="store_true",
         help="Omit optional per-entry inspectability cost fields.",
@@ -625,6 +714,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             rho=args.rho,
             traffic_profile_id=args.traffic_profile_id,
             include_costs=not args.omit_costs,
+            demand=None if args.demand_table is None else read_demand_table(args.demand_table),
         )
     except ValueError as exc:
         parser.error(str(exc))

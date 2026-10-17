@@ -20,8 +20,8 @@ def mask_to_vls(mask):
     return ','.join(str(v) for v in range(16) if m >> v & 1)
 
 
-def common_args(seed, mask, traffic=None, hardcoded=None):
-    a = ['-config', BASE_CONFIG, '-seed', str(seed), '-deft_vl_lut', LUT,
+def common_args(seed, mask, traffic=None, hardcoded=None, lut=None):
+    a = ['-config', BASE_CONFIG, '-seed', str(seed), '-deft_vl_lut', lut or LUT,
          '-stats_format', 'json']
     vls = mask_to_vls(mask)
     if vls:
