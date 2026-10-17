@@ -1,0 +1,7 @@
+traffic/
+luts/
+results/*_raw/
+results/*.log
+__pycache__/
+formal/__pycache__/
+formal/impl_relation_check_all.txt

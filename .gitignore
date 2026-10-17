@@ -6,3 +6,5 @@ bin/noxim
 other/regression/generated/
 other/generated/
 other/visualizer-output/
+bin/noxim_new
+bin/build_new/
