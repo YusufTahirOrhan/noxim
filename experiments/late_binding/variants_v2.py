@@ -19,14 +19,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 LUT_DIR = os.path.join(HERE, 'luts')
 TM_PATTERNS = ('localized', 'hotspot', 'chipperm', 'movinghot')
 
-FROZEN = False
+FROZEN = True
 
-# Per-scope frozen parameters (placeholders until tuning; see FROZEN).
+# Per-scope frozen parameters: experiments_v2.py tune / tune_ql, seeds 101, 102
+# (results_v2/tuning_choice.json, tuning_tune.md, tuning_tune_ql.md).
 PARAMS = {
-    'CI': dict(heur_w=1.0, heur_busy=0.0, heurLA_w=1.0, heurLA_busy=0.0,
-               ql_alpha=0.05, ql_key=1, qlLA_alpha=0.05, qlLA_key=1),
-    'FULL': dict(heur_w=1.0, heur_busy=0.0, heurLA_w=1.0, heurLA_busy=0.0,
-                 ql_alpha=0.05, ql_key=1, qlLA_alpha=0.05, qlLA_key=1),
+    'CI': dict(heur_w=2.0, heur_busy=0.0, heurLA_w=1.0, heurLA_busy=4.0, ql_alpha=0.005, ql_key=1, qlLA_alpha=0.05, qlLA_key=1),
+    'FULL': dict(heur_w=2.0, heur_busy=0.0, heurLA_w=2.0, heurLA_busy=0.0, ql_alpha=0.02, ql_key=1, qlLA_alpha=0.01, qlLA_key=1),
 }
 ORACLE_BETA = 0.5   # v1 tuning (seeds 101, 102); not re-tuned
 

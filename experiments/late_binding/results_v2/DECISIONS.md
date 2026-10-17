@@ -64,3 +64,14 @@ new methods).
     the late-binding variants. Wherever a variant still accepts >= 95 % of the highest
     offered load, its saturation throughput is reported as a lower bound and flagged.
     The load range was not widened beyond 1.6 x DeFT's Lsat (instructions).
+
+## Stage 3: tuning
+16. **The tuning cells and criterion are those of v1**, applied per scope, with loads from
+    the v2 per-scenario Lsat.
+17. **Unequal budgets were not padded.** The heuristic grid stays 3 x 3 (9) as instructed,
+    and the learner grid is 5 x 2 (10). No configurations were added to the heuristic to
+    reach 10: the instructions fix both grids, and the one-configuration gap favours the
+    learner (conservative for learner claims, not for heuristic claims). It is recorded in
+    tuning_budget.md.
+18. **Edge-of-grid optima were kept, not extended** (w = 2; CI QL alpha = 0.005), so the
+    budget stayed fixed in advance.
