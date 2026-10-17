@@ -35,7 +35,8 @@ def job(stage, variant, vargs, pat, mask, rate, seed, extra=()):
 def sat_jobs():
     js = []
     for pat in PATTERNS:
-        for rate in [0.002, 0.004, 0.006, 0.008, 0.010, 0.012, 0.014, 0.016, 0.018, 0.020, 0.024]:
+        # 0.001 steps up to 0.016 (resolves the knee), coarser beyond
+        for rate in [round(0.001 * i, 4) for i in range(1, 17)] + [0.018, 0.020, 0.024]:
             js.append(job('sat', 'DeFT', V.VARIANTS['DeFT'], pat, '0x0000', rate, 101))
     return js
 
