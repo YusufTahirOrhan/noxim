@@ -9,6 +9,7 @@
  */
 
 #include "ConfigurationManager.h"
+#include "DeftLateBinding.h"
 #include "DeftTopology.h"
 #include "DeftVirtualNetwork.h"
 #include <systemc.h> //Included for the function time() 
@@ -914,6 +915,16 @@ void parseCmdLine(int arg_num, char *arg_vet[])
         else if (!strcmp(arg_vet[i], "-deft_vl_lut"))
             GlobalParams::deft_vl_lut_filename =
                 requireOptionValue(i, arg_num, arg_vet, "-deft_vl_lut");
+        else if (!strcmp(arg_vet[i], "-deft_lb"))
+        {
+            string key = requireOptionValue(i, arg_num, arg_vet, "-deft_lb");
+            string value = requireOptionValue(i, arg_num, arg_vet, "-deft_lb");
+            string err;
+            if (!DeftLB::setParam(key, value, &err)) {
+                cerr << "Error: -deft_lb " << key << " " << value << ": " << err << endl;
+                exit(1);
+            }
+        }
 	    else if (!strcmp(arg_vet[i], "-detailed"))
 		GlobalParams::detailed = true;
 	    else if (!strcmp(arg_vet[i], "-show_buf_stats"))

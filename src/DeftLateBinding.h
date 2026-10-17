@@ -1,0 +1,129 @@
+/*
+ * DEFT_LB: late-binding Vertical-Link routing for the DeFT 2.5D topology.
+ *
+ * The head flit carries two candidate masks (one bit per VL id):
+ *   exit mask  - VLs of the source chiplet that may still be used to go down,
+ *   entry mask - VLs of the destination chiplet that may still be used to go up.
+ * A singleton mask means the VL was fixed (at injection or by an earlier hop).
+ * At every hop the routing relation offers the minimal, turn-legal moves towards
+ * any remaining candidate; after a move the mask is pruned to the candidates
+ * that the move kept on a minimal path (monotone pruning).
+ *
+ * With singleton masks and XY turn models the relation is the DeFT relation.
+ * Injection-time policies (direction A) fix the masks when the head flit
+ * leaves the processing element. The selection strategies DEFT_HEUR
+ * (direction C) and DEFT_QL (direction B) choose among the legal outputs.
+ */
+
+#ifndef __NOXIMDEFTLATEBINDING_H__
+#define __NOXIMDEFTLATEBINDING_H__
+
+#include <ostream>
+#include <string>
+#include <vector>
+
+#include "DataStructs.h"
+
+struct Router;
+
+namespace DeftLB {
+
+enum TurnModel { TM_XY = 0, TM_OE = 1 };
+
+enum InjectionPolicy {
+    POLICY_LATE = 0,    // keep every functional VL as a candidate
+    POLICY_LUT,         // offline DeFT table
+    POLICY_RANDOM,      // uniform random functional VL
+    POLICY_MINDIST,     // minimal total hop count, random tie break
+    POLICY_ORACLE       // hop count + instantaneous global VL-area occupancy
+};
+
+struct Config {
+    Config();
+    InjectionPolicy exit_policy;
+    InjectionPolicy entry_policy;
+    int chip_tm;
+    int ipos_tm;
+    // heuristic (direction C)
+    double heur_w;          // weight of downstream occupancy (cycles per flit)
+    double heur_busy;       // penalty when the output VC is held by another packet
+    int heur_lookahead;     // 0: router-local, 1: plus one-hop lookahead
+    // Q-learning (direction B)
+    double ql_alpha;        // learning rate
+    double ql_eps;          // epsilon-greedy exploration probability
+    double ql_hop_cost;     // static estimate in cycles per remaining hop
+    double ql_w;            // local occupancy weight used by the learner's decision
+    double ql_busy;         // local busy-VC penalty used by the learner's decision
+    int ql_key;             // learned residual over the static estimate, kept per
+                            // 0: destination router, 1: destination chiplet
+    // oracle injection policy (upper bound for direction A)
+    double oracle_beta;     // cycles per buffered flit near the VL
+};
+
+Config &config();
+bool setParam(const std::string &key, const std::string &value,
+              std::string *error_message);
+std::string policyName(InjectionPolicy policy);
+std::string turnModelName(int tm);
+
+bool isActive();            // routing algorithm is DEFT_LB on DEFT_2_5D
+bool validateConfiguration(std::string *error_message);
+
+// ---- registry --------------------------------------------------------
+void registerRouter(int id, Router *router);
+Router *routerById(int id);
+
+// ---- geometry --------------------------------------------------------
+int footprintX(int router_id);
+int footprintY(int router_id);
+int chipletOf(int router_id);      // -1 for interposer routers
+int vlAtRouter(int router_id);     // VL with an endpoint at this router, -1 otherwise
+int neighborId(int router_id, int out_dir);
+int arrivalPort(int out_dir);
+int lastMoveFromDirIn(int dir_in); // 0..3, or 4 for none (injected / vertical arrival)
+int manhattan(int router_a, int router_b);
+
+// Minimal, turn-legal moves (bit d = direction d) from (x,y) towards (tx,ty).
+int movesMask(int tm, int x, int y, int last, int tx, int ty);
+
+// ---- routing relation ------------------------------------------------
+void legalMoves(const RouteData &route_data, std::vector<int> *directions);
+void nextMasks(int router_id, int dir_in, int out_dir,
+               int src_id, int dst_id,
+               int exit_mask, int entry_mask,
+               int *next_exit_mask, int *next_entry_mask);
+int remainingHops(int router_id, int src_id, int dst_id,
+                  int exit_mask, int entry_mask);
+int hopsAfterMove(const RouteData &route_data, int out_dir);
+RouteData nextRouteData(const RouteData &route_data, int out_dir, int out_vc);
+void legalOutputsWithVn(const RouteData &route_data, std::vector<int> *directions);
+
+// ---- injection -------------------------------------------------------
+// Sets candidate masks (DEFT_LB only) and the source virtual network of a
+// packet whose head flit is about to leave the processing element.
+void prepareHeadPacket(Packet &packet);
+
+// ---- router hooks ----------------------------------------------------
+// Called when the head flit is forwarded from router through out_dir.
+// Prunes the masks in *flit, updates Q tables and statistics.
+void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
+                   Flit *flit, double now, double front_cycle);
+// Called once when a head flit first reaches the front of an input buffer.
+// Completes the Q-learning update of the router that sent it.
+void onHeadAtFront(Router *router, int dir_in, const Flit &flit, double now);
+void onRouteFailure(int router_id, const Flit &flit);
+void onHeadConsumed(const Flit &flit, double now);
+
+// ---- selection strategies --------------------------------------------
+int selectHeuristic(Router *router, const std::vector<int> &directions,
+                    const RouteData &route_data);
+int selectQLearning(Router *router, const std::vector<int> &directions,
+                    const RouteData &route_data);
+bool qLearningEnabled();
+
+// ---- statistics ------------------------------------------------------
+void writeJson(std::ostream &out);
+
+} // namespace DeftLB
+
+#endif

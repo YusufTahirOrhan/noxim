@@ -146,6 +146,8 @@ SC_MODULE(Router)
     vector<int> getNextHops(int src, int dst);
     int start_from_port;	     // Port from which to start the reservation cycle
     int start_from_vc[DIRECTIONS+2]; // VC from which to start the reservation cycle for the specific port
+    bool deft_front_seen[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // head at buffer front already observed
+    double deft_front_cycle[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // cycle it reached the front
 
     vector<int> nextDeltaHops(RouteData rd);
   public:

@@ -65,6 +65,7 @@ Energy:
             XY:          [1.20e-4, 6.00e-14]
             INTERPOSER_AWARE_XY: [1.20e-4, 6.00e-14]
             DEFT:        [1.20e-4, 6.00e-14]
+            DEFT_LB:     [1.32e-4, 6.60e-14]  # placeholder (as ODD_EVEN); energy not evaluated
             DYAD:        [1.35e-4, 6.75e-14]
             NEGATIVE_FIRST: [1.28e-4, 6.30e-14]
             NORTH_LAST:  [1.28e-4, 6.30e-14]

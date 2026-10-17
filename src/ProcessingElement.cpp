@@ -10,6 +10,7 @@
 
 #include "ProcessingElement.h"
 #include "DeftVirtualNetwork.h"
+#include "DeftLateBinding.h"
 
 int ProcessingElement::randInt(int min, int max)
 {
@@ -61,11 +62,7 @@ void ProcessingElement::txProcess()
 		    	Packet packet;
 				int vc = randInt(0,GlobalParams::n_virtual_channels-1);
 				packet.make(local_id, expected_packet.dst, vc, now, getRandomSize());
-                                if (DeftVirtualNetwork::isEnabled())
-                                    packet.vc_id =
-                                        DeftVirtualNetwork::assignSourceVirtualNetwork(
-                                            packet.src_id,
-                                            packet.dst_id);
+				// DeFT: masks and source VN are set when the head flit leaves (nextFlit)
 				packet_queue.push(packet);
 				any = true;
 			}
@@ -94,6 +91,8 @@ void ProcessingElement::txProcess()
 Flit ProcessingElement::nextFlit()
 {
     Flit flit;
+    if (packet_queue.front().size == packet_queue.front().flit_left)
+        DeftLB::prepareHeadPacket(packet_queue.front());   // injection-time decisions
     Packet packet = packet_queue.front();
 
     flit.src_id = packet.src_id;
@@ -106,6 +105,12 @@ Flit ProcessingElement::nextFlit()
     //  flit.payload     = DEFAULT_PAYLOAD;
 
     flit.hub_relay_node = NOT_VALID;
+    flit.deft_exit_mask = packet.deft_exit_mask;
+    flit.deft_entry_mask = packet.deft_entry_mask;
+    flit.arrival_cycle = 0.0;
+    flit.ql_prev_router = -1;
+    flit.ql_prev_dir = -1;
+    flit.ql_prev_static = 0.0;
 
     bool is_head = packet.size == packet.flit_left;
     if (is_head)
@@ -245,10 +250,10 @@ bool ProcessingElement::canShot(Packet & packet)
 	}
     }
 
-    if (shot && DeftVirtualNetwork::isEnabled())
-        packet.vc_id =
-            DeftVirtualNetwork::assignSourceVirtualNetwork(packet.src_id,
-                                                           packet.dst_id);
+    // DeFT: candidate masks and the source VN are assigned in nextFlit(),
+    // when the head flit actually leaves the processing element.
+    if (shot)
+        packet.deft_exit_mask = packet.deft_entry_mask = 0;
 
     return shot;
 }

@@ -429,6 +429,8 @@ int sc_main(int arg_num, char *arg_vet[])
     // Reset the chip and run the simulation
     reset.write(1);
     cout << "Reset for " << (int)(GlobalParams::reset_time) << " cycles... ";
+    if (GlobalParams::rnd_generator_seed == 0)
+        cerr << "Warning: -seed 0 is identical to -seed 1 in glibc rand(); use seeds >= 1" << endl;
     srand(GlobalParams::rnd_generator_seed);
 
     // fix clock periods different from 1ns

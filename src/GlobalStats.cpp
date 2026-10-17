@@ -9,6 +9,7 @@
  */
 
 #include "GlobalStats.h"
+#include "DeftLateBinding.h"
 #include "DeftTopology.h"
 #include "DeftVerticalLinkLut.h"
 
@@ -422,7 +423,12 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     } else {
         out << endl;
     }
-    out << "  }" << endl;
+    if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+        out << "  }," << endl;
+        DeftLB::writeJson(out);
+    } else {
+        out << "  }" << endl;
+    }
     out << "}" << endl;
 }
 

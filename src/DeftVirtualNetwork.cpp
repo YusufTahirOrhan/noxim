@@ -5,6 +5,7 @@
 #include "DeftVirtualNetwork.h"
 
 #include "DeftTopology.h"
+#include "DeftVerticalLinkLut.h"
 #include "GlobalParams.h"
 
 namespace {
@@ -55,7 +56,7 @@ bool isInterChipletTraffic(int src_id, int dst_id)
     return !isSameChiplet(src_id, dst_id);
 }
 
-bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id)
+bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id, int exit_mask)
 {
     if (DeftTopology::isInterposerRouter(src_id))
         return true;
@@ -63,13 +64,31 @@ bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id)
     if (!isInterChipletTraffic(src_id, dst_id))
         return true;
 
-    if (DeftTopology::isBoundaryRouter(src_id))
-    {
-        const DeftTopology::VerticalLinkInfo *link =
-            DeftTopology::verticalLinkForBoundaryRouter(src_id);
-        return link != 0 && link->is_functional;
+    if (!DeftTopology::isBoundaryRouter(src_id))
+        return false;
+
+    const DeftTopology::VerticalLinkInfo *link =
+        DeftTopology::verticalLinkForBoundaryRouter(src_id);
+    if (link == 0 || !link->is_functional)
+        return false;
+
+    // F1 fix: VN1 only if the packet is committed to the source's own VL.
+    // A VN1 packet can leave the source chiplet only as Local->Down; any
+    // horizontal move would later need Horizontal->Down in VN1 (rule R3).
+    if (exit_mask != 0)
+        return exit_mask == (1 << link->vl_id);
+
+    if (GlobalParams::routing_algorithm == "DEFT" &&
+        DeftVerticalLinkLut::isLoaded()) {
+        DeftTopology::RouterInfo src = DeftTopology::decodeRouterId(src_id);
+        DeftTopology::RouterInfo dst = DeftTopology::decodeRouterId(dst_id);
+        DeftVerticalLinkLut::Entry entry;
+        if (DeftVerticalLinkLut::lookup(src.chiplet_id, src_id, dst.chiplet_id, &entry))
+            return entry.source_exit.selected_vl_id == link->vl_id;
+        return false;
     }
 
+    // Other routings (e.g. INTERPOSER_AWARE_XY): exit not known here, stay in VN0.
     return false;
 }
 
@@ -200,12 +219,12 @@ bool isOutputDirectionAllowed(const RouteData &route_data,
     return true;
 }
 
-int assignSourceVirtualNetwork(int src_id, int dst_id)
+int assignSourceVirtualNetwork(int src_id, int dst_id, int exit_mask)
 {
     if (!isEnabled())
         return DEFAULT_VC;
 
-    if (sourceCanUseEitherVirtualNetwork(src_id, dst_id))
+    if (sourceCanUseEitherVirtualNetwork(src_id, dst_id, exit_mask))
         return takeRoundRobin(next_source_vn);
 
     return VN0;

@@ -10,6 +10,7 @@
 
 #include "Router.h"
 #include "DeftVirtualNetwork.h"
+#include "DeftLateBinding.h"
 
 
 inline int toggleKthBit(int n, int k)
@@ -56,6 +57,8 @@ void Router::rxProcess()
 
 		if (!buffer[i][vc].IsFull()) 
 		{
+		    received_flit.arrival_cycle =
+			sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
 
 		    // Store the incoming flit in the circular buffer
 		    buffer[i][vc].Push(received_flit);
@@ -125,6 +128,13 @@ void Router::txProcess()
 
 		  if (flit.flit_type == FLIT_TYPE_HEAD) 
 		    {
+		      if (!deft_front_seen[i][vc]) {
+			  deft_front_seen[i][vc] = true;
+			  deft_front_cycle[i][vc] =
+			      sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+			  if (DeftLB::isActive())
+			      DeftLB::onHeadAtFront(this, i, flit, deft_front_cycle[i][vc]);
+		      }
 		      // prepare data for routing
 		      RouteData route_data;
 		      route_data.current_id = local_id;
@@ -133,11 +143,14 @@ void Router::txProcess()
 		      route_data.dst_id = flit.dst_id;
 		      route_data.dir_in = i;
 		      route_data.vc_id = flit.vc_id;
+		      route_data.deft_exit_mask = flit.deft_exit_mask;
+		      route_data.deft_entry_mask = flit.deft_entry_mask;
 
 		      // TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
 		      int o = route(route_data);
                       if (o == NOT_VALID)
                       {
+                          DeftLB::onRouteFailure(local_id, flit);
                           LOG << "No legal output direction for flit "
                               << flit << endl;
                           continue;
@@ -225,6 +238,12 @@ void Router::txProcess()
 		      //if (GlobalParams::verbose_mode > VERBOSE_OFF) 
 		      LOG << "Input[" << i << "][" << vc << "] forwarded to Output[" << o << "], flit: " << flit << endl;
 
+                      if (flit.flit_type == FLIT_TYPE_HEAD && DeftLB::isActive())
+                          DeftLB::onHeadForward(this, i, o, output_vc, &flit,
+                                                sc_time_stamp().to_double() / GlobalParams::clock_period_ps,
+                                                deft_front_cycle[i][vc]);
+                      if (flit.flit_type == FLIT_TYPE_HEAD)
+                          deft_front_seen[i][vc] = false;
                       flit.vc_id = output_vc;
 		      flit_tx[o].write(flit);
 		      current_level_tx[o] = 1 - current_level_tx[o];
@@ -253,6 +272,8 @@ void Router::txProcess()
 			  power.networkInterface();
 			  LOG << "Consumed flit " << flit << endl;
 			  stats.receivedFlit(sc_time_stamp().to_double() / GlobalParams::clock_period_ps, flit);
+			  if (flit.flit_type == FLIT_TYPE_HEAD && DeftVirtualNetwork::isEnabled())
+			      DeftLB::onHeadConsumed(flit, sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 			  if (GlobalParams:: max_volume_to_be_drained) 
 			  {
 			      if (drained_volume >= GlobalParams:: max_volume_to_be_drained)
@@ -580,6 +601,8 @@ void Router::configure(const int _id,
 {
     local_id = _id;
     stats.configure(_id, _warm_up_time);
+    if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D)
+        DeftLB::registerRouter(_id, this);
 
     start_from_port = DIRECTION_LOCAL;
   
@@ -597,6 +620,10 @@ void Router::configure(const int _id,
 	    buffer[i][vc].setLabel(string(name())+"->buffer["+i_to_string(i)+"]");
 	}
 	start_from_vc[i] = 0;
+	for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++) {
+	    deft_front_seen[i][vc] = false;
+	    deft_front_cycle[i][vc] = 0.0;
+	}
     }
 
 

@@ -9,6 +9,7 @@
  */
 
 #include "NoC.h"
+#include "DeftLateBinding.h"
 #include "DeftFaultInjectionManager.h"
 #include "DeftVerticalLinkLut.h"
 
@@ -2660,6 +2661,12 @@ void NoC::buildDeft2D()
             &lut_error)) {
         cerr << "Invalid DEFT_2_5D VL LUT configuration: "
              << lut_error << endl;
+        exit(1);
+    }
+
+    string deft_lb_error;
+    if (DeftLB::isActive() && !DeftLB::validateConfiguration(&deft_lb_error)) {
+        cerr << "Invalid DEFT_LB configuration: " << deft_lb_error << endl;
         exit(1);
     }
 
