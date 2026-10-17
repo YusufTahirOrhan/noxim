@@ -19,7 +19,16 @@ Checks CDG acyclicity (deadlock freedom), dead-end states (reachability) and
 state-graph acyclicity with the longest path (livelock freedom / hop bound).
 Valid only for this fixed topology instance.
 
+Horizontal-link (HL) faults (`hl` mode): a set of faulty bidirectional links,
+on a chiplet layer ('C') or the interposer ('I'), known only to the adjacent
+router. The router never takes a move onto a faulty link and adds no detour;
+candidate pruning is unchanged (the relation is fault-unaware). Reported per
+relation: fraction of source-destination pairs always delivered (no reachable
+dead end from any of the pair's initial states: every injection choice, VN and
+adaptive path), fraction of reachable states that are dead ends, CDG acyclicity.
+
 Usage: python3 impl_relation_check.py [all] [n_proc]
+       python3 impl_relation_check.py hl [n_proc] [out.md]
 """
 import os
 import sys
@@ -51,9 +60,19 @@ def moves_towards(tm, p, last, cand, skip):
     return {m: frozenset(vs) for m, vs in out.items()}
 
 
-def explore(cfg, faulty):
+def link(layer, p, q):
+    return (layer, frozenset((p, q)))
+
+
+def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
+    """hl_faulty: set of link(layer, p, q). detail=True also returns the initial
+    state of every source-destination pair and the set of dead-end nodes."""
     chip_tm, ipos_tm, exit_pol, entry_pol = cfg
+
+    def ok(layer, p, q):
+        return not hl_faulty or link(layer, p, q) not in hl_faulty
     cdg, sg, dead = nx.DiGraph(), nx.DiGraph(), []
+    dead_nodes = set()
     init = []
     for s in ALL_CHIP_NODES:
         for d in ALL_CHIP_NODES:
@@ -83,6 +102,8 @@ def explore(cfg, faulty):
             tgt = m if ph == 'X' else d
             for mv in moves_to(chip_tm, p, last, tgt):
                 q = step(p, mv)
+                if not ok('C', p, q):
+                    continue
                 out.append(((ph, q, mv, m, vn, d), ('C', p, q, vn)))
             return out
         if ph == 'S':
@@ -101,6 +122,8 @@ def explore(cfg, faulty):
                     return out
             for mv, nex in moves_towards(chip_tm, p, last, ex, here).items():
                 q = step(p, mv)
+                if not ok('C', p, q):
+                    continue
                 out.append((('S', q, mv, (nex, en), vn, d), ('C', p, q, vn)))
             return out
         if ph == 'I':
@@ -112,6 +135,8 @@ def explore(cfg, faulty):
                     return out
             for mv, nen in moves_towards(ipos_tm, p, last, en, here).items():
                 q = step(p, mv)
+                if not ok('I', p, q):
+                    continue
                 out.append((('I', q, mv, (ex, nen), vn, d), ('I', p, q, vn)))
             return out
         raise ValueError(ph)
@@ -129,12 +154,15 @@ def explore(cfg, faulty):
             continue
         if not nxt:
             dead.append(st)
+            dead_nodes.add(node)
             continue
         for st2, ch2 in nxt:
             if ch is not None:
                 cdg.add_edge(ch, ch2)
             sg.add_edge(node, (st2, ch2))
             stack.append((st2, ch2))
+    if detail:
+        return cdg, sg, dead, init, dead_nodes, len(seen)
     return cdg, sg, dead
 
 
@@ -165,7 +193,107 @@ def masks():
     return ms + sorted(extra, key=sorted)
 
 
+def hl_links():
+    """All bidirectional horizontal links: chiplet layers (within a chiplet) and interposer."""
+    out = []
+    for p in ALL_CHIP_NODES:
+        for q in ((p[0] + 1, p[1]), (p[0], p[1] + 1)):
+            if q in ALL_CHIP_NODES and chiplet_of(q) == chiplet_of(p):
+                out.append(link('C', p, q))
+    for y in range(8):
+        for x in range(8):
+            for q in ((x + 1, y), (x, y + 1)):
+                if q[0] < 8 and q[1] < 8:
+                    out.append(link('I', (x, y), q))
+    return sorted(out, key=lambda l: (l[0], sorted(l[1])))
+
+
+def hl_job(args):
+    name, vl_label, vl_faulty, kind, hl = args
+    cdg, sg, dead, init, dead_nodes, nseen = explore(CONFIGS[name], vl_faulty, frozenset(hl), detail=True)
+    bad = set(dead_nodes)
+    frontier = [n for n in dead_nodes if n in sg]
+    while frontier:
+        n = frontier.pop()
+        for pred in sg.predecessors(n):
+            if pred not in bad:
+                bad.add(pred)
+                frontier.append(pred)
+    pair_ok = {}
+    for st in init:
+        pair = (st[1], st[3] if st[0] == 'X' else st[5])
+        pair_ok[pair] = pair_ok.get(pair, True) and (st, None) not in bad
+    layers = ''.join(sorted(l[0] for l in hl))
+    return (name, vl_label, kind, layers, sum(pair_ok.values()) / len(pair_ok),
+            len(dead_nodes) / nseen, nx.is_directed_acyclic_graph(cdg))
+
+
+def hl_main(nproc, out_md):
+    import itertools
+    import random
+    from multiprocessing import Pool
+    links = hl_links()
+    singles = [(l,) for l in links]
+    doubles = random.Random(7).sample(list(itertools.combinations(links, 2)), 500)
+    vls = [('none', frozenset()), ('0x1111', frozenset({0, 4, 8, 12}))]
+    jobs = [(n, vl, vf, kind, hl) for n in CONFIGS for vl, vf in vls
+            for kind, sets in (('single', singles), ('double', doubles)) for hl in sets]
+    t = time.time()
+    with Pool(nproc) as pool:
+        res = pool.map(hl_job, jobs, chunksize=4)
+    el = time.time() - t
+    base = {}
+    for n in CONFIGS:
+        for vl, vf in vls:
+            base[(n, vl)] = hl_job((n, vl, vf, 'none', ()))
+    csv_path = os.path.splitext(out_md)[0] + '.csv'
+    with open(csv_path, 'w') as f:
+        f.write('relation,vl_mask,kind,layers,pairs_always_delivered,dead_state_fraction,cdg_acyclic\n')
+        for r in res:
+            f.write(','.join(str(x) for x in r) + '\n')
+    L = ['# Horizontal-link fault coverage of the implemented relations (formal model)', '',
+         'Model: formal/impl_relation_check.py `hl` mode. Faulty horizontal links are bidirectional,',
+         'on a chiplet layer (C) or the interposer (I), and known only to the adjacent router: it never',
+         'takes a move onto a faulty link and adds no detour (candidate pruning stays fault-unaware).',
+         'Relations: A_fixed_XY (DeFT LUT and every injection-time policy: all functional VL pairs are',
+         'explored), CI_XY_OE (interposer-only late binding), FULL_OE_OE (full late binding).',
+         f'Fault sets: all {len(singles)} single HL faults ({sum(1 for l in links if l[0] == "C")} chiplet, '
+         f'{sum(1 for l in links if l[0] == "I")} interposer) and 500 random double faults (seed 7),',
+         'each without VL faults and with VL mask 0x1111.',
+         '"Pairs always delivered": share of the 4032 source-destination pairs for which no reachable',
+         'routing state (over every injection choice, VN and adaptive path) is a dead end. Because the',
+         'fixed-pair relation explores every VL pair, its figure is the worst case over all injection',
+         'policies, not the DeFT LUT pair alone. "Dead states": share of reachable routing states with no',
+         f'legal move. Elapsed: {el:.0f} s on {nproc} processes.', '',
+         'Without HL faults every relation delivers 100 % of the pairs with 0 dead states (both VL masks): '
+         + ', '.join(f'{n}/{vl}: {base[(n, vl)][4]:.3f}, {base[(n, vl)][5]:.4f}' for n in CONFIGS for vl, _ in vls) + '.', '',
+         '| relation | VL mask | HL faults | sets | pairs always delivered: mean (min) | sets with 100 % pairs | '
+         'dead states: mean (max) | CDG acyclic |',
+         '|---|---|---|---|---|---|---|---|']
+    groups = [('single', 'C', 'single, chiplet'), ('single', 'I', 'single, interposer'), ('single', None, 'single, all'),
+              ('double', None, 'double (sample)')]
+    for n in CONFIGS:
+        for vl, _ in vls:
+            for kind, layer, label in groups:
+                rs = [r for r in res if r[0] == n and r[1] == vl and r[2] == kind and (layer is None or r[3] == layer)]
+                pd = [r[4] for r in rs]
+                ds = [r[5] for r in rs]
+                L.append(f'| {n} | {vl} | {label} | {len(rs)} | {100 * sum(pd) / len(pd):.2f} % ({100 * min(pd):.2f} %) | '
+                         f'{sum(1 for x in pd if x == 1.0)} | {100 * sum(ds) / len(ds):.3f} % ({100 * max(ds):.3f} %) | '
+                         f'{sum(1 for r in rs if r[6])}/{len(rs)} |')
+    L += ['', 'Removing links can only remove CDG edges, so the CDG stays acyclic by construction; the',
+          'column confirms it. The relations add no fault-aware detour, so every pair whose minimal',
+          'turn-legal paths all cross a faulty link is lost; the table measures how much path diversity',
+          '(late binding) recovers.']
+    open(out_md, 'w', newline='\n').write('\n'.join(L) + '\n')
+    print('\n'.join(L))
+
+
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'hl':
+        hl_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,
+                sys.argv[3] if len(sys.argv) > 3 else 'hl_coverage.md')
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == 'all':
         from multiprocessing import Pool
         nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 2
