@@ -1,0 +1,4 @@
+masks per config: 897 elapsed s: 502
+A_fixed_XY: masks=897 cyclic_CDG=0 masks_with_dead_ends=0 livelock_masks=0 max_hops=24
+CI_XY_OE: masks=897 cyclic_CDG=0 masks_with_dead_ends=0 livelock_masks=0 max_hops=24
+FULL_OE_OE: masks=897 cyclic_CDG=0 masks_with_dead_ends=0 livelock_masks=0 max_hops=24

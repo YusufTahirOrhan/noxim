@@ -1,5 +1,5 @@
 # Generated inputs (gitignored): python3 gen_traffic.py traffic; LUT command from README
 traffic tables: 200 (5 patterns x rates 0.001..0.040) + allpairs_burst.txt
 sha256 of concatenated traffic/*.txt (sorted): 63a0694fe41f8b5b8ba371532f1a5523dc685ac337b23256c95581c3d15eb236
-LUT fault scenarios: 2123
+LUT fault scenarios: 11 (the masks in drain_masks.txt)
 24e6f6be8cca594eb3327082052ddde04d39198189e9a52db0234afd0e1d1971  luts/lut_rho001.yaml
