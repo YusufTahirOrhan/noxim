@@ -55,7 +55,7 @@ routing relation.
 ## Reproduce
 ```
 python3 gen_traffic.py traffic
-python3 ../../other/deft_vl_lut_generator.py $(sed 's/^/--fault-mask /' drain_masks.txt) --output luts/lut_rho001.yaml
+mkdir -p luts && python3 ../../other/deft_vl_lut_generator.py $(sed 's/^/--fault-mask /' drain_masks.txt) --output luts/lut_rho001.yaml
 python3 formal/impl_relation_check.py all 2
 python3 drain_tests.py 2
 python3 experiments.py sat 2  && python3 analyze.py sat   # then choose load points (results/load_points.json)
