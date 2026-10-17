@@ -88,4 +88,14 @@ python3 drain_tests.py 2
 python3 experiments.py sat 2  && python3 analyze.py sat   # then choose load points (results/load_points.json)
 python3 experiments.py tune 2 && python3 choose_tuning.py heur && python3 experiments.py tune_ql 2 && python3 choose_tuning.py ql && python3 analyze.py tune
 python3 experiments.py eval 2 && python3 analyze.py eval
+python3 experiments.py eval_vl 2 && python3 report_eval.py   # figures, paired differences, summary.md
 ```
+
+## Results
+`results/eval_report/FINDINGS.md` (read its caveats first; 5 seeds, preliminary),
+`results/eval_report/summary.md`, the latency curves `latency_<pattern>_<mask>.png` and
+`saturation.png`. Safety: `results/impl_relation_check_all.txt`, `results/drain_summary.csv`.
+Plain DEFT routing does not count VL usage, so DeFT's VL counts come from `eval_vl`
+(DEFT_LB with the LUT pairs, exit and entry). Its traffic statistics are identical to
+DeFT's: all 385 runs give the same latency, p99 and packet counts; only the energy
+model differs.
