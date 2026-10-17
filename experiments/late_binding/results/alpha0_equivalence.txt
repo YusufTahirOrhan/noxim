@@ -1,0 +1,7 @@
+IDENTICAL hotspot__0x1111__1 420.687 420.687
+IDENTICAL hotspot__0x1111__2 168.486 168.486
+IDENTICAL movinghot__0x9C63__1 707.259 707.259
+IDENTICAL movinghot__0x9C63__2 522.318 522.318
+IDENTICAL uniform__0x0000__1 42.943 42.943
+IDENTICAL uniform__0x0000__2 37.399 37.399
+6/6 identical (summary block + deft_lb delays, VL counts, decisions)

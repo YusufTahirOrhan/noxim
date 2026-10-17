@@ -1,6 +1,7 @@
 traffic/
 luts/
 results/*_raw/
+results/*_raw_*/
 results/*.log
 __pycache__/
 formal/__pycache__/

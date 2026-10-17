@@ -1,0 +1,12 @@
+# heur: geometric mean latency over tuning runs (seeds 101, 102)
+config                   runs  geo_mean_latency dead_ends
+heur_w1.0_b0.0             16             64.77         0
+heur_w2.0_b0.0             16             65.60         0
+heur_w0.5_b8.0             16             65.72         0
+heur_w2.0_b4.0             16             66.58         0
+heur_w1.0_b4.0             16             68.41         0
+heur_w0.5_b4.0             16             69.99         0
+heur_w1.0_b8.0             16             76.32         0
+heur_w2.0_b8.0             16             86.50         0
+heur_w0.5_b0.0             16            124.30         0
+chosen: heur_w1.0_b0.0 (9 configurations, 144 runs)

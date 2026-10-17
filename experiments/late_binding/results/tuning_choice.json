@@ -1,0 +1,8 @@
+{
+  "heur_w": 1.0,
+  "heur_busy": 0.0,
+  "oracle_beta": 0.5,
+  "ql_alpha": 0.05,
+  "ql_key": 1,
+  "ql_eps": 0.0
+}

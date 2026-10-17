@@ -1,0 +1,7 @@
+# oracle: geometric mean latency over tuning runs (seeds 101, 102)
+config                   runs  geo_mean_latency dead_ends
+oracle_b0.5                16             64.75         0
+oracle_b0.25               16             68.76         0
+oracle_b1.0                16             90.31         0
+oracle_b2.0                16            127.09         0
+chosen: oracle_b0.5 (4 configurations, 64 runs)

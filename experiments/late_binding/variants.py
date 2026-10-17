@@ -26,15 +26,16 @@ def kv(**params):
     return out
 
 
-# Frozen parameters (set after tuning; see tuning/README in results).
-HEUR = kv(heur_w=1.0, heur_busy=4.0)
-QL = kv(ql_w=1.0, ql_busy=4.0, ql_alpha=0.2, ql_key=1, ql_eps=0.0)
+# Frozen parameters, chosen on tuning seeds 101, 102 (results/tuning_choice.json,
+# results/tuning_heur.txt, tuning_oracle.txt, tuning_ql.txt; budget in README).
+HEUR = kv(heur_w=1.0, heur_busy=0.0)
+QL = kv(ql_w=1.0, ql_busy=0.0, ql_alpha=0.05, ql_key=1, ql_eps=0.0)
 
 VARIANTS = {
     'DeFT':        ['-routing', 'DEFT'],
     'A_mindist':   inj('mindist'),
     'A_random':    inj('random'),
-    'A_oracle':    inj('oracle') + kv(oracle_beta=1.0),
+    'A_oracle':    inj('oracle') + kv(oracle_beta=0.5),
     'CI_random':   CI + ['-sel', 'RANDOM'],
     'CI_heur':     CI + ['-sel', 'DEFT_HEUR'] + HEUR,
     'CI_ql':       CI + ['-sel', 'DEFT_QL'] + QL,

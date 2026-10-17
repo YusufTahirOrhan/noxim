@@ -1,0 +1,15 @@
+# ql: geometric mean latency over tuning runs (seeds 101, 102)
+config                   runs  geo_mean_latency dead_ends
+ql_a0.05_k1_e0.0           16             55.84         0
+ql_a0.2_k1_e0.0            16             59.81         0
+ql_a0.2_k1_e0.05           16             59.96         0
+ql_a0.2_k0_e0.0            16             60.54         0
+ql_a0.05_k0_e0.0           16             61.29         0
+ql_a0.05_k0_e0.05          16             63.17         0
+ql_a0.5_k0_e0.0            16             64.74         0
+ql_a0.5_k0_e0.05           16             65.77         0
+ql_a0.5_k1_e0.0            16             69.10         0
+ql_a0.05_k1_e0.05          16             70.65         0
+ql_a0.2_k0_e0.05           16             71.70         0
+ql_a0.5_k1_e0.05           16             72.27         0
+chosen: ql_a0.05_k1_e0.0 (12 configurations, 192 runs)

@@ -52,6 +52,33 @@ routing relation.
 * `drain_tests.py`: drain-mode runs for every variant (all-pairs burst on 11 masks x 2
   seeds, over-saturated random tables on 4 masks): every packet delivered, no dead ends.
 
+## Tuning budget (seeds 101, 102 only; never used for evaluation)
+
+Each configuration is run on 4 cells (uniform, hotspot, chipperm on the fault-free
+network, uniform on 0x1111) x 2 loads (~0.8 and ~1.1 x DeFT Lsat, `results/load_points.json`)
+x 2 seeds = 16 runs. Selection criterion: geometric mean of the mean packet latency over
+those 16 runs (`choose_tuning.py`; tables in `results/tuning_*.txt`).
+
+| Method | Parameters searched | Configurations | Runs | Chosen |
+|---|---|---|---|---|
+| DeFT | none (LUT with the default rho = 0.01) | 0 | 0 | - |
+| A_mindist, A_random | none | 0 | 0 | - |
+| A_oracle | oracle_beta in {0.25, 0.5, 1, 2} | 4 | 64 | beta = 0.5 |
+| CI/FULL_random | none | 0 | 0 | - |
+| C: FULL_heur (CI_heur, FULL_heurLA reuse it) | heur_w in {0.5, 1, 2} x heur_busy in {0, 4, 8} | 9 | 144 | w = 1.0, busy = 0.0 |
+| B: FULL_ql (CI_ql reuses it) | ql_alpha in {0.05, 0.2, 0.5} x ql_key in {0, 1} x ql_eps in {0, 0.05}, local weights fixed to C's choice | 12 (+9 inherited) | 192 (+144) | alpha = 0.05, key = 1 (destination chiplet), eps = 0 |
+
+Notes:
+* B received more tuning than C: its own 12 configurations on top of the 9 that fixed
+  its local weights. Any B-over-C gain must be read with this asymmetry in mind.
+* All tuning was done on FULL and applied unchanged to CI (and to FULL_heurLA).
+* The chosen ql_alpha (0.05) is the smallest value of its grid, so a smaller rate may be
+  better; the grid was not extended, to keep the budget fixed in advance.
+* The heuristic ranking is flat at the top (the four best configurations lie within 3 %
+  of each other in geometric-mean latency), so its choice is weakly determined.
+* The drain tests were re-run with the frozen parameters
+  (`results/drain_summary.csv`; the pre-tuning run is kept as `drain_summary_pretuning.csv`).
+
 ## Reproduce
 ```
 python3 gen_traffic.py traffic
@@ -59,6 +86,6 @@ mkdir -p luts && python3 ../../other/deft_vl_lut_generator.py $(sed 's/^/--fault
 python3 formal/impl_relation_check.py all 2
 python3 drain_tests.py 2
 python3 experiments.py sat 2  && python3 analyze.py sat   # then choose load points (results/load_points.json)
-python3 experiments.py tune 2 && python3 experiments.py tune_ql 2 && python3 analyze.py tune
+python3 experiments.py tune 2 && python3 choose_tuning.py heur && python3 experiments.py tune_ql 2 && python3 choose_tuning.py ql && python3 analyze.py tune
 python3 experiments.py eval 2 && python3 analyze.py eval
 ```
