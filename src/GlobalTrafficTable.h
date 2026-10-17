@@ -53,6 +53,7 @@ class GlobalTrafficTable {
   private:
 
      vector < Communication > traffic_table;
+     vector < vector < int > > by_source;	// indices into traffic_table per source (table order)
 };
 
 #endif

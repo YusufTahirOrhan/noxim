@@ -90,6 +90,16 @@ bool GlobalTrafficTable::load(const char *fname)
     }
   }
 
+  by_source.clear();
+  for (unsigned int i = 0; i < traffic_table.size(); i++) {
+    int src = traffic_table[i].src;
+    if (src < 0)
+      continue;
+    if (src >= (int) by_source.size())
+      by_source.resize(src + 1);
+    by_source[src].push_back(i);
+  }
+
   return true;
 }
 
@@ -102,9 +112,14 @@ double GlobalTrafficTable::getCumulativePirPor(const int src_id,
 
   dst_prob.clear();
 
-  for (unsigned int i = 0; i < traffic_table.size(); i++) {
-    Communication comm = traffic_table[i];
-    if (comm.src == src_id) {
+  if (src_id < 0 || src_id >= (int) by_source.size())
+    return cpirnpor;
+
+  // Only this source's entries, in table order (same result as a full scan).
+  const vector < int > &idx = by_source[src_id];
+  for (unsigned int k = 0; k < idx.size(); k++) {
+    const Communication &comm = traffic_table[idx[k]];
+    {
       int r_ccycle = ccycle % comm.t_period;
       if (r_ccycle > comm.t_on && r_ccycle < comm.t_off) {
 	cpirnpor += pir_not_por ? comm.pir : comm.por;
