@@ -36,6 +36,10 @@ const int DY[4] = {-1, 0, 1, 0};
 Config g_config;
 Router *g_routers[DeftTopology::TotalRouters] = {0};
 
+// Learner with the lookahead heuristic's information (parameter ql_lookahead):
+// 0: static estimate ql_hop_cost * hops_after(o); 1: 1 + best_continuation(o).
+int g_ql_lookahead = 0;
+
 // ---- statistics ----
 unsigned long g_dead_end_events = 0;
 unsigned long g_vl_down[DeftTopology::VerticalLinkCount] = {0};
@@ -284,6 +288,7 @@ void ensureQ()
 }
 
 double remoteEstimate(const RouteData &rd, int out_dir);   // defined with the selection logic
+double remoteStatic(const RouteData &rd, int out_dir);
 
 int pickMin(const std::vector<int> &dirs, const std::vector<double> &cost)
 {
@@ -393,6 +398,13 @@ bool setParam(const std::string &key, const std::string &value,
     else if (key == "ql_w") c.ql_w = d;
     else if (key == "ql_busy") c.ql_busy = d;
     else if (key == "ql_key") c.ql_key = (int) d;
+    else if (key == "ql_lookahead") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "ql_lookahead must be 0 or 1";
+            return false;
+        }
+        g_ql_lookahead = (int) d;
+    }
     else if (key == "oracle_beta") c.oracle_beta = d;
     else {
         if (error_message) *error_message = "unknown DEFT_LB parameter " + key;
@@ -749,7 +761,7 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
         remoteEstimate(rd, out_dir);   // make sure the entry exists (lazy initialisation)
         flit->ql_prev_router = cur;
         flit->ql_prev_dir = out_dir;
-        flit->ql_prev_static = g_config.ql_hop_cost * hopsAfterMove(rd, out_dir);
+        flit->ql_prev_static = remoteStatic(rd, out_dir);
     }
 
     RouteData nrd = nextRouteData(rd, out_dir, out_vc);
@@ -813,12 +825,49 @@ double localCost(Router *router, const RouteData &rd, int out_dir, double w, dou
     return c;
 }
 
+// One-hop lookahead term of DEFT_HEUR with heur_lookahead 1: the cheapest
+// continuation at the neighbour reached through o, using the neighbour's
+// downstream occupancy weighted by w.
+double bestContinuation(const RouteData &rd, int o, double w)
+{
+    const int ovc = outputVc(rd, o);
+    RouteData nrd = nextRouteData(rd, o, ovc);
+    Router *nr = routerById(nrd.current_id);
+    double best;
+    if (nrd.current_id == rd.dst_id || !nr) {
+        best = 0.0;
+    } else {
+        std::vector<int> nd;
+        legalOutputsWithVn(nrd, &nd);
+        best = std::numeric_limits<double>::max();
+        for (size_t j = 0; j < nd.size(); j++) {
+            const int z = nd[j];
+            double cz = hopsAfterMove(nrd, z) +
+                        w * downstreamOccupancy(nr, z, outputVc(nrd, z));
+            best = std::min(best, cz);
+        }
+        if (nd.empty())
+            best = remainingHops(nrd.current_id, nrd.src_id, nrd.dst_id,
+                                 nrd.deft_exit_mask, nrd.deft_entry_mask);
+    }
+    return best;
+}
+
+// Static part of the learner's remote estimate; the learned residual is
+// kept over it (and stored in ql_prev_static when the head is forwarded).
+double remoteStatic(const RouteData &rd, int out_dir)
+{
+    if (g_ql_lookahead)
+        return 1.0 + bestContinuation(rd, out_dir, g_config.ql_w);
+    return g_config.ql_hop_cost * hopsAfterMove(rd, out_dir);
+}
+
 // Learned estimate of the time from leaving through out_dir to delivery,
 // excluding the local wait (which is observed directly).
 double remoteEstimate(const RouteData &rd, int out_dir)
 {
     ensureQ();
-    const double stat = g_config.ql_hop_cost * hopsAfterMove(rd, out_dir);
+    const double stat = remoteStatic(rd, out_dir);
     const int key = g_config.ql_key ? chipletOf(rd.dst_id) : rd.dst_id;
     const size_t i = qIndex(rd.current_id, key, out_dir);
     // The table holds the learned residual over the static hop estimate,
@@ -890,27 +939,7 @@ int selectHeuristic(Router *router, const std::vector<int> &dirs,
         } else {
             // One-hop lookahead: cheapest continuation at the neighbour,
             // using the neighbour's downstream occupancy (one more hop of information).
-            const int ovc = outputVc(rd, o);
-            RouteData nrd = nextRouteData(rd, o, ovc);
-            Router *nr = routerById(nrd.current_id);
-            double best;
-            if (nrd.current_id == rd.dst_id || !nr) {
-                best = 0.0;
-            } else {
-                std::vector<int> nd;
-                legalOutputsWithVn(nrd, &nd);
-                best = std::numeric_limits<double>::max();
-                for (size_t j = 0; j < nd.size(); j++) {
-                    const int z = nd[j];
-                    double cz = hopsAfterMove(nrd, z) +
-                                g_config.heur_w * downstreamOccupancy(nr, z, outputVc(nrd, z));
-                    best = std::min(best, cz);
-                }
-                if (nd.empty())
-                    best = remainingHops(nrd.current_id, nrd.src_id, nrd.dst_id,
-                                         nrd.deft_exit_mask, nrd.deft_entry_mask);
-            }
-            c += 1.0 + best;
+            c += 1.0 + bestContinuation(rd, o, g_config.heur_w);
         }
         cost[k] = c;
     }
@@ -946,7 +975,8 @@ void writeJson(std::ostream &out)
         << ", \"heur_lookahead\": " << c.heur_lookahead << "," << std::endl;
     out << "    \"ql_alpha\": " << c.ql_alpha << ", \"ql_eps\": " << c.ql_eps
         << ", \"ql_hop_cost\": " << c.ql_hop_cost << ", \"ql_w\": " << c.ql_w << ", \"ql_busy\": " << c.ql_busy
-        << ", \"ql_key\": " << c.ql_key << ", \"oracle_beta\": " << c.oracle_beta << "," << std::endl;
+        << ", \"ql_key\": " << c.ql_key << ", \"ql_lookahead\": " << g_ql_lookahead
+        << ", \"oracle_beta\": " << c.oracle_beta << "," << std::endl;
     out << "    \"dead_end_events\": " << g_dead_end_events << "," << std::endl;
     out << "    \"selection_calls\": " << g_selection_calls << "," << std::endl;
     out << "    \"adaptive_decisions\": " << g_adaptive_decisions << "," << std::endl;

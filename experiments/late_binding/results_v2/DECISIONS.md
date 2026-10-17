@@ -30,3 +30,22 @@ new methods).
    primary comparisons CI_* vs DeFT_tm.
 7. **A_oracle keeps oracle_beta = 0.5 from the v1 tuning** (seeds 101, 102). It is not
    in the v2 tuning list, and it is not part of any primary comparison.
+
+## Stage 2: information-matched learner (ql_lookahead)
+8. **ql_lookahead is a file-local variable in src/DeftLateBinding.cpp** (set through
+   the existing `-deft_lb key value` parser), not a new field of `Config`. A new field
+   would require editing DeftLateBinding.h, and only the .cpp change was authorised.
+   The deft_lb JSON block reports the value (`ql_lookahead`), which is part of adding
+   the parameter in the same file.
+9. **The lookahead term is shared code.** DEFT_HEUR's lookahead block was moved
+   verbatim into `bestContinuation(rd, o, w)`. The heuristic calls it with heur_w and the
+   learner with ql_w, so with ql_w = heur_w the term is the same computation. The
+   refactor was checked to leave every existing variant unchanged (24/24 runs
+   identical, results_v2/qlla_check.md).
+10. **The QL-LA residual target.** At forward time ql_prev_static = 1 + best_continuation(o)
+    with the current router state. The update is unchanged: target = 1 + V_here, where
+    V_here is the receiving router's minimum learner cost (which now includes its own
+    lookahead term).
+11. **QL-LA uses the local weights (w, busy) tuned for the lookahead heuristic of the
+    same scope.** QL uses those of the plain heuristic. This mirrors v1, so each learner
+    differs from its heuristic only by the learned residual.
