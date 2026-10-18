@@ -4,27 +4,52 @@ Line format: src dst pir [por t_on t_off t_period]; pir in packets/cycle.
 Every source injects `rate` packets/cycle in total (offered load in
 flits/node/cycle = rate * packet_size, packet_size = 8).
 
-Patterns (64 chiplet routers, 4 chiplets of 4x4, chiplet c = (y//4)*2 + x//4):
-  uniform     all other 63 routers equally
-  localized   40 % to the 15 other routers of the own chiplet, 60 % uniform to other chiplets
-  hotspot     routers 9, 13, 41 each receive 10 % of every other source's traffic, rest uniform
-  chipperm    100 % inter-chiplet; chiplet c sends only to chiplet 3-c (diagonal pairs 0<->3, 1<->2)
-  movinghot   phases of T cycles; in phase k, 40 % of every source's traffic goes to chiplet k
-              (uniform over its 16 routers), 60 % uniform; 4 phases repeat
-Usage: python3 gen_traffic.py OUTDIR [half]
+Instance: CX x CY chiplets of W x H routers (default 2 x 2 of 4 x 4: 64 chiplet routers,
+chiplet c = (y // H) * CX + x // W), C = CX * CY chiplets, N chiplet routers.
+Patterns:
+  uniform     all other N - 1 routers equally
+  localized   40 % to the other routers of the own chiplet, 60 % uniform to other chiplets
+  hotspot     3 hotspot routers, at local (1, 1) of chiplets 0, 1 and CX (routers 9, 13, 41
+              by default), each receive 10 % of every other source's traffic, rest uniform
+  chipperm    chiplet c sends only to chiplet C - 1 - c (default: diagonal pairs 0<->3, 1<->2);
+              with an odd C the middle chiplet sends to itself (to its other routers)
+  movinghot   phases of T cycles; in phase k, 40 % of every source's traffic goes to hot chiplet
+              HOT[k] (uniform over its routers), 60 % uniform; 4 phases repeat. HOT = the four
+              corner chiplets 0, CX - 1, C - CX, C - 1 (default 0, 1, 2, 3)
+Usage: python3 gen_traffic.py OUTDIR [half] [--chiplets CX CY] [--chiplet-size W H] [--upto RATE]
   half: only the odd multiples of 0.0005 (0.0005, 0.0015, ..., 0.0395), used by the v2
         evaluation for scenarios with a low saturation rate; the 0.001 grid is unchanged.
+  --upto RATE: only rates <= RATE (keeps the larger instances' tables small).
 """
 import os
 import sys
 
+CX, CY, CW, CH = 2, 2, 4, 4
+FW = CX * CW
 N = 64
+C = 4
 HOTSPOTS = [9, 13, 41]
+HOT = [0, 1, 2, 3]
 PHASE_T = 2000          # cycles per phase of movinghot
 
 
+def set_size(cx, cy, cw, ch):
+    global CX, CY, CW, CH, FW, N, C, HOTSPOTS, HOT
+    CX, CY, CW, CH = cx, cy, cw, ch
+    FW = cx * cw
+    N = FW * cy * ch
+    C = cx * cy
+    HOTSPOTS = [router(c, 1, 1) for c in (0, 1, cx)]
+    HOT = [0, cx - 1, C - cx, C - 1]
+    assert len(set(HOTSPOTS)) == 3 and len(set(HOT)) == 4, 'size too small for hotspot/movinghot'
+
+
+def router(c, lx, ly):
+    return ((c // CX) * CH + ly) * FW + (c % CX) * CW + lx
+
+
 def chiplet(r):
-    return (r // 8 // 4) * 2 + (r % 8) // 4
+    return (r // FW // CH) * CX + (r % FW) // CW
 
 
 def uniform(src):
@@ -49,13 +74,13 @@ def hotspot(src):
 
 
 def chipperm(src):
-    tgt = 3 - chiplet(src)
-    ds = [d for d in range(N) if chiplet(d) == tgt]
+    tgt = C - 1 - chiplet(src)
+    ds = [d for d in range(N) if chiplet(d) == tgt and d != src]
     return {d: 1.0 / len(ds) for d in ds}
 
 
 def movinghot_phase(src, k):
-    hot = [d for d in range(N) if chiplet(d) == k and d != src]
+    hot = [d for d in range(N) if chiplet(d) == HOT[k] and d != src]
     w = {d: 0.4 / len(hot) for d in hot}
     rest = [d for d in range(N) if d != src]
     for d in rest:
@@ -84,23 +109,37 @@ def write(path, pattern, rate):
 
 
 if __name__ == '__main__':
-    out = sys.argv[1]
+    argv = list(sys.argv[1:])
+    size = [2, 2, 4, 4]
+    for flag, idx in (('--chiplets', 0), ('--chiplet-size', 2)):
+        if flag in argv:
+            i = argv.index(flag)
+            size[idx], size[idx + 1] = int(argv[i + 1]), int(argv[i + 2])
+            del argv[i:i + 3]
+    upto = 1.0
+    if '--upto' in argv:
+        i = argv.index('--upto')
+        upto = float(argv[i + 1])
+        del argv[i:i + 2]
+    set_size(*size)
+    out = argv[0]
     os.makedirs(out, exist_ok=True)
-    if len(sys.argv) > 2 and sys.argv[2] == 'half':
+    if len(argv) > 1 and argv[1] == 'half':
         for pat in ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']:
             for i in range(40):
                 r = round(0.0005 * (2 * i + 1), 4)
-                write(os.path.join(out, f'{pat}_{r:.4f}.txt'), pat, r)
+                if r <= upto + 1e-12:
+                    write(os.path.join(out, f'{pat}_{r:.4f}.txt'), pat, r)
         print('written 200 half-step tables to', out)
         sys.exit(0)
-    rates = [round(0.001 * i, 4) for i in range(1, 41)]   # 0.001 .. 0.040 packets/cycle
+    rates = [r for r in (round(0.001 * i, 4) for i in range(1, 41)) if r <= upto + 1e-12]   # 0.001 .. 0.040
     for pat in ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']:
         for r in rates:
             write(os.path.join(out, f'{pat}_{r:.4f}.txt'), pat, r)
     # all-pairs burst fixture for drain tests (Noxim hardcoded format, -1 ends a cycle)
     with open(os.path.join(out, 'allpairs_burst.txt'), 'w') as f:
-        f.write('% All-pairs burst: in cycle k (1..63) every chiplet router s sends one packet to (s+k) mod 64.\n')
-        for k in range(1, 64):
+        f.write(f'% All-pairs burst: in cycle k (1..{N - 1}) every chiplet router s sends one packet to (s+k) mod {N}.\n')
+        for k in range(1, N):
             for s in range(N):
                 f.write(f'{s} {(s + k) % N}\n')
             f.write('-1\n')

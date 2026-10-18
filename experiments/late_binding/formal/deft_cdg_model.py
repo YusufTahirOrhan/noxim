@@ -22,6 +22,7 @@ requires networkx.
 import functools
 import networkx as nx
 
+CX, CY, CW, CH = 2, 2, 4, 4                      # chiplet grid and chiplet size (set_size)
 W = 8
 CHIP_ORIG = {c: ((c % 2) * 4, (c // 2) * 4) for c in range(4)}
 SLOTS = [(1, 0), (3, 1), (2, 3), (0, 2)]          # N,E,S,W slots (local coords), as in DeftTopology
@@ -32,15 +33,28 @@ OPP = {'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E'}
 
 
 def chiplet_of(p):
-    return (p[1] // 4) * 2 + (p[0] // 4)
+    return (p[1] // CH) * CX + (p[0] // CW)
 
 
 def chip_nodes(c):
     ox, oy = CHIP_ORIG[c]
-    return [(ox + x, oy + y) for y in range(4) for x in range(4)]
+    return [(ox + x, oy + y) for y in range(CH) for x in range(CW)]
 
 
 ALL_CHIP_NODES = [p for c in range(4) for p in chip_nodes(c)]
+
+
+def set_size(cx, cy, cw, ch):
+    """Parametric instance (as DeftTopology::configure in Noxim): cx x cy chiplets of
+    cw x ch routers, 4 VLs per chiplet at N=(1,0), E=(cw-1,1), S=(cw-2,ch-1), W=(0,ch-2)."""
+    global CX, CY, CW, CH, W, CHIP_ORIG, SLOTS, VLPOS, POS2VL, ALL_CHIP_NODES
+    CX, CY, CW, CH = cx, cy, cw, ch
+    W = cx * cw
+    CHIP_ORIG = {c: ((c % cx) * cw, (c // cx) * ch) for c in range(cx * cy)}
+    SLOTS = [(1, 0), (cw - 1, 1), (cw - 2, ch - 1), (0, ch - 2)]
+    VLPOS = {c * 4 + s: (ox + lx, oy + ly) for c, (ox, oy) in CHIP_ORIG.items() for s, (lx, ly) in enumerate(SLOTS)}
+    POS2VL = {p: v for v, p in VLPOS.items()}
+    ALL_CHIP_NODES = [p for c in range(cx * cy) for p in chip_nodes(c)]
 
 
 def step(p, d):

@@ -11,6 +11,15 @@ demand. With --demand-table, the demand is read from a Noxim traffic table
 (time-averaged over each line's on/off period) and weights the load-imbalance
 terms of the cost; the distance term is unchanged. Equal weights reproduce the
 default LUT exactly.
+
+The instance size is parametric (--chiplets-x/--chiplets-y/--chiplet-w/--chiplet-h,
+defaults 2, 2, 4, 4 as the Noxim DEFT_2_5D parameters); slot positions follow the
+chiplet size as in src/DeftTopology.cpp. Optimisations with at most DP_MAX_POINTS
+demand points use the exact dynamic programme below (every source-exit problem and
+every problem of the default 2x2 instance, whose output is unchanged); larger ones
+(destination entry on 3x3 and larger grids) are solved exactly as a mixed-integer
+programme of the same objective (scipy.optimize.milp / HiGHS). Ties between equally
+good assignments may then be broken differently than the DP would.
 """
 
 from __future__ import annotations
@@ -47,6 +56,7 @@ MAX_CONNECTED_FAULT_COUNT = VERTICAL_LINK_COUNT - CHIPLET_COUNT
 SLOT_NAMES = ("NORTH", "EAST", "SOUTH", "WEST")
 SLOT_LOCAL_X = (1, 3, 2, 0)
 SLOT_LOCAL_Y = (0, 1, 3, 2)
+DP_MAX_POINTS = 64
 
 
 @dataclass(frozen=True)
@@ -122,6 +132,33 @@ VERTICAL_LINKS = build_vertical_links()
 LINK_BY_ID = {link.vl_id: link for link in VERTICAL_LINKS}
 
 
+def set_size(chiplets_x: int, chiplets_y: int, chiplet_w: int, chiplet_h: int) -> None:
+    """Re-derive every size constant (as DeftTopology::configure in Noxim)."""
+    global CHIPLET_GRID_WIDTH, CHIPLET_GRID_HEIGHT, CHIPLET_COUNT, CHIPLET_LOCAL_WIDTH
+    global CHIPLET_LOCAL_HEIGHT, FOOTPRINT_WIDTH, FOOTPRINT_HEIGHT, CHIPLET_ROUTER_COUNT
+    global INTERPOSER_ROUTER_COUNT, VERTICAL_LINK_COUNT, MAX_CONNECTED_FAULT_COUNT
+    global SLOT_LOCAL_X, SLOT_LOCAL_Y, VERTICAL_LINKS, LINK_BY_ID
+    if chiplets_x < 1 or chiplets_y < 1 or chiplets_x * chiplets_y < 2:
+        raise ValueError("need a chiplet grid with at least 2 chiplets")
+    if chiplet_w < 3 or chiplet_h < 3:
+        raise ValueError("chiplets must be at least 3x3 routers")
+    if chiplets_x * chiplets_y * VERTICAL_LINKS_PER_CHIPLET > 64:
+        raise ValueError("at most 64 vertical links (16 chiplets)")
+    CHIPLET_GRID_WIDTH, CHIPLET_GRID_HEIGHT = chiplets_x, chiplets_y
+    CHIPLET_COUNT = chiplets_x * chiplets_y
+    CHIPLET_LOCAL_WIDTH, CHIPLET_LOCAL_HEIGHT = chiplet_w, chiplet_h
+    FOOTPRINT_WIDTH = chiplets_x * chiplet_w
+    FOOTPRINT_HEIGHT = chiplets_y * chiplet_h
+    CHIPLET_ROUTER_COUNT = FOOTPRINT_WIDTH * FOOTPRINT_HEIGHT
+    INTERPOSER_ROUTER_COUNT = FOOTPRINT_WIDTH * FOOTPRINT_HEIGHT
+    VERTICAL_LINK_COUNT = CHIPLET_COUNT * VERTICAL_LINKS_PER_CHIPLET
+    MAX_CONNECTED_FAULT_COUNT = VERTICAL_LINK_COUNT - CHIPLET_COUNT
+    SLOT_LOCAL_X = (1, chiplet_w - 1, chiplet_w - 2, 0)
+    SLOT_LOCAL_Y = (0, 1, chiplet_h - 1, chiplet_h - 2)
+    VERTICAL_LINKS = build_vertical_links()
+    LINK_BY_ID = {link.vl_id: link for link in VERTICAL_LINKS}
+
+
 def chiplet_id_for_router(router_id: int) -> int:
     footprint_x = router_id % FOOTPRINT_WIDTH
     footprint_y = router_id // FOOTPRINT_WIDTH
@@ -181,6 +218,8 @@ def optimize_assignments(
         raise ValueError("cannot optimize without functional candidate VLs")
     if not demand_points:
         raise ValueError("cannot optimize without demand points")
+    if len(demand_points) > DP_MAX_POINTS:
+        return optimize_assignments_milp(demand_points, candidate_vls, rho, weights)
 
     candidates = tuple(sorted(candidate_vls, key=lambda link: link.vl_id))
     total_weight = (len(demand_points) if weights is None
@@ -256,6 +295,110 @@ def optimize_assignments(
         load_imbalance_cost=best_load_cost,
         total_cost=best_total,
     )
+
+
+def result_from_assignment(
+    demand_points: Sequence[DemandPoint],
+    candidates: Tuple[VerticalLink, ...],
+    assignment: Sequence[int],
+    rho: Fraction,
+    weights: Dict[Tuple[int, ...], Fraction] | None,
+) -> OptimizationResult:
+    """OptimizationResult of a given assignment (same quantities as the DP path)."""
+    weight = (lambda point: 1) if weights is None else (lambda point: weights[point.key])
+    total_weight = (len(demand_points) if weights is None
+                    else sum((weights[point.key] for point in demand_points), Fraction(0)))
+    loads = {link.vl_id: Fraction(0) for link in candidates}
+    selected_by_key: Dict[Tuple[int, ...], int] = {}
+    selected_distance_by_key: Dict[Tuple[int, ...], int] = {}
+    demand_by_key: Dict[Tuple[int, ...], DemandPoint] = {}
+    distance_sum = 0
+    for point, vl_id in zip(demand_points, assignment):
+        loads[vl_id] += weight(point)
+        selected_by_key[point.key] = vl_id
+        d = manhattan_distance(point, LINK_BY_ID[vl_id])
+        selected_distance_by_key[point.key] = d
+        demand_by_key[point.key] = point
+        distance_sum += d
+    load_cost = load_cost_for_counts([loads[link.vl_id] for link in candidates], total_weight)
+    average_load = Fraction(total_weight) / len(candidates)
+    load_cost_by_vl = {
+        link.vl_id: (abs(loads[link.vl_id] - average_load) / average_load
+                     if average_load != 0 else Fraction(0, 1))
+        for link in candidates
+    }
+    return OptimizationResult(
+        selected_by_key=selected_by_key,
+        demand_by_key=demand_by_key,
+        candidate_vls=candidates,
+        counts_by_vl=dict(loads),
+        load_cost_by_vl=load_cost_by_vl,
+        selected_distance_by_key=selected_distance_by_key,
+        total_distance_cost=distance_sum,
+        load_imbalance_cost=load_cost,
+        total_cost=rho * distance_sum + load_cost,
+    )
+
+
+def optimize_assignments_milp(
+    demand_points: Sequence[DemandPoint],
+    candidate_vls: Sequence[VerticalLink],
+    rho: Fraction,
+    weights: Dict[Tuple[int, ...], Fraction] | None = None,
+) -> OptimizationResult:
+    """Exact optimum of rho * sum(distance) + sum_v |load_v - mean| / mean as a MILP.
+
+    Variables: x[j, v] binary (point j uses VL v) and d[v] >= |load_v - mean|.
+    Used for problems too large for the dynamic programme (> DP_MAX_POINTS points)."""
+    import numpy as np
+    from scipy.optimize import Bounds, LinearConstraint, milp
+
+    candidates = tuple(sorted(candidate_vls, key=lambda link: link.vl_id))
+    n, m = len(demand_points), len(candidates)
+    w = [1.0 if weights is None else float(weights[p.key]) for p in demand_points]
+    # The objective is invariant to scaling all weights; normalising them to mean 1 makes
+    # equal-weight demand the same problem as unit demand (same solution, same ties).
+    if weights is not None and sum(w) > 0 and len(set(w)) == 1:
+        w = [1.0] * n
+    elif sum(w) > 0:
+        scale = n / sum(w)
+        w = [x * scale for x in w]
+    total = sum(w)
+    mean = total / m
+    nx_ = n * m
+    c = np.zeros(nx_ + m)
+    for j, point in enumerate(demand_points):
+        for v, link in enumerate(candidates):
+            c[j * m + v] = float(rho) * manhattan_distance(point, link)
+    rows, lo, hi = [], [], []
+    for j in range(n):
+        row = np.zeros(nx_ + m)
+        row[j * m:(j + 1) * m] = 1.0
+        rows.append(row)
+        lo.append(1.0)
+        hi.append(1.0)
+    if mean > 0:
+        c[nx_:] = 1.0 / mean
+        for v in range(m):
+            for sign in (1.0, -1.0):      # d_v - sign * (load_v - mean) >= 0
+                row = np.zeros(nx_ + m)
+                for j in range(n):
+                    row[j * m + v] = -sign * w[j]
+                row[nx_ + v] = 1.0
+                rows.append(row)
+                lo.append(-sign * mean)
+                hi.append(np.inf)
+    integrality = np.concatenate([np.ones(nx_), np.zeros(m)])
+    upper = np.concatenate([np.ones(nx_), np.full(m, np.inf)])
+    res = milp(c, constraints=LinearConstraint(np.array(rows), lo, hi), integrality=integrality,
+               bounds=Bounds(np.zeros(nx_ + m), upper), options={"mip_rel_gap": 0.0, "time_limit": 3600})
+    if res.x is None or not res.success:
+        raise ValueError(f"MILP failed: {res.message}")
+    assignment = []
+    for j in range(n):
+        v = int(np.argmax(res.x[j * m:(j + 1) * m]))
+        assignment.append(candidates[v].vl_id)
+    return result_from_assignment(demand_points, candidates, assignment, rho, weights)
 
 
 def source_demand_points(chiplet_id: int) -> Tuple[DemandPoint, ...]:
@@ -407,7 +550,7 @@ def functional_vl_ids(mask: int) -> Tuple[int, ...]:
 
 
 def format_fault_mask(mask: int) -> str:
-    width = max(4, (VERTICAL_LINK_COUNT + 3) // 4)
+    width = (VERTICAL_LINK_COUNT + 3) // 4
     return f"0x{mask:0{width}x}"
 
 
@@ -652,18 +795,24 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate deterministic DeFT offline VL LUT YAML.",
     )
+    parser.add_argument("--chiplets-x", type=int, default=CHIPLET_GRID_WIDTH,
+                        help="Chiplet grid width (default 2).")
+    parser.add_argument("--chiplets-y", type=int, default=CHIPLET_GRID_HEIGHT,
+                        help="Chiplet grid height (default 2).")
+    parser.add_argument("--chiplet-w", type=int, default=CHIPLET_LOCAL_WIDTH,
+                        help="Routers per chiplet row (default 4).")
+    parser.add_argument("--chiplet-h", type=int, default=CHIPLET_LOCAL_HEIGHT,
+                        help="Routers per chiplet column (default 4).")
     parser.add_argument(
         "--fault-mask",
         action="append",
         default=[],
-        type=parse_fault_mask,
         help="Fault mask bitset such as 0x0000 or 0x1111. May be repeated.",
     )
     parser.add_argument(
         "--faulty-vls",
         action="append",
         default=[],
-        type=parse_faulty_vls,
         help="Comma-separated physical faulty VL IDs, such as 0,4,8,12.",
     )
     parser.add_argument(
@@ -708,7 +857,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        masks = ordered_fault_masks(args.fault_mask, args.faulty_vls, args.max_fault_count)
+        set_size(args.chiplets_x, args.chiplets_y, args.chiplet_w, args.chiplet_h)
+        # masks are converted after the size is known (their width depends on it)
+        try:
+            fault_masks = [parse_fault_mask(v) for v in args.fault_mask]
+            fault_lists = [parse_faulty_vls(v) for v in args.faulty_vls]
+        except argparse.ArgumentTypeError as exc:
+            raise ValueError(str(exc)) from exc
+        masks = ordered_fault_masks(fault_masks, fault_lists, args.max_fault_count)
         output = generate_lut_text(
             masks,
             rho=args.rho,

@@ -17,7 +17,7 @@ LUT = os.path.join(HERE, 'luts', 'lut_rho001.yaml')
 
 def mask_to_vls(mask):
     m = int(mask, 16)
-    return ','.join(str(v) for v in range(16) if m >> v & 1)
+    return ','.join(str(v) for v in range(64) if m >> v & 1)
 
 
 def common_args(seed, mask, traffic=None, hardcoded=None, lut=None):

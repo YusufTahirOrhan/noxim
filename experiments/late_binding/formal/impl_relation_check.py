@@ -61,11 +61,19 @@ def moves_towards(tm, p, last, cand, skip):
     return {m: frozenset(vs) for m, vs in out.items()}
 
 
+def set_size(cx, cy, cw, ch):
+    """Switch the model to a cx x cy grid of cw x ch chiplets (rebinds the imported names)."""
+    import deft_cdg_model as dcm
+    global ALL_CHIP_NODES, POS2VL, VLPOS
+    dcm.set_size(cx, cy, cw, ch)
+    ALL_CHIP_NODES, POS2VL, VLPOS = dcm.ALL_CHIP_NODES, dcm.POS2VL, dcm.VLPOS
+
+
 def link(layer, p, q):
     return (layer, frozenset((p, q)))
 
 
-def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False):
+def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, dest=None):
     """hl_faulty: set of link(layer, p, q). detail=True also returns the initial
     state of every source-destination pair, the set of dead-end nodes, the number
     of reachable nodes and the set of delivered nodes.
@@ -97,7 +105,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False):
     init = []
     for s in ALL_CHIP_NODES:
         for d in ALL_CHIP_NODES:
-            if d == s:
+            if d == s or (dest is not None and d != dest):
                 continue
             cs, cd = chiplet_of(s), chiplet_of(d)
             if cs == cd:
@@ -196,6 +204,28 @@ def job(args):
     return (name, len(faulty), acyc, len(dead), sga,
             nx.dag_longest_path_length(sg) if sga else -1,
             cdg.number_of_nodes(), cdg.number_of_edges())
+
+
+def job_lean(args):
+    """Same result as job(), exploring one destination at a time (bounded memory).
+
+    States carry their destination and no transition changes it, so the state graph is
+    the disjoint union of the per-destination graphs: dead ends add up, the state graph is
+    acyclic iff every part is, the longest path is the maximum, and the CDG is the union
+    of the per-destination channel dependencies."""
+    name, faulty = args
+    cdg_all = nx.DiGraph()
+    dead, sga, longest = 0, True, 0
+    for d in ALL_CHIP_NODES:
+        cdg, sg, dl = explore(CONFIGS[name], faulty, dest=d)
+        cdg_all.add_edges_from(cdg.edges())
+        dead += len(dl)
+        if sga and nx.is_directed_acyclic_graph(sg):
+            longest = max(longest, nx.dag_longest_path_length(sg) if sg.number_of_nodes() else 0)
+        else:
+            sga = False
+    return (name, len(faulty), nx.is_directed_acyclic_graph(cdg_all), dead, sga,
+            longest if sga else -1, cdg_all.number_of_nodes(), cdg_all.number_of_edges())
 
 
 def masks():
@@ -420,7 +450,74 @@ def hl_main(nproc, out_md):
     print('\n'.join(L))
 
 
+def size_masks(cx, cy, n_random, seed=7):
+    """Fault-free, one VL per chiplet (north), and n_random masks with 0-3 faulty VLs drawn
+    uniformly per chiplet (seed 7; empty and duplicate masks rejected)."""
+    import random
+    nc = cx * cy
+    ms = [('fault-free', frozenset()), ('north per chiplet', frozenset(4 * c for c in range(nc)))]
+    rnd = random.Random(seed)
+    seen = {m for _, m in ms}
+    while len(ms) < 2 + n_random:
+        m = frozenset(v for c in range(nc) for v in rnd.sample(range(4 * c, 4 * c + 4), rnd.randint(0, 3)))
+        if m and m not in seen:
+            seen.add(m)
+            ms.append((f'random {len(ms) - 1}', m))
+    return ms
+
+
+LEAN = False
+
+
+def _timed_job(args):
+    t = time.time()
+    r = job_lean(args) if LEAN else job(args)
+    return r + (time.time() - t,)
+
+
+def _init_size(cx, cy, lean):
+    global LEAN
+    set_size(cx, cy, 4, 4)
+    LEAN = lean
+
+
+def size_main(cx, cy, nproc, out_md, n_random, lean=False):
+    """The three relations on a cx x cy grid of 4x4 chiplets (v4 step 3). lean: per-destination
+    exploration (job_lean), needed for 4x4 within the available memory."""
+    from multiprocessing import Pool
+    set_size(cx, cy, 4, 4)
+    ms = size_masks(cx, cy, n_random)
+    jobs = [(n, m) for _, m in ms for n in CONFIGS]
+    t = time.time()
+    with Pool(nproc, initializer=_init_size, initargs=(cx, cy, lean)) as pool:
+        res = pool.map(_timed_job, jobs, chunksize=1)
+    el = time.time() - t
+    nvl = 4 * cx * cy
+    L = [f'## {cx}x{cy} chiplets of 4x4 routers ({16 * cx * cy} chiplet routers, {nvl} VLs)', '',
+         f'{len(ms)} fault masks x 3 relations = {len(jobs)} checks; {nproc} processes, {el:.0f} s wall'
+         f'{"; per-destination exploration (job_lean)" if lean else ""}.', '',
+         '| mask | faulty VLs | relation | CDG acyclic | dead ends | livelock-free | longest path (hops) | '
+         'CDG nodes / edges | time (s) |', '|---|---|---|---|---|---|---|---|---|']
+    names = {m: lab for lab, m in ms}
+    for (n, m), r in zip(jobs, res):
+        L.append(f'| {names[m]} | {len(m)} | {n} | {r[2]} | {r[3]} | {r[4]} | {r[5]} | {r[6]} / {r[7]} | {r[8]:.0f} |')
+    ok = all(r[2] and r[3] == 0 and r[4] for r in res)
+    L += ['', f'**All checks pass: {ok}** (acyclic CDG, no dead ends, no livelock).', '']
+    if n_random:
+        L.append('Random masks: ' + '; '.join(f'{lab}: {sorted(m)}' for lab, m in ms[2:]))
+        L.append('')
+    with open(out_md, 'a', newline='\n') as f:
+        f.write('\n'.join(L) + '\n')
+    print('\n'.join(L))
+    return ok
+
+
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'size':
+        # size CX CY NPROC OUT.md N_RANDOM [lean]
+        ok = size_main(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5], int(sys.argv[6]),
+                       lean=len(sys.argv) > 7 and sys.argv[7] == 'lean')
+        sys.exit(0 if ok else 1)
     if len(sys.argv) > 1 and sys.argv[1] == 'hl3':
         hl3_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,
                  sys.argv[3] if len(sys.argv) > 3 else 'hl_coverage_v3.md',

@@ -12,3 +12,4 @@ results_v3/*_raw/
 results_v3/*.log
 results_v4/*_raw/
 results_v4/*.log
+traffic_*/

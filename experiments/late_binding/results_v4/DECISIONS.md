@@ -38,3 +38,33 @@
     0x0000 (seed 1) and 0x9C63 (seed 2). DeFT_tm uses the chipperm LUT there.
 11. **Reference binary:** the build of 4a3b345 (= the v2/v3 binary, byte-identical to the
     one used for the v2 and v3 runs).
+
+## Step 3: generators and model
+12. **Exact DP up to 64 demand points, exact MILP beyond.** The LUT generator's exact DP over load
+    vectors is infeasible for the destination-entry problems of larger grids (128 points on 3x3,
+    240 on 4x4). Those are solved as a MILP of the same objective (binary assignment variables,
+    linearised absolute deviations; scipy.optimize.milp / HiGHS, mip_rel_gap = 0). Every 2x2
+    problem and every source-exit problem keeps the DP, so the 2x2 LUTs are byte-identical. On
+    all 264 2x2 optimisations (11 masks, 3 demand profiles), the MILP reaches the DP optimum
+    exactly (results_v4/lut_milp_check.md). Ties may be broken differently.
+13. **MILP weights are normalised to mean 1** (the objective is scale-invariant), so equal-weight
+    demand gives exactly the unit-demand problem and its solution. Without this, the localized
+    LUT differed from the uniform one only through tie-breaking on differently scaled inputs.
+    With it, as on 2x2, localized and movinghot give exactly the uniform LUT on 3x3 and 4x4; only
+    hotspot and chipperm get distinct traffic-matched LUTs.
+14. **Traffic for C chiplets:**
+    - hotspots at local (1, 1) of chiplets 0, 1 and CX (= routers 9, 13, 41 on 2x2);
+    - movinghot cycles through the four corner chiplets 0, CX-1, C-CX, C-1 (= 0, 1, 2, 3 on 2x2);
+    - chipperm c -> C-1-c; on 3x3 the middle chiplet 4 maps to itself and sends to its own other
+      routers (self-traffic excluded). The instruction defines the permutation this way, so it
+      was not changed.
+    - Default tables are byte-identical through the parametric code path (401 files).
+    - Larger instances get rates up to 0.024 only (`--upto`), to keep the tables small.
+15. **Fault masks for the larger instances:** fault-free and one VL per chiplet (north, slot 0).
+    The 20 random 3x3 masks of the formal check draw 0-3 faulty VLs per chiplet uniformly
+    (seed 7; empty and duplicate masks rejected). This samples the "at most 3 per chiplet" space
+    more evenly than drawing a total and rejecting.
+16. **Formal 4x4 checks explore one destination at a time** (job_lean, exact; equal to job on 21 / 21
+    checks). The whole-graph version was killed by the OOM killer at 4.7 GB and took the WSL VM
+    down with it. WSL was restarted (`wsl --shutdown`); the killed jobs (a drain run in progress,
+    two generator checks) were re-run from scratch, and no result of the killed run was used.
