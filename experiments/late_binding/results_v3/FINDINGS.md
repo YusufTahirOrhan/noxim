@@ -75,6 +75,16 @@ by the pre-stated rule.
   (-1.1 %) was significant there but is small. Taken together, the learner's
   benefit is at most a few per cent.
 
-Exploratory tuning beyond the grid edges (step 4) and the new HL-fault measurements (step 5)
-are reported in `tuning_explore.md` and `hl_coverage_v3.md` and summarised below once
+## 5. Exploratory tuning beyond the v2 grid edges (step 4; secondary, seeds 101/102, CI only)
+`tuning_explore.md`. **Neither edge optimum moves.**
+* CI heuristic, w in {2, 4, 8} x busy in {0, 4}: w = 2, busy = 0 (the v2 choice) stays best.
+  The next best is w = 4 / busy 0 at +4.0 %, and larger weights get steadily worse (w = 8:
+  +14 % / +21 %).
+* CI_ql, alpha in {0.001, 0.002, 0.005}: alpha = 0.005 (the v2 choice) stays best. Smaller
+  rates are worse (+2.5 % at 0.002, +4.9 % at 0.001).
+* The tuning criterion therefore changes by 0 %: the v2 edge choices were at the optimum
+  of the extended range for both parameters. All 48 runs shared with the v2 tuning
+  reproduce exactly (determinism check). These values were not used in step 3.
+
+The new HL-fault measurements (step 5) are in `hl_coverage_v3.md` and summarised below once
 available.
