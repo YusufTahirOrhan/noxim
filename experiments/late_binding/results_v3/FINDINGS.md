@@ -86,5 +86,34 @@ by the pre-stated rule.
   of the extended range for both parameters. All 48 runs shared with the v2 tuning
   reproduce exactly (determinism check). These values were not used in step 3.
 
-The new HL-fault measurements (step 5) are in `hl_coverage_v3.md` and summarised below once
-available.
+## 6. HL-fault coverage: exists-path and fault-aware pruning (step 5; formal model)
+`hl_coverage_v3.md`.
+* **The paths exist.** For every relation, 99.2-100 % of source-destination pairs keep at least
+  one delivering path under the v2 fault sets. The v2 losses are a decision problem, not a
+  connectivity problem.
+* **With fault-aware pruning** (routers know the HL faults of their own layer):
+  - FULL recovers most of the loss: always delivered 86 % -> 98 % (single), 74 % -> 96 % (double).
+  - CI recovers interposer faults only (overall 85 % -> 94 % single, 72 % -> 88 % double).
+  - The fixed-pair relation behind DeFT gains nothing (80 % -> 80 %): with a fixed VL pair and
+    XY routing there is nothing to choose.
+
+  The CDG stays acyclic in every case.
+* The remaining gap to exists-path comes from committing to a VL without knowing the next
+  layer's faults. So for HL faults, late binding's value is that it leaves choices open for
+  fault knowledge to use; DeFT's fixed pair does not.
+
+## Bottom line (v3)
+* **Confirmed on new seeds:** interposer-only late binding (stateless heuristic, lookahead
+  heuristic, or lookahead learner) and FULL late binding with the lookahead heuristic cut
+  near-saturation mean latency by 18-26 % and p99 by 32-46 % against the traffic-matched DeFT.
+  A 5x longer window does not change this; on hotspot the gap is larger with the long window.
+* **Not confirmed:** that learning improves over the lookahead heuristic (-2.4 % / -5.3 %,
+  Holm p 0.057 / 0.066). Any learning benefit is at most a few per cent.
+* **Unchanged by v3:** v2's saturation-throughput results, including FULL_heurLA's loss, are
+  not re-tested here.
+* **Reproducible:** the v2 primary table follows byte for byte from the per-run CSV, the v2
+  tuning runs reproduce exactly, and the v2 edge-of-grid choices are optimal on the extended
+  grids.
+* **HL faults:** late binding plus per-layer fault knowledge would deliver 94-98 % of pairs under
+  single HL faults, against 80 % for DeFT's fixed pair. This is a formal-model result; the
+  simulator has no HL-fault support.

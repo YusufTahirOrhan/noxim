@@ -117,3 +117,15 @@ python3 experiments_v2.py drain 11 && python3 experiments_v2.py timing 11
 python3 experiments_v2.py eval 11 all && python3 experiments_v2.py evalvl 11 all && python3 report_v2.py
 (cd formal && python3 impl_relation_check.py hl 4 ../results_v2/hl_coverage.md)
 ```
+
+## Third round (results_v3/)
+Confirmatory near-saturation latency test on new seeds 11-20 (pre-registered), window
+sensitivity, exploratory tuning beyond the v2 grid edges, per-run CSVs, and HL-fault exists-path /
+fault-aware-pruning coverage. Start with `results_v3/FINDINGS.md`.
+```
+python3 make_eval_csv.py results_v2 eval && python3 primary_from_csv.py
+python3 experiments_v3.py confirm 11 && python3 experiments_v3.py window 11 && python3 experiments_v3.py tunex 11
+python3 make_eval_csv.py results_v3 confirm && python3 make_eval_csv.py results_v3 window
+python3 report_v3.py && python3 report_tunex.py
+(cd formal && python3 impl_relation_check.py hl3 11 ../results_v3/hl_coverage_v3.md ../results_v2/hl_coverage.csv)
+```

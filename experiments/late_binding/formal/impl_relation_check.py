@@ -36,7 +36,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import networkx as nx  # noqa: E402
-from deft_cdg_model import (ALL_CHIP_NODES, POS2VL, VLPOS, chiplet_of, moves_to, step)  # noqa: E402
+from deft_cdg_model import (ALL_CHIP_NODES, POS2VL, VLPOS, chiplet_of, legal_turn, moves_to,  # noqa: E402
+                            productive, step)
 
 CONFIGS = {
     # name: (chip_tm, ipos_tm, exit, entry)
@@ -64,13 +65,33 @@ def link(layer, p, q):
     return (layer, frozenset((p, q)))
 
 
-def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
+def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False):
     """hl_faulty: set of link(layer, p, q). detail=True also returns the initial
-    state of every source-destination pair and the set of dead-end nodes."""
+    state of every source-destination pair, the set of dead-end nodes, the number
+    of reachable nodes and the set of delivered nodes.
+    hl_aware: routers know every HL fault of their own layer (chiplet or interposer)
+    and never take a move after which no remaining candidate (VL, or the destination
+    router in the intra/destination phases) is reachable on a minimal, turn-legal,
+    fault-free path of that layer. Other layers' faults stay unknown."""
     chip_tm, ipos_tm, exit_pol, entry_pol = cfg
 
     def ok(layer, p, q):
         return not hl_faulty or link(layer, p, q) not in hl_faulty
+
+    memo = {}
+
+    def reach_ff(layer, tm, p, last, t):
+        if p == t:
+            return True
+        key = (layer, tm, p, last, t)
+        if key not in memo:
+            memo[key] = any(legal_turn(tm, p, last, mv) and ok(layer, p, step(p, mv)) and
+                            reach_ff(layer, tm, step(p, mv), mv, t) for mv in productive(p, t))
+        return memo[key]
+
+    def aware(layer, tm, q, mv, targets):
+        return not hl_aware or any(reach_ff(layer, tm, q, mv, t) for t in targets)
+    delivered = set()
     cdg, sg, dead = nx.DiGraph(), nx.DiGraph(), []
     dead_nodes = set()
     init = []
@@ -102,7 +123,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
             tgt = m if ph == 'X' else d
             for mv in moves_to(chip_tm, p, last, tgt):
                 q = step(p, mv)
-                if not ok('C', p, q):
+                if not ok('C', p, q) or not aware('C', chip_tm, q, mv, (tgt,)):
                     continue
                 out.append(((ph, q, mv, m, vn, d), ('C', p, q, vn)))
             return out
@@ -122,7 +143,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
                     return out
             for mv, nex in moves_towards(chip_tm, p, last, ex, here).items():
                 q = step(p, mv)
-                if not ok('C', p, q):
+                if not ok('C', p, q) or not aware('C', chip_tm, q, mv, [VLPOS[v] for v in nex]):
                     continue
                 out.append((('S', q, mv, (nex, en), vn, d), ('C', p, q, vn)))
             return out
@@ -135,7 +156,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
                     return out
             for mv, nen in moves_towards(ipos_tm, p, last, en, here).items():
                 q = step(p, mv)
-                if not ok('I', p, q):
+                if not ok('I', p, q) or not aware('I', ipos_tm, q, mv, [VLPOS[e] for e in nen]):
                     continue
                 out.append((('I', q, mv, (ex, nen), vn, d), ('I', p, q, vn)))
             return out
@@ -151,6 +172,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
         seen.add(node)
         nxt = succ(st)
         if nxt is None:
+            delivered.add(node)
             continue
         if not nxt:
             dead.append(st)
@@ -162,7 +184,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False):
             sg.add_edge(node, (st2, ch2))
             stack.append((st2, ch2))
     if detail:
-        return cdg, sg, dead, init, dead_nodes, len(seen)
+        return cdg, sg, dead, init, dead_nodes, len(seen), delivered
     return cdg, sg, dead
 
 
@@ -210,7 +232,7 @@ def hl_links():
 
 def hl_job(args):
     name, vl_label, vl_faulty, kind, hl = args
-    cdg, sg, dead, init, dead_nodes, nseen = explore(CONFIGS[name], vl_faulty, frozenset(hl), detail=True)
+    cdg, sg, dead, init, dead_nodes, nseen, _ = explore(CONFIGS[name], vl_faulty, frozenset(hl), detail=True)
     bad = set(dead_nodes)
     frontier = [n for n in dead_nodes if n in sg]
     while frontier:
@@ -226,6 +248,115 @@ def hl_job(args):
     layers = ''.join(sorted(l[0] for l in hl))
     return (name, vl_label, kind, layers, sum(pair_ok.values()) / len(pair_ok),
             len(dead_nodes) / nseen, nx.is_directed_acyclic_graph(cdg))
+
+
+def _closure(sg, seeds):
+    """Nodes that can reach any node of `seeds` (including them)."""
+    out = set(seeds)
+    frontier = [n for n in seeds if n in sg]
+    while frontier:
+        n = frontier.pop()
+        for pred in sg.predecessors(n):
+            if pred not in out:
+                out.add(pred)
+                frontier.append(pred)
+    return out
+
+
+def _pairs(init, good):
+    """Per pair: (all initial states good, any initial state good)."""
+    allg, anyg = {}, {}
+    for st in init:
+        pair = (st[1], st[3] if st[0] == 'X' else st[5])
+        g = (st, None) in good
+        allg[pair] = allg.get(pair, True) and g
+        anyg[pair] = anyg.get(pair, False) or g
+    return allg, anyg
+
+
+def hl3_job(args):
+    """v3 HL metrics for one (relation, VL mask, HL fault set):
+    unaware relation (v2): pairs always delivered, pairs with some delivered path (exists-path);
+    fault-aware pruning: pairs always delivered, dead-state share, CDG acyclic, exists-path."""
+    name, vl_label, vl_faulty, kind, hl = args
+    out = [name, vl_label, kind, ''.join(sorted(l[0] for l in hl))]
+    for aware_flag in (False, True):
+        cdg, sg, dead, init, dead_nodes, nseen, delivered = explore(
+            CONFIGS[name], vl_faulty, frozenset(hl), detail=True, hl_aware=aware_flag)
+        bad = _closure(sg, dead_nodes)
+        reach = _closure(sg, delivered)
+        always, _ = _pairs(init, {(st, None) for st in init} - bad)
+        _, exists = _pairs(init, reach)
+        out += [sum(always.values()) / len(always), sum(exists.values()) / len(exists),
+                len(dead_nodes) / nseen, nx.is_directed_acyclic_graph(cdg)]
+    return tuple(out)
+
+
+def hl3_main(nproc, out_md, v2_csv=None):
+    import itertools
+    import random
+    from multiprocessing import Pool
+    links = hl_links()
+    singles = [(l,) for l in links]
+    doubles = random.Random(7).sample(list(itertools.combinations(links, 2)), 500)   # as v2
+    vls = [('none', frozenset()), ('0x1111', frozenset({0, 4, 8, 12}))]
+    jobs = [(n, vl, vf, kind, hl) for n in CONFIGS for vl, vf in vls
+            for kind, sets in (('single', singles), ('double', doubles)) for hl in sets]
+    t = time.time()
+    with Pool(nproc) as pool:
+        res = pool.map(hl3_job, jobs, chunksize=4)
+    el = time.time() - t
+    cols = ['relation', 'vl_mask', 'kind', 'layers', 'always_unaware', 'exists_unaware', 'dead_unaware',
+            'cdg_acyclic_unaware', 'always_aware', 'exists_aware', 'dead_aware', 'cdg_acyclic_aware']
+    csv_path = os.path.splitext(out_md)[0] + '.csv'
+    with open(csv_path, 'w') as f:
+        f.write(','.join(cols) + '\n')
+        for r in res:
+            f.write(','.join(str(x) for x in r) + '\n')
+    # cross-check: the unaware "always delivered" share must equal the v2 table, row by row
+    check = 'v2 cross-check not run'
+    if v2_csv and os.path.exists(v2_csv):
+        v2 = [l.strip().split(',') for l in open(v2_csv).read().splitlines()[1:]]
+        same = sum(1 for a, b in zip(res, v2) if list(map(str, a[:4])) == b[:4] and str(a[4]) == b[4]
+                   and str(a[6]) == b[5])
+        check = f'v2 cross-check: {same} of {len(v2)} rows identical (relation, mask, kind, layers, always, dead)'
+    L = ['# Horizontal-link fault coverage v3: exists-path and fault-aware pruning (formal model)', '',
+         'Model: formal/impl_relation_check.py `hl3` mode. Fault sets as results_v2/hl_coverage.md: all',
+         f'{len(singles)} single HL faults and the same 500 sampled double faults (seed 7), each without VL',
+         'faults and with VL mask 0x1111; relations A_fixed_XY (every VL pair explored), CI_XY_OE, FULL_OE_OE.',
+         '',
+         'Metrics (share of the 4032 source-destination pairs):',
+         '* **always (v2, unaware):** no reachable state of the pair is a dead end, with routers that only',
+         '  refuse a faulty link next to them (as v2).',
+         '* **exists-path:** at least one routing path of the relation (some injection choice, some',
+         '  adaptive choice) is delivered. Fault-aware pruning only removes moves that cannot lead to',
+         '  delivery, so this share is the same with and without pruning (checked: column `exists aware`).',
+         '* **always (aware):** with fault-aware pruning. Routers know every HL fault of their own layer',
+         '  (all chiplet links for chiplet routers, all interposer links for interposer routers, as ReD',
+         '  distributes VL faults) and never take a move after which no remaining candidate (VL, or the',
+         '  destination in the intra/destination phase) is reachable on a minimal, turn-legal, fault-free path',
+         '  of that layer. Candidate sets and injection choices are unchanged, and faults of the other layer',
+         '  stay unknown (the exit VL is chosen without knowing the interposer, the entry VL without knowing',
+         '  the destination chiplet).',
+         f'Elapsed: {el:.0f} s on {nproc} processes. {check}.', '',
+         '| relation | VL mask | HL faults | sets | always (v2, unaware): mean (min) | exists-path: mean (min) | '
+         'always (aware): mean (min) | sets 100 % aware | dead states aware: mean | CDG acyclic aware | exists aware = unaware |',
+         '|---|---|---|---|---|---|---|---|---|---|---|']
+    groups = [('single', 'C', 'single, chiplet'), ('single', 'I', 'single, interposer'), ('single', None, 'single, all'),
+              ('double', None, 'double (sample)')]
+    for n in CONFIGS:
+        for vl, _ in vls:
+            for kind, layer, label in groups:
+                rs = [r for r in res if r[0] == n and r[1] == vl and r[2] == kind and (layer is None or r[3] == layer)]
+
+                def mm(i):
+                    xs = [r[i] for r in rs]
+                    return f'{100 * sum(xs) / len(xs):.2f} % ({100 * min(xs):.2f} %)'
+                L.append(f'| {n} | {vl} | {label} | {len(rs)} | {mm(4)} | {mm(5)} | {mm(8)} | '
+                         f'{sum(1 for r in rs if r[8] == 1.0)} | {100 * sum(r[10] for r in rs) / len(rs):.3f} % | '
+                         f'{sum(1 for r in rs if r[11])}/{len(rs)} | {sum(1 for r in rs if r[5] == r[9])}/{len(rs)} |')
+    open(out_md, 'w', newline='\n').write('\n'.join(L) + '\n')
+    print('\n'.join(L))
 
 
 def hl_main(nproc, out_md):
@@ -290,6 +421,11 @@ def hl_main(nproc, out_md):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'hl3':
+        hl3_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,
+                 sys.argv[3] if len(sys.argv) > 3 else 'hl_coverage_v3.md',
+                 sys.argv[4] if len(sys.argv) > 4 else None)
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == 'hl':
         hl_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,
                 sys.argv[3] if len(sys.argv) > 3 else 'hl_coverage.md')
