@@ -1,0 +1,12 @@
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_3x3
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_3x3
+written 40 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_3x3
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_3x3
+written 40 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_3x3
+written 40 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+written 25 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+written 25 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+written 15 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+satfine all jobs: 251
+done; missing outputs: 0
