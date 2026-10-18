@@ -1,0 +1,11 @@
+variant,reference,metric,n_seeds,effect_pct,ci_low,ci_high,p,v2_effect_pct,v2_ci_low,v2_ci_high,p_holm,verdict
+CI_heur,DeFT_tm,LAT,10,-17.64,-19.94,-15.27,8.521e-08,-16.03,-18.94,-13.01,6.817e-07,confirmed
+CI_heur,DeFT_tm,P99,10,-32.49,-36.26,-28.49,8.756e-08,-29.08,-35.41,-22.13,6.817e-07,confirmed
+CI_heurLA,DeFT_tm,LAT,10,-21.44,-24.48,-18.27,2.303e-07,-19.63,-21.64,-17.57,1.152e-06,confirmed
+CI_heurLA,DeFT_tm,P99,10,-35.27,-40.74,-29.29,1.442e-06,-32.34,-37.09,-27.22,4.326e-06,confirmed
+CI_qlLA,DeFT_tm,LAT,10,-23.28,-25.83,-20.65,2.568e-08,-22.11,-24.44,-19.7,2.568e-07,confirmed
+CI_qlLA,DeFT_tm,P99,10,-38.72,-43.85,-33.13,4.801e-07,-36.84,-41.68,-31.6,1.92e-06,confirmed
+CI_qlLA,CI_heurLA,LAT,10,-2.35,-4.35,-0.31,0.02864,-3.09,-5.04,-1.1,0.05727,not confirmed
+CI_qlLA,CI_heurLA,P99,10,-5.34,-10.8,0.46,0.06627,-6.66,-12.69,-0.2,0.06627,not confirmed
+FULL_heurLA,DeFT_tm,LAT,10,-26.16,-28.98,-23.23,2.749e-08,-24.84,-27.13,-22.49,2.568e-07,confirmed
+FULL_heurLA,DeFT_tm,P99,10,-46.02,-50.97,-40.57,1.514e-07,-44.92,-48.92,-40.61,9.082e-07,confirmed
