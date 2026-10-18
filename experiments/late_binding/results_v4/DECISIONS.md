@@ -28,3 +28,13 @@
    blocks are unchanged, which is what the step-2 regression compares.
 8. **No routing or selection logic was changed.** The only edits in DeftLateBinding.cpp are
    types, array sizing and the references of item 4.
+
+## Step 2: default-instance regression
+9. **132 fixed-window runs instead of "60".** The configuration list in the instructions
+   (11 variants x uniform/hotspot/chipperm x 0x0000/0x1111 x 2 loads x seed 1) gives 132
+   runs; the full list was run (a superset of 60). The loads are the 2nd and 5th v2
+   evaluation rates (~0.5 and ~1.2 x Lsat), so one is below and one beyond saturation.
+10. **22 drain runs instead of 20:** all 11 variants on the all-pairs burst with masks
+    0x0000 (seed 1) and 0x9C63 (seed 2). DeFT_tm uses the chipperm LUT there.
+11. **Reference binary:** the build of 4a3b345 (= the v2/v3 binary, byte-identical to the
+    one used for the v2 and v3 runs).
