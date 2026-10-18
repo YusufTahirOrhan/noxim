@@ -8,3 +8,5 @@ formal/__pycache__/
 formal/impl_relation_check_all.txt
 results_v2/*_raw/
 results_v2/*.log
+results_v3/*_raw/
+results_v3/*.log
