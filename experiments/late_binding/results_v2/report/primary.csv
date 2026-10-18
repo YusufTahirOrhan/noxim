@@ -1,0 +1,17 @@
+variant,reference,metric,n_seeds,dropped_seeds,effect_pct,ci_low,ci_high,p,lower_bound_cells,p_holm,verdict
+CI_heur,DeFT_tm,THR,10,0,2.24,1.68,2.8,7.806e-06,30,6.245e-05,better
+CI_heur,DeFT_tm,LAT,10,0,-5.73,-6.15,-5.3,2.882e-10,0,4.034e-09,better
+CI_heurLA,DeFT_tm,THR,10,0,3.07,2.61,3.53,9.054e-08,30,1.086e-06,better
+CI_heurLA,DeFT_tm,LAT,10,0,-7.47,-7.82,-7.12,5.419e-12,0,8.67e-11,better
+FULL_heurLA,DeFT_tm,THR,10,0,-1.66,-2.62,-0.69,0.0039,30,0.0195,worse
+FULL_heurLA,DeFT_tm,LAT,10,0,-9.65,-10.13,-9.17,9.259e-12,0,1.389e-10,better
+CI_ql,CI_heur,THR,10,0,0.74,0.07,1.41,0.03361,30,0.06723,n.s.
+CI_ql,CI_heur,LAT,10,0,-1.56,-1.92,-1.2,4.459e-06,0,4.459e-05,better
+FULL_ql,FULL_heur,THR,10,0,2.96,1.18,4.77,0.004323,29,0.0195,better
+FULL_ql,FULL_heur,LAT,10,0,-2.97,-3.49,-2.45,4.35e-07,0,4.785e-06,better
+CI_qlLA,CI_heurLA,THR,10,0,1.57,1.19,1.95,5.513e-06,30,4.962e-05,better
+CI_qlLA,CI_heurLA,LAT,10,0,-1.1,-1.63,-0.57,0.001151,0,0.006906,better
+FULL_qlLA,FULL_heurLA,THR,10,0,0.24,-1.0,1.5,0.6694,30,0.6694,n.s.
+FULL_qlLA,FULL_heurLA,LAT,10,0,-2.11,-2.64,-1.57,9.986e-06,0,6.99e-05,better
+DeFT_tm,DeFT,THR,10,0,5.16,4.71,5.62,7.808e-10,30,1.015e-08,better
+DeFT_tm,DeFT,LAT,10,0,-0.56,-1.01,-0.1,0.02127,0,0.06381,n.s.

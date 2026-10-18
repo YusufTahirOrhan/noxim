@@ -276,7 +276,7 @@ def main():
             for sp in ('top', 'right'):
                 ax.spines[sp].set_visible(False)
         axes[0].set_ylabel(f'mean packet latency (cycles, log)\ngeometric mean over {len(seeds)} seeds, 95 % CI')
-        fig.suptitle(f'{p}, fault mask {m}   (dotted: DeFT Lsat = {8 * LP[k(p, m)]["lsat"]:.3f} for this scenario; '
+        fig.suptitle(f'{p}, fault mask {m}   (dotted: DeFT Lsat = {8 * LP[k(p, m)]["lsat"]:.3f} flits/node/cycle; '
                      'beyond saturation the fixed-window latency is not a steady state)', fontsize=10)
         fig.tight_layout()
         fig.savefig(os.path.join(out_dir, f'latency_{p}_{m}.png'), dpi=130)
@@ -348,6 +348,27 @@ def main():
         L.append(f'| {x["variant"]} | {x["reference"]} | {x["metric"]} | {x["effect_pct"]:+.2f} | '
                  f'[{x["ci_low"]:+.2f}, {x["ci_high"]:+.2f}] | {x["p"]:.3g} | {x["p_holm"]:.3g} | {x["verdict"]} | '
                  f'{x["lower_bound_cells"] if x["metric"] == "THR" else "-"} |')
+    L.append('')
+
+    # Sensitivity (secondary, not pre-registered): THR over the scenarios where neither side is
+    # capped on any seed.
+    L.append('## Sensitivity (secondary, not pre-registered): THR excluding capped scenarios')
+    L.append('')
+    L.append('Same statistic as the primary THR test, restricted to scenarios where neither the variant nor the '
+             'reference is capped on any seed. Unadjusted; not a significance claim.')
+    L.append('')
+    L.append('| variant | reference | scenarios kept | effect % | 95 % CI | p (unadjusted) |')
+    L.append('|---|---|---|---|---|---|')
+    for a, b in PRIMARY:
+        keep = [(p, m) for p, m in EVAL_SCENARIOS
+                if not any(lower.get((a, p, m, s)) or lower.get((b, p, m, s)) for s in seeds)]
+        per_seed = []
+        for s in seeds:
+            rs = [math.log(metric(a, p, m, s, 'THR') / metric(b, p, m, s, 'THR')) for p, m in keep]
+            per_seed.append(sum(rs) / len(rs))
+        mu, h = ci(per_seed)
+        L.append(f'| {a} | {b} | {len(keep)} | {100 * (math.exp(mu) - 1):+.2f} | '
+                 f'[{100 * (math.exp(mu - h) - 1):+.2f}, {100 * (math.exp(mu + h) - 1):+.2f}] | {ttest(per_seed):.3g} |')
     L.append('')
 
     def table(name, title, pairs):

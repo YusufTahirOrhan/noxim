@@ -99,3 +99,21 @@ Plain DEFT routing does not count VL usage, so DeFT's VL counts come from `eval_
 (DEFT_LB with the LUT pairs, exit and entry). Its traffic statistics are identical to
 DeFT's: all 385 runs give the same latency, p99 and packet counts; only the energy
 model differs.
+
+## Second evaluation (results_v2/)
+Traffic-matched DeFT baseline (DeFT_tm), information-matched learners (ql_lookahead), per-scope
+tuning, per-scenario load points, 10 seeds, pre-registered primary analysis (Holm), HL-fault
+coverage and hardware-cost estimates. Start with `results_v2/FINDINGS.md`; the decisions taken
+without the author are in `results_v2/DECISIONS.md`.
+```
+python3 gen_traffic.py traffic half                       # 0.0005-grid tables
+python3 ../../other/deft_vl_lut_generator.py $(sed 's/^/--fault-mask /' drain_masks.txt) \
+    --demand-table traffic/<pattern>_0.0100.txt --output luts/lut_rho001_tm_<pattern>.yaml
+python3 check_lut_tm.py && python3 check_qlla.py BIN_BEFORE BIN_AFTER
+python3 experiments_v2.py sat 11 && python3 experiments_v2.py points
+python3 experiments_v2.py tune 11 && python3 experiments_v2.py choose_tune
+python3 experiments_v2.py tune_ql 11 && python3 experiments_v2.py choose_tune_ql   # then freeze variants_v2.py
+python3 experiments_v2.py drain 11 && python3 experiments_v2.py timing 11
+python3 experiments_v2.py eval 11 all && python3 experiments_v2.py evalvl 11 all && python3 report_v2.py
+(cd formal && python3 impl_relation_check.py hl 4 ../results_v2/hl_coverage.md)
+```
