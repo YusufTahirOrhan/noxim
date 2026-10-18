@@ -156,6 +156,10 @@ struct GlobalParams {
     static vector<int> deft_faulty_vertical_links;
     static int deft_vl_fault_count;
     static string deft_vl_lut_filename;
+    static int deft_chiplets_x;
+    static int deft_chiplets_y;
+    static int deft_chiplet_w;
+    static int deft_chiplet_h;
     static int mesh_dim_x;
     static int mesh_dim_y;
     static int n_delta_tiles;

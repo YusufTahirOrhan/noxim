@@ -25,6 +25,10 @@ string GlobalParams::topology;
 vector<int> GlobalParams::deft_faulty_vertical_links;
 int GlobalParams::deft_vl_fault_count;
 string GlobalParams::deft_vl_lut_filename;
+int GlobalParams::deft_chiplets_x = 2;
+int GlobalParams::deft_chiplets_y = 2;
+int GlobalParams::deft_chiplet_w = 4;
+int GlobalParams::deft_chiplet_h = 4;
 
 int GlobalParams::mesh_dim_x;
 int GlobalParams::mesh_dim_y;

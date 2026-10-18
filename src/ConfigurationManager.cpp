@@ -218,6 +218,10 @@ void loadConfiguration() {
         readParam<int>(config, "deft_vl_fault_count", 0);
     GlobalParams::deft_vl_lut_filename =
         readParam<string>(config, "deft_vl_lut_filename", "");
+    GlobalParams::deft_chiplets_x = readParam<int>(config, "deft_chiplets_x", 2);
+    GlobalParams::deft_chiplets_y = readParam<int>(config, "deft_chiplets_y", 2);
+    GlobalParams::deft_chiplet_w = readParam<int>(config, "deft_chiplet_w", 4);
+    GlobalParams::deft_chiplet_h = readParam<int>(config, "deft_chiplet_h", 4);
 
     //Mesh network params
     if (GlobalParams::topology == TOPOLOGY_MESH) {
@@ -401,7 +405,7 @@ void showHelp(char selfname[])
          << "\t-flit N\t\t\tSet the flit size [bit]" << endl
          << "\t-topology TYPE\t\tSet the topology to one of the following:" << endl
          << "\t\tMESH\t\t2D Mesh" << endl
-         << "\t\tDEFT_2_5D\tFour 4x4 chiplets on an 8x8 active interposer" << endl
+         << "\t\tDEFT_2_5D\tChiplets on an active interposer (default four 4x4 on 8x8)" << endl
          << "\t\tBUTTERFLY\tDelta network Butterfly (radix 2)" << endl
          << "\t\tBASELINE\tDelta network Baseline" << endl
          << "\t\tOMEGA\t\tDelta network Omega" << endl
@@ -443,6 +447,8 @@ void showHelp(char selfname[])
          << "\t-deft_vl_fault_count N\tRandomly mark N physical DEFT_2_5D VLs faulty" << endl
          << "\t-deft_faulty_vls LIST\tComma-separated explicit DEFT_2_5D VL fault IDs" << endl
          << "\t-deft_vl_lut FILE\tLoad a deft_vl_lut.v1 routing table" << endl
+         << "\t-deft_chiplets_x N, -deft_chiplets_y N\tDEFT_2_5D chiplet grid (default 2 x 2)" << endl
+         << "\t-deft_chiplet_w N, -deft_chiplet_h N\tDEFT_2_5D routers per chiplet (default 4 x 4)" << endl
          << "\t-detailed\t\tShow detailed statistics" << endl
          << "\t-show_buf_stats\t\tShow buffers statistics" << endl
          << "\t-volume N\t\tStop the simulation when either the maximum number of cycles has been reached or N flits have" << endl
@@ -485,6 +491,8 @@ void showConfig()
          << formatIntList(GlobalParams::deft_faulty_vertical_links) << endl
          << "- deft_vl_lut_filename = "
          << GlobalParams::deft_vl_lut_filename << endl
+         << "- deft_chiplets = " << GlobalParams::deft_chiplets_x << "x" << GlobalParams::deft_chiplets_y
+         << " of " << GlobalParams::deft_chiplet_w << "x" << GlobalParams::deft_chiplet_h << endl
          << "- clock_period = " << GlobalParams::clock_period_ps << "ps" << endl
          << "- simulation_time = " << GlobalParams::simulation_time << endl
          << "- warm_up_time = " << GlobalParams::stats_warm_up_time << endl
@@ -912,6 +920,14 @@ void parseCmdLine(int arg_num, char *arg_vet[])
         else if (!strcmp(arg_vet[i], "-deft_faulty_vls"))
             GlobalParams::deft_faulty_vertical_links =
                 parseIntList(requireOptionValue(i, arg_num, arg_vet, "-deft_faulty_vls"));
+        else if (!strcmp(arg_vet[i], "-deft_chiplets_x"))
+            GlobalParams::deft_chiplets_x = atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_chiplets_x"));
+        else if (!strcmp(arg_vet[i], "-deft_chiplets_y"))
+            GlobalParams::deft_chiplets_y = atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_chiplets_y"));
+        else if (!strcmp(arg_vet[i], "-deft_chiplet_w"))
+            GlobalParams::deft_chiplet_w = atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_chiplet_w"));
+        else if (!strcmp(arg_vet[i], "-deft_chiplet_h"))
+            GlobalParams::deft_chiplet_h = atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_chiplet_h"));
         else if (!strcmp(arg_vet[i], "-deft_vl_lut"))
             GlobalParams::deft_vl_lut_filename =
                 requireOptionValue(i, arg_num, arg_vet, "-deft_vl_lut");
@@ -1004,6 +1020,20 @@ void configure(int arg_num, char *arg_vet[]) {
 
     loadConfiguration();
     parseCmdLine(arg_num, arg_vet);
+
+    // DEFT_2_5D instance size (YAML, overridden by the command line); the mesh
+    // dimensions follow the chiplet footprint.
+    if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D) {
+        string err;
+        if (!DeftTopology::configure(GlobalParams::deft_chiplets_x, GlobalParams::deft_chiplets_y,
+                                     GlobalParams::deft_chiplet_w, GlobalParams::deft_chiplet_h, &err)) {
+            cerr << "Error: " << err << endl;
+            exit(1);
+        }
+        GlobalParams::mesh_dim_x = DeftTopology::FootprintWidth;
+        GlobalParams::mesh_dim_y = DeftTopology::FootprintHeight;
+        GlobalParams::n_delta_tiles = DeftTopology::ChipletRouterCount;
+    }
 
     checkConfiguration();
 

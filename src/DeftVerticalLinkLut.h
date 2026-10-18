@@ -6,6 +6,7 @@
 #define __NOXIMDEFTVERTICALLINKLUT_H__
 
 #include <cstddef>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
@@ -23,7 +24,7 @@ struct VerticalLinkSelection {
 struct Entry {
     Entry();
 
-    int fault_mask;
+    uint64_t fault_mask;
     int source_chiplet_id;
     int source_router_id;
     int destination_chiplet_id;
@@ -37,9 +38,10 @@ bool isLoaded();
 std::string loadedFilename();
 std::size_t entryCount();
 std::size_t activeFaultMaskEntryCount();
-int currentFaultMask();
+uint64_t currentFaultMask();
 std::string currentFaultMaskId();
-std::string formatFaultMask(int fault_mask);
+// "0x" followed by ceil(VerticalLinkCount / 4) hex digits (0x0000 for 16 VLs)
+std::string formatFaultMask(uint64_t fault_mask);
 
 bool lookup(int source_chiplet_id,
             int source_router_id,

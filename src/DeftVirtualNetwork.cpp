@@ -56,7 +56,7 @@ bool isInterChipletTraffic(int src_id, int dst_id)
     return !isSameChiplet(src_id, dst_id);
 }
 
-bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id, int exit_mask)
+bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id, uint64_t exit_mask)
 {
     if (DeftTopology::isInterposerRouter(src_id))
         return true;
@@ -76,7 +76,7 @@ bool sourceCanUseEitherVirtualNetwork(int src_id, int dst_id, int exit_mask)
     // A VN1 packet can leave the source chiplet only as Local->Down; any
     // horizontal move would later need Horizontal->Down in VN1 (rule R3).
     if (exit_mask != 0)
-        return exit_mask == (1 << link->vl_id);
+        return exit_mask == ((uint64_t) 1 << link->vl_id);
 
     if (GlobalParams::routing_algorithm == "DEFT" &&
         DeftVerticalLinkLut::isLoaded()) {
@@ -219,7 +219,7 @@ bool isOutputDirectionAllowed(const RouteData &route_data,
     return true;
 }
 
-int assignSourceVirtualNetwork(int src_id, int dst_id, int exit_mask)
+int assignSourceVirtualNetwork(int src_id, int dst_id, uint64_t exit_mask)
 {
     if (!isEnabled())
         return DEFAULT_VC;

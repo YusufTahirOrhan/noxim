@@ -9,10 +9,43 @@
 
 namespace DeftTopology {
 
-namespace {
+int ChipletGridWidth = 2;
+int ChipletGridHeight = 2;
+int ChipletCount = 4;
+int ChipletLocalWidth = 4;
+int ChipletLocalHeight = 4;
+int FootprintWidth = 8;
+int FootprintHeight = 8;
+int ChipletRouterCount = 64;
+int InterposerRouterCount = 64;
+int TotalRouters = 128;
+int VerticalLinkCount = 16;
+int LayoutWidth = 8;
+int LayoutHeight = 16;
 
-const int SLOT_LOCAL_X[VerticalLinksPerChiplet] = {1, 3, 2, 0};
-const int SLOT_LOCAL_Y[VerticalLinksPerChiplet] = {0, 1, 3, 2};
+int slotLocalX(int slot)
+{
+    switch (slot) {
+    case VL_SLOT_NORTH: return 1;
+    case VL_SLOT_EAST: return ChipletLocalWidth - 1;
+    case VL_SLOT_SOUTH: return ChipletLocalWidth - 2;
+    case VL_SLOT_WEST: return 0;
+    }
+    return -1;
+}
+
+int slotLocalY(int slot)
+{
+    switch (slot) {
+    case VL_SLOT_NORTH: return 0;
+    case VL_SLOT_EAST: return 1;
+    case VL_SLOT_SOUTH: return ChipletLocalHeight - 1;
+    case VL_SLOT_WEST: return ChipletLocalHeight - 2;
+    }
+    return -1;
+}
+
+namespace {
 
 std::vector<VerticalLinkInfo> buildVerticalLinks()
 {
@@ -26,7 +59,7 @@ std::vector<VerticalLinkInfo> buildVerticalLinks()
             link.owner_chiplet_id = chiplet_id;
             link.slot = static_cast<VerticalLinkSlot>(slot);
             link.chiplet_endpoint_router_id =
-                chipletRouterId(chiplet_id, SLOT_LOCAL_X[slot], SLOT_LOCAL_Y[slot]);
+                chipletRouterId(chiplet_id, slotLocalX(slot), slotLocalY(slot));
 
             link.footprint_x = link.chiplet_endpoint_router_id % FootprintWidth;
             link.footprint_y = link.chiplet_endpoint_router_id / FootprintWidth;
@@ -85,6 +118,40 @@ BoundaryRouterInfo boundaryRouterFromVerticalLink(const VerticalLinkInfo &link)
 }
 
 } // namespace
+
+bool configure(int chiplets_x, int chiplets_y, int chiplet_w, int chiplet_h,
+               std::string *error_message)
+{
+    if (chiplets_x < 1 || chiplets_y < 1 || chiplets_x * chiplets_y < 2)
+        return failValidation(error_message, "DEFT_2_5D needs a chiplet grid with at least 2 chiplets");
+    if (chiplet_w < 3 || chiplet_h < 3)
+        return failValidation(error_message, "DEFT_2_5D chiplets must be at least 3x3 routers");
+    if (chiplets_x * chiplets_y * VerticalLinksPerChiplet > MaxVerticalLinkCount) {
+        std::ostringstream message;
+        message << "DEFT_2_5D supports at most " << MaxVerticalLinkCount
+                << " vertical links (" << MaxVerticalLinkCount / VerticalLinksPerChiplet << " chiplets)";
+        return failValidation(error_message, message.str());
+    }
+
+    ChipletGridWidth = chiplets_x;
+    ChipletGridHeight = chiplets_y;
+    ChipletCount = chiplets_x * chiplets_y;
+    ChipletLocalWidth = chiplet_w;
+    ChipletLocalHeight = chiplet_h;
+    FootprintWidth = chiplets_x * chiplet_w;
+    FootprintHeight = chiplets_y * chiplet_h;
+    ChipletRouterCount = FootprintWidth * FootprintHeight;
+    InterposerRouterCount = FootprintWidth * FootprintHeight;
+    TotalRouters = ChipletRouterCount + InterposerRouterCount;
+    VerticalLinkCount = ChipletCount * VerticalLinksPerChiplet;
+    LayoutWidth = FootprintWidth;
+    LayoutHeight = FootprintHeight * 2;
+
+    mutableVerticalLinks() = buildVerticalLinks();
+    if (error_message != 0)
+        error_message->clear();
+    return true;
+}
 
 bool isChipletRouter(int id)
 {
@@ -366,7 +433,7 @@ bool hasFunctionalVerticalLinkForChiplet(int chiplet_id)
 bool validateVerticalLinkModel(std::string *error_message)
 {
     const std::vector<VerticalLinkInfo> &links = verticalLinks();
-    if (links.size() != VerticalLinkCount) {
+    if (links.size() != (size_t) VerticalLinkCount) {
         std::ostringstream message;
         message << "expected " << VerticalLinkCount << " vertical links, found "
                 << links.size();
@@ -418,7 +485,7 @@ bool validateVerticalLinkModel(std::string *error_message)
         }
 
         const int expected_chiplet_endpoint =
-            chipletRouterId(it->owner_chiplet_id, SLOT_LOCAL_X[slot], SLOT_LOCAL_Y[slot]);
+            chipletRouterId(it->owner_chiplet_id, slotLocalX(slot), slotLocalY(slot));
         if (it->chiplet_endpoint_router_id != expected_chiplet_endpoint) {
             std::ostringstream message;
             message << "vertical link " << it->vl_id
@@ -502,7 +569,7 @@ bool validateBoundaryRouterModel(std::string *error_message)
     }
 
     const std::vector<BoundaryRouterInfo> boundary_routers = boundaryRouters();
-    if (boundary_routers.size() != VerticalLinkCount) {
+    if (boundary_routers.size() != (size_t) VerticalLinkCount) {
         std::ostringstream message;
         message << "expected " << VerticalLinkCount
                 << " boundary routers, found " << boundary_routers.size();

@@ -17,7 +17,7 @@
 namespace {
 
 struct LookupKey {
-    int fault_mask;
+    uint64_t fault_mask;
     int source_chiplet_id;
     int source_router_id;
     int destination_chiplet_id;
@@ -52,19 +52,25 @@ bool validChipletId(int chiplet_id)
     return chiplet_id >= 0 && chiplet_id < DeftTopology::ChipletCount;
 }
 
+int faultMaskHexDigits()
+{
+    return (DeftTopology::VerticalLinkCount + 3) / 4;
+}
+
 bool parseFaultMaskId(const std::string &text,
-                      int *fault_mask,
+                      uint64_t *fault_mask,
                       std::string *error_message)
 {
-    if (text.size() != 6 || text[0] != '0' ||
+    if ((int) text.size() != 2 + faultMaskHexDigits() || text[0] != '0' ||
         (text[1] != 'x' && text[1] != 'X')) {
         std::ostringstream message;
-        message << "fault_mask_id must use fixed-width hex form 0x0000, got "
+        message << "fault_mask_id must use fixed-width hex form 0x"
+                << std::string(faultMaskHexDigits(), '0') << ", got "
                 << text;
         return fail(error_message, message.str());
     }
 
-    int value = 0;
+    uint64_t value = 0;
     for (std::string::const_iterator it = text.begin() + 2;
          it != text.end();
          ++it) {
@@ -81,7 +87,7 @@ bool parseFaultMaskId(const std::string &text,
             message << "fault_mask_id contains a non-hex digit: " << text;
             return fail(error_message, message.str());
         }
-        value = (value << 4) | digit;
+        value = (value << 4) | (uint64_t) digit;
     }
 
     if (fault_mask != 0)
@@ -136,16 +142,16 @@ bool readIntVector(const YAML::Node &node,
     return true;
 }
 
-bool isFaultyInMask(int fault_mask, int vl_id)
+bool isFaultyInMask(uint64_t fault_mask, int vl_id)
 {
     if (vl_id < 0 || vl_id >= DeftTopology::VerticalLinkCount)
         return true;
 
-    return (fault_mask & (1 << vl_id)) != 0;
+    return (fault_mask & ((uint64_t) 1 << vl_id)) != 0;
 }
 
 bool parseFaultScenarios(const YAML::Node &root,
-                         std::set<int> *scenario_masks,
+                         std::set<uint64_t> *scenario_masks,
                          std::string *error_message)
 {
     if (!root["fault_scenarios"])
@@ -166,7 +172,7 @@ bool parseFaultScenarios(const YAML::Node &root,
                         error_message))
             return false;
 
-        int mask = 0;
+        uint64_t mask = 0;
         if (!parseFaultMaskId(mask_text, &mask, error_message))
             return false;
 
@@ -238,7 +244,7 @@ bool validateTopologySignature(const YAML::Node &root,
 bool validateRankedCandidates(const std::vector<int> &ranked_vl_ids,
                               int selected_vl_id,
                               int owner_chiplet_id,
-                              int fault_mask,
+                              uint64_t fault_mask,
                               const std::string &context,
                               std::string *error_message)
 {
@@ -290,7 +296,7 @@ bool validateRankedCandidates(const std::vector<int> &ranked_vl_ids,
 
 bool parseSelection(const YAML::Node &node,
                     int owner_chiplet_id,
-                    int fault_mask,
+                    uint64_t fault_mask,
                     const std::string &context,
                     DeftVerticalLinkLut::VerticalLinkSelection *selection,
                     std::string *error_message)
@@ -360,7 +366,7 @@ bool parseSelection(const YAML::Node &node,
 }
 
 bool parseEntry(const YAML::Node &node,
-                const std::set<int> &scenario_masks,
+                const std::set<uint64_t> &scenario_masks,
                 DeftVerticalLinkLut::Entry *entry,
                 std::string *error_message)
 {
@@ -527,7 +533,7 @@ bool loadFromFile(const std::string &filename,
         if (!validateTopologySignature(root, error_message))
             return false;
 
-        std::set<int> scenario_masks;
+        std::set<uint64_t> scenario_masks;
         if (!parseFaultScenarios(root, &scenario_masks, error_message))
             return false;
 
@@ -594,7 +600,7 @@ std::size_t entryCount()
 
 std::size_t activeFaultMaskEntryCount()
 {
-    const int mask = currentFaultMask();
+    const uint64_t mask = currentFaultMask();
     std::size_t count = 0;
 
     for (EntryMap::const_iterator it = loaded_entries.begin();
@@ -607,9 +613,9 @@ std::size_t activeFaultMaskEntryCount()
     return count;
 }
 
-int currentFaultMask()
+uint64_t currentFaultMask()
 {
-    int mask = 0;
+    uint64_t mask = 0;
     const std::vector<DeftTopology::VerticalLinkInfo> &links =
         DeftTopology::verticalLinks();
 
@@ -618,7 +624,7 @@ int currentFaultMask()
          it != links.end();
          ++it) {
         if (!it->is_functional)
-            mask |= (1 << it->vl_id);
+            mask |= ((uint64_t) 1 << it->vl_id);
     }
 
     return mask;
@@ -629,15 +635,18 @@ std::string currentFaultMaskId()
     return formatFaultMask(currentFaultMask());
 }
 
-std::string formatFaultMask(int fault_mask)
+std::string formatFaultMask(uint64_t fault_mask)
 {
+    const int digits = faultMaskHexDigits();
+    const uint64_t valid = DeftTopology::VerticalLinkCount >= 64 ?
+        ~(uint64_t) 0 : (((uint64_t) 1 << DeftTopology::VerticalLinkCount) - 1);
     std::ostringstream out;
     out << "0x"
         << std::hex
         << std::nouppercase
-        << std::setw(4)
+        << std::setw(digits)
         << std::setfill('0')
-        << (fault_mask & 0xffff);
+        << (fault_mask & valid);
     return out.str();
 }
 

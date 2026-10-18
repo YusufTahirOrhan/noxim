@@ -28,6 +28,8 @@ struct Router;
 
 namespace DeftLB {
 
+typedef uint64_t VlMask;    // one bit per VL id (up to 64 VLs)
+
 enum TurnModel { TM_XY = 0, TM_OE = 1 };
 
 enum InjectionPolicy {
@@ -90,10 +92,10 @@ int movesMask(int tm, int x, int y, int last, int tx, int ty);
 void legalMoves(const RouteData &route_data, std::vector<int> *directions);
 void nextMasks(int router_id, int dir_in, int out_dir,
                int src_id, int dst_id,
-               int exit_mask, int entry_mask,
-               int *next_exit_mask, int *next_entry_mask);
+               VlMask exit_mask, VlMask entry_mask,
+               VlMask *next_exit_mask, VlMask *next_entry_mask);
 int remainingHops(int router_id, int src_id, int dst_id,
-                  int exit_mask, int entry_mask);
+                  VlMask exit_mask, VlMask entry_mask);
 int hopsAfterMove(const RouteData &route_data, int out_dir);
 RouteData nextRouteData(const RouteData &route_data, int out_dir, int out_vc);
 void legalOutputsWithVn(const RouteData &route_data, std::vector<int> *directions);

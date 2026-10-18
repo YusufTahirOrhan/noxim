@@ -344,6 +344,12 @@ void writeJsonSummary(ostream &out, const SummaryMetrics &metrics)
     out << "    \"mesh_dim_x\": " << GlobalParams::mesh_dim_x << "," << endl;
     out << "    \"mesh_dim_y\": " << GlobalParams::mesh_dim_y << "," << endl;
     out << "    \"n_delta_tiles\": " << GlobalParams::n_delta_tiles << "," << endl;
+    if (GlobalParams::topology == TOPOLOGY_DEFT_2_5D)
+        out << "    \"deft_size\": {\"chiplets_x\": " << DeftTopology::ChipletGridWidth
+            << ", \"chiplets_y\": " << DeftTopology::ChipletGridHeight
+            << ", \"chiplet_w\": " << DeftTopology::ChipletLocalWidth
+            << ", \"chiplet_h\": " << DeftTopology::ChipletLocalHeight
+            << ", \"vertical_links\": " << DeftTopology::VerticalLinkCount << "}," << endl;
     out << "    \"simulation_time_cycles\": " << GlobalParams::simulation_time << "," << endl;
     out << "    \"reset_time_cycles\": " << GlobalParams::reset_time << "," << endl;
     out << "    \"stats_warm_up_time_cycles\": " << GlobalParams::stats_warm_up_time << "," << endl;

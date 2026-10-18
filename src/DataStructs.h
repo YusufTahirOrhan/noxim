@@ -11,6 +11,7 @@
 #ifndef _DATASTRUCS_H__
 #define _DATASTRUCS_H__
 
+#include <stdint.h>
 #include <systemc.h>
 #include "GlobalParams.h"
 
@@ -46,8 +47,8 @@ struct Packet {
     int size;
     int flit_left;		// Number of remaining flits inside the packet
     bool use_low_voltage_path;
-    int deft_exit_mask;		// DEFT_LB: candidate exit VLs (bit per VL id), 0 = unset
-    int deft_entry_mask;	// DEFT_LB: candidate entry VLs (bit per VL id), 0 = unset
+    uint64_t deft_exit_mask;		// DEFT_LB: candidate exit VLs (bit per VL id), 0 = unset
+    uint64_t deft_entry_mask;	// DEFT_LB: candidate entry VLs (bit per VL id), 0 = unset
 
     // Constructors
     Packet() { }
@@ -76,8 +77,8 @@ struct RouteData {
     int dst_id;
     int dir_in;			// direction from which the packet comes from
     int vc_id;
-    int deft_exit_mask;		// DEFT_LB candidate exit VLs (0 = unset)
-    int deft_entry_mask;	// DEFT_LB candidate entry VLs (0 = unset)
+    uint64_t deft_exit_mask;		// DEFT_LB candidate exit VLs (0 = unset)
+    uint64_t deft_entry_mask;	// DEFT_LB candidate entry VLs (0 = unset)
     RouteData() : current_id(-1), src_id(-1), dst_id(-1), dir_in(-1), vc_id(0),
                   deft_exit_mask(0), deft_entry_mask(0) { }
 };
@@ -138,8 +139,8 @@ struct Flit {
 
     int hub_relay_node;
 
-    int deft_exit_mask;		// DEFT_LB: candidate exit VLs carried by the head flit
-    int deft_entry_mask;	// DEFT_LB: candidate entry VLs carried by the head flit
+    uint64_t deft_exit_mask;		// DEFT_LB: candidate exit VLs carried by the head flit
+    uint64_t deft_entry_mask;	// DEFT_LB: candidate entry VLs carried by the head flit
     double arrival_cycle;	// cycle at which the flit entered the current router buffer
     int ql_prev_router;		// DEFT_QL: router that forwarded the head flit (-1 = none)
     int ql_prev_dir;		// DEFT_QL: output direction taken at that router

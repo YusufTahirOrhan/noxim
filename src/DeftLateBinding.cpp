@@ -23,18 +23,19 @@ namespace DeftLB {
 namespace {
 
 const int DIR_NONE = 4;
-const int W = DeftTopology::FootprintWidth;
-const int H = DeftTopology::FootprintHeight;
-const int NVL = DeftTopology::VerticalLinkCount;
-const int NROUTERS = DeftTopology::TotalRouters;
-const int NCHIP_ROUTERS = DeftTopology::ChipletRouterCount;
+// References: the instance size is set at run time (DeftTopology::configure).
+const int &W = DeftTopology::FootprintWidth;
+const int &H = DeftTopology::FootprintHeight;
+const int &NVL = DeftTopology::VerticalLinkCount;
+const int &NROUTERS = DeftTopology::TotalRouters;
+const int &NCHIP_ROUTERS = DeftTopology::ChipletRouterCount;
 const int QDIRS = DIRECTIONS + 2;   // N,E,S,W,LOCAL,HUB
 
 const int DX[4] = {0, 1, 0, -1};
 const int DY[4] = {-1, 0, 1, 0};
 
 Config g_config;
-Router *g_routers[DeftTopology::TotalRouters] = {0};
+std::vector<Router *> g_routers;     // sized to TotalRouters on first registration
 
 // Learner with the lookahead heuristic's information (parameter ql_lookahead):
 // 0: static estimate ql_hop_cost * hops_after(o); 1: 1 + best_continuation(o).
@@ -42,8 +43,8 @@ int g_ql_lookahead = 0;
 
 // ---- statistics ----
 unsigned long g_dead_end_events = 0;
-unsigned long g_vl_down[DeftTopology::VerticalLinkCount] = {0};
-unsigned long g_vl_up[DeftTopology::VerticalLinkCount] = {0};
+std::vector<unsigned long> g_vl_down;   // sized to VerticalLinkCount on first use
+std::vector<unsigned long> g_vl_up;
 unsigned long g_adaptive_decisions = 0;
 unsigned long g_selection_calls = 0;
 unsigned long g_ql_updates = 0;
@@ -64,9 +65,17 @@ bool isInterposer(int id)
     return id >= NCHIP_ROUTERS;
 }
 
-int bit(int vl)
+VlMask bit(int vl)
 {
-    return 1 << vl;
+    return (VlMask) 1 << vl;
+}
+
+void ensureVlCounters()
+{
+    if ((int) g_vl_down.size() != NVL) {
+        g_vl_down.assign(NVL, 0);
+        g_vl_up.assign(NVL, 0);
+    }
 }
 
 int vlChipX(int vl)
@@ -116,13 +125,16 @@ int productiveMask(int x, int y, int tx, int ty)
 }
 
 // reach cache: [tm][x][y][last][tx][ty] -> 0 unknown, 1 false, 2 true
-unsigned char g_reach[2][8][8][5][8][8];
+// sized 2 x W x H x 5 x W x H on first use (W, H = footprint)
+std::vector<unsigned char> g_reach;
 
 bool reach(int tm, int x, int y, int last, int tx, int ty)
 {
     if (x == tx && y == ty)
         return true;
-    unsigned char &c = g_reach[tm][x][y][last][tx][ty];
+    if (g_reach.empty())
+        g_reach.assign((size_t) 2 * W * H * 5 * W * H, 0);
+    unsigned char &c = g_reach[((((((size_t) tm * W + x) * H + y) * 5 + last) * W + tx) * H) + ty];
     if (c)
         return c == 2;
     bool ok = false;
@@ -169,9 +181,9 @@ double occEntry(int vl)
            portFlits(DeftTopology::chipletEndpointForVerticalLink(vl), DIRECTION_HUB);
 }
 
-int functionalMask(int chiplet_id)
+VlMask functionalMask(int chiplet_id)
 {
-    int m = 0;
+    VlMask m = 0;
     std::vector<DeftTopology::VerticalLinkInfo> links =
         DeftTopology::functionalVerticalLinksForChiplet(chiplet_id);
     for (size_t i = 0; i < links.size(); i++)
@@ -179,7 +191,7 @@ int functionalMask(int chiplet_id)
     return m;
 }
 
-int randomMember(int mask)
+int randomMember(VlMask mask)
 {
     std::vector<int> members;
     for (int v = 0; v < NVL; v++)
@@ -207,13 +219,13 @@ bool isCostPolicy(InjectionPolicy p)
 }
 
 // Injection-time choice of exit/entry masks for inter-chiplet packets.
-void chooseMasks(int src, int dst, int *exit_mask, int *entry_mask)
+void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
 {
     const Config &c = g_config;
-    const int fs = functionalMask(chipletOf(src));
-    const int fd = functionalMask(chipletOf(dst));
+    const VlMask fs = functionalMask(chipletOf(src));
+    const VlMask fd = functionalMask(chipletOf(dst));
 
-    int es = fs, ed = fd;     // candidate sets after non-cost policies
+    VlMask es = fs, ed = fd;     // candidate sets after non-cost policies
 
     if (c.exit_policy == POLICY_LUT || c.entry_policy == POLICY_LUT) {
         DeftVerticalLinkLut::Entry entry;
@@ -448,13 +460,15 @@ bool validateConfiguration(std::string *error_message)
 // ---- registry ----
 void registerRouter(int id, Router *router)
 {
+    if ((int) g_routers.size() != NROUTERS)
+        g_routers.assign(NROUTERS, (Router *) 0);
     if (id >= 0 && id < NROUTERS)
         g_routers[id] = router;
 }
 
 Router *routerById(int id)
 {
-    if (id < 0 || id >= NROUTERS)
+    if (id < 0 || id >= (int) g_routers.size())
         return 0;
     return g_routers[id];
 }
@@ -559,7 +573,7 @@ Phase phaseOf(int cur, int src, int dst)
     return PH_INVALID;
 }
 
-int movesTowardsMask(int tm, int cur, int last, int cand_mask, int skip_vl)
+int movesTowardsMask(int tm, int cur, int last, VlMask cand_mask, int skip_vl)
 {
     int out = 0;
     const int x = footprintX(cur), y = footprintY(cur);
@@ -586,7 +600,7 @@ void legalMoves(const RouteData &rd, std::vector<int> *dirs)
                       footprintX(rd.dst_id), footprintY(rd.dst_id));
         break;
     case PH_SOURCE: {
-        const int cand = rd.deft_exit_mask;
+        const VlMask cand = rd.deft_exit_mask;
         const int here = vlAtRouter(cur);
         if (here >= 0 && (cand & bit(here))) {
             dirs->push_back(DIRECTION_HUB);
@@ -597,7 +611,7 @@ void legalMoves(const RouteData &rd, std::vector<int> *dirs)
         break;
     }
     case PH_IPOS: {
-        const int cand = rd.deft_entry_mask;
+        const VlMask cand = rd.deft_entry_mask;
         const int here = vlAtRouter(cur);
         if (here >= 0 && (cand & bit(here))) {
             dirs->push_back(DIRECTION_HUB);
@@ -616,8 +630,8 @@ void legalMoves(const RouteData &rd, std::vector<int> *dirs)
 }
 
 void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
-               int exit_mask, int entry_mask,
-               int *next_exit, int *next_entry)
+               VlMask exit_mask, VlMask entry_mask,
+               VlMask *next_exit, VlMask *next_entry)
 {
     *next_exit = exit_mask;
     *next_entry = entry_mask;
@@ -625,8 +639,8 @@ void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
     if (ph != PH_SOURCE && ph != PH_IPOS)
         return;
     const int here = vlAtRouter(cur);
-    const int cand = ph == PH_SOURCE ? exit_mask : entry_mask;
-    int pruned;
+    const VlMask cand = ph == PH_SOURCE ? exit_mask : entry_mask;
+    VlMask pruned;
     if (out_dir == DIRECTION_HUB) {
         pruned = bit(here);
     } else {
@@ -647,7 +661,7 @@ void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
         *next_entry = pruned;
 }
 
-int remainingHops(int cur, int src, int dst, int exit_mask, int entry_mask)
+int remainingHops(int cur, int src, int dst, VlMask exit_mask, VlMask entry_mask)
 {
     switch (phaseOf(cur, src, dst)) {
     case PH_INTRA:
@@ -687,7 +701,7 @@ int hopsAfterMove(const RouteData &rd, int out_dir)
     const int n = neighborId(rd.current_id, out_dir);
     if (n < 0)
         return 1 << 20;
-    int ne, nn;
+    VlMask ne, nn;
     nextMasks(rd.current_id, rd.dir_in, out_dir, rd.src_id, rd.dst_id,
               rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn);
     return 1 + remainingHops(n, rd.src_id, rd.dst_id, ne, nn);
@@ -720,7 +734,7 @@ void prepareHeadPacket(Packet &p)
 {
     if (!DeftVirtualNetwork::isEnabled())
         return;
-    int exit_mask = 0, entry_mask = 0;
+    VlMask exit_mask = 0, entry_mask = 0;
     if (isActive() && chipletOf(p.src_id) >= 0 && chipletOf(p.dst_id) >= 0 &&
         chipletOf(p.src_id) != chipletOf(p.dst_id)) {
         chooseMasks(p.src_id, p.dst_id, &exit_mask, &entry_mask);
@@ -743,6 +757,7 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
     if (out_dir == DIRECTION_HUB) {
         const int v = vlAtRouter(cur);
         if (v >= 0) {
+            ensureVlCounters();
             if (isInterposer(cur)) g_vl_up[v]++;
             else g_vl_down[v]++;
         }
@@ -981,6 +996,7 @@ void writeJson(std::ostream &out)
     out << "    \"selection_calls\": " << g_selection_calls << "," << std::endl;
     out << "    \"adaptive_decisions\": " << g_adaptive_decisions << "," << std::endl;
     out << "    \"ql_updates\": " << g_ql_updates << "," << std::endl;
+    ensureVlCounters();
     out << "    \"vl_down_packets\": [";
     for (int v = 0; v < NVL; v++) out << (v ? ", " : "") << g_vl_down[v];
     out << "]," << std::endl;
