@@ -20,6 +20,7 @@ Usage: python3 gen_traffic.py OUTDIR [half] [--chiplets CX CY] [--chiplet-size W
   half: only the odd multiples of 0.0005 (0.0005, 0.0015, ..., 0.0395), used by the v2
         evaluation for scenarios with a low saturation rate; the 0.001 grid is unchanged.
   --upto RATE: only rates <= RATE (keeps the larger instances' tables small).
+  --rates R1,R2,...: write exactly these rates and nothing else (all patterns, or --patterns P1,P2).
 """
 import os
 import sys
@@ -121,9 +122,27 @@ if __name__ == '__main__':
         i = argv.index('--upto')
         upto = float(argv[i + 1])
         del argv[i:i + 2]
+    rates_only = None
+    if '--rates' in argv:
+        i = argv.index('--rates')
+        rates_only = [round(float(x), 4) for x in argv[i + 1].split(',') if x]
+        del argv[i:i + 2]
+    pats = ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']
+    if '--patterns' in argv:
+        i = argv.index('--patterns')
+        pats = argv[i + 1].split(',')
+        del argv[i:i + 2]
     set_size(*size)
     out = argv[0]
     os.makedirs(out, exist_ok=True)
+    if rates_only is not None:
+        for pat in pats:
+            for r in rates_only:
+                path = os.path.join(out, f'{pat}_{r:.4f}.txt')
+                if not os.path.exists(path):
+                    write(path, pat, r)
+        print('written', len(rates_only), 'rates x', len(pats), 'patterns to', out)
+        sys.exit(0)
     if len(argv) > 1 and argv[1] == 'half':
         for pat in ['uniform', 'localized', 'hotspot', 'chipperm', 'movinghot']:
             for i in range(40):

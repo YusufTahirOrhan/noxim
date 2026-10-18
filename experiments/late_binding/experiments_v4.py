@@ -4,7 +4,11 @@ Stages (python3 experiments_v4.py STAGE [nproc] [extra]):
   drain    all-pairs burst, fault-free and one faulty VL per chiplet (north), seeds 1-2, for
            DeFT, DeFT_tm (hotspot and chipperm LUTs), CI_heur, CI_heurLA, CI_qlLA, FULL_heurLA
   sat      DeFT load sweep per size and scenario (seed 101), 0.0005 steps to 0.016, then 0.018-0.024
-  points   Lsat per size and scenario (v2 criterion) -> results_v4/load_points.json / .md
+  points   Lsat per size and scenario -> results_v4/load_points.json / .md (amended rule, see
+           PREREGISTRATION_AMENDMENT.md; the coarse v2-rule result is kept in load_points_coarse.*)
+  satfine  amendment: L0 at rate 0.0002 for every scenario, and 0.0001-step sweeps for the
+           scenarios whose coarse Lsat is <= 0.004
+  tables   write the traffic tables of the evaluation loads (0.0001 grid where needed)
   timing   short timing test and run-time estimate -> results_v4/runtime_estimate.md
   eval     variants x 2 sizes x 7 scenarios x 7 loads x seeds (extra: first | second | all)
   evalvl   DEFT_LB with the DeFT_tm LUT pairs (traffic-identical to DeFT_tm) for VL counts,
@@ -119,8 +123,97 @@ def sat_jobs():
             for s in SIZES for p, m in scenarios(s) for r in SAT_RATES]
 
 
-def snap(x):
-    return round(max(GRID, round(x / GRID) * GRID), 4)
+def snap(x, grid=GRID):
+    return round(max(grid, round(x / grid) * grid), 4)
+
+
+FINE = 0.0001
+L0_RATE = 0.0002
+LOW_LSAT = 0.004
+
+
+def gen_tables(size, patterns, rates):
+    import subprocess
+    cx, cy = SIZES[size]
+    subprocess.run([sys.executable, os.path.join(HERE, 'gen_traffic.py'), os.path.join(HERE, f'traffic_{size}'),
+                    '--chiplets', str(cx), str(cy), '--rates', ','.join(f'{r:.4f}' for r in rates),
+                    '--patterns', ','.join(patterns)], check=True)
+
+
+def coarse():
+    return json.load(open(os.path.join(RES, 'load_points_coarse.json')))
+
+
+def fine_rates(size, p, m):
+    """0.0001-step sweep up to the rate where the coarse sweep first crossed 3 x L0."""
+    c = coarse()[key(size, p, m)]
+    if c['lsat'] > LOW_LSAT:
+        return []
+    nxt = min(r for r in SAT_RATES if r > c['lsat'])
+    return [round(FINE * i, 4) for i in range(1, int(round(nxt / FINE)) + 1)]
+
+
+def satfine_jobs():
+    js = []
+    for s in SIZES:
+        need = {}
+        for p, m in scenarios(s):
+            rates = sorted(set(fine_rates(s, p, m)) | {L0_RATE})
+            need.setdefault(p, set()).update(rates)
+            js += [job('sat', s, 'DeFT', V2.VARIANTS['DeFT'], p, m, r, 101) for r in rates]
+        for p, rates in need.items():
+            gen_tables(s, [p], sorted(rates))
+    return js
+
+
+def choose_points_amended():
+    """Amended rule (PREREGISTRATION_AMENDMENT.md): L0 = DeFT latency at rate 0.0002 (seed 101);
+    Lsat = largest swept rate before the latency first exceeds 3 x L0, on the 0.0001 grid for
+    scenarios whose coarse Lsat is <= 0.004 and on the 0.0005 grid otherwise; loads 0.2-1.6 x Lsat
+    snapped to the same grid (bumped by one step if two coincide)."""
+    res = {}
+    lines = ['# Load points v4, amended rule (experiments_v4.py points)', '',
+             'L0 = DeFT latency at rate 0.0002 (seed 101). Lsat = largest swept rate before the mean latency first',
+             'exceeds 3 x L0: 0.0001 grid where the coarse (v2-rule) Lsat was <= 0.004, 0.0005 grid otherwise.',
+             'Loads 0.2, 0.5, 0.8, 1.0, 1.2, 1.4, 1.6 x Lsat on the same grid. The coarse result is in load_points_coarse.md.',
+             '', '| size | scenario | grid | L0 (cycles) | Lsat | lat/L0 at Lsat | lat/L0 next | coarse Lsat | eval rates |',
+             '|---|---|---|---|---|---|---|---|---|']
+    for s in SIZES:
+        for p, m in scenarios(s):
+            def lat(r):
+                f = os.path.join(raw('sat'), f'sat__DeFT__{s}-{p}__{m}__{r:.4f}__s101.json')
+                return json.load(open(f))['summary']['global_average_delay_cycles']
+            l0 = lat(L0_RATE)
+            fr = fine_rates(s, p, m)
+            grid, rates = (FINE, fr) if fr else (GRID, SAT_RATES)
+            lsat, nxt = None, None
+            for r in rates:
+                if lat(r) > 3 * l0:
+                    nxt = r
+                    break
+                lsat = r
+            ev = []
+            for mult in MULTS:
+                x = snap(mult * lsat, grid)
+                if ev and x <= ev[-1]:
+                    x = round(ev[-1] + grid, 4)
+                ev.append(x)
+            res[key(s, p, m)] = {'lsat': lsat, 'eval': ev, 'grid': grid, 'l0': l0}
+            lines.append(f'| {s} | {p} {m} | {grid} | {l0:.1f} | {lsat} | {lat(lsat) / l0:.2f} | '
+                         f'{(lat(nxt) / l0) if nxt else float("nan"):.2f} | {coarse()[key(s, p, m)]["lsat"]} | {ev} |')
+    json.dump(res, open(os.path.join(RES, 'load_points.json'), 'w'), indent=1)
+    open(os.path.join(RES, 'load_points.md'), 'w', newline='\n').write('\n'.join(lines) + '\n')
+    print('\n'.join(lines))
+
+
+def eval_tables():
+    lp = load_points()
+    for s in SIZES:
+        need = {}
+        for p, m in scenarios(s):
+            need.setdefault(p, set()).update(lp[key(s, p, m)]['eval'])
+        for p, rates in need.items():
+            gen_tables(s, [p], sorted(rates))
 
 
 def choose_points():
@@ -200,13 +293,19 @@ if __name__ == '__main__':
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 2
     extra = sys.argv[3] if len(sys.argv) > 3 else 'all'
     os.makedirs(RES, exist_ok=True)
-    if stage == 'points':
+    if stage == 'points_coarse':
         choose_points()
+        sys.exit(0)
+    if stage == 'points':
+        choose_points_amended()
+        sys.exit(0)
+    if stage == 'tables':
+        eval_tables()
         sys.exit(0)
     if stage == 'timing':
         timing(nproc)
         sys.exit(0)
-    js, out = {'drain': (drain_jobs, 'drain'), 'sat': (sat_jobs, 'sat'),
+    js, out = {'drain': (drain_jobs, 'drain'), 'sat': (sat_jobs, 'sat'), 'satfine': (satfine_jobs, 'sat'),
                'eval': (lambda: eval_jobs(SEEDS[extra]), 'eval'),
                'evalvl': (lambda: evalvl_jobs(SEEDS[extra]), 'evalvl')}[stage]
     js = js()
