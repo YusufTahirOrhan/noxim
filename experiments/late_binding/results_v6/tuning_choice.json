@@ -1,0 +1,30 @@
+{
+ "3x3": {
+  "CI": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0,
+   "qlLA_alpha": 0.1,
+   "qlLA_key": 1
+  },
+  "FULL": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0,
+   "qlLA_alpha": 0.02,
+   "qlLA_key": 1
+  }
+ },
+ "4x4": {
+  "CI": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0,
+   "qlLA_alpha": 0.1,
+   "qlLA_key": 1
+  },
+  "FULL": {
+   "heurLA_w": 1.0,
+   "heurLA_busy": 4.0,
+   "qlLA_alpha": 0.05,
+   "qlLA_key": 1
+  }
+ }
+}

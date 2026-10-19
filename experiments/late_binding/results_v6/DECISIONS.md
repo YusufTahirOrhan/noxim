@@ -29,3 +29,20 @@ The conservative option is the one that favours the baseline (DeFT_tm(rho*)).
 7. **Reference LUT for "entry differs":** the uniform DeFT(rho*) LUT of 4x4 for CI_heurLA (its exit
    LUT) and FULL_heurLA. For the DeFT_tm proxy, its own LUT is the reference (sanity check: 0
    differences).
+
+## Step 2: tuning
+8. **Tuning loads come from the v5 Lsat** (~0.8 and ~1.1 x Lsat on each scenario's v5 grid), as
+   instructed. The v5 rho tuning used the v4 Lsat for 3x3/4x4, but the protocol is otherwise the same:
+   cells, seeds 101/102, geometric-mean latency.
+9. **Grid extension (heuristics only).** The optimum lay on the w edge (w = 2 with busy = 0) for 3x3
+   CI, 3x3 FULL and 4x4 CI, so w was extended by one step to 4, with busy {0, 4, 8}: 9 extra
+   configurations. busy = 0 is a hard lower bound and was not extended. No w = 4 configuration won.
+   4x4 FULL's optimum (w 1, busy 4) is interior.
+10. **The learner grid was not extended**, although CI_qlLA chose alpha = 0.1, the top of its grid, on
+    both sizes. The extension clause was given for the heuristic grid, and a larger learner budget
+    would work against the baseline.
+11. **FULL_qlLA existed since v2** (ql_lookahead on the FULL scope, alpha = 0 checked there on 6 runs).
+    The 12-run check was repeated on 3x3/4x4 with the tuned weights: 12 / 12 identical
+    (alpha0_check.md).
+12. **CI keeps the uniform LUT of DeFT's rho* as its exit LUT** (3x3: 0.01, 4x4: 0.001), as in v5. The same
+    LUT file is passed to the FULL runs, which do not use it.

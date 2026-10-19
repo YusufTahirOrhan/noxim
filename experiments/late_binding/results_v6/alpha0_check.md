@@ -1,0 +1,16 @@
+# FULL_qlLA with alpha = 0 vs FULL_heurLA (tuned weights), 3x3 and 4x4
+
+12 / 12 identical (summary block + deft_lb delays, VL counts, decisions).
+
+- IDENTICAL a0__FULL-heurLA__3x3-hotspot__0x111111111__0.0035__s1
+- IDENTICAL a0__FULL-heurLA__3x3-hotspot__0x111111111__0.0035__s2
+- IDENTICAL a0__FULL-heurLA__3x3-hotspot__0x111111111__0.0035__s3
+- IDENTICAL a0__FULL-heurLA__3x3-uniform__0x0__0.0085__s1
+- IDENTICAL a0__FULL-heurLA__3x3-uniform__0x0__0.0085__s2
+- IDENTICAL a0__FULL-heurLA__3x3-uniform__0x0__0.0085__s3
+- IDENTICAL a0__FULL-heurLA__4x4-hotspot__0x1111111111111111__0.0020__s1
+- IDENTICAL a0__FULL-heurLA__4x4-hotspot__0x1111111111111111__0.0020__s2
+- IDENTICAL a0__FULL-heurLA__4x4-hotspot__0x1111111111111111__0.0020__s3
+- IDENTICAL a0__FULL-heurLA__4x4-uniform__0x0__0.0065__s1
+- IDENTICAL a0__FULL-heurLA__4x4-uniform__0x0__0.0065__s2
+- IDENTICAL a0__FULL-heurLA__4x4-uniform__0x0__0.0065__s3
