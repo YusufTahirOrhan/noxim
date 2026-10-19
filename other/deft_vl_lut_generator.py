@@ -394,6 +394,22 @@ def optimize_assignments_milp(
                bounds=Bounds(np.zeros(nx_ + m), upper), options={"mip_rel_gap": 0.0, "time_limit": 3600})
     if res.x is None or not res.success:
         raise ValueError(f"MILP failed: {res.message}")
+    if rho == 0 and mean > 0:
+        # rho = 0: balance only. Break ties by distance as the DP does (its ranking key is
+        # (total, load cost, distance, ...)): minimise distance subject to the optimal balance.
+        best_balance = float(res.fun)
+        dist = np.zeros(nx_ + m)
+        for j, point in enumerate(demand_points):
+            for v, link in enumerate(candidates):
+                dist[j * m + v] = manhattan_distance(point, link)
+        bal_row = np.zeros(nx_ + m)
+        bal_row[nx_:] = 1.0 / mean
+        res = milp(dist, constraints=[LinearConstraint(np.array(rows), lo, hi),
+                                      LinearConstraint(bal_row[None, :], -np.inf, best_balance + 1e-9)],
+                   integrality=integrality, bounds=Bounds(np.zeros(nx_ + m), upper),
+                   options={"mip_rel_gap": 0.0, "time_limit": 3600})
+        if res.x is None or not res.success:
+            raise ValueError(f"MILP (rho = 0, distance stage) failed: {res.message}")
     assignment = []
     for j in range(n):
         v = int(np.argmax(res.x[j * m:(j + 1) * m]))

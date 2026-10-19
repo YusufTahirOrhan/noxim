@@ -1,0 +1,4 @@
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+written 1 rates x 1 patterns to /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/traffic_4x4
+tune all jobs: 432
+done; missing outputs: 0
