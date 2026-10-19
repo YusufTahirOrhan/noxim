@@ -146,3 +146,16 @@ python3 experiments_v4.py satfine 10 && python3 experiments_v4.py points && pyth
 python3 experiments_v4.py timing 10 && python3 experiments_v4.py eval 10 all && python3 experiments_v4.py evalvl 10 all
 python3 make_eval_csv.py results_v4 eval && python3 report_v4.py && python3 sensitivity_v4.py
 ```
+
+## Fifth round (results_v5/): tuned DeFT baseline
+The DeFT LUT weight rho is tuned per size (seeds 101/102, same protocol as the other methods), and
+the size results are re-tested against DeFT_tm(rho*) on new seeds 21-30. Start with
+`results_v5/FINDINGS.md`.
+```
+python3 lut_scaling.py
+python3 experiments_v5.py luts 8 && python3 experiments_v5.py tune 10 && python3 experiments_v5.py choose
+python3 experiments_v5.py sat 10 && python3 experiments_v5.py satfine 10 && python3 experiments_v5.py points
+python3 experiments_v5.py drain 6 && python3 experiments_v5.py timing 10
+python3 experiments_v5.py eval 10 all && python3 experiments_v5.py evalvl 10 all
+python3 make_eval_csv.py results_v5 eval && python3 report_v5.py
+```
