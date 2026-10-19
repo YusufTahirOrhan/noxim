@@ -13,3 +13,6 @@ results_v3/*.log
 results_v4/*_raw/
 results_v4/*.log
 traffic_*/
+results_v5/*_raw/
+results_v5/*.log
+luts/v5/
