@@ -46,3 +46,13 @@ The conservative option is the one that favours the baseline (DeFT_tm(rho*)).
     (alpha0_check.md).
 12. **CI keeps the uniform LUT of DeFT's rho* as its exit LUT** (3x3: 0.01, 4x4: 0.001), as in v5. The same
     LUT file is passed to the FULL runs, which do not use it.
+
+## Steps 3-4
+13. **Lsat and load points are v5's** (not re-measured), as instructed. The pre-registration was
+    committed before the drain tests and before any evaluation run.
+14. **Drain tests:** 32 runs (4 late-binding variants x 3x3/4x4 x 2 masks x 2 seeds), all PASS. The
+    reference DeFT_tm(rho*) was drain-tested in v5 with the same LUTs.
+15. **The evaluation ran all ten seeds at once** (estimate 8.1 h, rule threshold 30 h).
+16. **Raw outputs deleted after aggregation:** statistics regression, bottleneck runs, tuning runs
+    (aggregated into tune_runs.csv), drain, alpha0 and timing runs; the evaluation runs once
+    eval_runs.csv is written.
