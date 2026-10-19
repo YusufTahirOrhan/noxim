@@ -68,3 +68,21 @@
     checks). The whole-graph version was killed by the OOM killer at 4.7 GB and took the WSL VM
     down with it. WSL was restarted (`wsl --shutdown`); the killed jobs (a drain run in progress,
     two generator checks) were re-run from scratch, and no result of the killed run was used.
+
+## Steps 4-6: drain, pre-registration, load points, evaluation
+17. **Drain runs:** cutoff 1000 cycles (hard-coded traffic does not repeat; the bursts last 143 and
+    255 cycles), timeout 1,000,000 cycles. DeFT_tm runs the burst with the hotspot and with the
+    chipperm LUT (localized and movinghot equal the uniform LUT): 56 runs, all PASS.
+18. **The pre-registration was committed while the last drain run was still finishing.** The rule
+    "any drain FAIL stops the evaluation" was kept: the evaluation started only after 56 / 56 PASS.
+19. **Load-point amendment** (PREREGISTRATION_AMENDMENT.md, committed before the fine sweep and before
+    any evaluation run): L0 at rate 0.0002, and a 0.0001 grid where the coarse Lsat is <= 0.004.
+    Under the original rule, 4x4 movinghot had Lsat = 0.001 (the reference rate itself), and its
+    "1.0 x Lsat" load would have been at 2 x Lsat. Restoring the pre-registered load design was the
+    conservative option, and the coarse result is kept. Under the amended rule the high-Lsat
+    scenarios keep their coarse Lsat, except 3x3 uniform-north (0.0065 -> 0.006).
+20. **DeFT is run in the evaluation** (not in a primary comparison) for the size trend of DeFT_tm vs
+    DeFT. The VL-count proxy is run for DeFT_tm only, at ~0.5 and ~1.0 x Lsat (280 runs). DeFT's VL
+    imbalance is not measured in v4.
+21. **Disk:** C: had about 10 GB free. Only the tables that are needed (pattern x rate) are generated for
+    the fine sweep and the evaluation loads (`gen_traffic.py --rates --patterns`).

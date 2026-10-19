@@ -129,3 +129,20 @@ python3 make_eval_csv.py results_v3 confirm && python3 make_eval_csv.py results_
 python3 report_v3.py && python3 report_tunex.py
 (cd formal && python3 impl_relation_check.py hl3 11 ../results_v3/hl_coverage_v3.md ../results_v2/hl_coverage.csv)
 ```
+
+## Fourth round (results_v4/, branch feat/parametric-topology)
+Parametric DEFT_2_5D topology (Noxim -deft_chiplets_x/-y, -deft_chiplet_w/-h; default 2x2 of 4x4
+unchanged, regression in results_v4/regression.md) and a pre-registered replication on 3x3 and 4x4
+chiplets. Start with `results_v4/FINDINGS.md`.
+```
+python3 gen_traffic.py traffic_3x3 --chiplets 3 3 --upto 0.024   (and 'half'; same for 4x4)
+python3 ../../other/deft_vl_lut_generator.py --chiplets-x 3 --chiplets-y 3 --fault-mask 0x0 \
+    --fault-mask 0x111111111 [--demand-table traffic_3x3/<pattern>_0.0100.txt] --output luts/lut_3x3_rho001[_tm_<pattern>].yaml
+python3 check_param_regression.py BIN_OLD BIN_NEW && python3 check_lut_milp.py
+(cd formal && python3 impl_relation_check.py size 3 3 4 ../results_v4/formal_sizes.md 20 && \
+              python3 impl_relation_check.py size 4 4 3 ../results_v4/formal_sizes.md 0 lean)
+python3 experiments_v4.py drain 6 && python3 experiments_v4.py sat 10 && python3 experiments_v4.py points_coarse
+python3 experiments_v4.py satfine 10 && python3 experiments_v4.py points && python3 experiments_v4.py tables
+python3 experiments_v4.py timing 10 && python3 experiments_v4.py eval 10 all && python3 experiments_v4.py evalvl 10 all
+python3 make_eval_csv.py results_v4 eval && python3 report_v4.py && python3 sensitivity_v4.py
+```
