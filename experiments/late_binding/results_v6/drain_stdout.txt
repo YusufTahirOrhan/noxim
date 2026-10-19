@@ -1,0 +1,3 @@
+drain all jobs: 32
+done; missing outputs: 0
+runs=32 failures=0
