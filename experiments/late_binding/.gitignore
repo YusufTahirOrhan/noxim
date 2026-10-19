@@ -16,3 +16,5 @@ traffic_*/
 results_v5/*_raw/
 results_v5/*.log
 luts/v5/
+results_v6/*_raw/
+results_v6/*.log

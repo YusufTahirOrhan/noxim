@@ -9,6 +9,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <fstream>
+#include <map>
 #include <sstream>
 
 #include "DeftTopology.h"
@@ -40,6 +42,9 @@ std::vector<Router *> g_routers;     // sized to TotalRouters on first registrat
 // Learner with the lookahead heuristic's information (parameter ql_lookahead):
 // 0: static estimate ql_hop_cost * hops_after(o); 1: 1 + best_continuation(o).
 int g_ql_lookahead = 0;
+
+// Optional statistics file (parameter stats_file); empty = off (default).
+std::string g_stats_file;
 
 // ---- statistics ----
 unsigned long g_dead_end_events = 0;
@@ -395,6 +400,10 @@ bool setParam(const std::string &key, const std::string &value,
         (key == "chip_tm" ? c.chip_tm : c.ipos_tm) = tm;
         return true;
     }
+    if (key == "stats_file") {         // statistics only (bottleneck diagnosis); off by default
+        g_stats_file = value;
+        return true;
+    }
     char *end = 0;
     double d = strtod(value.c_str(), &end);
     if (end == value.c_str()) {
@@ -744,12 +753,183 @@ void prepareHeadPacket(Packet &p)
     p.vc_id = DeftVirtualNetwork::assignSourceVirtualNetwork(p.src_id, p.dst_id, exit_mask);
 }
 
+// ---- optional statistics (parameter stats_file; off by default) ----
+// Observation only: nothing here feeds back into routing, selection or flow control.
+namespace {
+
+struct RouterStat {
+    unsigned long heads;            // head flits forwarded (all outputs)
+    double resid_sum;               // sum of (forward cycle - arrival in the input buffer)
+    double front_sum;               // sum of (forward cycle - arrival at the buffer front)
+    unsigned long fwd[DIRECTIONS + 2];   // heads forwarded per output: N, E, S, W, LOCAL, HUB
+};
+
+struct PacketTrack {
+    int hops, exit_used, entry_used, lut_exit, lut_entry, exit_fix_rem, entry_fix_rem, ipos_hops, ipos_hops_at_fix;
+    PacketTrack() : hops(0), exit_used(-1), entry_used(-1), lut_exit(-1), lut_entry(-1),
+                    exit_fix_rem(-1), entry_fix_rem(-1), ipos_hops(0), ipos_hops_at_fix(-1) {}
+};
+
+std::vector<RouterStat> g_rstat;
+std::map<std::pair<int, double>, PacketTrack> g_ptrack;
+std::map<int, unsigned long> g_extra_hops_hist, g_entry_fix_hist, g_exit_fix_hist, g_entry_fix_ipos_hops_hist;
+unsigned long g_st_inter = 0, g_st_entry_diff = 0, g_st_exit_diff = 0, g_st_lut_known = 0;
+
+bool statsOn()
+{
+    return !g_stats_file.empty();
+}
+
+bool measuring(double now)
+{
+    return now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time;
+}
+
+int popcount(VlMask m)
+{
+    return __builtin_popcountll(m);
+}
+
+void statsForward(Router *router, int dir_in, int out_dir, const Flit &flit, double now, double front_cycle,
+                  VlMask exit_before, VlMask entry_before, VlMask exit_after, VlMask entry_after)
+{
+    (void) dir_in;
+    const int cur = router->local_id;
+    if ((int) g_rstat.size() != NROUTERS)
+        g_rstat.assign(NROUTERS, RouterStat());
+    if (measuring(now)) {
+        RouterStat &rs = g_rstat[cur];
+        rs.heads++;
+        rs.resid_sum += now - flit.arrival_cycle;
+        rs.front_sum += now - front_cycle;
+        if (out_dir >= 0 && out_dir < DIRECTIONS + 2)
+            rs.fwd[out_dir]++;
+    }
+    if (out_dir == DIRECTION_LOCAL)
+        return;
+    const int src = flit.src_id, dst = flit.dst_id;
+    if (chipletOf(src) < 0 || chipletOf(dst) < 0 || chipletOf(src) == chipletOf(dst))
+        return;
+    std::pair<int, double> k(src, flit.timestamp);
+    std::map<std::pair<int, double>, PacketTrack>::iterator it = g_ptrack.find(k);
+    if (it == g_ptrack.end()) {
+        it = g_ptrack.insert(std::make_pair(k, PacketTrack())).first;
+        if (DeftVerticalLinkLut::isLoaded()) {
+            DeftVerticalLinkLut::Entry e;
+            if (DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &e, 0)) {
+                it->second.lut_exit = e.source_exit.selected_vl_id;
+                it->second.lut_entry = e.destination_entry.selected_vl_id;
+            }
+        }
+    }
+    PacketTrack &t = it->second;
+    t.hops++;
+    const int next = neighborId(cur, out_dir);
+    if (isInterposer(cur)) {
+        if (out_dir == DIRECTION_HUB) {
+            t.entry_used = vlAtRouter(cur);
+            if (popcount(entry_before) > 1 && t.entry_fix_rem < 0) {
+                t.entry_fix_rem = 0;            // fixed by taking this VL while others were open
+                t.ipos_hops_at_fix = t.ipos_hops;
+            }
+        } else {
+            if (popcount(entry_before) > 1 && popcount(entry_after) == 1 && t.entry_fix_rem < 0) {
+                int e = 0;
+                while (!(entry_after >> e & 1)) e++;
+                t.entry_fix_rem = manhattan(next, DeftTopology::interposerEndpointForVerticalLink(e));
+                t.ipos_hops_at_fix = t.ipos_hops + 1;
+            }
+            t.ipos_hops++;
+        }
+    } else if (chipletOf(cur) == chipletOf(src)) {
+        if (out_dir == DIRECTION_HUB) {
+            t.exit_used = vlAtRouter(cur);
+            if (popcount(exit_before) > 1 && t.exit_fix_rem < 0)
+                t.exit_fix_rem = 0;
+        } else if (popcount(exit_before) > 1 && popcount(exit_after) == 1 && t.exit_fix_rem < 0) {
+            int v = 0;
+            while (!(exit_after >> v & 1)) v++;
+            t.exit_fix_rem = manhattan(next, DeftTopology::chipletEndpointForVerticalLink(v));
+        }
+    }
+}
+
+void statsConsumed(const Flit &flit, double now)
+{
+    std::map<std::pair<int, double>, PacketTrack>::iterator it =
+        g_ptrack.find(std::make_pair(flit.src_id, flit.timestamp));
+    if (it == g_ptrack.end())
+        return;
+    const PacketTrack &t = it->second;
+    if (measuring(now)) {
+        g_st_inter++;
+        if (t.lut_exit >= 0 && t.lut_entry >= 0) {
+            g_st_lut_known++;
+            g_st_exit_diff += t.exit_used != t.lut_exit;
+            g_st_entry_diff += t.entry_used != t.lut_entry;
+            const int lut_hops =
+                manhattan(flit.src_id, DeftTopology::chipletEndpointForVerticalLink(t.lut_exit)) + 1 +
+                manhattan(DeftTopology::chipletEndpointForVerticalLink(t.lut_exit),
+                          DeftTopology::chipletEndpointForVerticalLink(t.lut_entry)) + 1 +
+                manhattan(DeftTopology::chipletEndpointForVerticalLink(t.lut_entry), flit.dst_id);
+            g_extra_hops_hist[t.hops - lut_hops]++;
+        }
+        g_entry_fix_hist[t.entry_fix_rem]++;           // -1: fixed before the interposer
+        g_exit_fix_hist[t.exit_fix_rem]++;             // -1: fixed at injection
+        g_entry_fix_ipos_hops_hist[t.ipos_hops_at_fix]++;
+    }
+    g_ptrack.erase(it);
+}
+
+void writeHist(std::ostream &o, const char *name, const std::map<int, unsigned long> &h, bool last)
+{
+    o << "  \"" << name << "\": {";
+    bool first = true;
+    for (std::map<int, unsigned long>::const_iterator it = h.begin(); it != h.end(); ++it) {
+        o << (first ? "" : ", ") << "\"" << it->first << "\": " << it->second;
+        first = false;
+    }
+    o << "}" << (last ? "" : ",") << std::endl;
+}
+
+void writeStatsFile()
+{
+    std::ofstream o(g_stats_file.c_str());
+    if (!o)
+        return;
+    o << "{" << std::endl;
+    o << "  \"measured_cycles\": " << GlobalParams::simulation_time - GlobalParams::stats_warm_up_time << "," << std::endl;
+    o << "  \"packet_size_flits\": " << GlobalParams::min_packet_size << "," << std::endl;
+    o << "  \"inter_packets\": " << g_st_inter << ", \"lut_known\": " << g_st_lut_known
+      << ", \"exit_differs_from_lut\": " << g_st_exit_diff << ", \"entry_differs_from_lut\": " << g_st_entry_diff
+      << "," << std::endl;
+    writeHist(o, "extra_hops_vs_lut_path", g_extra_hops_hist, false);
+    writeHist(o, "entry_fixed_remaining_hops", g_entry_fix_hist, false);
+    writeHist(o, "entry_fixed_after_interposer_hops", g_entry_fix_ipos_hops_hist, false);
+    writeHist(o, "exit_fixed_remaining_hops", g_exit_fix_hist, false);
+    o << "  \"routers\": [" << std::endl;
+    for (int id = 0; id < (int) g_rstat.size(); id++) {
+        const RouterStat &r = g_rstat[id];
+        const char *cls = isInterposer(id) ? (vlAtRouter(id) >= 0 ? "ipos_vl" : "ipos_interior")
+                                           : (vlAtRouter(id) >= 0 ? "chip_vl" : "chip_interior");
+        o << "    {\"id\": " << id << ", \"class\": \"" << cls << "\", \"x\": " << footprintX(id)
+          << ", \"y\": " << footprintY(id) << ", \"heads\": " << r.heads << ", \"resid_sum\": " << r.resid_sum
+          << ", \"front_sum\": " << r.front_sum << ", \"fwd\": [";
+        for (int d = 0; d < DIRECTIONS + 2; d++)
+            o << (d ? ", " : "") << r.fwd[d];
+        o << "]}" << (id + 1 < (int) g_rstat.size() ? "," : "") << std::endl;
+    }
+    o << "  ]" << std::endl << "}" << std::endl;
+}
+
+} // namespace
+
 // ---- router hooks ----
 void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
                    Flit *flit, double now, double front_cycle)
 {
-    (void) now;
-    (void) front_cycle;
+    if (statsOn() && isActive() && out_dir == DIRECTION_LOCAL)
+        statsForward(router, dir_in, out_dir, *flit, now, front_cycle, 0, 0, 0, 0);
     if (!isActive() || out_dir == DIRECTION_LOCAL)
         return;
     const int cur = router->local_id;
@@ -780,6 +960,9 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
     }
 
     RouteData nrd = nextRouteData(rd, out_dir, out_vc);
+    if (statsOn())
+        statsForward(router, dir_in, out_dir, *flit, now, front_cycle, rd.deft_exit_mask, rd.deft_entry_mask,
+                     nrd.deft_exit_mask, nrd.deft_entry_mask);
     flit->deft_exit_mask = nrd.deft_exit_mask;
     flit->deft_entry_mask = nrd.deft_entry_mask;
 }
@@ -793,6 +976,8 @@ void onRouteFailure(int router_id, const Flit &flit)
 
 void onHeadConsumed(const Flit &flit, double now)
 {
+    if (statsOn())
+        statsConsumed(flit, now);
     if (now - GlobalParams::reset_time < GlobalParams::stats_warm_up_time)
         return;
     const double d = now - flit.timestamp;
@@ -1016,6 +1201,8 @@ void writeJson(std::ostream &out)
     out << "    \"packets_inter\": " << g_delays_inter.size() << "," << std::endl;
     out << "    \"packets_intra\": " << g_delays_intra.size() << std::endl;
     out << "  }" << std::endl;
+    if (statsOn())
+        writeStatsFile();
 }
 
 } // namespace DeftLB
