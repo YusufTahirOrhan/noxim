@@ -173,7 +173,7 @@ def report(agg):
         fig, axes = plt.subplots(2, 3, figsize=(15, 10))
         vmax = max(max(agg[f'{v}|{p}|1.0']['link'].values()) for v in VARS)
         norm = colors.Normalize(0, vmax)
-        cmap = cm.get_cmap('viridis')
+        cmap = matplotlib.colormaps['viridis']
         for j, v in enumerate(VARS):
             a = agg[f'{v}|{p}|1.0']
             for i, layer in enumerate(('chip', 'ipos')):
