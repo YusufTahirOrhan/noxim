@@ -1,0 +1,110 @@
+{
+ "CI_heurLA_G|uniform|0.8": {
+  "variant": 0.10016354166666666,
+  "parent": 0.108875,
+  "deft_tm": 0.10147256944444445,
+  "closer": true
+ },
+ "CI_qlLA_G|uniform|0.8": {
+  "variant": 0.100246875,
+  "parent": 0.10767465277777778,
+  "deft_tm": 0.10147256944444445,
+  "closer": true
+ },
+ "FULL_qlLA_G|uniform|0.8": {
+  "variant": 0.08741770833333334,
+  "parent": 0.09770763888888889,
+  "deft_tm": 0.10147256944444445,
+  "closer": false
+ },
+ "CI_heurLA_G|uniform|1.0": {
+  "variant": 0.13628472222222224,
+  "parent": 0.1442409722222222,
+  "deft_tm": 0.13075520833333334,
+  "closer": true
+ },
+ "CI_qlLA_G|uniform|1.0": {
+  "variant": 0.13423854166666666,
+  "parent": 0.14321666666666666,
+  "deft_tm": 0.13075520833333334,
+  "closer": true
+ },
+ "FULL_qlLA_G|uniform|1.0": {
+  "variant": 0.11666215277777778,
+  "parent": 0.13075347222222222,
+  "deft_tm": 0.13075520833333334,
+  "closer": false
+ },
+ "CI_heurLA_G|uniform|1.2": {
+  "variant": 0.15610937500000002,
+  "parent": 0.144934375,
+  "deft_tm": 0.1534611111111111,
+  "closer": true
+ },
+ "CI_qlLA_G|uniform|1.2": {
+  "variant": 0.17574965277777777,
+  "parent": 0.15817291666666666,
+  "deft_tm": 0.1534611111111111,
+  "closer": false
+ },
+ "FULL_qlLA_G|uniform|1.2": {
+  "variant": 0.1507409722222222,
+  "parent": 0.15463194444444445,
+  "deft_tm": 0.1534611111111111,
+  "closer": false
+ },
+ "CI_heurLA_G|localized|0.8": {
+  "variant": 0.10337777777777778,
+  "parent": 0.11160624999999999,
+  "deft_tm": 0.10192569444444444,
+  "closer": true
+ },
+ "CI_qlLA_G|localized|0.8": {
+  "variant": 0.10257986111111111,
+  "parent": 0.1118638888888889,
+  "deft_tm": 0.10192569444444444,
+  "closer": true
+ },
+ "FULL_qlLA_G|localized|0.8": {
+  "variant": 0.08946736111111112,
+  "parent": 0.100940625,
+  "deft_tm": 0.10192569444444444,
+  "closer": false
+ },
+ "CI_heurLA_G|localized|1.0": {
+  "variant": 0.13202743055555557,
+  "parent": 0.14182604166666665,
+  "deft_tm": 0.12786805555555555,
+  "closer": true
+ },
+ "CI_qlLA_G|localized|1.0": {
+  "variant": 0.133571875,
+  "parent": 0.14190833333333333,
+  "deft_tm": 0.12786805555555555,
+  "closer": true
+ },
+ "FULL_qlLA_G|localized|1.0": {
+  "variant": 0.11684340277777779,
+  "parent": 0.12909444444444446,
+  "deft_tm": 0.12786805555555555,
+  "closer": false
+ },
+ "CI_heurLA_G|localized|1.2": {
+  "variant": 0.15369027777777777,
+  "parent": 0.14901180555555554,
+  "deft_tm": 0.14586631944444445,
+  "closer": false
+ },
+ "CI_qlLA_G|localized|1.2": {
+  "variant": 0.1669739583333333,
+  "parent": 0.15740208333333333,
+  "deft_tm": 0.14586631944444445,
+  "closer": false
+ },
+ "FULL_qlLA_G|localized|1.2": {
+  "variant": 0.14735243055555555,
+  "parent": 0.15522256944444443,
+  "deft_tm": 0.14586631944444445,
+  "closer": true
+ }
+}
