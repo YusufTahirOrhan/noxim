@@ -1,0 +1,17 @@
+workload,variant,size-mask,seed,stop_reason,injected,received,dead_end_events,drain_completed_cycle,entry_candidates_after_mean,result
+allpairs,CI_heurLA_B,3x3-0x0,s1,drain_completed,20592,20592,0,18105,3.65126,PASS
+allpairs,CI_heurLA_B,3x3-0x0,s2,drain_completed,20592,20592,0,18100,3.65126,PASS
+allpairs,CI_heurLA_B,3x3-0x111111111,s1,drain_completed,20592,20592,0,21797,2.7691,PASS
+allpairs,CI_heurLA_B,3x3-0x111111111,s2,drain_completed,20592,20592,0,23706,2.7691,PASS
+allpairs,CI_heurLA_B,4x4-0x0,s1,drain_completed,65280,65280,0,47927,3.64357,PASS
+allpairs,CI_heurLA_B,4x4-0x0,s2,drain_completed,65280,65280,0,47691,3.64357,PASS
+allpairs,CI_heurLA_B,4x4-0x1111111111111111,s1,drain_completed,65280,65280,0,51955,2.76348,PASS
+allpairs,CI_heurLA_B,4x4-0x1111111111111111,s2,drain_completed,65280,65280,0,53967,2.76348,PASS
+allpairs,CI_qlLA_B,3x3-0x0,s1,drain_completed,20592,20592,0,17853,3.35156,PASS
+allpairs,CI_qlLA_B,3x3-0x0,s2,drain_completed,20592,20592,0,17533,3.35156,PASS
+allpairs,CI_qlLA_B,3x3-0x111111111,s1,drain_completed,20592,20592,0,22152,2.63916,PASS
+allpairs,CI_qlLA_B,3x3-0x111111111,s2,drain_completed,20592,20592,0,21798,2.63916,PASS
+allpairs,CI_qlLA_B,4x4-0x0,s1,drain_completed,65280,65280,0,47004,3.34375,PASS
+allpairs,CI_qlLA_B,4x4-0x0,s2,drain_completed,65280,65280,0,47878,3.34375,PASS
+allpairs,CI_qlLA_B,4x4-0x1111111111111111,s1,drain_completed,65280,65280,0,50454,2.63633,PASS
+allpairs,CI_qlLA_B,4x4-0x1111111111111111,s2,drain_completed,65280,65280,0,52338,2.63633,PASS
