@@ -64,3 +64,18 @@ unbounded parents.
 14. **Choice:** CI_heurLA_B = (lut, k 4): the only configuration within 0.5 % of the best feasible THR. CI_qlLA_B =
     (min, k 4): tied with (lut, k 4) within 0.5 % (THR 0.03505 vs 0.03489), smaller LAT (56.37 vs 56.41). No LUT
     fallback occurred in any of the 1260 runs, and no dead end.
+
+## Steps 4-5
+15. **Pre-registered criterion for the v6 hypothesis.** The task asked for an explicit statement whether the
+    hypothesis is supported; the pre-registration fixed in advance that "supported" needs both (a) a reduction of
+    CI's interposer load and centre concentration towards DeFT_tm(rho*) in the step-2 statistics and (b) a
+    significant saturation-throughput gain against the unbounded parent. This is the stricter reading (it favours
+    the parents).
+16. **Drain tests:** 16 runs (2 bounded variants x 3x3/4x4 x 2 masks x 2 seeds), all PASS. DeFT_tm(rho*) and the
+    parents were drain-tested in v5/v6 with the same LUTs.
+17. **Both sizes in one run:** the timing estimate was 3.7 h (rule threshold 14 h).
+18. **VL references re-run** (420 runs, decision 9): the 280 parent runs are identical to their v6 rows, and every
+    v6 `vl_imbalance` value equals the 16-VL computation, which confirms the bug (`vlref_check.md`).
+19. **Raw outputs deleted after aggregation:** regression, determinism, selection, bottleneck, drain, timing,
+    evaluation and VL-reference runs. Kept: `select_runs.csv`, `eval_runs.csv`, `eval_cand.csv`, `vlref_runs.csv`,
+    `bottleneck_agg.json`, `bottleneck_metrics.json` and the reports.

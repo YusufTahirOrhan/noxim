@@ -173,3 +173,18 @@ python3 experiments_v6.py drain 12 && python3 experiments_v6.py timing 12
 python3 experiments_v6.py eval 12 all && python3 experiments_v6.py evalvl 12 all
 python3 make_eval_csv.py results_v6 eval && python3 report_v6.py
 ```
+
+## Seventh round (results_v7/): bounded-deviation entry for CI
+Optional bound on CI's (and FULL's) entry candidates at injection (`-deft_lb entry_bound_mode off|min|lut`,
+`-deft_lb entry_bound_k K`; off by default; regression in results_v7/regression.md), selection on 4x4, bottleneck
+statistics with the tuned and bounded variants, and a pre-registered test on 3x3/4x4 against DeFT_tm(rho*) and the
+unbounded parents, seeds 31-40 (reference and parent runs reused from v6). Start with `results_v7/FINDINGS.md`.
+```
+python3 formal/impl_relation_check.py size 3 3 6 results_v7/formal_bounded.md 4 lean bounded
+python3 experiments_v7.py regress 12 BIN_V6 && python3 experiments_v7.py determinism 12
+python3 experiments_v7.py select 12 && python3 experiments_v7.py choose
+python3 bottleneck_v7.py run 12 && python3 bottleneck_v7.py analyze cleanup
+python3 experiments_v7.py drain 12 && python3 experiments_v7.py timing 12
+python3 experiments_v7.py eval 12 all && python3 experiments_v7.py vlref 12 && python3 experiments_v7.py evalcand
+python3 make_eval_csv.py results_v7 eval && python3 make_eval_csv.py results_v7 vlref && python3 report_v7.py
+```
