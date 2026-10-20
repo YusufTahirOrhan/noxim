@@ -1,0 +1,22 @@
+{
+ "3x3": {
+  "CI": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0
+  },
+  "FULL": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0
+  }
+ },
+ "4x4": {
+  "CI": {
+   "heurLA_w": 2.0,
+   "heurLA_busy": 0.0
+  },
+  "FULL": {
+   "heurLA_w": 1.0,
+   "heurLA_busy": 4.0
+  }
+ }
+}
