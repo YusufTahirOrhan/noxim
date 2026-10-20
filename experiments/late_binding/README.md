@@ -159,3 +159,17 @@ python3 experiments_v5.py drain 6 && python3 experiments_v5.py timing 10
 python3 experiments_v5.py eval 10 all && python3 experiments_v5.py evalvl 10 all
 python3 make_eval_csv.py results_v5 eval && python3 report_v5.py
 ```
+
+## Sixth round (results_v6/): bottleneck diagnosis and per-size tuning of the proposed methods
+Optional statistics (`-deft_lb stats_file PATH`, off by default; regression in results_v6/stats_regression.md),
+the 4x4 bottleneck diagnosis, per-size tuning of CI_heurLA/FULL_heurLA/CI_qlLA/FULL_qlLA, and a pre-registered
+re-test on 3x3/4x4 against DeFT_tm(rho*), seeds 31-40. Start with `results_v6/FINDINGS.md`.
+```
+python3 check_stats_regression.py BIN_OLD BIN_NEW
+python3 bottleneck_v6.py run 12 && python3 bottleneck_v6.py analyze cleanup
+python3 experiments_v6.py tune_heur 12 && python3 experiments_v6.py extend 12 && python3 experiments_v6.py choose_heur
+python3 experiments_v6.py tune_ql 12 && python3 experiments_v6.py choose_ql && python3 experiments_v6.py alpha0 12
+python3 experiments_v6.py drain 12 && python3 experiments_v6.py timing 12
+python3 experiments_v6.py eval 12 all && python3 experiments_v6.py evalvl 12 all
+python3 make_eval_csv.py results_v6 eval && python3 report_v6.py
+```
