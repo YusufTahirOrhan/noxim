@@ -1,0 +1,21 @@
+{
+ "CI_heurLA": {
+  "mode": "lut",
+  "k": 4,
+  "name": "CI_heurLA-lut-k4",
+  "feasible": true,
+  "tied": [
+   "CI_heurLA-lut-k4"
+  ]
+ },
+ "CI_qlLA": {
+  "mode": "min",
+  "k": 4,
+  "name": "CI_qlLA-min-k4",
+  "feasible": true,
+  "tied": [
+   "CI_qlLA-min-k4",
+   "CI_qlLA-lut-k4"
+  ]
+ }
+}

@@ -47,3 +47,20 @@ unbounded parents.
    first four chiplets. Fixed for v7 (all VLs). The v4-v6 files are not changed. For the v7 secondary VL-imbalance
    comparison the references (DeFT_tm(rho*) through its proxy, CI_heurLA, CI_qlLA) are re-run at 1.0 x Lsat on
    seeds 31-40 (stage `vlref`, 420 runs); the parent runs double as an extended determinism check.
+
+## Step 3: selection
+10. **Order of steps 2 and 3.** Step 2 needs the configurations chosen in step 3, so the selection ran first
+    (seeds 101/102 only, as instructed); step 2 (seeds 101-103) ran afterwards with all five variants.
+11. **Latency term of the criterion.** LAT = geometric mean over the 7 scenarios of the mean latency at 1.0 x Lsat,
+    each scenario first averaged over the 2 seeds (the same aggregation as the throughput term).
+12. **Odd k is redundant.** For a fixed source, destination and exit, the path lengths through different entries
+    differ by even numbers (Manhattan parity on the footprint grid), so k = 1 gives exactly the same masks and runs
+    as k = 0 (and k = 3 would equal k = 2). The grid was run as specified; the duplicates are visible in
+    selection.md.
+13. **The k grid was not extended**, although k = 4 (its top) won for both variants. The task fixed the grid and
+    gave no extension rule, and a larger k moves the bounded variant towards its unbounded parent (k large = no
+    bound), so an extension could not help the comparison with the parent's design point and would give the
+    proposed method more tuning budget.
+14. **Choice:** CI_heurLA_B = (lut, k 4): the only configuration within 0.5 % of the best feasible THR. CI_qlLA_B =
+    (min, k 4): tied with (lut, k 4) within 0.5 % (THR 0.03505 vs 0.03489), smaller LAT (56.37 vs 56.41). No LUT
+    fallback occurred in any of the 1260 runs, and no dead end.
