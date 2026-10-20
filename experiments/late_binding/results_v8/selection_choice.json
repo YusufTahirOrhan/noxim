@@ -1,0 +1,26 @@
+{
+ "CI_heurLA": {
+  "gamma": 2.0,
+  "name": "CI_heurLA-g2.0",
+  "feasible": true,
+  "tied": [
+   "CI_heurLA-g2.0"
+  ]
+ },
+ "CI_qlLA": {
+  "gamma": 2.0,
+  "name": "CI_qlLA-g2.0",
+  "feasible": true,
+  "tied": [
+   "CI_qlLA-g2.0"
+  ]
+ },
+ "FULL_qlLA": {
+  "gamma": 2.0,
+  "name": "FULL_qlLA-g2.0",
+  "feasible": true,
+  "tied": [
+   "FULL_qlLA-g2.0"
+  ]
+ }
+}

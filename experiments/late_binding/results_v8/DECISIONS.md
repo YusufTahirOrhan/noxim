@@ -34,3 +34,11 @@ The conservative option is the one that favours the baseline and, for the _G var
 10. **alpha = 0 check with gamma = 2:** CI_qlLA (alpha 0, v6 tuned weights, key chiplet) vs CI_heurLA, both with
     gamma 2, on 3x3/4x4 uniform fault-free and hotspot with one faulty VL per chiplet, 1.0 x Lsat, seeds 1-3 (12
     pairs; `alpha0_check.md`). gamma = 2 lies inside the selection grid.
+
+## Step 3: selection
+11. **Parent rows reused from v7.** The CI_heurLA and CI_qlLA rows (gamma 1) come from results_v7/select_runs.csv
+    (same cells and seeds). The reuse was checked by re-running 4 parent cells with the v8 binary: 4 / 4 identical.
+    FULL_qlLA was not in v7 and was run (70 runs). 910 new runs in total (12 gamma configurations + FULL_qlLA).
+12. **Latency term** as v7: per scenario the mean over the 2 seeds, then the geometric mean over the scenarios.
+13. **No extension:** gamma = 2 won for all three variants (interior; gamma = 3 broke the 5 % latency limit for all
+    three), so the gamma = 4 step was not needed.
