@@ -43,6 +43,10 @@ std::vector<Router *> g_routers;     // sized to TotalRouters on first registrat
 // 0: static estimate ql_hop_cost * hops_after(o); 1: 1 + best_continuation(o).
 int g_ql_lookahead = 0;
 
+// Weight of a horizontal interposer hop in the selection's static remaining-path length
+// (parameter hop_weight_ipos, default 1.0 = plain hop count).
+double g_hop_weight_ipos = 1.0;
+
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
 
@@ -446,6 +450,13 @@ bool setParam(const std::string &key, const std::string &value,
         g_ql_lookahead = (int) d;
     }
     else if (key == "oracle_beta") c.oracle_beta = d;
+    else if (key == "hop_weight_ipos") {
+        if (!(d > 0)) {
+            if (error_message) *error_message = "hop_weight_ipos must be > 0";
+            return false;
+        }
+        g_hop_weight_ipos = d;
+    }
     else if (key == "entry_bound_k") {
         if (d < 0 || d != std::floor(d)) {
             if (error_message) *error_message = "entry_bound_k must be an integer >= 0";
@@ -701,31 +712,36 @@ void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
         *next_entry = pruned;
 }
 
-int remainingHops(int cur, int src, int dst, VlMask exit_mask, VlMask entry_mask)
+// Static remaining-path length used by the selection (DEFT_HEUR, DEFT_QL, their lookahead):
+// towards the best remaining candidate, each horizontal interposer hop counts g_hop_weight_ipos
+// (parameter hop_weight_ipos, default 1), each chiplet hop and each VL hop 1. With the default
+// weight every value is the integer hop count. The routing relation is not affected.
+double remainingHops(int cur, int src, int dst, VlMask exit_mask, VlMask entry_mask)
 {
+    const double g = g_hop_weight_ipos;
     switch (phaseOf(cur, src, dst)) {
     case PH_INTRA:
     case PH_DEST:
         return manhattan(cur, dst);
     case PH_IPOS: {
-        int best = 1 << 20;
+        double best = 1 << 20;
         for (int e = 0; e < NVL; e++)
             if (entry_mask & bit(e))
-                best = std::min(best, manhattanXY(footprintX(cur), footprintY(cur), vlChipX(e), vlChipY(e)) + 1 +
+                best = std::min(best, g * manhattanXY(footprintX(cur), footprintY(cur), vlChipX(e), vlChipY(e)) + 1 +
                                           manhattanXY(vlChipX(e), vlChipY(e), footprintX(dst), footprintY(dst)));
         return best;
     }
     case PH_SOURCE: {
-        int best = 1 << 20;
+        double best = 1 << 20;
         for (int v = 0; v < NVL; v++) {
             if (!(exit_mask & bit(v)))
                 continue;
             for (int e = 0; e < NVL; e++) {
                 if (!(entry_mask & bit(e)))
                     continue;
-                int h = manhattanXY(footprintX(cur), footprintY(cur), vlChipX(v), vlChipY(v)) + 1 +
-                        manhattanXY(vlChipX(v), vlChipY(v), vlChipX(e), vlChipY(e)) + 1 +
-                        manhattanXY(vlChipX(e), vlChipY(e), footprintX(dst), footprintY(dst));
+                double h = manhattanXY(footprintX(cur), footprintY(cur), vlChipX(v), vlChipY(v)) + 1 +
+                           g * manhattanXY(vlChipX(v), vlChipY(v), vlChipX(e), vlChipY(e)) + 1 +
+                           manhattanXY(vlChipX(e), vlChipY(e), footprintX(dst), footprintY(dst));
                 best = std::min(best, h);
             }
         }
@@ -736,7 +752,7 @@ int remainingHops(int cur, int src, int dst, VlMask exit_mask, VlMask entry_mask
     }
 }
 
-int hopsAfterMove(const RouteData &rd, int out_dir)
+double hopsAfterMove(const RouteData &rd, int out_dir)
 {
     const int n = neighborId(rd.current_id, out_dir);
     if (n < 0)
@@ -744,7 +760,9 @@ int hopsAfterMove(const RouteData &rd, int out_dir)
     VlMask ne, nn;
     nextMasks(rd.current_id, rd.dir_in, out_dir, rd.src_id, rd.dst_id,
               rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn);
-    return 1 + remainingHops(n, rd.src_id, rd.dst_id, ne, nn);
+    // the move itself: a horizontal interposer hop weighs hop_weight_ipos
+    const double w = isInterposer(rd.current_id) && out_dir != DIRECTION_HUB ? g_hop_weight_ipos : 1.0;
+    return w + remainingHops(n, rd.src_id, rd.dst_id, ne, nn);
 }
 
 RouteData nextRouteData(const RouteData &rd, int out_dir, int out_vc)
@@ -1295,6 +1313,8 @@ void writeJson(std::ostream &out)
     out << "    \"delay_inter_p99\": " << percentile(g_delays_inter, 0.99) << "," << std::endl;
     out << "    \"delay_intra_mean\": " << mean(g_delays_intra) << "," << std::endl;
     out << "    \"packets_inter\": " << g_delays_inter.size() << "," << std::endl;
+    if (g_hop_weight_ipos != 1.0)            // field only present when the weight is not the default
+        out << "    \"hop_weight_ipos\": " << g_hop_weight_ipos << "," << std::endl;
     if (g_entry_bound_mode != EB_OFF) {     // fields only present with the option on
         out << "    \"entry_bound_mode\": \"" << (g_entry_bound_mode == EB_MIN ? "min" : "lut")
             << "\", \"entry_bound_k\": " << g_entry_bound_k << "," << std::endl;

@@ -94,9 +94,10 @@ void nextMasks(int router_id, int dir_in, int out_dir,
                int src_id, int dst_id,
                VlMask exit_mask, VlMask entry_mask,
                VlMask *next_exit_mask, VlMask *next_entry_mask);
-int remainingHops(int router_id, int src_id, int dst_id,
+// Static remaining-path length of the selection; interposer hops weighted by hop_weight_ipos.
+double remainingHops(int router_id, int src_id, int dst_id,
                   VlMask exit_mask, VlMask entry_mask);
-int hopsAfterMove(const RouteData &route_data, int out_dir);
+double hopsAfterMove(const RouteData &route_data, int out_dir);
 RouteData nextRouteData(const RouteData &route_data, int out_dir, int out_vc);
 void legalOutputsWithVn(const RouteData &route_data, std::vector<int> *directions);
 
