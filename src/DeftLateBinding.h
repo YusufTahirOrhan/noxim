@@ -103,6 +103,11 @@ void legalOutputsWithVn(const RouteData &route_data, std::vector<int> *direction
 // ---- injection -------------------------------------------------------
 // Sets candidate masks (DEFT_LB only) and the source virtual network of a
 // packet whose head flit is about to leave the processing element.
+// Optional bounded-deviation entry (-deft_lb entry_bound_mode off|min|lut,
+// -deft_lb entry_bound_k K; default off): the entry mask is reduced once to a
+// non-empty subset of the functional entry candidates whose shortest
+// turn-legal path length is within K of the shortest (min) or of the LUT
+// entry's (lut).
 void prepareHeadPacket(Packet &packet);
 
 // ---- router hooks ----------------------------------------------------

@@ -46,6 +46,15 @@ int g_ql_lookahead = 0;
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
 
+// Bounded-deviation entry (parameters entry_bound_mode, entry_bound_k): applied once at
+// injection to the entry candidate mask. Off by default.
+enum EntryBoundMode { EB_OFF = 0, EB_MIN, EB_LUT };
+int g_entry_bound_mode = EB_OFF;
+int g_entry_bound_k = 0;
+unsigned long g_eb_packets = 0;          // measured inter-chiplet packets bounded
+double g_eb_before_sum = 0, g_eb_after_sum = 0;
+unsigned long g_eb_lut_fallbacks = 0;    // mode lut with no functional LUT entry (all packets)
+
 // ---- statistics ----
 unsigned long g_dead_end_events = 0;
 std::vector<unsigned long> g_vl_down;   // sized to VerticalLinkCount on first use
@@ -404,6 +413,16 @@ bool setParam(const std::string &key, const std::string &value,
         g_stats_file = value;
         return true;
     }
+    if (key == "entry_bound_mode") {
+        if (value == "off") g_entry_bound_mode = EB_OFF;
+        else if (value == "min") g_entry_bound_mode = EB_MIN;
+        else if (value == "lut") g_entry_bound_mode = EB_LUT;
+        else {
+            if (error_message) *error_message = "entry_bound_mode must be off, min or lut";
+            return false;
+        }
+        return true;
+    }
     char *end = 0;
     double d = strtod(value.c_str(), &end);
     if (end == value.c_str()) {
@@ -427,6 +446,13 @@ bool setParam(const std::string &key, const std::string &value,
         g_ql_lookahead = (int) d;
     }
     else if (key == "oracle_beta") c.oracle_beta = d;
+    else if (key == "entry_bound_k") {
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "entry_bound_k must be an integer >= 0";
+            return false;
+        }
+        g_entry_bound_k = (int) d;
+    }
     else {
         if (error_message) *error_message = "unknown DEFT_LB parameter " + key;
         return false;
@@ -457,6 +483,11 @@ bool validateConfiguration(std::string *error_message)
         !DeftVerticalLinkLut::isLoaded()) {
         if (error_message)
             *error_message = "policy lut requires -deft_vl_lut";
+        return false;
+    }
+    if (g_entry_bound_mode == EB_LUT && !DeftVerticalLinkLut::isLoaded()) {
+        if (error_message)
+            *error_message = "entry_bound_mode lut requires -deft_vl_lut";
         return false;
     }
     if (c.exit_policy == POLICY_LATE && c.chip_tm != TM_OE && c.chip_tm != TM_XY) {
@@ -739,6 +770,61 @@ void legalOutputsWithVn(const RouteData &rd, std::vector<int> *dirs)
 }
 
 // ---- injection ----
+namespace {
+
+// Length of the shortest turn-legal path src -> exit v -> entry e -> dst (both VL hops
+// included). Each phase routes minimally under its turn model from a fresh start
+// (an injected or vertically arrived head has no previous move).
+int pathLength(int src, int v, int e, int dst)
+{
+    const int sx = footprintX(src), sy = footprintY(src);
+    const int vx = vlChipX(v), vy = vlChipY(v), ex = vlChipX(e), ey = vlChipY(e);
+    const int dx = footprintX(dst), dy = footprintY(dst);
+    if (!reach(g_config.chip_tm, sx, sy, DIR_NONE, vx, vy) ||
+        !reach(g_config.ipos_tm, vx, vy, DIR_NONE, ex, ey) ||
+        !reach(g_config.chip_tm, ex, ey, DIR_NONE, dx, dy))
+        return 1 << 20;
+    return manhattanXY(sx, sy, vx, vy) + 1 + manhattanXY(vx, vy, ex, ey) + 1 + manhattanXY(ex, ey, dx, dy);
+}
+
+// Bounded-deviation entry: keeps the entry candidates e with L(e) <= L_ref + k, where
+// L(e) uses the best exit of exit_mask and L_ref is min_e L(e) (mode min) or L(e_LUT)
+// (mode lut; e_LUT is always kept). The result is a non-empty subset of entry_mask.
+VlMask boundEntryMask(int src, int dst, VlMask exit_mask, VlMask entry_mask)
+{
+    std::vector<int> len(NVL, 1 << 20);
+    int lmin = 1 << 20;
+    for (int e = 0; e < NVL; e++) {
+        if (!(entry_mask & bit(e)))
+            continue;
+        for (int v = 0; v < NVL; v++)
+            if (exit_mask & bit(v))
+                len[e] = std::min(len[e], pathLength(src, v, e, dst));
+        lmin = std::min(lmin, len[e]);
+    }
+    int ref = lmin;
+    int e_lut = -1;
+    if (g_entry_bound_mode == EB_LUT) {
+        DeftVerticalLinkLut::Entry entry;
+        if (DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &entry, 0) &&
+            (entry_mask & bit(entry.destination_entry.selected_vl_id))) {
+            e_lut = entry.destination_entry.selected_vl_id;
+            ref = len[e_lut];
+        } else {
+            g_eb_lut_fallbacks++;            // e_LUT faulty or missing: mode min with the same k
+        }
+    }
+    VlMask out = 0;
+    for (int e = 0; e < NVL; e++)
+        if ((entry_mask & bit(e)) && len[e] <= ref + g_entry_bound_k)
+            out |= bit(e);
+    if (e_lut >= 0)
+        out |= bit(e_lut);
+    return out ? out : entry_mask;
+}
+
+} // namespace
+
 void prepareHeadPacket(Packet &p)
 {
     if (!DeftVirtualNetwork::isEnabled())
@@ -747,6 +833,16 @@ void prepareHeadPacket(Packet &p)
     if (isActive() && chipletOf(p.src_id) >= 0 && chipletOf(p.dst_id) >= 0 &&
         chipletOf(p.src_id) != chipletOf(p.dst_id)) {
         chooseMasks(p.src_id, p.dst_id, &exit_mask, &entry_mask);
+        if (g_entry_bound_mode != EB_OFF) {
+            const VlMask before = entry_mask;
+            entry_mask = boundEntryMask(p.src_id, p.dst_id, exit_mask, entry_mask);
+            const double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+            if (now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time) {
+                g_eb_packets++;
+                g_eb_before_sum += __builtin_popcountll(before);
+                g_eb_after_sum += __builtin_popcountll(entry_mask);
+            }
+        }
     }
     p.deft_exit_mask = exit_mask;
     p.deft_entry_mask = entry_mask;
@@ -1199,6 +1295,15 @@ void writeJson(std::ostream &out)
     out << "    \"delay_inter_p99\": " << percentile(g_delays_inter, 0.99) << "," << std::endl;
     out << "    \"delay_intra_mean\": " << mean(g_delays_intra) << "," << std::endl;
     out << "    \"packets_inter\": " << g_delays_inter.size() << "," << std::endl;
+    if (g_entry_bound_mode != EB_OFF) {     // fields only present with the option on
+        out << "    \"entry_bound_mode\": \"" << (g_entry_bound_mode == EB_MIN ? "min" : "lut")
+            << "\", \"entry_bound_k\": " << g_entry_bound_k << "," << std::endl;
+        out << "    \"entry_bound_packets\": " << g_eb_packets << ", \"entry_bound_lut_fallbacks\": "
+            << g_eb_lut_fallbacks << "," << std::endl;
+        out << "    \"entry_candidates_before_mean\": " << (g_eb_packets ? g_eb_before_sum / g_eb_packets : 0.0)
+            << ", \"entry_candidates_after_mean\": " << (g_eb_packets ? g_eb_after_sum / g_eb_packets : 0.0)
+            << "," << std::endl;
+    }
     out << "    \"packets_intra\": " << g_delays_intra.size() << std::endl;
     out << "  }" << std::endl;
     if (statsOn())

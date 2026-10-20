@@ -45,6 +45,13 @@ CONFIGS = {
     'CI_XY_OE': ('XY', 'OE', 'fixed', 'late'),             # interposer-only late binding
     'FULL_OE_OE': ('OE', 'OE', 'late', 'late'),            # full late binding
 }
+# v7 bounded-deviation entry: the initial entry mask is any non-empty subset of the functional
+# entries (covers every entry_bound_mode / entry_bound_k and any LUT); 'size' mode with 'bounded'.
+CONFIGS_BOUNDED = {
+    'CI_XY_OE_anysubset': ('XY', 'OE', 'fixed', 'subsets'),
+    'FULL_OE_OE_anysubset': ('OE', 'OE', 'late', 'subsets'),
+}
+ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED)
 
 
 def functional(c, faulty):
@@ -114,7 +121,11 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
                 continue
             fs, fd = functional(cs, faulty), functional(cd, faulty)
             exits = [frozenset([v]) for v in fs] if exit_pol == 'fixed' else [fs]
-            entries = [frozenset([e]) for e in fd] if entry_pol == 'fixed' else [fd]
+            if entry_pol == 'subsets':
+                fl = sorted(fd)
+                entries = [frozenset(e for i, e in enumerate(fl) if b >> i & 1) for b in range(1, 1 << len(fl))]
+            else:
+                entries = [frozenset([e]) for e in fd] if entry_pol == 'fixed' else [fd]
             own = POS2VL.get(s)
             for ex in exits:
                 vns = [0, 1] if (own is not None and ex == frozenset([own])) else [0]
@@ -198,7 +209,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
 
 def job(args):
     name, faulty = args
-    cdg, sg, dead = explore(CONFIGS[name], faulty)
+    cdg, sg, dead = explore(ALL_CONFIGS[name], faulty)
     acyc = nx.is_directed_acyclic_graph(cdg)
     sga = nx.is_directed_acyclic_graph(sg)
     return (name, len(faulty), acyc, len(dead), sga,
@@ -217,7 +228,7 @@ def job_lean(args):
     cdg_all = nx.DiGraph()
     dead, sga, longest = 0, True, 0
     for d in ALL_CHIP_NODES:
-        cdg, sg, dl = explore(CONFIGS[name], faulty, dest=d)
+        cdg, sg, dl = explore(ALL_CONFIGS[name], faulty, dest=d)
         cdg_all.add_edges_from(cdg.edges())
         dead += len(dl)
         if sga and nx.is_directed_acyclic_graph(sg):
@@ -481,20 +492,21 @@ def _init_size(cx, cy, lean):
     LEAN = lean
 
 
-def size_main(cx, cy, nproc, out_md, n_random, lean=False):
+def size_main(cx, cy, nproc, out_md, n_random, lean=False, configs=None):
     """The three relations on a cx x cy grid of 4x4 chiplets (v4 step 3). lean: per-destination
     exploration (job_lean), needed for 4x4 within the available memory."""
     from multiprocessing import Pool
     set_size(cx, cy, 4, 4)
     ms = size_masks(cx, cy, n_random)
-    jobs = [(n, m) for _, m in ms for n in CONFIGS]
+    configs = configs or CONFIGS
+    jobs = [(n, m) for _, m in ms for n in configs]
     t = time.time()
     with Pool(nproc, initializer=_init_size, initargs=(cx, cy, lean)) as pool:
         res = pool.map(_timed_job, jobs, chunksize=1)
     el = time.time() - t
     nvl = 4 * cx * cy
     L = [f'## {cx}x{cy} chiplets of 4x4 routers ({16 * cx * cy} chiplet routers, {nvl} VLs)', '',
-         f'{len(ms)} fault masks x 3 relations = {len(jobs)} checks; {nproc} processes, {el:.0f} s wall'
+         f'{len(ms)} fault masks x {len(configs)} relations = {len(jobs)} checks; {nproc} processes, {el:.0f} s wall'
          f'{"; per-destination exploration (job_lean)" if lean else ""}.', '',
          '| mask | faulty VLs | relation | CDG acyclic | dead ends | livelock-free | longest path (hops) | '
          'CDG nodes / edges | time (s) |', '|---|---|---|---|---|---|---|---|---|']
@@ -515,8 +527,10 @@ def size_main(cx, cy, nproc, out_md, n_random, lean=False):
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'size':
         # size CX CY NPROC OUT.md N_RANDOM [lean]
+        # size CX CY NPROC OUT.md N_RANDOM [lean] [bounded]
         ok = size_main(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5], int(sys.argv[6]),
-                       lean=len(sys.argv) > 7 and sys.argv[7] == 'lean')
+                       lean='lean' in sys.argv[7:],
+                       configs=CONFIGS_BOUNDED if 'bounded' in sys.argv[7:] else None)
         sys.exit(0 if ok else 1)
     if len(sys.argv) > 1 and sys.argv[1] == 'hl3':
         hl3_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,

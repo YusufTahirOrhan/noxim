@@ -27,7 +27,7 @@ def parse(path):
 
 def imbalance(mask, down, up):
     faulty = int(mask, 16)
-    c = [down[v] + up[v] for v in range(16) if not faulty >> v & 1]
+    c = [down[v] + up[v] for v in range(len(down)) if not faulty >> v & 1]   # v7 fix: was range(16)
     mu = sum(c) / len(c)
     return max(c) / mu if mu > 0 else float('nan')
 
