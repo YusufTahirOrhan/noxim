@@ -31,3 +31,11 @@ The conservative option is the one that favours the baseline (plain DeFT(rho*)).
 8. **Drain:** 102 runs (3 variants x (11 masks x 2 seeds allpairs + 12 high-load runs)), all PASS.
 9. **Seed rule applied:** estimate 8.4 h for seeds 41-50 (rule threshold 9 h) -> seeds 41-50; addendum committed
    before the evaluation.
+
+## Steps 3-4
+10. **Evaluation:** 8750 runs (5 run types x (11 + 7 + 7) scenarios x 7 loads x seeds 41-50), 0 missing. DeFT and
+    DeFT_tm are re-run on the new seeds (no reuse).
+11. **Disk:** the evaluation stayed on C: (about 40 MB of raw output, deleted after `eval_runs.csv` was written). D:
+    (395 GB free), offered by the author during the run, was not needed.
+12. **Confirmation table:** the v8 value is the unadjusted v8 secondary estimate (seeds 31-40); "confirmed" =
+    significant after Holm in v9 with the same sign, as pre-registered. Effect sizes are compared descriptively.

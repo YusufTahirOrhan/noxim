@@ -1,0 +1,28 @@
+size,variant,metric,v8_effect_pct,v9_effect_pct,v9_ci,p_holm,v9_verdict,status
+2x2,CI_heurLA_G,LAT,,-28.78,"[-30.55, -26.97]",5.4e-09,better,no prediction
+2x2,CI_heurLA_G,P99,,-52.44,"[-55.59, -49.07]",3.43e-08,better,no prediction
+2x2,CI_heurLA_G,THR,,10.98,"[+10.35, +11.62]",3.83e-10,better,no prediction
+2x2,CI_qlLA_G,LAT,,-32.79,"[-35.12, -30.37]",2.56e-08,better,no prediction
+2x2,CI_qlLA_G,P99,,-55.99,"[-59.55, -52.12]",8.03e-08,better,no prediction
+2x2,CI_qlLA_G,THR,,11.12,"[+10.22, +12.02]",7.33e-09,better,no prediction
+2x2,FULL_qlLA_G,LAT,,-28.68,"[-31.25, -26.02]",1.13e-07,better,no prediction
+2x2,FULL_qlLA_G,P99,,-55.58,"[-59.68, -51.07]",2.18e-07,better,no prediction
+2x2,FULL_qlLA_G,THR,,3.94,"[+2.81, +5.07]",8.73e-05,better,no prediction
+3x3,CI_heurLA_G,LAT,-16.7,-18.49,"[-22.63, -14.13]",4.79e-05,better,confirmed
+3x3,CI_heurLA_G,P99,-37.13,-41.06,"[-47.05, -34.39]",1.29e-05,better,confirmed
+3x3,CI_heurLA_G,THR,2.42,2.28,"[+1.80, +2.76]",1.41e-05,better,confirmed
+3x3,CI_qlLA_G,LAT,-20.82,-21.75,"[-25.97, -17.29]",2.13e-05,better,confirmed
+3x3,CI_qlLA_G,P99,-45.04,-46.02,"[-52.26, -38.95]",1.24e-05,better,confirmed
+3x3,CI_qlLA_G,THR,3.15,2.63,"[+2.11, +3.14]",1.05e-05,better,confirmed
+3x3,FULL_qlLA_G,LAT,-28.66,-29.11,"[-31.77, -26.35]",1.32e-07,better,confirmed
+3x3,FULL_qlLA_G,P99,-53.92,-54.29,"[-57.87, -50.40]",8.39e-08,better,confirmed
+3x3,FULL_qlLA_G,THR,-0.35,-0.84,"[-1.69, +0.01]",0.104,n.s.,no prediction
+4x4,CI_heurLA_G,LAT,-24.42,-24.78,"[-29.10, -20.19]",1.41e-05,better,confirmed
+4x4,CI_heurLA_G,P99,-48.99,-50.11,"[-55.22, -44.41]",2.05e-06,better,confirmed
+4x4,CI_heurLA_G,THR,-0.18,-0.93,"[-1.96, +0.10]",0.104,n.s.,no prediction
+4x4,CI_qlLA_G,LAT,-26.31,-28.03,"[-31.72, -24.13]",2.3e-06,better,confirmed
+4x4,CI_qlLA_G,P99,-52.69,-55.66,"[-59.21, -51.80]",8.03e-08,better,confirmed
+4x4,CI_qlLA_G,THR,2.84,1.94,"[+1.32, +2.56]",0.00016,better,confirmed
+4x4,FULL_qlLA_G,LAT,-39.14,-40.49,"[-43.92, -36.85]",1.61e-07,better,confirmed
+4x4,FULL_qlLA_G,P99,-63.0,-65.32,"[-68.55, -61.76]",3.43e-08,better,confirmed
+4x4,FULL_qlLA_G,THR,5.0,4.46,"[+3.75, +5.18]",2.08e-06,better,confirmed

@@ -203,3 +203,12 @@ python3 experiments_v8.py drain 12 && python3 experiments_v8.py timing 12
 python3 experiments_v8.py eval 12 all && python3 experiments_v8.py vlref 12
 python3 make_eval_csv.py results_v8 eval && python3 make_eval_csv.py results_v8 vlref && python3 report_v8.py
 ```
+
+## Ninth round (results_v9/): confirmatory test of gamma = 2 against plain DeFT(rho*)
+Frozen design on 2x2/3x3/4x4, new seeds 41-50 (chosen by a pre-registered timing rule), no tuning, no C++ change.
+Start with `results_v9/FINDINGS.md`.
+```
+python3 experiments_v9.py drain 12 && python3 experiments_v9.py timing 12
+python3 experiments_v9.py eval 12 all
+python3 make_eval_csv.py results_v9 eval && python3 report_v9.py
+```
