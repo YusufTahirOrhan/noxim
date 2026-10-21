@@ -188,3 +188,18 @@ python3 experiments_v7.py drain 12 && python3 experiments_v7.py timing 12
 python3 experiments_v7.py eval 12 all && python3 experiments_v7.py vlref 12 && python3 experiments_v7.py evalcand
 python3 make_eval_csv.py results_v7 eval && python3 make_eval_csv.py results_v7 vlref && python3 report_v7.py
 ```
+
+## Eighth round (results_v8/): plain DeFT(rho*) reference and the layer-weighted hop cost
+Step 1 compares the v6-tuned variants with plain DeFT(rho*) (uniform LUT for every pattern) on seeds 31-40. Steps 2-5
+add `-deft_lb hop_weight_ipos GAMMA` (default 1.0; weight of a horizontal interposer hop in the selection's static
+remaining-path cost; regression in results_v8/regression.md), select gamma on 4x4 and test CI_heurLA_G, CI_qlLA_G,
+FULL_qlLA_G against DeFT_tm(rho*) and their gamma = 1 parents. Start with `results_v8/FINDINGS.md`.
+```
+python3 experiments_v8.py deft 12 && python3 make_eval_csv.py results_v8 deft && python3 report_v8_step1.py
+python3 experiments_v8.py regress 12 BIN_V7 && python3 experiments_v8.py alpha0 12
+python3 experiments_v8.py select 12 && python3 experiments_v8.py choose 12
+python3 bottleneck_v8.py run 12 && python3 bottleneck_v8.py analyze cleanup
+python3 experiments_v8.py drain 12 && python3 experiments_v8.py timing 12
+python3 experiments_v8.py eval 12 all && python3 experiments_v8.py vlref 12
+python3 make_eval_csv.py results_v8 eval && python3 make_eval_csv.py results_v8 vlref && python3 report_v8.py
+```

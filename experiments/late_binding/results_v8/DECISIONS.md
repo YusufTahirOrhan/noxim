@@ -42,3 +42,20 @@ The conservative option is the one that favours the baseline and, for the _G var
 12. **Latency term** as v7: per scenario the mean over the 2 seeds, then the geometric mean over the scenarios.
 13. **No extension:** gamma = 2 won for all three variants (interior; gamma = 3 broke the 5 % latency limit for all
     three), so the gamma = 4 step was not needed.
+
+## Steps 4-5
+14. **FULL_qlLA parent added to step 4.** The verdict compares a _G variant's interposer load with its parent's, and
+    FULL_qlLA was not in the v7 bottleneck runs, so it was run with the three _G variants (72 runs). DeFT_tm(rho*),
+    CI_heurLA and CI_qlLA come from results_v7/bottleneck_agg.json (same runs, identical binary at gamma 1).
+15. **Verdict cell fixed before the step-4 data.** The pre-registration (committed while the step-4 runs were still
+    running, before any result was seen) fixed the closeness test to 4x4 uniform at 1.0 x Lsat, the cell of the
+    v6/v7 diagnosis, where the delivered traffic is equal for all variants. The other five cells are reported
+    descriptively; at 1.2 x Lsat the accepted traffic differs, so the link load is not comparable there.
+16. **FULL_qlLA_G and closeness.** Its parent already had DeFT_tm's interposer load, and gamma moves it 11 % below, so
+    it counts as "not closer" (the literal criterion). The verdict rests on the two CI variants.
+17. **VL imbalance of the references:** DeFT_tm, CI_heurLA, CI_qlLA from results_v7/vlref_runs.csv (all VLs); FULL_qlLA
+    re-run at 1.0 x Lsat (140 runs, stage vlref), because the v6 column covers VL ids 0-15 only.
+18. **Both sizes in one run:** the timing estimate was 4.8 h (rule threshold 14 h).
+19. **Raw outputs deleted after aggregation:** DeFT(rho*), regression, alpha0, selection, bottleneck, drain, timing,
+    evaluation and VL runs. Kept: deft_runs.csv, select_runs.csv, eval_runs.csv, vlref_runs.csv, bottleneck JSONs and
+    the reports.
