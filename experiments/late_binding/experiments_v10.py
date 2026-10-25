@@ -278,6 +278,46 @@ def sanity(nproc):
     shutil.rmtree(raw('sanity'))
 
 
+# ---- Part B ----
+def eval_jobs(seeds=SEEDS, sizes=SIZES, variants=NEW):
+    js = []
+    for size in sizes:
+        mm = methods(size)
+        for v in variants:
+            for p, m in scenarios(size, v):
+                for r in LP5[f'{size}__{p}__{m}']['eval']:
+                    js += [E5.job('eval', size, v, mm[v], p, m, r, s, lut(size, v, p)) for s in seeds]
+    return js
+
+
+def timing(nproc):
+    js = []
+    for size in SIZES:
+        mm = methods(size)
+        for v in NEW:
+            for p, m in scenarios(size, v):
+                for i in (1, 3, 6):
+                    r = LP5[f'{size}__{p}__{m}']['eval'][i]
+                    js.append(E5.job('timing', size, v, mm[v], p, m, r, 1001, lut(size, v, p)))
+    t = time.time()
+    res = run_jobs(js, raw('timing'), nproc=nproc, timeout=7200)
+    el = time.time() - t
+    n = len(eval_jobs())
+    est = el / len(js) * n / 3600
+    L = ['# Run-time estimate v10 Part B', '', f'Timing test: {len(js)} runs (seed 1001; every new method x size x '
+         f'scenario at the 2nd, 4th and 7th load), {nproc} processes: {el:.0f} s wall, {el / len(js):.2f} s per run; '
+         f'{sum(1 for x in res.values() if x is None)} missing.', '',
+         f'Part B evaluation: {n} new runs, estimated **{est:.1f} h** on one machine (12 processes). The full design is '
+         'run (not reduced); `--shard i/n` splits it over machines.']
+    open(os.path.join(RES, 'runtime_estimate.md'), 'w', newline='
+').write('
+'.join(L) + '
+')
+    print('
+'.join(L))
+    shutil.rmtree(raw('timing'))
+
+
 if __name__ == '__main__':
     stage = sys.argv[1]
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 12
@@ -289,6 +329,15 @@ if __name__ == '__main__':
         sys.exit(0 if reuse(nproc) else 1)
     if stage == 'sanity':
         sanity(nproc)
+        sys.exit(0)
+    if stage == 'timing':
+        timing(nproc)
+        sys.exit(0)
+    if stage == 'eval':
+        js = eval_jobs()
+        print('eval jobs:', len(js), flush=True)
+        res = run_jobs(js, raw('eval'), nproc=nproc, timeout=14400)
+        print('done; missing outputs:', sum(1 for v in res.values() if v is None), flush=True)
         sys.exit(0)
     if stage == 'drain':
         res = run_jobs(drain_jobs(), raw('drain'), nproc=nproc, timeout=14400)
