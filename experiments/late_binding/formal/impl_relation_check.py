@@ -51,7 +51,11 @@ CONFIGS_BOUNDED = {
     'CI_XY_OE_anysubset': ('XY', 'OE', 'fixed', 'subsets'),
     'FULL_OE_OE_anysubset': ('OE', 'OE', 'late', 'subsets'),
 }
-ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED)
+# v10 ablation DeFT_OE_G: LUT-fixed exit and entry (any functional singletons) with odd-even on both layers.
+CONFIGS_FIXEDOE = {
+    'FIXED_OE_OE': ('OE', 'OE', 'fixed', 'fixed'),
+}
+ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED, **CONFIGS_FIXEDOE)
 
 
 def functional(c, faulty):
@@ -530,7 +534,8 @@ if __name__ == '__main__':
         # size CX CY NPROC OUT.md N_RANDOM [lean] [bounded]
         ok = size_main(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5], int(sys.argv[6]),
                        lean='lean' in sys.argv[7:],
-                       configs=CONFIGS_BOUNDED if 'bounded' in sys.argv[7:] else None)
+                       configs=CONFIGS_BOUNDED if 'bounded' in sys.argv[7:] else
+                       (CONFIGS_FIXEDOE if 'fixedoe' in sys.argv[7:] else None))
         sys.exit(0 if ok else 1)
     if len(sys.argv) > 1 and sys.argv[1] == 'hl3':
         hl3_main(int(sys.argv[2]) if len(sys.argv) > 2 else 2,

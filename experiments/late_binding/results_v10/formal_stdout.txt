@@ -1,0 +1,50 @@
+## 2x2 chiplets of 4x4 routers (64 chiplet routers, 16 VLs)
+
+22 fault masks x 1 relations = 22 checks; 8 processes, 5 s wall; per-destination exploration (job_lean).
+
+| mask | faulty VLs | relation | CDG acyclic | dead ends | livelock-free | longest path (hops) | CDG nodes / edges | time (s) |
+|---|---|---|---|---|---|---|---|---|
+| fault-free | 0 | FIXED_OE_OE | True | 0 | True | 24 | 860 / 1894 | 4 |
+| north per chiplet | 4 | FIXED_OE_OE | True | 0 | True | 24 | 790 / 1642 | 2 |
+| random 1 | 2 | FIXED_OE_OE | True | 0 | True | 24 | 854 / 1808 | 3 |
+| random 2 | 6 | FIXED_OE_OE | True | 0 | True | 24 | 770 / 1512 | 1 |
+| random 3 | 7 | FIXED_OE_OE | True | 0 | True | 24 | 815 / 1569 | 1 |
+| random 4 | 7 | FIXED_OE_OE | True | 0 | True | 23 | 793 / 1495 | 1 |
+| random 5 | 1 | FIXED_OE_OE | True | 0 | True | 24 | 857 / 1859 | 3 |
+| random 6 | 6 | FIXED_OE_OE | True | 0 | True | 24 | 834 / 1642 | 2 |
+| random 7 | 8 | FIXED_OE_OE | True | 0 | True | 24 | 818 / 1566 | 1 |
+| random 8 | 10 | FIXED_OE_OE | True | 0 | True | 21 | 732 / 1322 | 1 |
+| random 9 | 10 | FIXED_OE_OE | True | 0 | True | 23 | 674 / 1214 | 0 |
+| random 10 | 7 | FIXED_OE_OE | True | 0 | True | 24 | 765 / 1493 | 1 |
+| random 11 | 9 | FIXED_OE_OE | True | 0 | True | 21 | 589 / 1127 | 1 |
+| random 12 | 5 | FIXED_OE_OE | True | 0 | True | 23 | 761 / 1513 | 1 |
+| random 13 | 3 | FIXED_OE_OE | True | 0 | True | 24 | 849 / 1777 | 2 |
+| random 14 | 7 | FIXED_OE_OE | True | 0 | True | 24 | 797 / 1495 | 1 |
+| random 15 | 4 | FIXED_OE_OE | True | 0 | True | 24 | 780 / 1600 | 2 |
+| random 16 | 5 | FIXED_OE_OE | True | 0 | True | 23 | 777 / 1543 | 2 |
+| random 17 | 5 | FIXED_OE_OE | True | 0 | True | 24 | 811 / 1591 | 2 |
+| random 18 | 5 | FIXED_OE_OE | True | 0 | True | 24 | 845 / 1651 | 1 |
+| random 19 | 6 | FIXED_OE_OE | True | 0 | True | 24 | 774 / 1542 | 1 |
+| random 20 | 8 | FIXED_OE_OE | True | 0 | True | 24 | 768 / 1506 | 1 |
+
+**All checks pass: True** (acyclic CDG, no dead ends, no livelock).
+
+Random masks: random 1: [1, 3]; random 2: [0, 2, 4, 12, 14, 15]; random 3: [4, 6, 7, 8, 12, 14, 15]; random 4: [2, 4, 5, 6, 8, 9, 14]; random 5: [15]; random 6: [1, 2, 3, 4, 6, 9]; random 7: [1, 3, 4, 6, 7, 12, 13, 15]; random 8: [0, 2, 3, 6, 7, 10, 11, 12, 13, 15]; random 9: [0, 1, 3, 5, 6, 7, 8, 9, 13, 14]; random 10: [4, 5, 7, 9, 12, 13, 15]; random 11: [3, 4, 5, 6, 9, 11, 12, 13, 14]; random 12: [1, 5, 13, 14, 15]; random 13: [7, 8, 10]; random 14: [1, 2, 3, 4, 5, 6, 12]; random 15: [3, 4, 8, 11]; random 16: [0, 4, 7, 11, 14]; random 17: [1, 2, 13, 14, 15]; random 18: [0, 3, 9, 10, 12]; random 19: [2, 4, 8, 10, 12, 14]; random 20: [1, 2, 5, 6, 9, 12, 13, 15]
+
+## 3x3 chiplets of 4x4 routers (144 chiplet routers, 36 VLs)
+
+6 fault masks x 1 relations = 6 checks; 8 processes, 25 s wall; per-destination exploration (job_lean).
+
+| mask | faulty VLs | relation | CDG acyclic | dead ends | livelock-free | longest path (hops) | CDG nodes / edges | time (s) |
+|---|---|---|---|---|---|---|---|---|
+| fault-free | 0 | FIXED_OE_OE | True | 0 | True | 32 | 2002 / 4634 | 25 |
+| north per chiplet | 9 | FIXED_OE_OE | True | 0 | True | 32 | 1885 / 4117 | 15 |
+| random 1 | 8 | FIXED_OE_OE | True | 0 | True | 32 | 1978 / 4370 | 16 |
+| random 2 | 14 | FIXED_OE_OE | True | 0 | True | 32 | 1864 / 3952 | 10 |
+| random 3 | 12 | FIXED_OE_OE | True | 0 | True | 32 | 1948 / 4194 | 12 |
+| random 4 | 23 | FIXED_OE_OE | True | 0 | True | 29 | 1787 / 3451 | 4 |
+
+**All checks pass: True** (acyclic CDG, no dead ends, no livelock).
+
+Random masks: random 1: [1, 3, 16, 18, 20, 28, 30, 31]; random 2: [0, 2, 3, 4, 8, 10, 11, 14, 16, 17, 18, 20, 21, 26]; random 3: [7, 9, 10, 11, 12, 14, 17, 25, 27, 28, 30, 31]; random 4: [0, 1, 3, 4, 6, 7, 10, 11, 14, 15, 16, 17, 19, 20, 21, 23, 25, 26, 27, 28, 29, 33, 34]
+

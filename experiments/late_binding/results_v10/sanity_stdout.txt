@@ -1,0 +1,11 @@
+# Sanity check against the DeFT paper (v10 A5): 2x2 uniform, fault-free
+
+Mean over seeds 1001-1003 (not evaluation seeds). Load = multiple of DeFT(rho*)'s Lsat (v5 load points).
+
+| load | rate | DeFT(rho*) latency | MTR latency | RC latency | DeFT accepted | MTR accepted | RC accepted |
+|---|---|---|---|---|---|---|---|
+| 0.8 | 0.009 | 38.0 | 33.6 | 33.7 | 0.0722 | 0.0721 | 0.0724 |
+| 1.0 | 0.011 | 59.0 | 44.5 | 42.2 | 0.0881 | 0.0882 | 0.0884 |
+| 1.2 | 0.013 | 179.4 | 80.4 | 69.2 | 0.1019 | 0.1044 | 0.1055 |
+| 1.4 | 0.0155 | 746.8 | 401.7 | 358.4 | 0.1050 | 0.1165 | 0.1183 |
+| 1.6 | 0.0175 | 1332.0 | 950.8 | 885.6 | 0.1034 | 0.1176 | 0.1196 |
