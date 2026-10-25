@@ -37,7 +37,11 @@ enum InjectionPolicy {
     POLICY_LUT,         // offline DeFT table
     POLICY_RANDOM,      // uniform random functional VL
     POLICY_MINDIST,     // minimal total hop count, random tie break
-    POLICY_ORACLE       // hop count + instantaneous global VL-area occupancy
+    POLICY_ORACLE,      // hop count + instantaneous global VL-area occupancy
+    // v10 baselines (singleton masks; with XY turn models the relation is DeFT's)
+    POLICY_NEAR,        // functional VL nearest to the source (exit) / destination (entry) router, ties: lowest id
+    POLICY_RAN,         // uniform functional VL per packet, drawn from a separate RNG stream
+    POLICY_MTR          // MTR outbound (exit) / inbound (entry) table (-deft_lb mtr_table PATH)
 };
 
 struct Config {
@@ -128,6 +132,19 @@ int selectHeuristic(Router *router, const std::vector<int> &directions,
 int selectQLearning(Router *router, const std::vector<int> &directions,
                     const RouteData &route_data);
 bool qLearningEnabled();
+
+// ---- RC baseline (-deft_lb rc 1; off by default) ---------------------
+// Outbound injection permission: true when the packet (head not yet sent)
+// may leave its PE; requests a slot of the exit boundary router's RC buffer.
+bool rcEnabled();
+int rcSlots();
+bool rcMayInject(const Packet &packet, double now);
+// The tail of an outbound packet left the RC buffer of this boundary router.
+void rcRelease(int boundary_router_id, double now);
+
+// ---- plain DEFT VL usage counter (-deft_lb count_vl 1; off by default) ---
+bool countPlainVl();
+void onPlainHubForward(int router_id);
 
 // ---- statistics ------------------------------------------------------
 void writeJson(std::ostream &out);

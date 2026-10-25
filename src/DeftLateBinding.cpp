@@ -9,9 +9,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <deque>
 #include <fstream>
 #include <map>
+#include <random>
 #include <sstream>
+
+#include <yaml-cpp/yaml.h>
 
 #include "DeftTopology.h"
 #include "DeftVerticalLinkLut.h"
@@ -46,6 +50,29 @@ int g_ql_lookahead = 0;
 // Weight of a horizontal interposer hop in the selection's static remaining-path length
 // (parameter hop_weight_ipos, default 1.0 = plain hop count).
 double g_hop_weight_ipos = 1.0;
+
+// ---- v10 baselines (all off by default) ----
+// MTR tables (parameter mtr_table): chiplet-local router index -> VL slot (0..3).
+std::vector<int> g_mtr_out, g_mtr_in;
+std::string g_mtr_file;
+// Separate RNG for the 'ran' policy, so that rand() (traffic generation) is not perturbed.
+std::mt19937 g_ran_rng;
+bool g_ran_seeded = false;
+// RC: outbound injection permission and RC buffer (parameters rc, rc_slots).
+bool g_rc = false;
+int g_rc_slots = 4;
+struct RcState {
+    int used;
+    std::deque<int> queue;     // waiting source PEs, FIFO
+    RcState() : used(0) {}
+};
+std::vector<RcState> g_rc_state;          // per chiplet router id (boundary routers used)
+std::vector<double> g_rc_ready;           // per PE: cycle from which the granted packet may leave (-1 = none)
+std::vector<double> g_rc_first_request;   // per PE: cycle of the pending request (-1 = none)
+unsigned long g_rc_grants = 0;
+double g_rc_wait_sum = 0.0;
+// Plain DEFT VL counter (parameter count_vl).
+bool g_count_vl = false;
 
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
@@ -220,6 +247,75 @@ int randomMember(VlMask mask)
     return members[rand() % members.size()];
 }
 
+// Functional VL of the mask nearest (footprint Manhattan) to router r; ties: lowest VL id.
+int nearestMember(VlMask mask, int r)
+{
+    int best = -1, best_d = 1 << 20;
+    for (int v = 0; v < NVL; v++) {
+        if (!(mask & bit(v)))
+            continue;
+        const int d = manhattanXY(footprintX(r), footprintY(r), vlChipX(v), vlChipY(v));
+        if (d < best_d) {
+            best_d = d;
+            best = v;
+        }
+    }
+    return best;
+}
+
+// Uniform member of the mask from the separate RNG stream (seeded once from the run seed).
+int ranMember(VlMask mask)
+{
+    if (!g_ran_seeded) {
+        g_ran_rng.seed((unsigned int) GlobalParams::rnd_generator_seed);
+        g_ran_seeded = true;
+    }
+    std::vector<int> members;
+    for (int v = 0; v < NVL; v++)
+        if (mask & bit(v))
+            members.push_back(v);
+    std::uniform_int_distribution<int> pick(0, (int) members.size() - 1);
+    return members[pick(g_ran_rng)];
+}
+
+// MTR: the VL of the router's chiplet in the slot given by the table entry of its local position.
+int mtrMember(int r, const std::vector<int> &table, const char *which)
+{
+    const int lx = footprintX(r) % DeftTopology::ChipletLocalWidth;
+    const int ly = footprintY(r) % DeftTopology::ChipletLocalHeight;
+    const int slot = table[ly * DeftTopology::ChipletLocalWidth + lx];
+    std::vector<DeftTopology::VerticalLinkInfo> links =
+        DeftTopology::functionalVerticalLinksForChiplet(chipletOf(r));
+    for (size_t i = 0; i < links.size(); i++)
+        if ((int) links[i].slot == slot)
+            return links[i].vl_id;
+    std::cerr << "DEFT_LB: MTR " << which << " VL (slot " << slot << ") of router " << r
+              << " is faulty; MTR is evaluated fault-free only" << std::endl;
+    exit(1);
+}
+
+bool loadMtrTable(const std::string &path, std::string *error_message)
+{
+    try {
+        YAML::Node root = YAML::LoadFile(path);
+        const int n = DeftTopology::ChipletLocalWidth * DeftTopology::ChipletLocalHeight;
+        g_mtr_out.clear();
+        g_mtr_in.clear();
+        for (size_t i = 0; i < root["outbound"].size(); i++)
+            g_mtr_out.push_back(root["outbound"][i].as<int>());
+        for (size_t i = 0; i < root["inbound"].size(); i++)
+            g_mtr_in.push_back(root["inbound"][i].as<int>());
+        if ((int) g_mtr_out.size() != n || (int) g_mtr_in.size() != n) {
+            if (error_message) *error_message = "mtr_table: outbound/inbound must have one entry per chiplet router";
+            return false;
+        }
+    } catch (const std::exception &e) {
+        if (error_message) *error_message = std::string("mtr_table: ") + e.what();
+        return false;
+    }
+    return true;
+}
+
 bool parsePolicy(const std::string &v, InjectionPolicy *p)
 {
     if (v == "late") *p = POLICY_LATE;
@@ -227,6 +323,9 @@ bool parsePolicy(const std::string &v, InjectionPolicy *p)
     else if (v == "random") *p = POLICY_RANDOM;
     else if (v == "mindist") *p = POLICY_MINDIST;
     else if (v == "oracle") *p = POLICY_ORACLE;
+    else if (v == "near") *p = POLICY_NEAR;
+    else if (v == "ran") *p = POLICY_RAN;
+    else if (v == "mtr") *p = POLICY_MTR;
     else return false;
     return true;
 }
@@ -261,6 +360,18 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
         es = bit(randomMember(fs));
     if (c.entry_policy == POLICY_RANDOM)
         ed = bit(randomMember(fd));
+    if (c.exit_policy == POLICY_NEAR)
+        es = bit(nearestMember(fs, src));
+    if (c.entry_policy == POLICY_NEAR)
+        ed = bit(nearestMember(fd, dst));
+    if (c.exit_policy == POLICY_RAN)
+        es = bit(ranMember(fs));
+    if (c.entry_policy == POLICY_RAN)
+        ed = bit(ranMember(fd));
+    if (c.exit_policy == POLICY_MTR)
+        es = bit(mtrMember(src, g_mtr_out, "outbound"));
+    if (c.entry_policy == POLICY_MTR)
+        ed = bit(mtrMember(dst, g_mtr_in, "inbound"));
 
     const bool exit_cost = isCostPolicy(c.exit_policy);
     const bool entry_cost = isCostPolicy(c.entry_policy);
@@ -380,6 +491,9 @@ std::string policyName(InjectionPolicy p)
     case POLICY_RANDOM: return "random";
     case POLICY_MINDIST: return "mindist";
     case POLICY_ORACLE: return "oracle";
+    case POLICY_NEAR: return "near";
+    case POLICY_RAN: return "ran";
+    case POLICY_MTR: return "mtr";
     }
     return "?";
 }
@@ -417,6 +531,10 @@ bool setParam(const std::string &key, const std::string &value,
         g_stats_file = value;
         return true;
     }
+    if (key == "mtr_table") {          // MTR baseline tables (results_v10/mtr_config.json)
+        g_mtr_file = value;
+        return true;
+    }
     if (key == "entry_bound_mode") {
         if (value == "off") g_entry_bound_mode = EB_OFF;
         else if (value == "min") g_entry_bound_mode = EB_MIN;
@@ -450,6 +568,34 @@ bool setParam(const std::string &key, const std::string &value,
         g_ql_lookahead = (int) d;
     }
     else if (key == "oracle_beta") c.oracle_beta = d;
+    else if (key == "vn_rules") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "vn_rules must be 0 or 1";
+            return false;
+        }
+        DeftVirtualNetwork::setRulesActive(d != 0.0);
+    }
+    else if (key == "rc") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "rc must be 0 or 1";
+            return false;
+        }
+        g_rc = d != 0.0;
+    }
+    else if (key == "rc_slots") {
+        if (d < 1 || d != std::floor(d)) {
+            if (error_message) *error_message = "rc_slots must be an integer >= 1";
+            return false;
+        }
+        g_rc_slots = (int) d;
+    }
+    else if (key == "count_vl") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "count_vl must be 0 or 1";
+            return false;
+        }
+        g_count_vl = d != 0.0;
+    }
     else if (key == "hop_weight_ipos") {
         if (!(d > 0)) {
             if (error_message) *error_message = "hop_weight_ipos must be > 0";
@@ -494,6 +640,18 @@ bool validateConfiguration(std::string *error_message)
         !DeftVerticalLinkLut::isLoaded()) {
         if (error_message)
             *error_message = "policy lut requires -deft_vl_lut";
+        return false;
+    }
+    if ((c.exit_policy == POLICY_MTR || c.entry_policy == POLICY_MTR) &&
+        !loadMtrTable(g_mtr_file, error_message))
+        return false;
+    if (g_rc && (c.exit_policy != POLICY_NEAR && c.exit_policy != POLICY_MTR &&
+                 c.exit_policy != POLICY_LUT)) {
+        if (error_message) *error_message = "rc requires a deterministic exit policy (near, mtr or lut)";
+        return false;
+    }
+    if (g_rc && DeftVirtualNetwork::rulesActive()) {
+        if (error_message) *error_message = "rc is the RC baseline: use it with vn_rules 0";
         return false;
     }
     if (g_entry_bound_mode == EB_LUT && !DeftVerticalLinkLut::isLoaded()) {
@@ -864,7 +1022,9 @@ void prepareHeadPacket(Packet &p)
     }
     p.deft_exit_mask = exit_mask;
     p.deft_entry_mask = entry_mask;
-    p.vc_id = DeftVirtualNetwork::assignSourceVirtualNetwork(p.src_id, p.dst_id, exit_mask);
+    if (DeftVirtualNetwork::rulesActive())
+        p.vc_id = DeftVirtualNetwork::assignSourceVirtualNetwork(p.src_id, p.dst_id, exit_mask);
+    // VN rules off (MTR, RC): the packet keeps the VC drawn by the PE, as in Noxim.
 }
 
 // ---- optional statistics (parameter stats_file; off by default) ----
@@ -1274,6 +1434,102 @@ int selectQLearning(Router *router, const std::vector<int> &dirs,
     return pickMin(dirs, cost);
 }
 
+// ---- RC baseline: outbound injection permission (OPIC model) ----
+namespace {
+
+void rcEnsure()
+{
+    if ((int) g_rc_state.size() != NROUTERS) {
+        g_rc_state.assign(NROUTERS, RcState());
+        g_rc_ready.assign(NROUTERS, -1.0);
+        g_rc_first_request.assign(NROUTERS, -1.0);
+    }
+}
+
+// Grants pending requests of boundary router br in FIFO order while slots are free. The packet may
+// leave its PE max(1, d) cycles after the grant (d = hop distance PE -> boundary router).
+void rcServe(int br, double now)
+{
+    RcState &st = g_rc_state[br];
+    while (st.used < g_rc_slots && !st.queue.empty()) {
+        const int pe = st.queue.front();
+        st.queue.pop_front();
+        st.used++;
+        g_rc_grants++;
+        g_rc_ready[pe] = now + std::max(1, manhattan(pe, br));
+    }
+}
+
+bool rcConsume(int pe, double now)
+{
+    if (g_rc_ready[pe] < 0 || now < g_rc_ready[pe])
+        return false;
+    g_rc_wait_sum += now - g_rc_first_request[pe];
+    g_rc_ready[pe] = -1.0;
+    g_rc_first_request[pe] = -1.0;
+    return true;
+}
+
+} // namespace
+
+bool rcEnabled()
+{
+    return g_rc && isActive();
+}
+
+int rcSlots()
+{
+    return g_rc_slots;
+}
+
+bool rcMayInject(const Packet &packet, double now)
+{
+    if (!rcEnabled())
+        return true;
+    const int src = packet.src_id, dst = packet.dst_id;
+    if (chipletOf(src) < 0 || chipletOf(dst) < 0 || chipletOf(src) == chipletOf(dst))
+        return true;                       // intra-chiplet traffic needs no permission
+    rcEnsure();
+    if (g_rc_ready[src] >= 0)
+        return rcConsume(src, now);
+    if (g_rc_first_request[src] < 0) {
+        VlMask e = 0, n = 0;
+        chooseMasks(src, dst, &e, &n);     // deterministic exit (near / mtr / lut)
+        int v = 0;
+        while (!(e >> v & 1)) v++;
+        const int br = DeftTopology::chipletEndpointForVerticalLink(v);
+        g_rc_first_request[src] = now;
+        g_rc_state[br].queue.push_back(src);
+        rcServe(br, now);
+    }
+    return rcConsume(src, now);
+}
+
+void rcRelease(int boundary_router_id, double now)
+{
+    rcEnsure();
+    RcState &st = g_rc_state[boundary_router_id];
+    if (st.used > 0)
+        st.used--;
+    rcServe(boundary_router_id, now);
+}
+
+// ---- plain DEFT VL counter ----
+bool countPlainVl()
+{
+    return g_count_vl && !isActive();
+}
+
+void onPlainHubForward(int router_id)
+{
+    const int v = vlAtRouter(router_id);
+    if (v < 0)
+        return;
+    ensureVlCounters();
+    if (isInterposer(router_id)) g_vl_up[v]++;
+    else g_vl_down[v]++;
+}
+
 // ---- statistics ----
 void writeJson(std::ostream &out)
 {
@@ -1313,6 +1569,10 @@ void writeJson(std::ostream &out)
     out << "    \"delay_inter_p99\": " << percentile(g_delays_inter, 0.99) << "," << std::endl;
     out << "    \"delay_intra_mean\": " << mean(g_delays_intra) << "," << std::endl;
     out << "    \"packets_inter\": " << g_delays_inter.size() << "," << std::endl;
+    if (g_rc)                                // fields only present with the RC baseline
+        out << "    \"rc_slots\": " << g_rc_slots << ", \"rc_grants\": " << g_rc_grants
+            << ", \"rc_permission_wait_mean\": " << (g_rc_grants ? g_rc_wait_sum / g_rc_grants : 0.0) << ","
+            << std::endl;
     if (g_hop_weight_ipos != 1.0)            // field only present when the weight is not the default
         out << "    \"hop_weight_ipos\": " << g_hop_weight_ipos << "," << std::endl;
     if (g_entry_bound_mode != EB_OFF) {     // fields only present with the option on

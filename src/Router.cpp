@@ -165,6 +165,21 @@ void Router::txProcess()
 		      	o = DIRECTION_HUB;
 			  }
 
+		      if (o == DIRECTION_HUB && rcRouter())
+		      {
+			  // RC: reserve a free RC buffer slot (always available: the source held a permission)
+			  if (rc_in[i][vc] < 0)
+			      for (int f = 0; f < (int) rc_busy.size(); f++)
+				  if (!rc_busy[f]) {
+				      rc_busy[f] = true;
+				      rc_in[i][vc] = f;
+				      rc_dir_in[f] = i;
+				      rc_front_cycle[f] = deft_front_cycle[i][vc];
+				      break;
+				  }
+			  continue;
+		      }
+
 		      TReservation r;
 		      r.input = i;
 		      r.vc = vc;
@@ -210,15 +225,52 @@ void Router::txProcess()
       start_from_port = (start_from_port + 1) % (DIRECTIONS + 2);
 
       // 2nd phase: Forwarding
+      int rc_pick = -1;
+      if (rc_router < 0)
+          rcRouter();
       //if (local_id==6) LOG<<"*TX*****local_id="<<local_id<<"__ack_tx[0]= "<<ack_tx[0].read()<<endl;
       for (int i = 0; i < DIRECTIONS + 2; i++) 
       { 
 	  vector<pair<int,TReservation> > reservations = reservation_table.getReservationEntries(i);
-	  
+
+	  if (rc_router == 1)
+	  {
+	      vector<int> rc_vcs;
+	      for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++)
+		  if (rc_in[i][vc] >= 0 && !buffer[i][vc].IsEmpty())
+		      rc_vcs.push_back(vc);
+	      if (!rc_vcs.empty())
+	      {
+		  int pick = rand() % (reservations.size() + rc_vcs.size());
+		  if (pick >= (int) reservations.size())
+		  {
+		      // move one flit of an outbound packet into its RC buffer slot
+		      int vc = rc_vcs[pick - reservations.size()];
+		      int f = rc_in[i][vc];
+		      if ((int) rc_fifo[f].size() < GlobalParams::max_packet_size)
+		      {
+			  Flit flit = buffer[i][vc].Pop();
+			  if (flit.flit_type == FLIT_TYPE_HEAD)
+			      deft_front_seen[i][vc] = false;
+			  rc_fifo[f].push_back(flit);
+			  if (flit.flit_type == FLIT_TYPE_TAIL)
+			      rc_in[i][vc] = -1;
+			  power.bufferRouterPop();
+			  power.crossBar();
+			  if (i != DIRECTION_LOCAL)
+			      routed_flits++;
+		      }
+		      continue;
+		  }
+		  rc_pick = pick;   // a reservation of this port: forwarded below
+	      }
+	  }
+
 	  if (reservations.size()!=0)
 	  {
 
-	      int rnd_idx = rand()%reservations.size();
+	      int rnd_idx = rc_pick >= 0 ? rc_pick : rand()%reservations.size();
+	      rc_pick = -1;
 
 	      int o = reservations[rnd_idx].first;
 	      int vc = reservations[rnd_idx].second.vc;
@@ -244,6 +296,8 @@ void Router::txProcess()
                                                 deft_front_cycle[i][vc]);
                       if (flit.flit_type == FLIT_TYPE_HEAD)
                           deft_front_seen[i][vc] = false;
+                      if (flit.flit_type == FLIT_TYPE_HEAD && o == DIRECTION_HUB && DeftLB::countPlainVl())
+                          DeftLB::onPlainHubForward(local_id);
                       flit.vc_id = output_vc;
 		      flit_tx[o].write(flit);
 		      current_level_tx[o] = 1 - current_level_tx[o];
@@ -307,9 +361,71 @@ void Router::txProcess()
 	 // else LOG<<"we have no reservation for direction "<<i<< endl;
       } // for loop directions
 
+      if (rc_router == 1)
+          rcDrain();
+
       if ((int)(sc_time_stamp().to_double() / GlobalParams::clock_period_ps)%2==0)
 	  reservation_table.updateIndex();
     }   
+}
+
+bool Router::rcRouter()
+{
+    if (rc_router < 0) {
+        rc_router = (GlobalParams::topology == TOPOLOGY_DEFT_2_5D && DeftLB::rcEnabled() &&
+                     DeftTopology::isChipletRouter(local_id) && DeftTopology::isBoundaryRouter(local_id)) ? 1 : 0;
+        if (rc_router == 1) {
+            const int n = DeftLB::rcSlots();
+            rc_fifo.assign(n, deque<Flit>());
+            rc_busy.assign(n, false);
+            rc_dir_in.assign(n, DIRECTION_LOCAL);
+            rc_front_cycle.assign(n, 0.0);
+        }
+    }
+    return rc_router == 1;
+}
+
+// RC: one flit per cycle from the RC buffer onto the Up link. A packet holds the downstream VC
+// (its own VC, as drawn at injection) from head to tail; slots are served round-robin.
+void Router::rcDrain()
+{
+    const int o = DIRECTION_HUB;
+    if (current_level_tx[o] != ack_tx[o].read())
+        return;
+    const double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    const int nf = (int) rc_fifo.size();
+    for (int k = 0; k < nf; k++) {
+        const int f = (rc_rr + k) % nf;
+        if (rc_fifo[f].empty())
+            continue;
+        Flit flit = rc_fifo[f].front();
+        const int ovc = flit.vc_id;
+        if (flit.flit_type == FLIT_TYPE_HEAD) {
+            if (rc_vc_owner[ovc] >= 0)
+                continue;
+        } else if (rc_vc_owner[ovc] != f) {
+            continue;
+        }
+        if (buffer_full_status_tx[o].read().mask[ovc])
+            continue;
+        if (flit.flit_type == FLIT_TYPE_HEAD) {
+            rc_vc_owner[ovc] = f;
+            if (DeftLB::isActive())
+                DeftLB::onHeadForward(this, rc_dir_in[f], o, ovc, &flit, now, rc_front_cycle[f]);
+        }
+        flit_tx[o].write(flit);
+        current_level_tx[o] = 1 - current_level_tx[o];
+        req_tx[o].write(current_level_tx[o]);
+        rc_fifo[f].pop_front();
+        power.r2hLink();
+        if (flit.flit_type == FLIT_TYPE_TAIL) {
+            rc_vc_owner[ovc] = -1;
+            rc_busy[f] = false;
+            DeftLB::rcRelease(local_id, now);
+        }
+        rc_rr = (f + 1) % nf;
+        return;
+    }
 }
 
 NoP_data Router::getCurrentNoPData()
@@ -605,6 +721,10 @@ void Router::configure(const int _id,
         DeftLB::registerRouter(_id, this);
 
     start_from_port = DIRECTION_LOCAL;
+    rc_router = -1;
+    rc_rr = 0;
+    for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++)
+        rc_vc_owner[vc] = -1;
   
 
     if (grt.isValid())
@@ -623,6 +743,7 @@ void Router::configure(const int _id,
 	for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++) {
 	    deft_front_seen[i][vc] = false;
 	    deft_front_cycle[i][vc] = 0.0;
+	    rc_in[i][vc] = -1;
 	}
     }
 

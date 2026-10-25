@@ -78,7 +78,10 @@ void ProcessingElement::txProcess()
 
 
 	if (ack_tx.read() == current_level_tx) {
-	    if (!packet_queue.empty()) {
+	    if (!packet_queue.empty() &&
+		(packet_queue.front().size != packet_queue.front().flit_left ||
+		 DeftLB::rcMayInject(packet_queue.front(),
+				     sc_time_stamp().to_double() / GlobalParams::clock_period_ps))) {
 		Flit flit = nextFlit();	// Generate a new flit
 		flit_tx->write(flit);	// Send the generated flit
 		current_level_tx = 1 - current_level_tx;	// Negate the old value for Alternating Bit Protocol (ABP)

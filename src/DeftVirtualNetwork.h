@@ -16,6 +16,9 @@ enum {
 };
 
 bool isEnabled();
+// DeFT VN rules on (default) or off (MTR, RC baselines: the packet keeps the VC drawn at injection).
+void setRulesActive(bool active);
+bool rulesActive();
 bool isValidVirtualNetwork(int vc_id);
 bool canTransition(int from_vn, int to_vn);
 bool isOutputDirectionAllowed(const RouteData &route_data,

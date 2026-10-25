@@ -17,6 +17,7 @@
 #include "Stats.h"
 #include "GlobalRoutingTable.h"
 #include "LocalRoutingTable.h"
+#include <deque>
 #include "ReservationTable.h"
 #include "Utils.h"
 #include "routingAlgorithms/RoutingAlgorithm.h"
@@ -148,6 +149,20 @@ SC_MODULE(Router)
     int start_from_vc[DIRECTIONS+2]; // VC from which to start the reservation cycle for the specific port
     bool deft_front_seen[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // head at buffer front already observed
     double deft_front_cycle[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // cycle it reached the front
+
+    // RC baseline (-deft_lb rc 1): RC buffer of a chiplet boundary router. Outbound packets
+    // routed to the Up link (Hub) move into a free FIFO slot instead of the Up output VC and
+    // compete for the Up link from there.
+    int rc_router;                                 // -1 unknown, 0 no, 1 yes
+    vector<deque<Flit> > rc_fifo;
+    vector<bool> rc_busy;                          // slot holds (part of) a packet
+    vector<int> rc_dir_in;                         // input port of the packet's head (statistics)
+    vector<double> rc_front_cycle;                 // cycle the head reached its input-buffer front
+    int rc_in[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // slot reserved by the packet in input [port][vc], -1 none
+    int rc_vc_owner[MAX_VIRTUAL_CHANNELS];         // slot sending on the Up link's VC, -1 none
+    int rc_rr;
+    bool rcRouter();
+    void rcDrain();
 
     vector<int> nextDeltaHops(RouteData rd);
   public:

@@ -11,6 +11,9 @@
 namespace {
 
 int next_source_vn = DeftVirtualNetwork::VN0;
+// DeFT VN rules (R1-R3, F1). Off (-deft_lb vn_rules 0) for the MTR and RC baselines, which use
+// Noxim's default VC handling: the VC drawn at injection is kept on every hop.
+bool vn_rules_active = true;
 int next_boundary_vn = DeftVirtualNetwork::VN0;
 
 int peekRoundRobin(int next_vn)
@@ -190,10 +193,20 @@ bool canTransition(int from_vn, int to_vn)
     return from_vn == to_vn || (from_vn == VN0 && to_vn == VN1);
 }
 
+void setRulesActive(bool active)
+{
+    vn_rules_active = active;
+}
+
+bool rulesActive()
+{
+    return vn_rules_active;
+}
+
 bool isOutputDirectionAllowed(const RouteData &route_data,
                               int output_direction)
 {
-    if (!isEnabled())
+    if (!isEnabled() || !vn_rules_active)
         return true;
 
     const int input_vn = route_data.vc_id;
@@ -238,7 +251,7 @@ int selectOutputVirtualNetwork(const RouteData &route_data,
         *uses_round_robin_reassignment = false;
 
     const int input_vn = route_data.vc_id;
-    if (!isEnabled() || !isValidVirtualNetwork(input_vn))
+    if (!isEnabled() || !vn_rules_active || !isValidVirtualNetwork(input_vn))
         return input_vn;
 
     int output_vn = input_vn;
