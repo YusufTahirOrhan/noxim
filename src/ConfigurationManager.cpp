@@ -931,6 +931,12 @@ void parseCmdLine(int arg_num, char *arg_vet[])
         else if (!strcmp(arg_vet[i], "-deft_vl_lut"))
             GlobalParams::deft_vl_lut_filename =
                 requireOptionValue(i, arg_num, arg_vet, "-deft_vl_lut");
+        else if (!strcmp(arg_vet[i], "-netrace"))
+            GlobalParams::netrace_file = requireOptionValue(i, arg_num, arg_vet, "-netrace");
+        else if (!strcmp(arg_vet[i], "-netrace_window"))
+            GlobalParams::netrace_window = atol(requireOptionValue(i, arg_num, arg_vet, "-netrace_window"));
+        else if (!strcmp(arg_vet[i], "-netrace_deps"))
+            GlobalParams::netrace_deps = atoi(requireOptionValue(i, arg_num, arg_vet, "-netrace_deps"));
         else if (!strcmp(arg_vet[i], "-deft_lb"))
         {
             string key = requireOptionValue(i, arg_num, arg_vet, "-deft_lb");

@@ -11,6 +11,7 @@
 #include "Router.h"
 #include "DeftVirtualNetwork.h"
 #include "DeftLateBinding.h"
+#include "NetraceDriver.h"
 
 
 inline int toggleKthBit(int n, int k)
@@ -328,6 +329,8 @@ void Router::txProcess()
 			  stats.receivedFlit(sc_time_stamp().to_double() / GlobalParams::clock_period_ps, flit);
 			  if (flit.flit_type == FLIT_TYPE_HEAD && DeftVirtualNetwork::isEnabled())
 			      DeftLB::onHeadConsumed(flit, sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
+			  if (flit.flit_type == FLIT_TYPE_TAIL && NetraceDriver::active())
+			      NetraceDriver::onDelivered(flit.trace_id, sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 			  if (GlobalParams:: max_volume_to_be_drained) 
 			  {
 			      if (drained_volume >= GlobalParams:: max_volume_to_be_drained)

@@ -149,6 +149,10 @@ struct GlobalParams {
     static vector<string> log_components;
     static string stats_format;
     static string stats_file;
+    // Netrace-driven traffic (v13 Part E; off when netrace_file is empty)
+    static string netrace_file;
+    static long netrace_window;
+    static int netrace_deps;
     static int trace_mode;
     static string trace_filename;
     static string trace_scope;

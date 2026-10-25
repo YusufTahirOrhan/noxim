@@ -49,6 +49,7 @@ struct Packet {
     bool use_low_voltage_path;
     uint64_t deft_exit_mask;		// DEFT_LB: candidate exit VLs (bit per VL id), 0 = unset
     uint64_t deft_entry_mask;	// DEFT_LB: candidate entry VLs (bit per VL id), 0 = unset
+    int trace_id;		// Netrace mode: index of the trace packet (-1 = synthetic traffic)
 
     // Constructors
     Packet() { }
@@ -67,6 +68,7 @@ struct Packet {
 	use_low_voltage_path = false;
 	deft_exit_mask = 0;
 	deft_entry_mask = 0;
+	trace_id = -1;
     }
 };
 
@@ -138,6 +140,7 @@ struct Flit {
     bool use_low_voltage_path;
 
     int hub_relay_node;
+    int trace_id;		// Netrace mode: index of the trace packet (-1 = synthetic traffic)
 
     uint64_t deft_exit_mask;		// DEFT_LB: candidate exit VLs carried by the head flit
     uint64_t deft_entry_mask;	// DEFT_LB: candidate entry VLs carried by the head flit

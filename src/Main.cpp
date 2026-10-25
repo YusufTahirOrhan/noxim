@@ -15,6 +15,7 @@
 #include "DeftTopology.h"
 #include "GlobalParams.h"
 #include "Logger.h"
+#include "NetraceDriver.h"
 
 #include <csignal>
 #include <set>
@@ -304,6 +305,20 @@ bool drainEmpty(GlobalStats &stats)
            measuredCountsBalanced(stats);
 }
 
+// Netrace mode: run until every packet of the trace window has been injected and delivered
+// (or until simulation_time cycles have passed).
+void runNetraceSimulation()
+{
+    cout << " Now running Netrace window " << GlobalParams::netrace_file << " (limit "
+         << GlobalParams::simulation_time << " cycles)" << endl;
+    while (currentCycle() < GlobalParams::reset_time + GlobalParams::simulation_time) {
+        runCycles(1000);
+        GlobalStats stats(n);
+        if (NetraceDriver::finished() && drainEmpty(stats))
+            break;
+    }
+}
+
 void runDrainSimulation()
 {
     initializeDrainRuntime();
@@ -439,7 +454,9 @@ int sc_main(int arg_num, char *arg_vet[])
 
     reset.write(0);
     cout << " done! " << endl;
-    if (GlobalParams::drain_mode_enabled) {
+    if (NetraceDriver::active()) {
+        runNetraceSimulation();
+    } else if (GlobalParams::drain_mode_enabled) {
         runDrainSimulation();
     } else {
         cout << " Now running for " << GlobalParams:: simulation_time << " cycles..." << endl;

@@ -20,6 +20,7 @@
 #include "DeftTopology.h"
 #include "DeftVerticalLinkLut.h"
 #include "DeftVirtualNetwork.h"
+#include "NetraceDriver.h"
 #include "GlobalParams.h"
 #include "ReservationTable.h"
 #include "Router.h"
@@ -1569,6 +1570,8 @@ void writeJson(std::ostream &out)
     out << "    \"delay_inter_p99\": " << percentile(g_delays_inter, 0.99) << "," << std::endl;
     out << "    \"delay_intra_mean\": " << mean(g_delays_intra) << "," << std::endl;
     out << "    \"packets_inter\": " << g_delays_inter.size() << "," << std::endl;
+    if (NetraceDriver::active())             // fields only present in Netrace mode
+        NetraceDriver::writeJsonFields(out);
     if (g_rc)                                // fields only present with the RC baseline
         out << "    \"rc_slots\": " << g_rc_slots << ", \"rc_grants\": " << g_rc_grants
             << ", \"rc_permission_wait_mean\": " << (g_rc_grants ? g_rc_wait_sum / g_rc_grants : 0.0) << ","

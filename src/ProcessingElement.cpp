@@ -11,6 +11,7 @@
 #include "ProcessingElement.h"
 #include "DeftVirtualNetwork.h"
 #include "DeftLateBinding.h"
+#include "NetraceDriver.h"
 
 int ProcessingElement::randInt(int min, int max)
 {
@@ -44,6 +45,18 @@ void ProcessingElement::txProcess()
 
     if (!sourceAdmissionEnabled()) {
 		transmittedAtPreviousCycle = false;
+    } else if (NetraceDriver::active()) {
+		int dst, size, trace_id;
+		double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+		if (NetraceDriver::popReady(local_id, now, &dst, &size, &trace_id)) {
+		    Packet packet;
+		    packet.make(local_id, dst, randInt(0, GlobalParams::n_virtual_channels - 1), now, size);
+		    packet.trace_id = trace_id;
+		    packet_queue.push(packet);
+		    transmittedAtPreviousCycle = true;
+		} else {
+		    transmittedAtPreviousCycle = false;
+		}
     } else if(GlobalParams::traffic_distribution != TRAFFIC_HARDCODED) {
 		Packet packet;
 		if (canShot(packet)) {
@@ -110,6 +123,7 @@ Flit ProcessingElement::nextFlit()
     flit.hub_relay_node = NOT_VALID;
     flit.deft_exit_mask = packet.deft_exit_mask;
     flit.deft_entry_mask = packet.deft_entry_mask;
+    flit.trace_id = packet.trace_id;
     flit.arrival_cycle = 0.0;
     flit.ql_prev_router = -1;
     flit.ql_prev_dir = -1;
