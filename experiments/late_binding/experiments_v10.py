@@ -207,6 +207,7 @@ def drain_report(res):
 
 # ---- v9 reuse check ----
 REUSE_DRAW_SEED = 1010
+NL = chr(10)
 
 
 def reuse(nproc):
@@ -309,12 +310,8 @@ def timing(nproc):
          f'{sum(1 for x in res.values() if x is None)} missing.', '',
          f'Part B evaluation: {n} new runs, estimated **{est:.1f} h** on one machine (12 processes). The full design is '
          'run (not reduced); `--shard i/n` splits it over machines.']
-    open(os.path.join(RES, 'runtime_estimate.md'), 'w', newline='
-').write('
-'.join(L) + '
-')
-    print('
-'.join(L))
+    open(os.path.join(RES, 'runtime_estimate.md'), 'w', newline=NL).write(NL.join(L) + NL)
+    print(NL.join(L))
     shutil.rmtree(raw('timing'))
 
 
