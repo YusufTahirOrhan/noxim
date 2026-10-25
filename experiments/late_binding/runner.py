@@ -2,11 +2,46 @@
 
 A job is (name, args); the JSON statistics go to OUT/<name>.json. Existing
 outputs are skipped. Returns the parsed JSON (or None on failure).
+
+Sharding (v10): `--shard i/n` anywhere on the command line of a script that uses
+run_jobs (removed from sys.argv at import) runs only part i (0-based) of n of every
+job list. The partition is deterministic: jobs are sorted by name and job k of the
+sorted list belongs to shard k mod n. Each run is fully determined by its arguments
+(seed included), so the results are the same on any machine with the same toolchain;
+merge the per-shard CSVs with merge_csv.py.
 """
 import json
 import os
 import subprocess
+import sys
 from multiprocessing import Pool
+
+
+def _take_shard_arg():
+    for k, a in enumerate(sys.argv):
+        if a == '--shard' and k + 1 < len(sys.argv):
+            i, n = (int(x) for x in sys.argv[k + 1].split('/'))
+            del sys.argv[k:k + 2]
+            assert 0 <= i < n
+            return i, n
+        if a.startswith('--shard='):
+            i, n = (int(x) for x in a.split('=', 1)[1].split('/'))
+            del sys.argv[k]
+            assert 0 <= i < n
+            return i, n
+    return None
+
+
+SHARD = _take_shard_arg()
+
+
+def shard_jobs(jobs, shard=None):
+    """The deterministic part of the job list for shard (i, n) (default: --shard of the command line)."""
+    shard = shard or SHARD
+    if not shard:
+        return list(jobs)
+    i, n = shard
+    return [j for k, j in enumerate(sorted(jobs, key=lambda j: j[0])) if k % n == i]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BIN = os.path.abspath(os.path.join(HERE, '..', '..', 'bin'))
@@ -54,5 +89,6 @@ def _run(job):
 
 def run_jobs(jobs, out_dir, nproc=2, timeout=3600):
     os.makedirs(out_dir, exist_ok=True)
+    jobs = shard_jobs(jobs)
     with Pool(nproc) as pool:
         return dict(pool.imap_unordered(_run, [(n, a, out_dir, timeout) for n, a in jobs], chunksize=1))
