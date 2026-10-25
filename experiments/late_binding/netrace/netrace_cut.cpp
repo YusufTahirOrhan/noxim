@@ -7,8 +7,13 @@
 // where the deps are the ids of the packets that depend on this packet (Netrace's downward dependencies).
 // A header line '# benchmark nodes region region_start region_cycles region_packets max_cycles' comes first.
 // Usage: netrace_cut TRACE.tra.bz2 REGION MAX_CYCLES MAX_PACKETS OUT.txt
+// TRACE = '-' reads the bzip2 stream from standard input (e.g. piped from the download): the earlier regions are
+// then skipped by reading their packets (no seek), and the program stops reading after the window, which also
+// stops the download.
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <unistd.h>
 
 #include "netrace.h"
 
@@ -31,7 +36,22 @@ int main(int argc, char **argv)
     unsigned long long start = 0;
     for (int i = 0; i < region; i++)
         start += h->regions[i].num_cycles;
-    nt_seek_region(&h->regions[region]);
+    const bool streaming = std::string(argv[1]) == "-";
+    if (streaming) {
+        unsigned long long skip = 0;
+        for (int i = 0; i < region; i++)
+            skip += h->regions[i].num_packets;
+        for (unsigned long long k = 0; k < skip; k++) {
+            nt_packet_t *q = nt_read_packet();
+            if (q == NULL) {
+                fprintf(stderr, "trace ended while skipping to region %d\n", region);
+                return 1;
+            }
+            nt_packet_free(q);
+        }
+    } else {
+        nt_seek_region(&h->regions[region]);
+    }
     FILE *out = fopen(argv[5], "w");
     fprintf(out, "# %s %u %d %llu %llu %llu %llu\n", h->benchmark_name, (unsigned) h->num_nodes, region, start,
             h->regions[region].num_cycles, h->regions[region].num_packets, max_cycles);
@@ -49,6 +69,10 @@ int main(int argc, char **argv)
         nt_packet_free(p);
     }
     fclose(out);
+    if (streaming) {
+        fprintf(stderr, "%s: %llu packets written (streamed)\n", h->benchmark_name, n);
+        _exit(0);                   // do not drain the rest of the stream
+    }
     fprintf(stderr, "%s: %llu packets written (region %d starts at cycle %llu, %llu cycles, %llu packets)\n",
             h->benchmark_name, n, region, start, h->regions[region].num_cycles, h->regions[region].num_packets);
     nt_close_trfile();
