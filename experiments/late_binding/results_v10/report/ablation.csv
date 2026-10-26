@@ -1,0 +1,7 @@
+size,variant,reference,metric,scenarios,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,FULL_qlLA_G,DeFT_OE_G,LAT,all,10,-32.79,-35.61,-29.84,6.077e-09,1.307e-08,ours better
+2x2,FULL_qlLA_G,DeFT_OE_G,P99,all,10,-55.46,-59.06,-51.55,4.356e-09,1.307e-08,ours better
+3x3,FULL_qlLA_G,DeFT_OE_G,LAT,all,10,-32.39,-34.58,-30.12,6.603e-10,3.302e-09,ours better
+3x3,FULL_qlLA_G,DeFT_OE_G,P99,all,10,-52.48,-56.05,-48.62,4.706e-09,1.307e-08,ours better
+4x4,FULL_qlLA_G,DeFT_OE_G,LAT,all,10,-57.35,-59.93,-54.61,1.9e-10,1.14e-09,ours better
+4x4,FULL_qlLA_G,DeFT_OE_G,P99,all,10,-72.3,-75.28,-68.96,1.059e-09,4.238e-09,ours better

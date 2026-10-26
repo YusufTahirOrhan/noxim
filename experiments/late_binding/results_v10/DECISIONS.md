@@ -95,3 +95,12 @@ The conservative option is the one that does not favour our methods. Design of t
     MTR's routes perform like DeFT. The baselines stay as specified (the conservative choice), and the result is
     reported.
 21. **XY-SP is valid:** all its drain tests pass (54 / 54, 2x2 v2 masks and 3x3/4x4), so it stays in the evaluation.
+
+## Part B
+22. **Runtime:** the timing test estimated 10.2 h for the 9100 runs on one machine. The full design ran on one machine
+    (12 processes), in about 3 h of wall time: the low loads are fast. No sharding was needed.
+23. **Saturation flag:** at 1.0 x Lsat, accepted < 95 % of the offered load (mean over seeds). The method's own saturation
+    load is the largest sweep load up to which accepted >= 95 % of offered at every load.
+24. **Per-size tables:** MTR's and RC's effects against DeFT(rho*) are computed over the fault-free scenarios only (both
+    sides on the same scenarios); all other methods over all scenarios.
+25. **Raw outputs deleted** after `eval_runs.csv` was written (about 45 MB).
