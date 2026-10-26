@@ -45,7 +45,7 @@ Tables: `report/energy.md` (energy per delivered flit), `report/cost_table.md` (
 * **Not reflected in the simulated energy:** the RC buffer, the Q tables and the lookahead/feedback wires.
 
 ## Bottom line
-* **Energy:** under Noxim's default power model, energy per delivered flit is dominated by leakage and is the same within
+* **Energy:** under Noxim's default power model, energy per delivered flit is dominated by leakage and is the same within about
   1 % for every method that sustains the load. Late binding uses 1-10 % less dynamic energy per flit than DeFT(rho*).
   Methods that saturate (XY-SP, DeFT-Ran) cost up to 50 % more per flit.
 * **Hardware:** the cost of late binding lies in storage (Q tables) and wires (lookahead / feedback), not in energy per

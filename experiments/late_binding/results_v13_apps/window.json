@@ -1,0 +1,17 @@
+{
+ "window_mode": "cycles",
+ "window_cycles_all": 700000,
+ "window_cycles": {
+  "blackscholes_64c_simsmall": 700000,
+  "bodytrack_64c_simlarge": 700000,
+  "canneal_64c_simmedium": 700000,
+  "dedup_64c_simmedium": 700000,
+  "fluidanimate_64c_simsmall": 700000,
+  "swaptions_64c_simlarge": 700000,
+  "ferret_64c_simmedium": 700000,
+  "vips_64c_simmedium": 700000,
+  "x264_64c_simsmall": 700000
+ },
+ "estimate_h": 7.32,
+ "n_packets": null
+}
