@@ -1,0 +1,64 @@
+size,method,item,per,bits,note
+2x2,"DeFT(rho*), DeFT-Dis, DeFT-Ran, DeFT_OE_G, XY-SP",routing header,packet,4,exit and entry VL slot
+2x2,MTR,routing header,packet,4,exit and entry boundary router (slot)
+2x2,RC,routing header,packet,4,exit and entry boundary router (slot)
+2x2,CI_*,routing header,packet,6,exit slot + entry candidate mask (4 bits)
+2x2,FULL_*,routing header,packet,8,exit and entry candidate masks
+2x2,"DeFT(rho*), DeFT_OE_G",VL LUT,chiplet router,12,(C-1) destination chiplets x (exit + entry slot); one fault scenario held
+2x2,CI_*,exit LUT,chiplet router,6,(C-1) x exit slot; entry chosen late
+2x2,FULL_*,VL LUT,chiplet router,0,none (both VLs chosen late)
+2x2,"DeFT-Dis, RC",VL choice,chiplet router,0,"nearest functional VL: comparator logic, no table"
+2x2,DeFT-Ran,VL choice,chiplet router,0,"random generator, no table"
+2x2,MTR,NI table (destination -> entry boundary router),chiplet router,128,"MTR paper: per NI, destination id -> boundary router id (16C entries)"
+2x2,MTR,exit boundary router,chiplet router,2,outbound table entry of the source
+2x2,MTR,turn restriction bits,boundary router,8,4 inbound + 4 outbound turn enables
+2x2,RC,RC buffer,boundary router,1024,4 packet slots x 8 flits x 32 bits
+2x2,RC,OPIC request/response wires,chiplet,48,one tree per boundary router; 12 tree edges x (2-bit request + 2-bit response)
+2x2,RC,OPIC permission counters,chiplet router,6,"request and permit counters (3 bits each, up to 4 slots)"
+2x2,"CI_qlLA*, FULL_qlLA*",Q table (key: destination chiplet),router with an adaptive choice,320,C keys x 5 outputs x 16 bits (CI: interposer routers only; FULL: all routers)
+2x2,*_LA (lookahead) and *_qlLA,lookahead occupancy wires,link direction,20,the neighbour's downstream occupancy per output (5 x 4 bits)
+2x2,*_qlLA,learning feedback wires,link direction,16,value estimate returned on head arrival
+2x2,all,credit / VC status (reference),link direction,6,2 VCs x 3-bit credit count (baseline router)
+2x2,all,input buffers (reference),router,1536,6 ports x 2 VCs x 4 flits x 32 bits
+3x3,"DeFT(rho*), DeFT-Dis, DeFT-Ran, DeFT_OE_G, XY-SP",routing header,packet,4,exit and entry VL slot
+3x3,MTR,routing header,packet,4,exit and entry boundary router (slot)
+3x3,RC,routing header,packet,4,exit and entry boundary router (slot)
+3x3,CI_*,routing header,packet,6,exit slot + entry candidate mask (4 bits)
+3x3,FULL_*,routing header,packet,8,exit and entry candidate masks
+3x3,"DeFT(rho*), DeFT_OE_G",VL LUT,chiplet router,32,(C-1) destination chiplets x (exit + entry slot); one fault scenario held
+3x3,CI_*,exit LUT,chiplet router,16,(C-1) x exit slot; entry chosen late
+3x3,FULL_*,VL LUT,chiplet router,0,none (both VLs chosen late)
+3x3,"DeFT-Dis, RC",VL choice,chiplet router,0,"nearest functional VL: comparator logic, no table"
+3x3,DeFT-Ran,VL choice,chiplet router,0,"random generator, no table"
+3x3,MTR,NI table (destination -> entry boundary router),chiplet router,288,"MTR paper: per NI, destination id -> boundary router id (16C entries)"
+3x3,MTR,exit boundary router,chiplet router,2,outbound table entry of the source
+3x3,MTR,turn restriction bits,boundary router,8,4 inbound + 4 outbound turn enables
+3x3,RC,RC buffer,boundary router,1024,4 packet slots x 8 flits x 32 bits
+3x3,RC,OPIC request/response wires,chiplet,48,one tree per boundary router; 12 tree edges x (2-bit request + 2-bit response)
+3x3,RC,OPIC permission counters,chiplet router,6,"request and permit counters (3 bits each, up to 4 slots)"
+3x3,"CI_qlLA*, FULL_qlLA*",Q table (key: destination chiplet),router with an adaptive choice,720,C keys x 5 outputs x 16 bits (CI: interposer routers only; FULL: all routers)
+3x3,*_LA (lookahead) and *_qlLA,lookahead occupancy wires,link direction,20,the neighbour's downstream occupancy per output (5 x 4 bits)
+3x3,*_qlLA,learning feedback wires,link direction,16,value estimate returned on head arrival
+3x3,all,credit / VC status (reference),link direction,6,2 VCs x 3-bit credit count (baseline router)
+3x3,all,input buffers (reference),router,1536,6 ports x 2 VCs x 4 flits x 32 bits
+4x4,"DeFT(rho*), DeFT-Dis, DeFT-Ran, DeFT_OE_G, XY-SP",routing header,packet,4,exit and entry VL slot
+4x4,MTR,routing header,packet,4,exit and entry boundary router (slot)
+4x4,RC,routing header,packet,4,exit and entry boundary router (slot)
+4x4,CI_*,routing header,packet,6,exit slot + entry candidate mask (4 bits)
+4x4,FULL_*,routing header,packet,8,exit and entry candidate masks
+4x4,"DeFT(rho*), DeFT_OE_G",VL LUT,chiplet router,60,(C-1) destination chiplets x (exit + entry slot); one fault scenario held
+4x4,CI_*,exit LUT,chiplet router,30,(C-1) x exit slot; entry chosen late
+4x4,FULL_*,VL LUT,chiplet router,0,none (both VLs chosen late)
+4x4,"DeFT-Dis, RC",VL choice,chiplet router,0,"nearest functional VL: comparator logic, no table"
+4x4,DeFT-Ran,VL choice,chiplet router,0,"random generator, no table"
+4x4,MTR,NI table (destination -> entry boundary router),chiplet router,512,"MTR paper: per NI, destination id -> boundary router id (16C entries)"
+4x4,MTR,exit boundary router,chiplet router,2,outbound table entry of the source
+4x4,MTR,turn restriction bits,boundary router,8,4 inbound + 4 outbound turn enables
+4x4,RC,RC buffer,boundary router,1024,4 packet slots x 8 flits x 32 bits
+4x4,RC,OPIC request/response wires,chiplet,48,one tree per boundary router; 12 tree edges x (2-bit request + 2-bit response)
+4x4,RC,OPIC permission counters,chiplet router,6,"request and permit counters (3 bits each, up to 4 slots)"
+4x4,"CI_qlLA*, FULL_qlLA*",Q table (key: destination chiplet),router with an adaptive choice,1280,C keys x 5 outputs x 16 bits (CI: interposer routers only; FULL: all routers)
+4x4,*_LA (lookahead) and *_qlLA,lookahead occupancy wires,link direction,20,the neighbour's downstream occupancy per output (5 x 4 bits)
+4x4,*_qlLA,learning feedback wires,link direction,16,value estimate returned on head arrival
+4x4,all,credit / VC status (reference),link direction,6,2 VCs x 3-bit credit count (baseline router)
+4x4,all,input buffers (reference),router,1536,6 ports x 2 VCs x 4 flits x 32 bits
