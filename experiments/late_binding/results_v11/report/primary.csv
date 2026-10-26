@@ -1,0 +1,19 @@
+size,k,variant,reference,metric,n_units,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,1,CI_qlLA_G,DeFT,LAT,10,-55.92,-65.86,-43.07,4.848e-05,0.0005818,ours better
+2x2,1,FULL_qlLA_G,DeFT,LAT,10,-60.12,-67.91,-50.43,5.183e-06,7.256e-05,ours better
+2x2,2,CI_qlLA_G,DeFT,LAT,10,-25.3,-34.5,-14.82,0.0007147,0.005717,ours better
+2x2,2,FULL_qlLA_G,DeFT,LAT,10,32.87,11.64,58.12,0.004967,0.0298,ours worse
+2x2,3,CI_qlLA_G,DeFT,LAT,10,-5.83,-10.02,-1.45,0.0152,0.07599,n.s.
+2x2,3,FULL_qlLA_G,DeFT,LAT,10,15.97,9.45,22.87,0.000261,0.00261,ours worse
+3x3,1,CI_qlLA_G,DeFT,LAT,10,-55.64,-61.21,-49.27,2.463e-07,3.695e-06,ours better
+3x3,1,FULL_qlLA_G,DeFT,LAT,10,-67.47,-70.39,-64.26,6.407e-10,1.153e-08,ours better
+3x3,2,CI_qlLA_G,DeFT,LAT,10,-39.52,-49.84,-27.07,0.0001843,0.002028,ours better
+3x3,2,FULL_qlLA_G,DeFT,LAT,10,-32.29,-42.33,-20.51,0.0003804,0.003423,ours better
+3x3,3,CI_qlLA_G,DeFT,LAT,10,-6.84,-16.19,3.55,0.1637,0.4912,n.s.
+3x3,3,FULL_qlLA_G,DeFT,LAT,10,0.38,-5.87,7.05,0.8961,0.8961,n.s.
+4x4,1,CI_qlLA_G,DeFT,LAT,10,-65.84,-70.22,-60.81,2.686e-08,4.567e-07,ours better
+4x4,1,FULL_qlLA_G,DeFT,LAT,10,-72.75,-77.03,-67.66,3.435e-08,5.496e-07,ours better
+4x4,2,CI_qlLA_G,DeFT,LAT,10,-38.61,-46.68,-29.32,2.621e-05,0.0003407,ours better
+4x4,2,FULL_qlLA_G,DeFT,LAT,10,-26.9,-37.51,-14.49,0.001443,0.0101,ours better
+4x4,3,CI_qlLA_G,DeFT,LAT,10,5.41,-4.3,16.11,0.2485,0.4971,n.s.
+4x4,3,FULL_qlLA_G,DeFT,LAT,10,10.03,0.59,20.35,0.0392,0.1568,n.s.
