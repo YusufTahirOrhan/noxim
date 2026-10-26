@@ -119,6 +119,43 @@ def drain_jobs():
     return js
 
 
+def regress(old_bin, nproc):
+    """Netrace mode off: the v10 binary (Part B) vs the new binary on the 66-configuration regression set plus the six
+    v10 baselines on every size (uniform fault-free at 1.0 x Lsat, seed 7)."""
+    import check_stats_regression as CSR
+    from multiprocessing import Pool
+    from runner import BIN
+    out = raw('regress')
+    os.makedirs(out, exist_ok=True)
+    cf = list(CSR.configs())
+    for size in SIZES:
+        mm = E10.methods(size)
+        r = E10.LP5[f'{size}__uniform__{E5.FREE[size]}']['eval'][3]
+        for v in E10.NEW:
+            n, a = E5.job('x', size, v, mm[v], 'uniform', E5.FREE[size], r, 7, E10.lut(size, v, 'uniform'))
+            cf.append((f'{v}__{size}', a))
+    jobs = [((t, b, [], n, a), out) for t, b in (('old', old_bin), ('new', os.path.join(BIN, 'noxim'))) for n, a in cf]
+    with Pool(nproc) as pool:
+        res = dict(pool.map(E10._run_tagged, jobs, chunksize=1))
+    ok, diffs = 0, []
+    for n, _ in cf:
+        o, x = res[('old', n)], res[('new', n)]
+        if o and x and o['summary'] == x['summary'] and o['deft_lb'] == x['deft_lb']:
+            ok += 1
+        else:
+            diffs.append(f'differs: {n}')
+    L = ['# Regression before Part C (experiments_v11.py regress)', '',
+         'Old binary: the Part B binary (md5 1684544f, code of ac366c0). New binary: with the Netrace mode (8568576 / '
+         '9b9e692, md5 01c7e9d0), mode off.',
+         f'Configurations: {len(cf)} = the 66-configuration regression set + the six v10 baselines x 2x2/3x3/4x4 '
+         '(uniform, fault-free, 1.0 x Lsat, seed 7).', '',
+         f'- {ok} / {len(cf)} runs with byte-identical summary and deft_lb blocks', ''] + (diffs or ['No differences.'])
+    open(os.path.join(RES, 'regression.md'), 'w', newline='\n').write('\n'.join(L) + '\n')
+    print('\n'.join(L))
+    shutil.rmtree(out)
+    return not diffs
+
+
 def timing(nproc):
     js = []
     ms = masks()
@@ -153,6 +190,8 @@ if __name__ == '__main__':
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 12
     os.makedirs(RES, exist_ok=True)
     os.makedirs(LUTD, exist_ok=True)
+    if stage == 'regress':
+        sys.exit(0 if regress(sys.argv[3], nproc) else 1)
     if stage == 'masks':
         print(json.dumps(draw_masks(), indent=1))
         sys.exit(0)
