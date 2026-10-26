@@ -212,3 +212,33 @@ python3 experiments_v9.py drain 12 && python3 experiments_v9.py timing 12
 python3 experiments_v9.py eval 12 all
 python3 make_eval_csv.py results_v9 eval && python3 report_v9.py
 ```
+
+## Rounds 10-13 (results_v10/, results_v11/, results_v12_energy/, results_v13_apps/): baselines, faults, energy, applications
+New simulator options, all off by default. With the defaults, the regression set is byte-identical
+(`results_v10/regression.md`, `results_v11/regression.md`).
+* **DEFT_LB injection policies:**
+  - `near` (DeFT-Dis, RC);
+  - `ran` (DeFT-Ran, separate RNG);
+  - `mtr` with `-deft_lb mtr_table PATH` (MTR; tables from `formal/mtr_search.py`).
+* **Baseline mechanisms:**
+  - `-deft_lb vn_rules 0`: DeFT's VN rules off (MTR, RC);
+  - `-deft_lb rc 1 rc_slots N`: RC buffer and injection permission.
+* `-deft_lb count_vl 1`: VL counts for plain DEFT.
+* `-netrace FILE -netrace_window CYCLES -netrace_deps 0|1`: Netrace-driven traffic, from packet lists cut by
+  `netrace/netrace_cut`.
+* `runner.py` accepts `--shard i/n` (deterministic partition); `merge_csv.py` merges per-shard CSVs.
+```
+python3 formal/mtr_search.py results_v10 && python3 formal/mtr_cdg_check.py results_v10/mtr_config.json results_v10/mtr_cdg_check.md
+python3 experiments_v10.py regress 12 BIN_V9 && python3 experiments_v10.py reuse 12 && python3 experiments_v10.py drain 12
+python3 experiments_v10.py sanity 12 && python3 sanity_diag_v10.py 12 && python3 reach_v10.py
+python3 experiments_v10.py timing 12 && python3 experiments_v10.py eval 12
+python3 make_eval_csv.py results_v10 eval && python3 report_v10.py
+python3 experiments_v11.py regress 12 BIN_V10 && python3 experiments_v11.py luttime 3 && python3 experiments_v11.py luts 12
+python3 experiments_v11.py drain 12 && python3 experiments_v11.py timing 12 && python3 experiments_v11.py eval 12
+python3 make_eval_csv.py results_v11 eval && python3 report_v11.py
+python3 experiments_v12.py energy 12 && python3 cost_v12.py
+curl -sL https://www.cs.utexas.edu/~netrace/download/TRACE.tra.bz2 | netrace/netrace_cut - 2 1000000000 3000000 WINDOWS/TRACE_r2.txt
+python3 experiments_v13.py timing 12 && python3 experiments_v13.py eval 12 && python3 experiments_v13.py csv && python3 report_v13.py
+```
+Start with `results_v10/FINDINGS.md` (Parts A-B), `results_v11/FINDINGS.md` (Part C), `results_v12_energy/FINDINGS.md`
+(Part D) and `results_v13_apps/FINDINGS.md` (Part E).
