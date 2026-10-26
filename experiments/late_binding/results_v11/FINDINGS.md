@@ -46,8 +46,8 @@ Figure: `report/fault_sweep.{png,pdf}` (as DeFT's Fig. 8). Per-run data: `eval_r
   - k = 1: -64 % to -87 %.
   - k = 2: -4.5 % (n.s., 2x2 FULL) to -53 %.
   - k = 3: -6 % to +2 %, mostly n.s.
-* **The fault-tolerant baselines:** DeFT-Dis, DeFT-Ran and XY-SP are worse than DeFT(rho*) at k = 1 and 2, and equal to
-  it at k = 3. In the geometric means our learners are better than all three at k = 1 and 2, in latency and throughput
+* **The fault-tolerant baselines:** DeFT-Dis, DeFT-Ran and XY-SP are worse than DeFT(rho*) at k = 1 and 2; at k = 3 DeFT-Dis and DeFT-Ran equal
+  it and XY-SP is close to it. In the geometric means our learners are better than all three at k = 1 and 2, in latency and throughput
   (`report/summary.md`, unadjusted tests per comparison in `report/secondary.csv`).
 * **Absolute values:** see the geometric-mean table in `report/summary.md`. For example on 4x4, mean latency at k = 1 is
   62-78 cycles for our learners against 229 for DeFT(rho*) and 355-506 for the baselines.
