@@ -145,12 +145,33 @@ def eval_jobs():
     return js
 
 
+def qlstats():
+    """Per-run learning statistics of the evaluation (ql_stats.csv), before the raw outputs are deleted."""
+    import glob
+    rows = []
+    for f in sorted(glob.glob(os.path.join(raw('eval'), '*.json'))):
+        _, v, sp, m, rate, seed = os.path.basename(f)[:-5].split('__')
+        d = json.load(open(f))['deft_lb']
+        var, b = v.rsplit('-b', 1)
+        rows.append(dict(size=sp.split('-')[0], pattern=sp.split('-')[1], mask=m, rate=rate, seed=seed[1:],
+                         variant=var, bits=b, updates=d['ql_updates'], changed=d['ql_updates_changed'],
+                         changed_share=repr(d['ql_updates_changed'] / max(1, d['ql_updates'])),
+                         r_min=d['ql_residual_min'], r_max=d['ql_residual_max']))
+    with open(os.path.join(RES, 'ql_stats.csv'), 'w', newline='') as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)
+        w.writeheader()
+        w.writerows(rows)
+    print('ql_stats.csv:', len(rows), 'rows')
+
+
 if __name__ == '__main__':
     stage = sys.argv[1]
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 12
     os.makedirs(RES, exist_ok=True)
     if stage == 'range':
         rangejob(sys.argv[3] if len(sys.argv) > 3 else os.path.join(BIN, 'noxim'), nproc)
+    elif stage == 'qlstats':
+        qlstats()
     elif stage == 'reuse':
         sys.exit(0 if reuse(nproc) else 1)
     elif stage == 'eval':
