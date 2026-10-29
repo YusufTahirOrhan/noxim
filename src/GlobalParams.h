@@ -153,6 +153,8 @@ struct GlobalParams {
     static string netrace_file;
     static long netrace_window;
     static int netrace_deps;
+    static string netrace_file2;      // v15: second trace (off when empty)
+    static int netrace_compress;      // v15: trace timestamps divided by this factor (default 1)
     static int trace_mode;
     static string trace_filename;
     static string trace_scope;

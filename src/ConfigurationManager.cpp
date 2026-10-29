@@ -935,6 +935,15 @@ void parseCmdLine(int arg_num, char *arg_vet[])
             GlobalParams::netrace_file = requireOptionValue(i, arg_num, arg_vet, "-netrace");
         else if (!strcmp(arg_vet[i], "-netrace_window"))
             GlobalParams::netrace_window = atol(requireOptionValue(i, arg_num, arg_vet, "-netrace_window"));
+        else if (!strcmp(arg_vet[i], "-netrace2"))
+            GlobalParams::netrace_file2 = requireOptionValue(i, arg_num, arg_vet, "-netrace2");
+        else if (!strcmp(arg_vet[i], "-netrace_compress")) {
+            GlobalParams::netrace_compress = atoi(requireOptionValue(i, arg_num, arg_vet, "-netrace_compress"));
+            if (GlobalParams::netrace_compress < 1) {
+                cerr << "Error: -netrace_compress must be >= 1" << endl;
+                exit(1);
+            }
+        }
         else if (!strcmp(arg_vet[i], "-netrace_deps"))
             GlobalParams::netrace_deps = atoi(requireOptionValue(i, arg_num, arg_vet, "-netrace_deps"));
         else if (!strcmp(arg_vet[i], "-deft_lb"))

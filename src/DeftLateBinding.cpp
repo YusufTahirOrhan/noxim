@@ -99,6 +99,13 @@ std::vector<double> g_delays_intra;
 
 // ---- Q tables: [router][destination chiplet router][direction] ----
 std::vector<float> g_q;
+// v16: Q-table entry width (ql_bits B > 0: signed fixed point, B bits with ql_frac F fractional bits, saturating,
+// round-to-nearest on every update; 0 = float32 as before) and the residual range (ql_range 1). Off by default.
+int g_ql_bits = 0;
+int g_ql_frac = 0;
+bool g_ql_range = false;
+double g_r_min = 0.0, g_r_max = 0.0;
+unsigned long g_ql_changed = 0;      // updates that changed the stored value
 std::vector<unsigned char> g_q_init;
 
 int opposite(int d)
@@ -561,6 +568,27 @@ bool setParam(const std::string &key, const std::string &value,
     else if (key == "ql_w") c.ql_w = d;
     else if (key == "ql_busy") c.ql_busy = d;
     else if (key == "ql_key") c.ql_key = (int) d;
+    else if (key == "ql_bits") {
+        if (d < 0 || d != std::floor(d) || d == 1 || d > 32) {
+            if (error_message) *error_message = "ql_bits must be 0 (float) or an integer in 2..32";
+            return false;
+        }
+        g_ql_bits = (int) d;
+    }
+    else if (key == "ql_frac") {
+        if (d < 0 || d != std::floor(d) || d > 31) {
+            if (error_message) *error_message = "ql_frac must be an integer in 0..31";
+            return false;
+        }
+        g_ql_frac = (int) d;
+    }
+    else if (key == "ql_range") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "ql_range must be 0 or 1";
+            return false;
+        }
+        g_ql_range = d != 0.0;
+    }
     else if (key == "ql_lookahead") {
         if (d != 0.0 && d != 1.0) {
             if (error_message) *error_message = "ql_lookahead must be 0 or 1";
@@ -1395,7 +1423,22 @@ void onHeadAtFront(Router *router, int dir_in, const Flit &flit, double now)
     const int key = g_config.ql_key ? chipletOf(flit.dst_id) : flit.dst_id;
     const size_t i = qIndex(flit.ql_prev_router, key, flit.ql_prev_dir);
     const double goal = target - flit.ql_prev_static;
+    const float before = g_q[i];
     g_q[i] = (float) (g_q[i] + g_config.ql_alpha * (goal - g_q[i]));
+    if (g_ql_bits > 0) {
+        // signed fixed point: B bits, F fractional bits; round to nearest, saturate
+        const double scale = std::ldexp(1.0, g_ql_frac);
+        const double qmax = std::ldexp(1.0, g_ql_bits - 1) - 1.0, qmin = -std::ldexp(1.0, g_ql_bits - 1);
+        double q = std::floor(g_q[i] * scale + 0.5);
+        if (q > qmax) q = qmax;
+        if (q < qmin) q = qmin;
+        g_q[i] = (float) (q / scale);
+    }
+    if (g_ql_bits > 0 || g_ql_range) {
+        if (g_ql_updates == 0 || g_q[i] < g_r_min) g_r_min = g_q[i];
+        if (g_ql_updates == 0 || g_q[i] > g_r_max) g_r_max = g_q[i];
+        g_ql_changed += g_q[i] != before;
+    }
     g_ql_updates++;
 }
 
@@ -1576,6 +1619,10 @@ void writeJson(std::ostream &out)
         out << "    \"rc_slots\": " << g_rc_slots << ", \"rc_grants\": " << g_rc_grants
             << ", \"rc_permission_wait_mean\": " << (g_rc_grants ? g_rc_wait_sum / g_rc_grants : 0.0) << ","
             << std::endl;
+    if (g_ql_bits > 0 || g_ql_range)        // fields only present with the v16 options
+        out << "    \"ql_bits\": " << g_ql_bits << ", \"ql_frac\": " << g_ql_frac << ", \"ql_residual_min\": "
+            << g_r_min << ", \"ql_residual_max\": " << g_r_max << ", \"ql_updates_changed\": " << g_ql_changed
+            << "," << std::endl;
     if (g_hop_weight_ipos != 1.0)            // field only present when the weight is not the default
         out << "    \"hop_weight_ipos\": " << g_hop_weight_ipos << "," << std::endl;
     if (g_entry_bound_mode != EB_OFF) {     // fields only present with the option on

@@ -48,14 +48,15 @@ void ProcessingElement::txProcess()
     } else if (NetraceDriver::active()) {
 		int dst, size, trace_id;
 		double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
-		if (NetraceDriver::popReady(local_id, now, &dst, &size, &trace_id)) {
-		    Packet packet;
-		    packet.make(local_id, dst, randInt(0, GlobalParams::n_virtual_channels - 1), now, size);
-		    packet.trace_id = trace_id;
-		    packet_queue.push(packet);
-		    transmittedAtPreviousCycle = true;
-		} else {
-		    transmittedAtPreviousCycle = false;
+		transmittedAtPreviousCycle = false;
+		for (int t = 0; t < NetraceDriver::traceCount(); t++) {
+		    if (NetraceDriver::popReady(t, local_id, now, &dst, &size, &trace_id)) {
+			Packet packet;
+			packet.make(local_id, dst, randInt(0, GlobalParams::n_virtual_channels - 1), now, size);
+			packet.trace_id = trace_id;
+			packet_queue.push(packet);
+			transmittedAtPreviousCycle = true;
+		    }
 		}
     } else if(GlobalParams::traffic_distribution != TRAFFIC_HARDCODED) {
 		Packet packet;

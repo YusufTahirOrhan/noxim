@@ -20,6 +20,8 @@ string GlobalParams::stats_file;
 string GlobalParams::netrace_file = "";
 long GlobalParams::netrace_window = 1000000000L;
 int GlobalParams::netrace_deps = 1;
+string GlobalParams::netrace_file2 = "";
+int GlobalParams::netrace_compress = 1;
 int GlobalParams::trace_mode;
 string GlobalParams::trace_filename;
 string GlobalParams::trace_scope;

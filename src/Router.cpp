@@ -330,7 +330,8 @@ void Router::txProcess()
 			  if (flit.flit_type == FLIT_TYPE_HEAD && DeftVirtualNetwork::isEnabled())
 			      DeftLB::onHeadConsumed(flit, sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 			  if (flit.flit_type == FLIT_TYPE_TAIL && NetraceDriver::active())
-			      NetraceDriver::onDelivered(flit.trace_id, sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
+			      NetraceDriver::onDelivered(flit.trace_id, sc_time_stamp().to_double() / GlobalParams::clock_period_ps,
+							 flit.timestamp);
 			  if (GlobalParams:: max_volume_to_be_drained) 
 			  {
 			      if (drained_volume >= GlobalParams:: max_volume_to_be_drained)

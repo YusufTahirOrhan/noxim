@@ -12,6 +12,10 @@
  * With -netrace_deps 0 packets are replayed by their trace cycle only. Packet sizes: Netrace's byte
  * sizes / (flit_size / 8), at least 2 flits. A packet with source = destination is counted as
  * delivered at once. The simulation ends when every packet of the window has been delivered.
+ *
+ * v15: -netrace2 FILE adds a second, independent reader (own dependency tracking) whose packets share
+ * the network and the PE queues; -netrace_compress S divides the trace timestamps by S (the 8-cycle
+ * post-dependency delay stays 8 simulation cycles). Both are off by default.
  */
 
 #ifndef __NOXIMNETRACEDRIVER_H__
@@ -22,11 +26,12 @@
 namespace NetraceDriver {
 
 bool active();
-// Called by every PE once per cycle (the first call of a cycle advances the driver).
-// Returns true and fills dst/size/trace_id when a packet of this node may leave now.
-bool popReady(int node, double now, int *dst, int *size, int *trace_id);
-// The tail flit of packet trace_id reached its destination.
-void onDelivered(int trace_id, double now);
+int traceCount();
+// Called by every PE once per cycle and trace (the first call of a cycle advances that trace).
+// Returns true and fills dst/size/trace_id when a packet of this trace and node may leave now.
+bool popReady(int trace, int node, double now, int *dst, int *size, int *trace_id);
+// The tail flit of packet trace_id (generated at timestamp) reached its destination.
+void onDelivered(int trace_id, double now, double timestamp);
 // All packets of the window have been injected and delivered.
 bool finished();
 long completionCycle();
