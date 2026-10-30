@@ -10,3 +10,9 @@
    are not part of the confirmatory test.
 4. **Binary:** unchanged since v11/v13 (md5 01c7e9d0); Part F needs no C++ change, so no new regression run is needed.
 5. **LUTs:** the v11 per-mask LUTs (`luts/v11/`), regenerated if missing.
+6. **"Saturated" flag at the lowest loads:** the report counts a run as saturated when accepted < 95 % of offered. At
+   2x2 k = 3 (test load 0.2 x Lsat), 5-12 of 50 runs per method carry the flag although the mean latency stays at the
+   zero-load level (about 29 cycles). The accepted/offered ratio there is 0.92-1.03 because so few packets are injected
+   that sampling noise alone moves it below 0.95. The flag is reported as computed, the runs are not excluded (the
+   pre-registration has no exclusion on it), and FINDINGS.md explains it.
+7. **Raw outputs:** deleted after `eval_runs.csv` (3600 rows) was written.
