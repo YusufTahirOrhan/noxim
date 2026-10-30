@@ -38,13 +38,13 @@ The CIs are too wide, not the effects too large.
 * **CI width:** with n = 5 seeds the 95 % CIs are typically +-3-10 % for LAT and +-7-20 % for P99. They cannot fit
   inside +-3 % and +-5 %.
 * **Source of the spread (exploratory, `report/exploratory_per_scenario_lat.txt`):** it comes from the hotspot and
-  movinghot scenarios at 1.0x Lsat. There, the per-seed log ratio of latency has a standard deviation of 8-40 % even at
+  movinghot scenarios at 1.0x Lsat. There, the per-seed log ratio of latency has a standard deviation of 4-40 % even at
   B = 16, where rounding is at the 2^-8 to 2^-10 level.
   - Any change to a single stored value changes later routing choices. At saturation, such a change moves the run to a
     different trajectory, so a fixed-point run behaves like another sample of the same system rather than a small
     perturbation of the float run.
-  - In uniform, chipperm and uniform with a faulty VL, B = 16 stays within about +-1.5 % (sd 0.2-5 %).
-  - The single exception is the 2x2 CI_qlLA_G uniform cell at -2.4 % (sd 5.3 %).
+  - In uniform, chipperm and uniform with a faulty VL, B = 16 stays within +-3.2 %, and 14 of these 18 cells are within
+    +-1.5 % (sd 0.2-6.9 %).
 * **One exception that looks real:** CI_qlLA_G on 4x4 at 16 bits has LAT +2.5 % [+0.2, +4.7] and P99 +6.9 %
   [+3.0, +10.9], driven by hotspot (+15.5 %).
   - With 7 integer bits and 8 fractional bits the format should represent the values closely, so this may be a
@@ -72,8 +72,9 @@ value (mean over runs); its full form is in `report/summary.md` and `ql_stats.cs
   - CI_qlLA_G loses 2 % of saturation throughput on 3x3 and 4x4: THR -2.1 % [-2.8, -1.3] and -2.0 % [-3.0, -0.9],
     both entirely outside the -1 % margin.
   - FULL_qlLA_G's latency rises by 7 % on 4x4 (LAT +7.2 % [+2.8, +11.9], P99 +14.4 %).
-  - The uniform scenarios show a consistent +3-6 % latency increase on 3x3 and 4x4 with a small sd. This is a real
-    degradation, not noise.
+  - Uniform fault-free traffic shows a consistent +3.4 to +5.3 % latency increase on 3x3 and 4x4 for both variants
+    (sd 1.2-2.7 %). This is a real degradation, not noise.
+  - Uniform with a faulty VL shows the same increase (+3.3 to +5.8 %), except CI_qlLA_G on 3x3 (+0.2 %).
 * **What 12 bits still does:**
   - 17-69 % of the updates still change the table at 12 bits. Learning is slower but active.
   - At 12 bits the point estimates are as close to float as at 16 bits (exploratory reading).
