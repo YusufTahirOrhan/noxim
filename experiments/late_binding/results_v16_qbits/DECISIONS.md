@@ -19,3 +19,11 @@
    - `ql_bits 0` reproduced 20 / 20 randomly drawn v9 runs exactly (`reuse_check.md`).
 7. **Faulty scenario on 2x2:** the VL mask is 0x1111 (one faulty VL per chiplet), which is among the v9 masks. 3x3 and
    4x4 use the v9 one-per-chiplet masks.
+8. **Learning statistics:** `ql_stats.csv` (updates, changed updates, residual range per run) was written from the raw
+   outputs before they were deleted.
+9. **Exploratory breakdown:** a per-scenario breakdown of LAT (`report/exploratory_per_scenario_lat.txt`, from
+   `explore_v16.py`) was added after the result. It is labelled exploratory and does not change the pre-registered
+   verdict.
+10. **Cost table:** no tested width was equivalent everywhere, so the cost table keeps 16 bits, the widest tested width.
+    It does not use a smaller width.
+11. **Raw outputs:** deleted after `eval_runs.csv` (3150 rows) and `ql_stats.csv` were written.
