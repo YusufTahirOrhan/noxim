@@ -242,3 +242,52 @@ python3 experiments_v13.py timing 12 && python3 experiments_v13.py eval 12 && py
 ```
 Start with `results_v10/FINDINGS.md` (Parts A-B), `results_v11/FINDINGS.md` (Part C), `results_v12_energy/FINDINGS.md`
 (Part D) and `results_v13_apps/FINDINGS.md` (Part E).
+
+## Rounds 14-16 (results_v14_faultload/, results_v15_apps2/, results_v16_qbits/): faults below saturation, two applications, Q-table width
+New simulator options, all off by default. With the defaults, the 84-configuration regression set is byte-identical
+(`results_v15_apps2/regression.md`: whole stats files compared).
+* **Second trace:** `-netrace2 FILE` overlays a second Netrace window. It has its own dependency tracking on all 64
+  nodes and shares the network and NI queues with the first.
+* **Compression:** `-netrace_compress S` divides the trace timestamps by S. Dependencies are still enforced, and the
+  post-dependency delay stays 8 cycles.
+* **Fixed-point Q table:** `-deft_lb ql_bits B ql_frac F`: signed B-bit residuals with F fractional bits, rounded to
+  nearest and saturating (0 = float32).
+* **Residual range:** `-deft_lb ql_range 1` logs it as extra JSON fields.
+```
+python3 experiments_v14.py choose && python3 experiments_v14.py timing 12 && python3 experiments_v14.py eval 12
+python3 make_eval_csv.py results_v14_faultload eval && python3 report_v14.py
+python3 experiments_v15.py regress 12 BIN_V14 && python3 experiments_v15.py v13check
+python3 experiments_v15.py timing 12 && python3 experiments_v15.py eval 12 && python3 experiments_v15.py csv && python3 report_v15.py
+python3 experiments_v16.py range 12 && python3 experiments_v16.py reuse 12 && python3 experiments_v16.py eval 12
+python3 experiments_v16.py qlstats && python3 make_eval_csv.py results_v16_qbits eval && python3 report_v16.py && python3 explore_v16.py
+```
+
+### v14 (Part F): fault sweep below the faulty saturation point
+* **Test load:** for each (size, k, pattern), the highest v11 load at which DeFT(rho*) stays within 3x its zero-load
+  latency. This is 0.2-1.0x the fault-free Lsat.
+* **Primary (Holm over 18; seeds 53-57): 15 / 18 supported, none against.** CI_qlLA_G and FULL_qlLA_G lower mean latency
+  by 9-20 % at k = 1-2 and by 2-5 % at k = 3 on 3x3 and 4x4.
+* **Not supported:**
+  - 2x2 at k = 3 (both variants), where one VL per chiplet leaves no choice;
+  - FULL_qlLA_G on 2x2 at k = 2 (-2.1 %).
+* **P99:** -25 to -39 % at k = 1-2 on 3x3 and 4x4.
+
+### v15 (Part G): two PARSEC applications at once
+* **Setup:** 6 pairs of the four heaviest benchmarks, s = 1 and 2, 648 runs; every run delivered both windows.
+* **Latency:** FULL_qlLA_G has the lowest geometric-mean latency in every setting: -7 % fault-free and -10 to -11 % with
+  0x1111. Its p99 with 0x1111 is 0.65-0.73 of DeFT(rho*).
+* **Completion time:**
+  - s = 1: identical across methods (within 0.2 %).
+  - s = 2: differs. FULL_qlLA_G is 3.6-4.3 % faster, and DeFT-Ran 4-6 % slower.
+
+### v16 (Part H): Q-table entry width
+* **Pre-registered equivalence** (LAT +-3 %, P99 +-5 %, THR +-1 %, 5 seeds): **no tested width (16, 12, 8) is equivalent
+  everywhere.**
+  - At 16 and 12 bits the point estimates are mostly within the margins. The CIs are too wide: latency at 1.0x Lsat
+    under hotspot and movinghot is very seed-sensitive.
+* **8 bits:** learning stalls. FULL_qlLA_G changes 0 % of the stored values, and CI_qlLA_G 5-11 %.
+  - CI_qlLA_G loses 2 % throughput on 3x3 and 4x4.
+  - FULL_qlLA_G's latency is +7 % on 4x4.
+* **Cost table:** keeps 16 bits.
+
+Start with `results_v14_faultload/FINDINGS.md`, `results_v15_apps2/FINDINGS.md` and `results_v16_qbits/FINDINGS.md`.
