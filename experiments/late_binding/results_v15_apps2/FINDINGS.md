@@ -44,7 +44,9 @@ Descriptive part, as v13. There are no significance tests.
 
 ## Latency
 * **FULL_qlLA_G has the lowest mean latency** in all four settings: 7 % below DeFT(rho*) fault-free and 10-11 % below
-  with 0x1111. It is lowest for every pair, down to 0.838 (vips + swaptions, 0x1111, s = 2).
+  with 0x1111. It is lowest in 17 of the 24 (s, mask, pair) cells, down to 0.838 (vips + swaptions, 0x1111, s = 2).
+  - XY-SP is lowest in 6 cells, all on pairs with swaptions or x264, by 0.15-0.46 percentage points of DeFT(rho*).
+  - CI_qlLA_G is lowest in 1 cell (vips + x264, fault-free, s = 2).
 * **p99 with 0x1111:** FULL_qlLA_G reduces it most, to 0.65 (s = 1) and 0.73 (s = 2). It reaches 0.55-0.60 on the
   pairs that contain vips.
 * **The other learners:** CI_qlLA_G and CI_heurLA_G are 4-6 % below DeFT(rho*) in mean latency.
