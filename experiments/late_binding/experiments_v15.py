@@ -1,6 +1,9 @@
 """v15 (Part G): two PARSEC applications at once (Netrace overlay), compression s = 1 and 2 (results_v15_apps2/).
 
 Stages (python3 experiments_v15.py STAGE [nproc] [extra]; --shard i/n accepted):
+  regress   new options off: old binary (extra) vs bin/noxim on the 84-configuration set (66 regression configurations
+            + six v10 baselines x 3 sizes); whole stats files compared byte by byte -> regression.md (also copied to
+            results_v16_qbits, since the v15 and v16 code is one build)
   v13check  single-trace runs with s = 1 (DeFT(rho*), seed 41, one per benchmark) reproduce results_v13_apps exactly
             (extra = binary to test; default bin/noxim)
   timing    timing test (seed 1001, DeFT and FULL_qlLA_G, every pair, s = 1 and 2) and the s rule (8 h)
@@ -148,10 +151,50 @@ def make_csv():
     return bad
 
 
+def regress(old_bin, nproc):
+    import check_stats_regression as CSR
+    import experiments_v5 as E5
+    from multiprocessing import Pool
+    out = raw('regress')
+    os.makedirs(out, exist_ok=True)
+    cf = list(CSR.configs())
+    for size in ('2x2', '3x3', '4x4'):
+        mm = E10.methods(size)
+        r = E10.LP5[f'{size}__uniform__{E5.FREE[size]}']['eval'][3]
+        for v in E10.NEW:
+            n, a = E5.job('x', size, v, mm[v], 'uniform', E5.FREE[size], r, 7, E10.lut(size, v, 'uniform'))
+            cf.append((f'{v}__{size}', a))
+    new_bin = os.path.join(BIN, 'noxim')
+    jobs = [((t, b, [], n, a), out) for t, b in (('old', old_bin), ('new', new_bin)) for n, a in cf]
+    with Pool(nproc) as pool:
+        pool.map(E10._run_tagged, jobs, chunksize=1)
+    ok, diffs = 0, []
+    for n, _ in cf:
+        fo, fn = (os.path.join(out, f'{t}__{n}.json') for t in ('old', 'new'))
+        if os.path.exists(fo) and os.path.exists(fn) and open(fo, 'rb').read() == open(fn, 'rb').read():
+            ok += 1
+        else:
+            diffs.append(f'- differs: {n}')
+    md5 = lambda f: subprocess.run(['md5sum', f], capture_output=True, text=True).stdout.split()[0]
+    L = ['# Regression with the v15/v16 options off (experiments_v15.py regress)', '',
+         f'Old binary: md5 {md5(old_bin)} (the v11-v14 binary). New binary: md5 {md5(new_bin)} (code with -netrace2, '
+         '-netrace_compress, -deft_lb ql_bits / ql_frac / ql_range; all off).',
+         f'Configurations: {len(cf)} = the 66-configuration regression set + the six v10 baselines x 2x2/3x3/4x4 '
+         '(uniform, fault-free, 1.0 x Lsat, seed 7). Comparison: the whole stats JSON file, byte by byte.', '',
+         f'**{ok} / {len(cf)} byte-identical.**', ''] + (diffs or ['No differences.'])
+    for d in (RES, os.path.join(HERE, 'results_v16_qbits')):
+        open(os.path.join(d, 'regression.md'), 'w', newline=NL).write(NL.join(L) + NL)
+    print(NL.join(L))
+    shutil.rmtree(out)
+    return not diffs
+
+
 if __name__ == '__main__':
     stage = sys.argv[1]
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 12
     os.makedirs(RES, exist_ok=True)
+    if stage == 'regress':
+        sys.exit(0 if regress(sys.argv[3], nproc) else 1)
     if stage == 'v13check':
         sys.exit(0 if v13check(sys.argv[3] if len(sys.argv) > 3 else os.path.join(BIN, 'noxim')) else 1)
     if stage == 'timing':
