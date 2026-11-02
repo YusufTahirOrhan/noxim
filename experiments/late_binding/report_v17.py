@@ -93,7 +93,7 @@ def table(rows, load_):
 def phase_table(rows):
     """DeFT: what share of each chiplet class is source-phase, destination-phase, intra-chiplet, per VC."""
     L = ['## Packet phase of the flits on chiplet links, DeFT(rho*), 1.0 x Lsat', '',
-         'Share of the flits on the class, % (VC0 source / VC0 dest / VC0 intra | VC1 source / VC1 dest / VC1 intra).', '',
+         'Share of the flits on the class, % (VC0 source / VC0 dest / VC0 intra ; VC1 source / VC1 dest / VC1 intra).', '',
          '| size | pattern | chiplet, towards VL | chiplet, away from VL |', '|---|---|---|---|']
     for size in SIZES:
         for p in PATTERNS:
@@ -103,9 +103,36 @@ def phase_table(rows):
                       r['pattern'] == p and r['cls'] == c]
                 t = sum(r['f0'] + r['f1'] for r in rs)
                 s = lambda k: 100.0 * sum(r[k] for r in rs) / t
-                cells.append(f"{s('ph0_src'):.0f} / {s('ph0_dst'):.0f} / {s('ph0_intra'):.0f} | "
+                cells.append(f"{s('ph0_src'):.0f} / {s('ph0_dst'):.0f} / {s('ph0_intra'):.0f} ; "
                              f"{s('ph1_src'):.0f} / {s('ph1_dst'):.0f} / {s('ph1_intra'):.0f}")
             L.append(f'| {size} | {p} | ' + ' | '.join(cells) + ' |')
+    return L + ['']
+
+
+def combined_table(rows):
+    """All chiplet links together, and the VC wait split on the VLs and the interposer, 1.0 x Lsat."""
+    L = ['## All chiplet links together, 1.0 x Lsat', '', 'VC imbalance, both chiplet classes summed within each run.', '',
+         '| size | pattern | ' + ' | '.join(MNAME[m] for m in METHODS[:-1]) + ' |', '|---|---|' + '---|' * (len(METHODS) - 1)]
+    for size in SIZES:
+        for p in PATTERNS:
+            cells = []
+            for m in METHODS[:-1]:
+                rs = [r for r in rows if r['load'] == '1.0' and r['method'] == m and r['size'] == size and r['pattern'] == p and
+                      r['cls'] in ('chip_towards', 'chip_away')]
+                cells.append(f"{combined(rs)['imb']:.2f}")
+            L.append(f'| {size} | {p} | ' + ' | '.join(cells) + ' |')
+    L += ['', '## VC wait on the VLs and the interposer, 1.0 x Lsat', '',
+          'Per cell: VC held / no credit, head-flit cycles per flit forwarded; then the mean downstream occupancy VC0 / VC1 (flits, capacity 4).',
+          '', '| size | pattern | method | interposer | Down VL | Up VL |', '|---|---|---|---|---|---|']
+    for size in SIZES:
+        for p in PATTERNS:
+            for m in ('DeFT', 'MTR_VN', 'CI_qlLA_G', 'FULL_qlLA_G', 'MTR', 'RC'):
+                cells = []
+                for c in ('ipos', 'vl_down', 'vl_up'):
+                    rs = [r for r in rows if r['load'] == '1.0' and r['method'] == m and r['size'] == size and r['pattern'] == p and r['cls'] == c]
+                    x = metrics(rs)
+                    cells.append(f"{x['held']:.2f} / {x['nocredit']:.2f}; {x['occ0']:.2f} / {x['occ1']:.2f}")
+                L.append(f'| {size} | {p} | {MNAME[m]} | ' + ' | '.join(cells) + ' |')
     return L + ['']
 
 
@@ -194,11 +221,11 @@ def main():
          'traffic-weighted mean of |f0 - f1| / (f0 + f1)) / **share of flits VC0:VC1** (%) / **VC-wait cycles per flit** '
          '(head-flit cycles waiting for the downstream VC, no credit or VC held, per flit forwarded).', '',
          '## Method by link class at 1.0 x Lsat', ''] + table(rows, '1.0') + \
-        ['## Method by link class at 0.8 x Lsat', ''] + table(rows, '0.8') + phase_table(rows) + rc_table(summ) + latency_table(summ) + \
+        ['## Method by link class at 0.8 x Lsat', ''] + table(rows, '0.8') + combined_table(rows) + phase_table(rows) + rc_table(summ) + latency_table(summ) + \
         ['Figure: `imbalance_vs_latency.png` / `.pdf`.']
     open(os.path.join(OUT, 'summary.md'), 'w', newline=NL).write(NL.join(L) + NL)
     figure(rows, summ)
-    print(NL.join(L))
+    print('\n'.join(L[L.index('## All chiplet links together, 1.0 x Lsat'):L.index('## RC buffer and injection permission')]))
 
 
 if __name__ == '__main__':
