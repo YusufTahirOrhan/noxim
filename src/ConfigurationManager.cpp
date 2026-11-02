@@ -447,6 +447,7 @@ void showHelp(char selfname[])
          << "\t-deft_vl_fault_count N\tRandomly mark N physical DEFT_2_5D VLs faulty" << endl
          << "\t-deft_faulty_vls LIST\tComma-separated explicit DEFT_2_5D VL fault IDs" << endl
          << "\t-deft_vl_lut FILE\tLoad a deft_vl_lut.v1 routing table" << endl
+         << "\t-deft_vn_rr 0|1\tDeFT's round-robin VN reassignment at the Down port, per-router counters (default 0)" << endl
          << "\t-deft_chiplets_x N, -deft_chiplets_y N\tDEFT_2_5D chiplet grid (default 2 x 2)" << endl
          << "\t-deft_chiplet_w N, -deft_chiplet_h N\tDEFT_2_5D routers per chiplet (default 4 x 4)" << endl
          << "\t-detailed\t\tShow detailed statistics" << endl
@@ -946,6 +947,8 @@ void parseCmdLine(int arg_num, char *arg_vet[])
         }
         else if (!strcmp(arg_vet[i], "-netrace_deps"))
             GlobalParams::netrace_deps = atoi(requireOptionValue(i, arg_num, arg_vet, "-netrace_deps"));
+        else if (!strcmp(arg_vet[i], "-deft_vn_rr"))
+            DeftVirtualNetwork::setRoundRobinActive(atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_vn_rr")) != 0);
         else if (!strcmp(arg_vet[i], "-deft_lb"))
         {
             string key = requireOptionValue(i, arg_num, arg_vet, "-deft_lb");

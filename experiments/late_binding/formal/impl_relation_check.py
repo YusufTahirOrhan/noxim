@@ -56,6 +56,8 @@ CONFIGS_FIXEDOE = {
     'FIXED_OE_OE': ('OE', 'OE', 'fixed', 'fixed'),
 }
 ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED, **CONFIGS_FIXEDOE)
+# Negative control (vnrr_check.py): R3 and the F1 source rule removed. Must produce a cyclic CDG.
+NO_R3 = False
 
 
 def functional(c, faulty):
@@ -132,7 +134,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
                 entries = [frozenset([e]) for e in fd] if entry_pol == 'fixed' else [fd]
             own = POS2VL.get(s)
             for ex in exits:
-                vns = [0, 1] if (own is not None and ex == frozenset([own])) else [0]
+                vns = [0, 1] if (NO_R3 or (own is not None and ex == frozenset([own]))) else [0]
                 for en in entries:
                     for vn in vns:
                         init.append(('S', s, None, (ex, en), vn, d))
@@ -159,6 +161,8 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
                     down_vns = [vn]               # Local->Down keeps the VN
                 elif vn == 0:
                     down_vns = [0, 1]             # Horizontal->Down VN0, round robin
+                elif NO_R3:
+                    down_vns = [1]
                 # Horizontal->Down in VN1: forbidden (rule R3)
                 for dv in down_vns:
                     out.append((('I', p, None, (frozenset([here]), en), dv, d), ('D', here, dv)))

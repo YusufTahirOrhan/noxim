@@ -8,6 +8,8 @@
 #include "DeftVerticalLinkLut.h"
 #include "GlobalParams.h"
 
+#include <vector>
+
 namespace {
 
 int next_source_vn = DeftVirtualNetwork::VN0;
@@ -15,6 +17,17 @@ int next_source_vn = DeftVirtualNetwork::VN0;
 // Noxim's default VC handling: the VC drawn at injection is kept on every hop.
 bool vn_rules_active = true;
 int next_boundary_vn = DeftVirtualNetwork::VN0;
+// -deft_vn_rr 1: per-router round-robin counters, sized to TotalRouters on first use.
+bool vn_rr_active = false;
+std::vector<int> router_source_vn;
+std::vector<int> router_boundary_vn;
+
+int &routerCounter(std::vector<int> &counters, int router_id)
+{
+    if ((int) counters.size() != DeftTopology::TotalRouters)
+        counters.assign(DeftTopology::TotalRouters, DeftVirtualNetwork::VN0);
+    return counters[router_id];
+}
 
 int peekRoundRobin(int next_vn)
 {
@@ -203,6 +216,16 @@ bool rulesActive()
     return vn_rules_active;
 }
 
+void setRoundRobinActive(bool active)
+{
+    vn_rr_active = active;
+}
+
+bool roundRobinActive()
+{
+    return vn_rr_active;
+}
+
 bool isOutputDirectionAllowed(const RouteData &route_data,
                               int output_direction)
 {
@@ -225,8 +248,9 @@ bool isOutputDirectionAllowed(const RouteData &route_data,
         output_vn == VN0)
         return false;
 
+    // R3. With -deft_vn_rr 1 it applies to the input VN: a VN0 packet may switch to VN1 for the Down port.
     if (isHorizontalToDown(route_data, output_direction) &&
-        output_vn == VN1)
+        (vn_rr_active ? input_vn : output_vn) == VN1)
         return false;
 
     return true;
@@ -238,7 +262,7 @@ int assignSourceVirtualNetwork(int src_id, int dst_id, uint64_t exit_mask)
         return DEFAULT_VC;
 
     if (sourceCanUseEitherVirtualNetwork(src_id, dst_id, exit_mask))
-        return takeRoundRobin(next_source_vn);
+        return takeRoundRobin(vn_rr_active ? routerCounter(router_source_vn, src_id) : next_source_vn);
 
     return VN0;
 }
@@ -259,6 +283,13 @@ int selectOutputVirtualNetwork(const RouteData &route_data,
     if (isHorizontalToDown(route_data, output_direction))
     {
         output_vn = input_vn;
+        if (vn_rr_active && input_vn == VN0)
+        {
+            // The counter advances only when the reservation succeeds; a busy VC makes the packet wait.
+            output_vn = peekRoundRobin(routerCounter(router_boundary_vn, route_data.current_id));
+            if (uses_round_robin_reassignment != 0)
+                *uses_round_robin_reassignment = true;
+        }
     }
     else if (isChipletBoundaryToInterposer(route_data, output_direction))
     {
@@ -285,9 +316,9 @@ int selectOutputVirtualNetwork(const RouteData &route_data,
     return output_vn;
 }
 
-void commitBoundaryReassignmentRoundRobin()
+void commitBoundaryReassignmentRoundRobin(int router_id)
 {
-    advanceRoundRobin(next_boundary_vn);
+    advanceRoundRobin(vn_rr_active ? routerCounter(router_boundary_vn, router_id) : next_boundary_vn);
 }
 
 } // namespace DeftVirtualNetwork

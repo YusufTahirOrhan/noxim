@@ -192,6 +192,12 @@ void Router::txProcess()
 		      route_data.deft_exit_mask = flit.deft_exit_mask;
 		      route_data.deft_entry_mask = flit.deft_entry_mask;
 
+		      // -deft_lb decision_delay N (off by default): N extra cycles where more than one output is offered
+		      if (DeftLB::decisionDelay() > 0 &&
+			  DeftLB::mustWaitDecision(route_data, deft_front_cycle[i][vc],
+						   sc_time_stamp().to_double() / GlobalParams::clock_period_ps))
+			  continue;
+
 		      // TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
 		      int o = route(route_data);
                       if (o == NOT_VALID)
@@ -247,7 +253,7 @@ void Router::txProcess()
 			  LOG << " reserving direction " << o << " for flit " << flit << endl;
 			  reservation_table.reserve(r, o);
                           if (uses_deft_round_robin_reassignment)
-                              DeftVirtualNetwork::commitBoundaryReassignmentRoundRobin();
+                              DeftVirtualNetwork::commitBoundaryReassignmentRoundRobin(local_id);
 		      }
 		      else if (rt_status == RT_ALREADY_SAME)
 		      {
@@ -256,7 +262,9 @@ void Router::txProcess()
 		      else if (rt_status == RT_OUTVC_BUSY)
 		      {
 			  LOG << " RT_OUTVC_BUSY reservation direction " << o << " for flit " << flit << endl;
-			  if (DeftLB::vcStatsOn())
+			  // A head that already owns its VC can see this status when the round-robin counter has moved on.
+			  int held_o, held_vc;
+			  if (DeftLB::vcStatsOn() && !reservation_table.findReservation(i, vc, &held_o, &held_vc))
 			      DeftLB::vcStatsWait(local_id, o, r.output_vc, true,
 						  sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 		      }

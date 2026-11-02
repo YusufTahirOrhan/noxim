@@ -77,6 +77,10 @@ bool g_count_vl = false;
 
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
+// Decision delay and the count of hops by offered outputs (parameters decision_delay, hop_stats; off by default).
+int g_decision_delay = 0;
+bool g_hop_stats = false;
+unsigned long g_hops[2][2] = {{0, 0}, {0, 0}};    // [0 chiplet, 1 interposer][1 = more than one output offered]
 // Optional VC usage file (parameter vc_stats); empty = off (default).
 std::string g_vc_stats_file;
 double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
@@ -640,6 +644,20 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_hop_weight_ipos = d;
     }
+    else if (key == "decision_delay") {
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "decision_delay must be an integer >= 0";
+            return false;
+        }
+        g_decision_delay = (int) d;
+    }
+    else if (key == "hop_stats") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "hop_stats must be 0 or 1";
+            return false;
+        }
+        g_hop_stats = d != 0.0;
+    }
     else if (key == "entry_bound_k") {
         if (d < 0 || d != std::floor(d)) {
             if (error_message) *error_message = "entry_bound_k must be an integer >= 0";
@@ -982,6 +1000,20 @@ void legalOutputsWithVn(const RouteData &rd, std::vector<int> *dirs)
             dirs->push_back(all[i]);
 }
 
+int decisionDelay()
+{
+    return g_decision_delay;
+}
+
+bool mustWaitDecision(const RouteData &rd, double front_cycle, double now)
+{
+    if (!isActive() || now >= front_cycle + g_decision_delay || rd.current_id == rd.dst_id)
+        return false;
+    std::vector<int> dirs;
+    legalOutputsWithVn(rd, &dirs);
+    return dirs.size() > 1;
+}
+
 // ---- injection ----
 namespace {
 
@@ -1262,6 +1294,12 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
     rd.vc_id = flit->vc_id;
     rd.deft_exit_mask = flit->deft_exit_mask;
     rd.deft_entry_mask = flit->deft_entry_mask;
+
+    if ((g_hop_stats || g_decision_delay > 0) && now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time) {
+        std::vector<int> offered;
+        legalOutputsWithVn(rd, &offered);
+        g_hops[isInterposer(cur) ? 1 : 0][offered.size() > 1 ? 1 : 0]++;
+    }
 
     if (qLearningEnabled() && rd.dst_id < NCHIP_ROUTERS) {
         remoteEstimate(rd, out_dir);   // make sure the entry exists (lazy initialisation)
@@ -1813,6 +1851,12 @@ void writeJson(std::ostream &out)
         out << "    \"ql_bits\": " << g_ql_bits << ", \"ql_frac\": " << g_ql_frac << ", \"ql_residual_min\": "
             << g_r_min << ", \"ql_residual_max\": " << g_r_max << ", \"ql_updates_changed\": " << g_ql_changed
             << "," << std::endl;
+    if (DeftVirtualNetwork::roundRobinActive())  // field only present with -deft_vn_rr 1
+        out << "    \"vn_rr\": 1," << std::endl;
+    if (g_hop_stats || g_decision_delay > 0)    // fields only present with the v20 options
+        out << "    \"decision_delay\": " << g_decision_delay << ", \"hops_chip\": " << g_hops[0][0] + g_hops[0][1]
+            << ", \"hops_chip_multi\": " << g_hops[0][1] << ", \"hops_ipos\": " << g_hops[1][0] + g_hops[1][1]
+            << ", \"hops_ipos_multi\": " << g_hops[1][1] << "," << std::endl;
     if (g_hop_weight_ipos != 1.0)            // field only present when the weight is not the default
         out << "    \"hop_weight_ipos\": " << g_hop_weight_ipos << "," << std::endl;
     if (g_entry_bound_mode != EB_OFF) {     // fields only present with the option on

@@ -105,6 +105,12 @@ double hopsAfterMove(const RouteData &route_data, int out_dir);
 RouteData nextRouteData(const RouteData &route_data, int out_dir, int out_vc);
 void legalOutputsWithVn(const RouteData &route_data, std::vector<int> *directions);
 
+// ---- decision delay (-deft_lb decision_delay N; 0 by default) -----------
+// A head at a router that offers it more than one output waits N extra cycles from reaching the buffer front
+// before it may reserve an output. Hops with one offered output are not delayed.
+int decisionDelay();
+bool mustWaitDecision(const RouteData &route_data, double front_cycle, double now);
+
 // ---- injection -------------------------------------------------------
 // Sets candidate masks (DEFT_LB only) and the source virtual network of a
 // packet whose head flit is about to leave the processing element.
