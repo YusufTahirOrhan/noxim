@@ -1,0 +1,52 @@
+== 5 ports
+    Dynamic power: 0.000220753
+    Leakage power: 0.000277782
+Clock:
+    Dynamic power: 0.000316999
+    Leakage power: 1.36512e-05
+Total:
+    Dynamic power: 0.00366533
+    Leakage power: 0.00466251
+Area:
+    Buffer:           1.23165e-08
+    Crossbar:         2.44816e-09
+    Switch allocator: 8.9408e-10
+    Other:            4.4352e-11
+    Buffer:            = 1.23165e-08
+    Crossbar:          = 2.44816e-09
+    Dynamic power:  = 0.00366533
+    Leakage power:  = 0.00466251
+    Other:             = 4.4352e-11
+    Switch allocator:  = 8.9408e-10
+Area: = 0
+Buffer: = 0
+Clock: = 0
+Crossbar: = 0
+Switch allocator: = 0
+Total: = 0
+== 6 ports
+    Dynamic power: 0.000377446
+    Leakage power: 0.000482421
+Clock:
+    Dynamic power: 0.000352318
+    Leakage power: 1.36512e-05
+Total:
+    Dynamic power: 0.00464097
+    Leakage power: 0.00586604
+Area:
+    Buffer:           1.47798e-08
+    Crossbar:         3.40982e-09
+    Switch allocator: 1.52909e-09
+    Other:            4.4352e-11
+    Buffer:            = 1.47798e-08
+    Crossbar:          = 3.40982e-09
+    Dynamic power:  = 0.00464097
+    Leakage power:  = 0.00586604
+    Other:             = 4.4352e-11
+    Switch allocator:  = 1.52909e-09
+Area: = 0
+Buffer: = 0
+Clock: = 0
+Crossbar: = 0
+Switch allocator: = 0
+Total: = 0

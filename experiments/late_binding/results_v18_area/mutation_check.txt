@@ -1,0 +1,21 @@
+oe_even_flip: RESULT route ipos=1 has_hub=1 xw=3 vectors=65024 mismatches=5104
+oe_uturn: RESULT route ipos=0 has_hub=1 xw=3 vectors=18856 mismatches=0
+prune_keep_here: RESULT route ipos=1 has_hub=1 xw=3 vectors=65024 mismatches=0
+oe_vert_rule: RESULT route ipos=1 has_hub=1 xw=3 vectors=65024 mismatches=10464
+prune_no_moves: RESULT route ipos=1 has_hub=1 xw=3 vectors=65024 mismatches=64208
+near_tie: RESULT near vectors=240 mismatches=16
+vn_r3: RESULT vn vectors=100 mismatches=4
+xy_order: RESULT xy ipos=0 vectors=3328 mismatches=1872
+q_round: RESULT qupd f=8 s1=4 s2=5 vectors=20000 mismatches=9950
+q_saturate: RESULT qupd f=8 s1=4 s2=5 vectors=20000 mismatches=3
+selection mutations need kept selection vectors:
+sel_sub: RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=5000 skipped=0 mismatches=4968
+sel_gamma: RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=5000 skipped=0 mismatches=4968
+sel_vc_up: RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=5000 skipped=0 mismatches=80
+sel_no_q: RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=5000 skipped=0 mismatches=5000
+sel_goal: RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=5000 skipped=0 mismatches=5000
+
+oe_uturn and prune_keep_here report 0 mismatches because they are equivalent on the reachable inputs, not because the vectors miss them:
+* oe_uturn removes "no W after E". A head whose last move was E can only hold candidates to the east, since pruning drops the others.
+* prune_keep_here removes the "not here" term. For a candidate at this router the moves mask is already 0.
+So both terms are redundant on reachable inputs and are kept only as defensive logic.

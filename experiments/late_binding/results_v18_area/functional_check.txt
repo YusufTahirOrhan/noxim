@@ -1,0 +1,57 @@
+RESULT route ipos=1 has_hub=1 xw=3 vectors=65024 mismatches=0
+RESULT route ipos=1 has_hub=0 xw=3 vectors=42000 mismatches=0
+RESULT route ipos=0 has_hub=1 xw=3 vectors=18856 mismatches=0
+RESULT route ipos=0 has_hub=0 xw=3 vectors=14107 mismatches=0
+  65024 /home/blue/lbraw/v18_vec/route_ipos.txt
+  18856 /home/blue/lbraw/v18_vec/route_chip.txt
+  83880 total
+RESULT xy ipos=0 vectors=3328 mismatches=0
+RESULT xy ipos=1 vectors=680 mismatches=0
+RESULT vn vectors=100 mismatches=0
+RESULT near vectors=240 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=3 w_shift=0 beta=4 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=3 w_shift=0 beta=4 use_q=0 f=0 vectors=19141 skipped=859 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=3 w_shift=0 beta=4 use_q=1 f=10 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=3 w_shift=0 beta=4 use_q=1 f=10 vectors=19221 skipped=779 mismatches=0
+RESULT qupd f=10 s1=5 s2=6 vectors=20000 mismatches=0
+RESULT fb w_shift=0 beta=4 f=10 vectors=20000 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=3 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=3 w_shift=1 beta=0 use_q=0 f=0 vectors=19141 skipped=859 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=3 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=3 w_shift=1 beta=0 use_q=0 f=0 vectors=15450 skipped=4550 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=3 w_shift=1 beta=0 use_q=1 f=10 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=3 w_shift=1 beta=0 use_q=1 f=10 vectors=19221 skipped=779 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=3 w_shift=1 beta=0 use_q=1 f=10 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=3 w_shift=1 beta=0 use_q=1 f=10 vectors=15376 skipped=4624 mismatches=0
+RESULT qupd f=10 s1=7 s2=9 vectors=20000 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=19576 skipped=424 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=19526 skipped=474 mismatches=0
+RESULT qupd f=8 s1=4 s2=5 vectors=20000 mismatches=0
+RESULT fb w_shift=1 beta=0 f=8 vectors=20000 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=19576 skipped=424 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=15760 skipped=4240 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=19526 skipped=474 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=15784 skipped=4216 mismatches=0
+RESULT qupd f=8 s1=6 s2=8 vectors=20000 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=0 f=0 vectors=19704 skipped=296 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=1 beta=0 use_q=1 f=8 vectors=19704 skipped=296 mismatches=0
+RESULT qupd f=8 s1=4 s2=5 vectors=20000 mismatches=0
+RESULT fb w_shift=1 beta=0 f=8 vectors=20000 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=0 beta=4 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=0 beta=4 use_q=0 f=0 vectors=19704 skipped=296 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=4 w_shift=0 beta=4 use_q=0 f=0 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=4 w_shift=0 beta=4 use_q=0 f=0 vectors=15576 skipped=4424 mismatches=0
+RESULT sel ipos=1 has_hub=1 xw=4 w_shift=0 beta=4 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=1 has_hub=0 xw=4 w_shift=0 beta=4 use_q=1 f=8 vectors=19704 skipped=296 mismatches=0
+RESULT sel ipos=0 has_hub=1 xw=4 w_shift=0 beta=4 use_q=1 f=8 vectors=20000 skipped=0 mismatches=0
+RESULT sel ipos=0 has_hub=0 xw=4 w_shift=0 beta=4 use_q=1 f=8 vectors=15617 skipped=4383 mismatches=0
+RESULT qupd f=8 s1=5 s2=6 vectors=20000 mismatches=0
+total vectors 1011642 mismatches 0
