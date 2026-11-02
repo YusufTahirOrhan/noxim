@@ -35,7 +35,7 @@ mut sel_sub        lb_units.v "s/localparam SUB = LAYER ? 2 : 1;/localparam SUB 
 mut sel_gamma      lb_units.v "s/assign T\[8\*s+:8\] = 2 \* manh(x, y, cx\[4\*s+:4\], cy\[4\*s+:4\]) + 1/assign T[8*s+:8] = 1 * manh(x, y, cx[4*s+:4], cy[4*s+:4]) + 1/" tb_sel $V/sel_ipos_keep.txt $SEL
 mut sel_vc_up      lb_units.v "s/wire vz4 = LAYER ? 1'b1 : vcout\[o\];/wire vz4 = vcout[o];/" tb_sel $V/sel_ipos_keep.txt $SEL
 mut sel_no_q       lb_units.v "s/+ \$signed(q\[o\*16+:16\]);/;/" tb_sel $V/sel_ipos_keep.txt $SEL
-mut sel_goal       lb_units.v "s/wire \[CW-1:0\] vh = at_dst ? {CW{1'b0}} : vmin;/wire [CW-1:0] vh = vmin + 1;/" tb_sel $V/sel_ipos_keep.txt $SEL
+mut sel_goal       lb_units.v "s/wire \[CW-1:0\] vh = at3 ? {CW{1'b0}} : vmin;/wire [CW-1:0] vh = vmin + 1;/" tb_sel $V/sel_ipos_keep.txt $SEL
 cat >> $OUT <<'EOF'
 
 oe_uturn and prune_keep_here report 0 mismatches because they are equivalent on the reachable inputs, not because the vectors miss them:

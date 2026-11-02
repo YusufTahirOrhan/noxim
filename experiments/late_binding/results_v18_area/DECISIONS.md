@@ -10,23 +10,28 @@ The conservative option is the one that does not favour LB-I and LB-F.
 * DSENT cross-check: built within the hour (from gem5's `ext/dsent`), see `dsent_check.txt` and `FINDINGS.md`. ORION was not tried.
 
 ## Flow
-* **Area:** hierarchy kept, so that the shares per block can be read. `abc -D 1000` runs on each module on its own. One module cannot see the delay budget of another; a module that
-  cannot reach 1 ns on its own is mapped for speed anyway, which inflates the selection's area for the Q-learning and heuristic units.
+* **Area:** hierarchy kept, so that the shares per block can be read. `abc -D 1000` runs on each module on its own, and constants and shared logic are not optimised across modules.
+  This is the larger estimate, so it is the primary table (conservative). The flat ratios are reported next to it.
+* **Relaxed clock (sensitivity):** the hierarchical run at a 6 ns target changes the system ratios by at most 0.03, so the gap between hierarchical and flat comes from the module boundaries, not from timing pressure.
 * **Timing:** the same designs flattened, then OpenSTA, ideal clock, no wires, typical corner. ABC is run with its default script; no retiming.
 * **Arithmetic:** Yosys's default carry logic. A trial with Kogge-Stone carry logic (`synth -extra-map +/choices/kogge-stone.v`) on the reference router and the largest LB router
   changed the route-stage slack by about 0.1 ns and did not change the conclusions, so it is not used.
-* **Reference router's own timing:** its worst path, switch allocation to the credit counters, takes about 1.26 ns, with its route stage inside 1 ns. The allocators and crossbar are one stage here. A real design would
+* **Reference router's own timing:** its worst path, switch allocation to the credit counters, takes about 1.2-1.4 ns, with its route stage inside 1 ns. The allocators and crossbar are one stage here. A real design would
   split them; this cost is common to all methods and is not charged to any of them.
 
+## Timing experiment with pipeline cuts (added after the first timing results)
+The first results showed a 4-6 ns path, so "needs a pipeline stage" alone would have been misleading. `lb_sel` has a parameter `PIPE` (default 0, a wire: the vectors were re-run with it, 0 mismatches) that inserts registers after the routing relation, the candidate
+totals, the continuation terms and the costs. It is **timing only**: no control holds a head across the stages, and the cut designs are not checked functionally. The added flip-flops are counted in the area.
+
 ## Reference router
-* Round-robin arbiters use two lowest-set-bit searches and a binary pointer. The first version (rotating index loop) was 15 % larger and slower.
+* Round-robin arbiters use two lowest-set-bit searches and a binary pointer. The first version (rotating index loop) made the router 21 % larger and was slower, so it was replaced before the sweep.
 * VC allocation has a single request per input VC, so the first arbitration stage is empty: one arbiter per output VC.
 * The VC of a packet at the Local port comes from a toggle bit in all methods without VN rules (Noxim draws it uniformly). It is 1 flip-flop.
 * PE-side flow control is not modelled in any method.
 
 ## Form S and form P (the open choice of how many units)
 The prompt's "a read port per output" of the Q table describes one decision per router at a time, so **form S (one unit per router) is the form reported first**, and form P (one per input port,
-so also one read port per output per input port) is reported as the conservative upper bound. The simulator decides at every input VC in every cycle, and neither form reproduces that. With form S, a head can wait
+so also one read port per output per input port) is reported next to it as the conservative upper bound. The simulator decides at every input VC in every cycle, and neither form reproduces that. With form S, a head can wait
 for the unit. Heads arrive at most once per 8 flits per port, so the unit's utilisation stays below 1, but this wait is not simulated.
 
 ## Choices that favour the baselines

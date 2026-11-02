@@ -4,6 +4,8 @@ Usage: python3 synth_v18.py STAGE [nproc]
   tools     records tool versions -> results_v18_area/tools.md
   hier      hierarchy kept, per-module breakdown: all methods x router types x C (S form), plus the P form of the LB methods
   flat      flattened: the same designs for timing (OpenSTA)
+  pipe      timing experiment: the LB units cut into stages by registers (flattened, OpenSTA), results in pipe_runs.csv
+  relax     hierarchy kept, clock target relaxed to 6 ns (area sensitivity), results in relax_runs.csv
   csv       parses the outputs -> area_runs.csv, breakdown_runs.csv, timing_runs.csv; raw outputs deleted with 'csv cleanup'
 Yosys netlists and logs stay under ~/lbraw/v18 (not in the repository).
 """
@@ -36,9 +38,9 @@ LBP = {('I', '2x2'): dict(W_SHIFT=0, BETA=4, S1=5, S2=6), ('I', '3x3'): dict(W_S
        ('F', '3x3'): dict(W_SHIFT=1, BETA=0, S1=6, S2=8), ('F', '4x4'): dict(W_SHIFT=0, BETA=4, S1=5, S2=6)}
 
 
-def params(m, t, z, per_port):
+def params(m, t, z, per_port, pipe=0):
     layer, hub = TYPES[t]
-    p = dict(METHOD=m, LAYER=layer, HAS_HUB=hub, RS_PER_PORT=per_port, **SIZES[z])
+    p = dict(METHOD=m, LAYER=layer, HAS_HUB=hub, RS_PER_PORT=per_port, PIPE=pipe, **SIZES[z])
     if m in (6, 7):
         p.update(LBP[('I', z)])
     elif m in (8, 9):
@@ -70,14 +72,14 @@ def constr_file():
     return f
 
 
-def yosys_script(d, flat, odir):
+def yosys_script(d, flat, odir, pipe=0, clock_ps=CLOCK_PS, name=None):
     m, t, z, pp = d
-    p = params(m, t, z, pp)
+    p = params(m, t, z, pp, pipe)
     ch = ' '.join(f'-set {k} {v}' for k, v in p.items())
-    n = tag(m, t, z, pp)
+    n = name or tag(m, t, z, pp)
     srcs = ' '.join(os.path.join(RTL, f) for f in ('router_core.v', 'lb_units.v', 'method_units.v', 'router_top.v'))
-    L = [f'read_verilog -sv -I{RTL} {srcs}', f'chparam {ch} router_top', 'synth -top router_top' + (' -flatten' if flat else ''),
-         f'dfflibmap -liberty {LIB}', f'abc -liberty {LIB} -D {CLOCK_PS} -constr {os.path.join(RAW, "abc.constr")}',
+    L = [f'read_verilog -sv -I{RTL} {srcs}', f'chparam {ch} router_top', 'hierarchy -top router_top', 'flatten t:*pipe_reg*', 'synth -top router_top' + (' -flatten' if flat else ''),
+         f'dfflibmap -liberty {LIB}', f'abc -liberty {LIB} -D {clock_ps} -constr {os.path.join(RAW, "abc.constr")}',
          'opt_clean -purge', 'setundef -zero', 'hilomap -singleton -hicell LOGIC1_X1 Z -locell LOGIC0_X1 ZN', 'insbuf -buf BUF_X1 A Z',
          f'tee -q -o {os.path.join(odir, n + ".stat.txt")} stat -liberty {LIB} -top router_top',
          f'tee -q -o {os.path.join(odir, n + ".stat.json")} stat -json -liberty {LIB} -top router_top',
@@ -98,7 +100,7 @@ report_wns -digits 4
 puts "WNS_ALL [sta::worst_slack -max]"
 proc ends {{pat}} {{
     set out {{}}
-    foreach n [get_nets -quiet $pat] {{
+    foreach n [get_nets -quiet [split $pat]] {{
         foreach p [get_pins -quiet -of_objects $n -filter "direction == output"] {{
             set c [get_cells -of_objects $p]
             set d [get_pins -quiet [get_full_name $c]/D]
@@ -119,6 +121,10 @@ rep ROUTE_HDR {{*ctl.hdr*}}
 rep OVC_REG {{*ctl.out_vc*}}
 rep QTABLE {{*.m.mem*}}
 rep CORE_OUT {{*xb.op*.r*}}
+rep CUT0 {{*sel.c0.* *sel.last* *sel.arr_hub* *sel.vc *sel.same_chip* *sel.at_dst* *sel.dst_x* *sel.dst_y* *sel.entry* *sel.here* *sel.cx* *sel.cy* *sel.offered* *sel.pruned* *sel.flags* *sel.static_in*}}
+rep CUT1 {{*sel.c1.* *sel.T1* *sel.R_e1* *sel.pruned1* *sel.flags1* *sel.offered1* *sel.vcout* *sel.dst_x1* *sel.dst_y1* *sel.entry1* *sel.same1* *sel.at1* *sel.st1*}}
+rep CUT2 {{*sel.c2.* *sel.BC2* *sel.offered2* *sel.vcout2* *sel.at2* *sel.st2*}}
+rep CUT3 {{*sel.c3.* *sel.cost3* *sel.statics3* *sel.offered3* *sel.at3* *sel.st3*}}
 report_checks -to [get_ports fb_out_g*] -path_delay max -digits 4
 exit
 """
@@ -142,6 +148,44 @@ def run_one(arg):
         with open(os.path.join(odir, n + '.sta.txt'), 'w') as o:
             subprocess.run([STA, '-no_init', '-no_splash', '-exit', tcl], stdout=o, stderr=subprocess.STDOUT, timeout=3600)
     return n, True
+
+
+PIPE_MASKS = {0: 'none', 1: 'route | rest', 2: 'route+T | rest', 4: 'route+T+BC | cost+tree', 8: 'all costs | tree', 10: 'route+T | BC+cost | tree', 6: 'route+T | BC | cost+tree',
+              14: 'route+T | BC | cost | tree', 15: 'route | T | BC | cost | tree'}
+PIPE_DESIGNS = [(m, t, z, 0) for z in SIZES for m, t in ((6, 'ipos6'), (7, 'ipos6'), (8, 'chip6'), (9, 'chip6'), (8, 'ipos6'), (9, 'ipos6'))] + \
+    [(7, 'ipos6', '4x4', 1), (9, 'chip6', '4x4', 1)]
+
+
+def run_pipe(arg):
+    d, mask = arg
+    n = tag(*d) + f'__pipe{mask}'
+    odir = os.path.join(RAW, 'pipe')
+    os.makedirs(odir, exist_ok=True)
+    if os.path.exists(os.path.join(odir, n + '.sta.txt')):
+        return n, True
+    ys = os.path.join(odir, n + '.ys')
+    if not os.path.exists(os.path.join(odir, n + '.net.v')):
+        open(ys, 'w').write(yosys_script(d, True, odir, pipe=mask, name=n))
+        r = subprocess.run([YOSYS, '-q', '-l', os.path.join(odir, n + '.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if r.returncode != 0:
+            return n, False
+    tcl = os.path.join(odir, n + '.tcl')
+    open(tcl, 'w').write(STA_TCL.format(lib=LIB, net=os.path.join(odir, n + '.net.v'), period=CLOCK_PS / 1000.0))
+    with open(os.path.join(odir, n + '.sta.txt'), 'w') as o:
+        subprocess.run([STA, '-no_init', '-no_splash', '-exit', tcl], stdout=o, stderr=subprocess.STDOUT, timeout=3600)
+    return n, True
+
+
+def run_relax(d):
+    n = tag(*d)
+    odir = os.path.join(RAW, 'relax')
+    os.makedirs(odir, exist_ok=True)
+    if os.path.exists(os.path.join(odir, n + '.stat.json')):
+        return n, True
+    ys = os.path.join(odir, n + '.ys')
+    open(ys, 'w').write(yosys_script(d, False, odir, clock_ps=6000))
+    r = subprocess.run([YOSYS, '-q', '-l', os.path.join(odir, n + '.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return n, r.returncode == 0
 
 
 def tools():
@@ -218,7 +262,7 @@ def parse_sta(path):
     out = {}
     m = re.search(r'WNS_ALL (-?[0-9.e+-]+)', txt)
     out['slack_all_ns'] = float(m.group(1)) if m else None
-    for g in ('ROUTE_REG', 'ROUTE_HDR', 'OVC_REG', 'QTABLE', 'CORE_OUT'):
+    for g in ('ROUTE_REG', 'ROUTE_HDR', 'OVC_REG', 'QTABLE', 'CORE_OUT', 'CUT0', 'CUT1', 'CUT2', 'CUT3'):
         m = re.search(r'GROUP ' + g + r' (\d+)(.*?)(GROUP|\Z)', txt, re.S)
         if m and int(m.group(1)) > 0:
             s = re.search(r'(-?[0-9.]+)\s+slack', m.group(2))
@@ -250,7 +294,26 @@ def make_csv():
         if os.path.exists(fs):
             tot = parse_hier(fj, areas)
             tim.append(dict(base, area_flat_um2=round(sum(x['area'] for x in tot.values()), 3), **parse_sta(fs)))
-    for fn, rr in (('area_runs.csv', rows), ('breakdown_runs.csv', brk), ('timing_runs.csv', tim)):
+    pipe, relax = [], []
+    for d in PIPE_DESIGNS:
+        m, t, z, pp = d
+        for mask in PIPE_MASKS:
+            n = tag(*d) + f'__pipe{mask}'
+            f = os.path.join(RAW, 'pipe', n + '.sta.txt')
+            if os.path.exists(f):
+                tot = parse_hier(os.path.join(RAW, 'pipe', n + '.stat.json'), areas)
+                s = parse_sta(f)
+                pipe.append(dict(method=METHODS[m], rtype=t, size=z, form='P' if pp else 'S', mask=mask, cuts=PIPE_MASKS[mask], area_flat_um2=round(sum(x['area'] for x in tot.values()), 3),
+                                 ffs=sum(x['ffs'] for x in tot.values()), stage_cut0=s['arrival_CUT0'], stage_cut1=s['arrival_CUT1'], stage_cut2=s['arrival_CUT2'],
+                                 stage_cut3=s['arrival_CUT3'], stage_route=s['arrival_ROUTE_REG'], stage_ovc=s['arrival_OVC_REG'], slack_all_ns=s['slack_all_ns'], slack_qtable=s['slack_QTABLE']))
+    for d in designs():
+        m, t, z, pp = d
+        f = os.path.join(RAW, 'relax', tag(*d) + '.stat.json')
+        if os.path.exists(f):
+            tot = parse_hier(f, areas)
+            relax.append(dict(method=METHODS[m], rtype=t, size=z, form='P' if pp else 'S', area_um2=round(sum(x['area'] for x in tot.values()), 3),
+                              selection_um2=round(tot.get('selection', dict(area=0.0))['area'], 3)))
+    for fn, rr in (('area_runs.csv', rows), ('breakdown_runs.csv', brk), ('timing_runs.csv', tim), ('pipe_runs.csv', pipe), ('relax_runs.csv', relax)):
         if rr:
             with open(os.path.join(RES, fn), 'w', newline='') as fh:
                 w = csv.DictWriter(fh, fieldnames=list(rr[0]), lineterminator=NL)
@@ -275,6 +338,14 @@ if __name__ == '__main__':
             res = pool.map(run_one, [(d, flat) for d in ds], chunksize=1)
         bad = [n for n, ok in res if not ok]
         print(f'{stage}: {len(res) - len(bad)} / {len(res)} done; failed: {bad}')
+    elif stage == 'pipe':
+        with Pool(nproc) as pool:
+            res = pool.map(run_pipe, [(d, mk) for d in PIPE_DESIGNS for mk in PIPE_MASKS], chunksize=1)
+        print('pipe:', sum(1 for _, ok in res if ok), '/', len(res), [n for n, ok in res if not ok])
+    elif stage == 'relax':
+        with Pool(nproc) as pool:
+            res = pool.map(run_relax, designs(), chunksize=1)
+        print('relax:', sum(1 for _, ok in res if ok), '/', len(res), [n for n, ok in res if not ok])
     elif stage == 'csv':
         make_csv()
     else:

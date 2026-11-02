@@ -156,11 +156,58 @@ def timing_tables(tim):
     return L + ['']
 
 
+def flat_table(area, tim):
+    """Flattened designs: the same logic without module boundaries; and hierarchical at a relaxed clock."""
+    rel = {(r['method'], r['rtype'], r['size'], r['form']): float(r['area_um2']) for r in csv.DictReader(open(os.path.join(RES, 'relax_runs.csv')))}
+    fl = {k: float(r['area_flat_um2']) for k, r in tim.items()}
+
+    def sysof(d, m, z):
+        return sum(COUNT[t] * d[(m, t, z, 'S')] for t in TYPES) / 32.0
+    L = ['## Sensitivity of the system-level ratio to the flow', '',
+         'Relative to DeFT in the same flow. Hierarchy at 1 GHz is the primary table. Flat: the same designs without module boundaries, so constants and shared logic are optimised across units. Relaxed: hierarchy at a 6 ns target.', '',
+         '| method | ' + ' | '.join(f'{z} hier / flat / relaxed' for z in SIZES) + ' |', '|---|' + '---|' * len(SIZES)]
+    for m in METHODS:
+        cells = []
+        for z in SIZES:
+            cells.append(f"{system(area, m, z) / system(area, 'DeFT', z):.3f} / {sysof(fl, m, z) / sysof(fl, 'DeFT', z):.3f} / {sysof(rel, m, z) / sysof(rel, 'DeFT', z):.3f}")
+        L.append(f'| {MNAME[m]} | ' + ' | '.join(cells) + ' |')
+    L += ['', 'Flat, per router type, relative to DeFT, 4x4 / 2x2:', '', '| method | ' + ' | '.join(TNAME[t] for t in TYPES) + ' |', '|---|' + '---|' * len(TYPES)]
+    for m in METHODS:
+        L.append(f'| {MNAME[m]} | ' + ' | '.join(f"{fl[(m, t, '4x4', 'S')] / fl[('DeFT', t, '4x4', 'S')]:.3f} / {fl[(m, t, '2x2', 'S')] / fl[('DeFT', t, '2x2', 'S')]:.3f}" for t in TYPES) + ' |')
+    return L + ['']
+
+
+def pipe_table():
+    rows = list(csv.DictReader(open(os.path.join(RES, 'pipe_runs.csv'))))
+    L = ['## Timing experiment: the routing + selection unit cut into stages', '',
+         'Registers inserted in the unit, flattened, OpenSTA. Timing only: the control that would hold a head across these stages is not implemented, and the design is not functionally checked with cuts. '
+         'Each cell: longest stage (ns) over the listed cuts and the last stage into the route registers / area relative to the same design without cuts.', '',
+         '| size | method | router type | form | ' + ' | '.join(['no cut', 'route / rest', 'route+T / rest', 'route+T+BC / cost+tree', 'route+T / BC / cost+tree', 'route+T / BC+cost / tree', 'route+T / BC / cost / tree', 'route / T / BC / cost / tree']) + ' |',
+         '|---|---|---|---|' + '---|' * 8]
+    order = ['0', '1', '2', '4', '6', '10', '14', '15']
+    idx = defaultdict(dict)
+    for r in rows:
+        idx[(r['size'], r['method'], r['rtype'], r['form'])][r['mask']] = r
+
+    def stage(r):
+        v = [float(r[k]) for k in ('stage_cut0', 'stage_cut1', 'stage_cut2', 'stage_cut3', 'stage_route') if r[k]]
+        return max(v)
+    for k in sorted(idx):
+        d = idx[k]
+        base = float(d['0']['area_flat_um2'])
+        L.append(f'| {k[0]} | {MNAME[k[1]]} | {TNAME[k[2]]} | {k[3]} | ' + ' | '.join(f"{stage(d[m]):.2f} / {float(d[m]['area_flat_um2']) / base:.3f}" for m in order) + ' |')
+    L += ['', 'Stage by stage with all cuts (route / T / BC / cost / tree), ns:', '', '| size | method | router type | form | route | T | BC | cost | tree |', '|---|---|---|---|---|---|---|---|---|']
+    for k in sorted(idx):
+        r = idx[k]['15']
+        L.append(f'| {k[0]} | {MNAME[k[1]]} | {TNAME[k[2]]} | {k[3]} | {float(r["stage_cut0"]):.2f} | {float(r["stage_cut1"]):.2f} | {float(r["stage_cut2"]):.2f} | {float(r["stage_cut3"]):.2f} | {float(r["stage_route"]):.2f} |')
+    return L + ['']
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     area, brk, tim = load()
-    L = ['# v18 report: area and timing (NanGate45, Yosys + ABC, OpenSTA)', ''] + system_table(area) + area_tables(area) + form_p_table(area) + \
-        paper_table(area) + paper_table2(area, brk) + timing_tables(tim) + share_tables(area, brk)
+    L = ['# v18 report: area and timing (NanGate45, Yosys + ABC, OpenSTA)', ''] + system_table(area) + flat_table(area, tim) + area_tables(area) + form_p_table(area) + \
+        paper_table(area) + paper_table2(area, brk) + timing_tables(tim) + pipe_table() + share_tables(area, brk)
     open(os.path.join(OUT, 'summary.md'), 'w', newline=NL).write(NL.join(L) + NL)
     print(NL.join(L))
 

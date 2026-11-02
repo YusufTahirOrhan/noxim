@@ -6,7 +6,7 @@
 module router_top #(
     parameter METHOD = 0, parameter LAYER = 0, parameter HAS_HUB = 0, parameter C = 4, parameter GX = 2, parameter XW = 3,
     parameter KW = 2, parameter F = 10, parameter W_SHIFT = 1, parameter BETA = 0, parameter S1 = 5, parameter S2 = 6,
-    parameter RS_PER_PORT = 0,
+    parameter RS_PER_PORT = 0, parameter PIPE = 0,
     // derived
     parameter P = HAS_HUB ? 6 : 5, parameter W = 32,
     parameter CW = 9 + F, parameter GW = CW + 2
@@ -352,11 +352,16 @@ module router_top #(
                 wire [CW-1:0] vmin_unused;
                 wire [KW-1:0] key;
                 chip_index #(.GX(GX), .KW(KW)) ki (.gx(dxx[3:2]), .gy(dyy[3:2]), .idx(key));
-                assign rd_key[b*KW+:KW] = key;
-                lb_sel #(.LAYER(LAYER), .W_SHIFT(W_SHIFT), .BETA(BETA), .USE_Q(USE_Q), .F(F), .HAS_HUB(HAS_HUB), .CHIP_OE(LBF)) sel (
-                    .x(x), .y(y), .last(last), .arr_hub(arr_hub), .vc(vc_in), .dst_x(dxx), .dst_y(dyy), .cx(cx), .cy(cy),
-                    .entry(entry_f), .same_chip(same), .at_dst(at_dst), .offered(offered), .pruned(pruned), .flags(flags), .here(here),
-                    .occ_self(occ5), .busy_self(busy5), .occ_nb(nb_r), .q(rd_q[b*80+:80]), .rnd(rnd), .static_in(fr[13:7]),
+                // timing experiment: the table is read in the stage of the costs
+                wire [KW-1:0] key_a, key_b, key_c;
+                pipe_reg #(.W(KW), .ON(PIPE & 1)) kp0 (.clk(clk), .d(key), .q(key_a));
+                pipe_reg #(.W(KW), .ON((PIPE >> 1) & 1)) kp1 (.clk(clk), .d(key_a), .q(key_b));
+                pipe_reg #(.W(KW), .ON((PIPE >> 2) & 1)) kp2 (.clk(clk), .d(key_b), .q(key_c));
+                assign rd_key[b*KW+:KW] = key_c;
+                lb_sel #(.LAYER(LAYER), .W_SHIFT(W_SHIFT), .BETA(BETA), .USE_Q(USE_Q), .F(F), .HAS_HUB(HAS_HUB), .CHIP_OE(LBF), .PIPE(PIPE)) sel (
+                    .clk(clk), .x(x), .y(y), .last_i(last), .arr_hub_i(arr_hub), .vc_i(vc_in), .dst_x_i(dxx), .dst_y_i(dyy), .cx_i(cx), .cy_i(cy),
+                    .entry_i(entry_f), .same_chip_i(same), .at_dst_i(at_dst), .offered_i(offered), .pruned_i(pruned), .flags_i(flags), .here_i(here),
+                    .occ_self(occ5), .busy_self(busy5), .occ_nb(nb_r), .q(rd_q[b*80+:80]), .rnd(rnd), .static_in_i(fr[13:7]),
                     .cost_all(cost_unused), .idx(idx), .vmin(vmin_unused), .goal(goal), .static_out(st_out));
                 // chosen output: Local at the destination (chiplet), Hub for index 4
                 wire [2:0] o = at_dst ? 3'd4 : (idx == 3'd4) ? 3'd5 : idx;

@@ -291,3 +291,44 @@ python3 experiments_v16.py qlstats && python3 make_eval_csv.py results_v16_qbits
 * **Cost table:** keeps 16 bits.
 
 Start with `results_v14_faultload/FINDINGS.md`, `results_v15_apps2/FINDINGS.md` and `results_v16_qbits/FINDINGS.md`.
+
+## Rounds 17-18 (results_v17_vcdiag/, results_v18_area/): VC usage and area / timing
+New simulator option, off by default. With the default, the 84-configuration regression set is byte-identical to the 3ac1bae build (`results_v17_vcdiag/regression.md`):
+* `-deft_lb vc_stats FILE`: per link direction and VC, flits forwarded, head-flit cycles waiting for that VC (held or no credit), mean downstream occupancy, flits by packet phase; RC buffer occupancy and the measured permission wait. Own output file, the stats file stays the same (`oncheck.md`).
+
+Tools for round 18 (no root; versions in `results_v18_area/tools.md`): Yosys + ABC and Icarus Verilog from OSS CAD Suite, OpenSTA built from source, NanGate45 typical from OpenROAD-flow-scripts, all under `~/eda`.
+```
+python3 experiments_v17.py regress 12 BIN_3AC1BAE && python3 experiments_v17.py oncheck 10
+python3 experiments_v17.py run 12 && python3 experiments_v17.py csv && python3 report_v17.py
+bash results_v18_area/rtl/tb/run_vectors.sh 20000 && bash results_v18_area/rtl/tb/mutation_check.sh && bash results_v18_area/rtl/tb/run_router_smoke.sh
+python3 synth_v18.py tools && python3 synth_v18.py hier 10 && python3 synth_v18.py flat 10
+python3 synth_v18.py pipe 10 && python3 synth_v18.py relax 10 && python3 synth_v18.py csv && python3 report_v18.py
+```
+
+### v17 (Part I): VC usage per link (descriptive, 270 runs)
+* **The VN rules cause the imbalance.** VC imbalance over chiplet links at 1.0 x Lsat: DeFT(rho*) 0.66-0.82, LB-I 0.67-0.86, LB-F 0.47-0.73, MTR and RC 0.10-0.22; MTR's routes with DeFT's VN rules 0.74-0.94.
+* **The explanation needed two corrections:**
+  - The largest split is off the chiplets: interposer and Down VL 87:13 (LB-F 100:0), Up VL 0:100, against 50:50 for MTR and RC. A packet in VN0 keeps it across the interposer.
+  - "Towards VL = VC0" holds only for routes to the nearest VL (89-98 %). It is 67-76 % for DeFT, and LB-F's links away from a VL are nearly balanced.
+* **The wait shows at the VLs,** mostly as "VC held": on MTR's routes the rules raise the Down VL wait by 1.8-2.6 times and the Up VL wait by 1.8-1.9 times.
+* **Imbalance alone does not predict latency:** LB-I and LB-F have DeFT-like or lower imbalance and the lowest latency. This round does not measure saturation throughput.
+
+### v18 (Part J): area and timing, NanGate45 (pre-layout, flip-flop storage, 156 designs)
+* **Functional check:** 1,011,642 vectors from the simulator's own code, 0 mismatches.
+* **System-level router area relative to DeFT (2x2 / 3x3 / 4x4):**
+
+  | method | hierarchical | flat |
+  |---|---|---|
+  | LB-I heuristic | 1.17 / 1.17 / 1.17 | 1.09 / 1.11 / 1.11 |
+  | LB-I Q-learning | 1.38 / 1.47 / 1.63 | 1.28 / 1.38 / 1.51 |
+  | LB-F heuristic | 1.39 / 1.39 / 1.39 | 1.23 / 1.25 / 1.25 |
+  | LB-F Q-learning | 1.77 / 1.98 / 2.30 | 1.58 / 1.79 / 2.07 |
+  | MTR | 1.03 / 1.06 / 1.11 | 1.01 / 1.03 / 1.08 |
+  | RC | 1.06 / 1.06 / 1.05 | 1.04 / 1.03 / 1.02 |
+
+* **What dominates:** the lookahead selection for the heuristic (about 84 % of the added area); the Q table for Q-learning on large sizes (54-58 % on 4x4). The routing relation itself is 1-5 %.
+* **Timing:** routing + selection does **not** fit one 1 GHz cycle: 4.1-6.5 ns against the baselines' 0.8-1.1 ns. Five stages still leave 1.9-2.6 ns per stage (timing-only experiment). The simulated latencies assume zero extra cycles.
+* **DeFT paper:** DeFT / MTR is 0.82-0.95 here against its 1.016 (1.01-1.04 without MTR's NI table in flip-flops); RC boundary / MTR is 1.18-1.35 against 1.133.
+* **Cross-check:** DSENT gives 0.93-0.94 of this flow's reference router area.
+
+Start with `results_v17_vcdiag/FINDINGS.md` and `results_v18_area/FINDINGS.md`.

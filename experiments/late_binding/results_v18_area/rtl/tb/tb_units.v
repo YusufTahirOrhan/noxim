@@ -96,9 +96,9 @@ module tb_sel;
     wire [GW-1:0] goal;
     wire [6:0] st;
     lb_sel #(.LAYER(IPOS), .W_SHIFT(W_SHIFT), .BETA(BETA), .USE_Q(USE_Q), .F(F), .HAS_HUB(HAS_HUB), .CHIP_OE(CHIP_OE)) u (
-        .x(x), .y(y), .last(last), .arr_hub(arr_hub), .vc(vc), .dst_x(dx), .dst_y(dy), .cx(cx), .cy(cy), .entry(entry),
-        .same_chip(same), .at_dst(at_d), .offered(offered), .pruned(pruned), .flags(flags), .here(here), .occ_self(occ_self),
-        .busy_self(busy), .occ_nb(occ_nb), .q(q), .rnd(rnd), .static_in(static_in), .cost_all(cost), .idx(idx), .vmin(vmin),
+        .clk(1'b0), .x(x), .y(y), .last_i(last), .arr_hub_i(arr_hub), .vc_i(vc), .dst_x_i(dx), .dst_y_i(dy), .cx_i(cx), .cy_i(cy), .entry_i(entry),
+        .same_chip_i(same), .at_dst_i(at_d), .offered_i(offered), .pruned_i(pruned), .flags_i(flags), .here_i(here), .occ_self(occ_self),
+        .busy_self(busy), .occ_nb(occ_nb), .q(q), .rnd(rnd), .static_in_i(static_in), .cost_all(cost), .idx(idx), .vmin(vmin),
         .goal(goal), .static_out(st));
     integer fd, nv, bad, r, o, skipped;
     reg [8*200:1] vec;
