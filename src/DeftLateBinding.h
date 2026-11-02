@@ -146,6 +146,18 @@ void rcRelease(int boundary_router_id, double now);
 bool countPlainVl();
 void onPlainHubForward(int router_id);
 
+// ---- VC usage statistics (-deft_lb vc_stats FILE; off by default) -------
+// Observation only: nothing here feeds back into routing, selection or flow control and no
+// random number is drawn. Works for every routing on DEFT_2_5D (plain DEFT included).
+bool vcStatsOn();
+// A flit left through output out_dir on VC out_vc. Call with the flit as sent.
+void vcStatsForward(int router_id, int out_dir, int out_vc, const Flit &flit, double now);
+// A head flit waited this cycle for (out_dir, out_vc): held = VC held by another packet,
+// otherwise no credit (downstream VC buffer full).
+void vcStatsWait(int router_id, int out_dir, int out_vc, bool held, double now);
+void vcStatsSample(Router *router, double now);             // input-buffer occupancy, once per cycle
+void vcStatsRcSample(int router_id, int flits, int slots, double now);  // RC buffer, once per cycle
+
 // ---- statistics ------------------------------------------------------
 void writeJson(std::ostream &out);
 

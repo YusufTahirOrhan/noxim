@@ -77,6 +77,10 @@ bool g_count_vl = false;
 
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
+// Optional VC usage file (parameter vc_stats); empty = off (default).
+std::string g_vc_stats_file;
+double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
+unsigned long g_vs_rc_wait_n = 0;
 
 // Bounded-deviation entry (parameters entry_bound_mode, entry_bound_k): applied once at
 // injection to the entry candidate mask. Off by default.
@@ -537,6 +541,10 @@ bool setParam(const std::string &key, const std::string &value,
     }
     if (key == "stats_file") {         // statistics only (bottleneck diagnosis); off by default
         g_stats_file = value;
+        return true;
+    }
+    if (key == "vc_stats") {           // VC usage per link direction (v17); off by default
+        g_vc_stats_file = value;
         return true;
     }
     if (key == "mtr_table") {          // MTR baseline tables (results_v10/mtr_config.json)
@@ -1509,6 +1517,10 @@ bool rcConsume(int pe, double now)
     if (g_rc_ready[pe] < 0 || now < g_rc_ready[pe])
         return false;
     g_rc_wait_sum += now - g_rc_first_request[pe];
+    if (!g_vc_stats_file.empty() && now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time) {
+        g_vs_rc_wait_sum += now - g_rc_first_request[pe];
+        g_vs_rc_wait_n++;
+    }
     g_rc_ready[pe] = -1.0;
     g_rc_first_request[pe] = -1.0;
     return true;
@@ -1572,6 +1584,184 @@ void onPlainHubForward(int router_id)
     ensureVlCounters();
     if (isInterposer(router_id)) g_vl_up[v]++;
     else g_vl_down[v]++;
+}
+
+// ---- VC usage statistics (parameter vc_stats; off by default) ----
+// Observation only. A link direction is (router, output): N, E, S, W or HUB; each counter has one value per VC.
+// Measured window: as all other statistics, cycles with now - reset_time >= warm-up.
+namespace {
+
+const int VS_VCS = 2;
+const int VS_DIRS = DIRECTIONS + 2;
+
+struct VcLinkStat {
+    unsigned long flits[VS_VCS];        // flits forwarded on the link
+    unsigned long held[VS_VCS];         // head-flit cycles: output VC held by another packet
+    unsigned long nocredit[VS_VCS];     // head-flit cycles: output VC owned, downstream buffer full
+    unsigned long phase[VS_VCS][4];     // flits by packet phase: source chiplet, interposer, destination chiplet, intra
+    double occ_sum[VS_VCS];             // this router's input buffer [port][vc] summed over the cycles
+    VcLinkStat() {
+        for (int v = 0; v < VS_VCS; v++) {
+            flits[v] = held[v] = nocredit[v] = 0;
+            occ_sum[v] = 0.0;
+            for (int p = 0; p < 4; p++)
+                phase[v][p] = 0;
+        }
+    }
+};
+
+std::vector<VcLinkStat> g_vs;          // [router * VS_DIRS + dir]; occ_sum indexed by this router's input port
+std::vector<double> g_vs_rc_flits_sum, g_vs_rc_slots_sum;
+std::vector<int> g_vs_rc_peak_flits, g_vs_rc_peak_slots;
+
+VcLinkStat &vsAt(int router, int dir)
+{
+    if (g_vs.empty())
+        g_vs.assign((size_t) NROUTERS * VS_DIRS, VcLinkStat());
+    return g_vs[(size_t) router * VS_DIRS + dir];
+}
+
+bool vsMeasuring(double now)
+{
+    return now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time;
+}
+
+// Footprint distance from a chiplet router to the nearest functional VL of its chiplet.
+int distToNearestVl(int id)
+{
+    const std::vector<DeftTopology::VerticalLinkInfo> links =
+        DeftTopology::functionalVerticalLinksForChiplet(chipletOf(id));
+    int best = 1 << 20;
+    for (size_t i = 0; i < links.size(); i++)
+        best = std::min(best, manhattan(id, links[i].chiplet_endpoint_router_id));
+    return best;
+}
+
+// Link classes (results_v17_vcdiag/DECISIONS.md). "" = no such link.
+std::string linkClass(int r, int d)
+{
+    if (d == DIRECTION_HUB) {
+        if (vlAtRouter(r) < 0)
+            return "";
+        return isInterposer(r) ? "vl_up" : "vl_down";
+    }
+    if (d == DIRECTION_LOCAL)
+        return "";
+    const int n = neighborId(r, d);
+    if (n < 0)
+        return "";
+    if (isInterposer(r))
+        return "ipos";
+    if (chipletOf(n) != chipletOf(r))
+        return "";
+    return distToNearestVl(n) < distToNearestVl(r) ? "chip_towards" : "chip_away";
+}
+
+void writeVcStatsFile()
+{
+    std::ofstream o(g_vc_stats_file.c_str());
+    if (!o)
+        return;
+    const long measured = GlobalParams::simulation_time - GlobalParams::stats_warm_up_time;
+    o << "{" << std::endl << "  \"measured_cycles\": " << measured << "," << std::endl;
+    if (g_rc) {
+        double fl = 0, sl = 0;
+        int pf = 0, ps = 0, nb = 0;
+        for (size_t i = 0; i < g_vs_rc_flits_sum.size(); i++) {
+            if (DeftTopology::isChipletRouter((int) i) && DeftTopology::isBoundaryRouter((int) i)) {
+                nb++;
+                fl += g_vs_rc_flits_sum[i];
+                sl += g_vs_rc_slots_sum[i];
+                pf = std::max(pf, g_vs_rc_peak_flits[i]);
+                ps = std::max(ps, g_vs_rc_peak_slots[i]);
+            }
+        }
+        const double den = (double) std::max(nb, 1) * std::max(measured, 1L);
+        o << "  \"rc_buffer\": {\"boundary_routers\": " << nb << ", \"mean_flits\": " << fl / den
+          << ", \"mean_slots\": " << sl / den << ", \"peak_flits\": " << pf << ", \"peak_slots\": " << ps
+          << ", \"permission_wait_mean\": " << (g_vs_rc_wait_n ? g_vs_rc_wait_sum / g_vs_rc_wait_n : 0.0)
+          << ", \"permission_grants\": " << g_vs_rc_wait_n << "}," << std::endl;
+    }
+    o << "  \"links\": [" << std::endl;
+    bool first = true;
+    for (int r = 0; r < NROUTERS; r++) {
+        for (int d = 0; d < VS_DIRS; d++) {
+            const std::string cls = linkClass(r, d);
+            if (cls.empty())
+                continue;
+            const VcLinkStat &s = vsAt(r, d);
+            const VcLinkStat &dn = vsAt(neighborId(r, d), arrivalPort(d));
+            o << (first ? "" : ",\n") << "    {\"r\": " << r << ", \"d\": " << d << ", \"cls\": \"" << cls
+              << "\", \"f\": [" << s.flits[0] << ", " << s.flits[1] << "], \"held\": [" << s.held[0] << ", "
+              << s.held[1] << "], \"nocredit\": [" << s.nocredit[0] << ", " << s.nocredit[1] << "], \"occ\": ["
+              << dn.occ_sum[0] / std::max(measured, 1L) << ", " << dn.occ_sum[1] / std::max(measured, 1L)
+              << "], \"phase\": [[" << s.phase[0][0] << ", " << s.phase[0][1] << ", " << s.phase[0][2] << ", "
+              << s.phase[0][3] << "], [" << s.phase[1][0] << ", " << s.phase[1][1] << ", " << s.phase[1][2] << ", "
+              << s.phase[1][3] << "]]}";
+            first = false;
+        }
+    }
+    o << std::endl << "  ]" << std::endl << "}" << std::endl;
+}
+
+} // namespace
+
+bool vcStatsOn()
+{
+    return !g_vc_stats_file.empty();
+}
+
+void vcStatsForward(int router_id, int out_dir, int out_vc, const Flit &flit, double now)
+{
+    if (!vsMeasuring(now) || out_dir == DIRECTION_LOCAL || out_vc < 0 || out_vc >= VS_VCS)
+        return;
+    VcLinkStat &s = vsAt(router_id, out_dir);
+    s.flits[out_vc]++;
+    int ph;
+    const Phase p = phaseOf(router_id, flit.src_id, flit.dst_id);
+    if (p == PH_SOURCE) ph = 0;
+    else if (p == PH_IPOS) ph = 1;
+    else if (p == PH_DEST) ph = 2;
+    else ph = 3;
+    s.phase[out_vc][ph]++;
+}
+
+void vcStatsWait(int router_id, int out_dir, int out_vc, bool held, double now)
+{
+    if (!vsMeasuring(now) || out_dir == DIRECTION_LOCAL || out_vc < 0 || out_vc >= VS_VCS)
+        return;
+    VcLinkStat &s = vsAt(router_id, out_dir);
+    if (held)
+        s.held[out_vc]++;
+    else
+        s.nocredit[out_vc]++;
+}
+
+void vcStatsSample(Router *router, double now)
+{
+    if (!vsMeasuring(now))
+        return;
+    for (int port = 0; port < VS_DIRS; port++) {
+        VcLinkStat &s = vsAt(router->local_id, port);
+        for (int vc = 0; vc < VS_VCS && vc < GlobalParams::n_virtual_channels; vc++)
+            s.occ_sum[vc] += router->buffer[port][vc].Size();
+    }
+}
+
+void vcStatsRcSample(int router_id, int flits, int slots, double now)
+{
+    if (!vsMeasuring(now))
+        return;
+    if ((int) g_vs_rc_flits_sum.size() != NROUTERS) {
+        g_vs_rc_flits_sum.assign(NROUTERS, 0.0);
+        g_vs_rc_slots_sum.assign(NROUTERS, 0.0);
+        g_vs_rc_peak_flits.assign(NROUTERS, 0);
+        g_vs_rc_peak_slots.assign(NROUTERS, 0);
+    }
+    g_vs_rc_flits_sum[router_id] += flits;
+    g_vs_rc_slots_sum[router_id] += slots;
+    g_vs_rc_peak_flits[router_id] = std::max(g_vs_rc_peak_flits[router_id], flits);
+    g_vs_rc_peak_slots[router_id] = std::max(g_vs_rc_peak_slots[router_id], slots);
 }
 
 // ---- statistics ----
@@ -1638,6 +1828,8 @@ void writeJson(std::ostream &out)
     out << "  }" << std::endl;
     if (statsOn())
         writeStatsFile();
+    if (vcStatsOn())
+        writeVcStatsFile();
 }
 
 } // namespace DeftLB

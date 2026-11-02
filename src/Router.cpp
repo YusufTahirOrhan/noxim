@@ -23,6 +23,51 @@ void Router::process()
 {
     txProcess();
     rxProcess();
+    if (DeftLB::vcStatsOn() && !reset.read())
+	vcStatsCycle();
+}
+
+// VC usage statistics (-deft_lb vc_stats, off by default): read-only, once per cycle.
+void Router::vcStatsCycle()
+{
+    const double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    DeftLB::vcStatsSample(this, now);
+    if (rc_router == 1)
+    {
+	int fl = 0, sl = 0;
+	for (int f = 0; f < (int) rc_fifo.size(); f++)
+	{
+	    fl += rc_fifo[f].size();
+	    sl += rc_busy[f] ? 1 : 0;
+	}
+	DeftLB::vcStatsRcSample(local_id, fl, sl, now);
+    }
+}
+
+// Head flits at an input-buffer front that own their output VC but have no credit, and heads waiting at
+// an RC-buffer front. Called after the reservation phase; nothing changes state.
+void Router::vcStatsWaitPass()
+{
+    const double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+    for (int i = 0; i < DIRECTIONS + 2; i++)
+	for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++)
+	{
+	    int o, ovc;
+	    if (!buffer[i][vc].IsEmpty() && buffer[i][vc].Front().flit_type == FLIT_TYPE_HEAD &&
+		reservation_table.findReservation(i, vc, &o, &ovc) &&
+		o != DIRECTION_LOCAL && buffer_full_status_tx[o].read().mask[ovc])
+		DeftLB::vcStatsWait(local_id, o, ovc, false, now);
+	}
+    if (rc_router == 1)
+	for (int f = 0; f < (int) rc_fifo.size(); f++)
+	    if (!rc_fifo[f].empty() && rc_fifo[f].front().flit_type == FLIT_TYPE_HEAD)
+	    {
+		const int ovc = rc_fifo[f].front().vc_id;
+		if (rc_vc_owner[ovc] >= 0)
+		    DeftLB::vcStatsWait(local_id, DIRECTION_HUB, ovc, true, now);
+		else if (buffer_full_status_tx[DIRECTION_HUB].read().mask[ovc])
+		    DeftLB::vcStatsWait(local_id, DIRECTION_HUB, ovc, false, now);
+	    }
 }
 
 void Router::rxProcess()
@@ -211,6 +256,9 @@ void Router::txProcess()
 		      else if (rt_status == RT_OUTVC_BUSY)
 		      {
 			  LOG << " RT_OUTVC_BUSY reservation direction " << o << " for flit " << flit << endl;
+			  if (DeftLB::vcStatsOn())
+			      DeftLB::vcStatsWait(local_id, o, r.output_vc, true,
+						  sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 		      }
 		      else if (rt_status == RT_ALREADY_OTHER_OUT)
 		      {
@@ -229,6 +277,8 @@ void Router::txProcess()
       int rc_pick = -1;
       if (rc_router < 0)
           rcRouter();
+      if (DeftLB::vcStatsOn())
+          vcStatsWaitPass();
       //if (local_id==6) LOG<<"*TX*****local_id="<<local_id<<"__ack_tx[0]= "<<ack_tx[0].read()<<endl;
       for (int i = 0; i < DIRECTIONS + 2; i++) 
       { 
@@ -300,6 +350,9 @@ void Router::txProcess()
                       if (flit.flit_type == FLIT_TYPE_HEAD && o == DIRECTION_HUB && DeftLB::countPlainVl())
                           DeftLB::onPlainHubForward(local_id);
                       flit.vc_id = output_vc;
+		      if (DeftLB::vcStatsOn())
+			  DeftLB::vcStatsForward(local_id, o, output_vc, flit,
+						 sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 		      flit_tx[o].write(flit);
 		      current_level_tx[o] = 1 - current_level_tx[o];
 		      req_tx[o].write(current_level_tx[o]);
@@ -417,6 +470,8 @@ void Router::rcDrain()
             if (DeftLB::isActive())
                 DeftLB::onHeadForward(this, rc_dir_in[f], o, ovc, &flit, now, rc_front_cycle[f]);
         }
+        if (DeftLB::vcStatsOn())
+            DeftLB::vcStatsForward(local_id, o, ovc, flit, now);
         flit_tx[o].write(flit);
         current_level_tx[o] = 1 - current_level_tx[o];
         req_tx[o].write(current_level_tx[o]);

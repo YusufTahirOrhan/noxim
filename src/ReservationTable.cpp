@@ -91,6 +91,19 @@ vector<pair<int,TReservation> > ReservationTable::getReservationEntries(const in
     return reservations;
 }
 
+bool ReservationTable::findReservation(const int port_in, const int vc, int * port_out, int * output_vc) const
+{
+    for (int o = 0; o < n_outputs; o++)
+	for (vector<TReservation>::size_type i = 0; i < rtable[o].reservations.size(); i++)
+	    if (rtable[o].reservations[i].input == port_in && rtable[o].reservations[i].vc == vc)
+	    {
+		*port_out = o;
+		*output_vc = effectiveOutputVc(rtable[o].reservations[i]);
+		return true;
+	    }
+    return false;
+}
+
 int ReservationTable::checkReservation(const TReservation r, const int port_out)
 {
     /* Sanity Check for forbidden table status:

@@ -163,6 +163,8 @@ SC_MODULE(Router)
     int rc_rr;
     bool rcRouter();
     void rcDrain();
+    void vcStatsCycle();
+    void vcStatsWaitPass();
 
     vector<int> nextDeltaHops(RouteData rd);
   public:

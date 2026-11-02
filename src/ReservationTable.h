@@ -56,6 +56,9 @@ class ReservationTable {
     // Returns the pairs of output port and input virtual channel reserved by port_in
     vector<pair<int,int> > getReservations(const int port_int);
 
+    // Read-only: the output and output VC reserved by input/vc, if any (statistics)
+    bool findReservation(const int port_in, const int vc, int * port_out, int * output_vc) const;
+
     // Returns output ports with full input/output VC reservation metadata
     vector<pair<int,TReservation> > getReservationEntries(const int port_int);
 
