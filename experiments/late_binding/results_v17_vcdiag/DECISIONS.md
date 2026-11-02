@@ -6,8 +6,8 @@ the normal stats file is unchanged. It works for every routing on DEFT_2_5D, pla
 
 ## How Noxim draws the VC at injection (checked in the code, recorded as required)
 * `ProcessingElement::randInt(0, n_vc - 1)`: `min + (int)((double)(max - min + 1) * rand() / (RAND_MAX + 1.0))`, so **uniform over
-  the 2 VCs**, per packet, from the run's `rand()` stream. Set for the table-driven traffic used here in
-  `ProcessingElement::trafficGlobalTable` (`p.vc_id = randInt(...)`), and in the same way for all other traffic types.
+  the 2 VCs**, per packet, from the run's `rand()` stream. Set for the table-driven traffic used here in the table branch of
+  `ProcessingElement::canShot` (`int vc = randInt(...); packet.make(...)`), and in the same way for all other traffic types.
 * **MTR and RC (`vn_rules 0`):** `DeftLB::prepareHeadPacket` leaves the drawn VC alone, and
   `DeftVirtualNetwork::selectOutputVirtualNetwork` returns the input VC on every hop. The VC is fixed from injection to
   ejection, as the Context says. `Router::rcDrain` also uses the flit's own VC on the Up link.
