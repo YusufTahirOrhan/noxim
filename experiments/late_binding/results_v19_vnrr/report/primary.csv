@@ -1,0 +1,61 @@
+size,variant,reference,metric,scenarios,n_seeds,effect_pct,ci_low,ci_high,p,family,p_holm,verdict
+2x2,CI_qlLA_G,DeFT,LAT,all,10,-24.1,-27.7,-20.31,4.369e-07,H1,1.398e-05,ours better
+2x2,CI_qlLA_G,DeFT,P99,all,10,-39.55,-46.17,-32.11,4.201e-06,H1,8.553e-05,ours better
+2x2,FULL_qlLA_G,DeFT,LAT,all,10,-15.62,-19.38,-11.68,1.475e-05,H1,0.000177,ours better
+2x2,FULL_qlLA_G,DeFT,P99,all,10,-32.76,-39.21,-25.64,9.224e-06,H1,0.0001362,ours better
+3x3,CI_qlLA_G,DeFT,LAT,all,10,-11.68,-14.41,-8.85,9.081e-06,H1,0.0001362,ours better
+3x3,CI_qlLA_G,DeFT,P99,all,10,-30.44,-34.79,-25.81,4.609e-07,H1,1.429e-05,ours better
+3x3,FULL_qlLA_G,DeFT,LAT,all,10,-9.75,-12.41,-7.02,2.797e-05,H1,0.0003077,ours better
+3x3,FULL_qlLA_G,DeFT,P99,all,10,-27.31,-32.35,-21.89,3.476e-06,H1,7.647e-05,ours better
+4x4,CI_qlLA_G,DeFT,LAT,all,10,-15.94,-19.08,-12.69,2.71e-06,H1,6.504e-05,ours better
+4x4,CI_qlLA_G,DeFT,P99,all,10,-39.91,-44.16,-35.34,7.538e-08,H1,2.94e-06,ours better
+4x4,FULL_qlLA_G,DeFT,LAT,all,10,-19.29,-23.41,-14.95,6.747e-06,H1,0.0001147,ours better
+4x4,FULL_qlLA_G,DeFT,P99,all,10,-42.07,-47.72,-35.81,7.514e-07,H1,2.166e-05,ours better
+2x2,CI_qlLA_G,MTR,LAT,fault-free,10,-6.5,-11.91,-0.76,0.03105,H2,0.1863,n.s.
+2x2,CI_qlLA_G,MTR,P99,fault-free,10,-13.56,-20.79,-5.67,0.004401,H2,0.03521,ours better
+2x2,CI_qlLA_G,RC,LAT,fault-free,10,-1.07,-8.02,6.41,0.7467,H2,0.9837,n.s.
+2x2,CI_qlLA_G,RC,P99,fault-free,10,-5.58,-15.25,5.2,0.2605,H2,0.9453,n.s.
+2x2,CI_qlLA_G,DeFT_Dis,LAT,all,10,-41.91,-45.34,-38.28,8.185e-09,H2,3.847e-07,ours better
+2x2,CI_qlLA_G,DeFT_Dis,P99,all,10,-56.42,-59.75,-52.82,2.046e-09,H2,1.044e-07,ours better
+2x2,CI_qlLA_G,DeFT_Ran,LAT,all,10,-62.13,-65.38,-58.58,1.51e-09,H2,7.853e-08,ours better
+2x2,CI_qlLA_G,DeFT_Ran,P99,all,10,-68.26,-71.78,-64.31,3.716e-09,H2,1.821e-07,ours better
+2x2,FULL_qlLA_G,MTR,LAT,fault-free,10,5.18,-2.27,13.19,0.1545,H2,0.7726,n.s.
+2x2,FULL_qlLA_G,MTR,P99,fault-free,10,-3.66,-14.35,8.37,0.4919,H2,0.9837,n.s.
+2x2,FULL_qlLA_G,RC,LAT,fault-free,10,11.29,4.28,18.77,0.004763,H2,0.03521,ours worse
+2x2,FULL_qlLA_G,RC,P99,fault-free,10,5.24,-3.92,15.28,0.2363,H2,0.9453,n.s.
+2x2,FULL_qlLA_G,DeFT_Dis,LAT,all,10,-35.43,-39.45,-31.13,9.137e-08,H2,3.456e-06,ours better
+2x2,FULL_qlLA_G,DeFT_Dis,P99,all,10,-51.53,-55.59,-47.09,1.636e-08,H2,7.361e-07,ours better
+2x2,FULL_qlLA_G,DeFT_Ran,LAT,all,10,-57.9,-61.75,-53.67,7.522e-09,H2,3.61e-07,ours better
+2x2,FULL_qlLA_G,DeFT_Ran,P99,all,10,-64.7,-69.09,-59.7,2.583e-08,H2,1.111e-06,ours better
+3x3,CI_qlLA_G,MTR,LAT,fault-free,10,-16.4,-20.25,-12.37,1.24e-05,H2,0.0001612,ours better
+3x3,CI_qlLA_G,MTR,P99,fault-free,10,-31.43,-35.78,-26.8,3.765e-07,H2,1.243e-05,ours better
+3x3,CI_qlLA_G,RC,LAT,fault-free,10,-16.58,-18.9,-14.2,1.452e-07,H2,5.081e-06,ours better
+3x3,CI_qlLA_G,RC,P99,fault-free,10,-30.88,-34.43,-27.14,6.96e-08,H2,2.784e-06,ours better
+3x3,CI_qlLA_G,DeFT_Dis,LAT,all,10,-53.79,-55.31,-52.22,1.725e-12,H2,1e-10,ours better
+3x3,CI_qlLA_G,DeFT_Dis,P99,all,10,-69.89,-71.74,-67.92,1.027e-11,H2,5.854e-10,ours better
+3x3,CI_qlLA_G,DeFT_Ran,LAT,all,10,-56.14,-60.63,-51.14,3.308e-08,H2,1.389e-06,ours better
+3x3,CI_qlLA_G,DeFT_Ran,P99,all,10,-70.95,-74.37,-67.09,3.368e-09,H2,1.684e-07,ours better
+3x3,FULL_qlLA_G,MTR,LAT,fault-free,10,-14.21,-18.94,-9.21,0.0001759,H2,0.001583,ours better
+3x3,FULL_qlLA_G,MTR,P99,fault-free,10,-28.09,-33.69,-22.01,7.141e-06,H2,0.0001147,ours better
+3x3,FULL_qlLA_G,RC,LAT,fault-free,10,-14.39,-17.16,-11.53,2.04e-06,H2,5.1e-05,ours better
+3x3,FULL_qlLA_G,RC,P99,fault-free,10,-27.51,-31.93,-22.79,1.062e-06,H2,2.868e-05,ours better
+3x3,FULL_qlLA_G,DeFT_Dis,LAT,all,10,-52.79,-54.86,-50.62,3.172e-11,H2,1.744e-09,ours better
+3x3,FULL_qlLA_G,DeFT_Dis,P99,all,10,-68.54,-70.86,-66.03,7.802e-11,H2,4.213e-09,ours better
+3x3,FULL_qlLA_G,DeFT_Ran,LAT,all,10,-55.18,-60.17,-49.57,9.094e-08,H2,3.456e-06,ours better
+3x3,FULL_qlLA_G,DeFT_Ran,P99,all,10,-69.64,-73.71,-64.95,1.598e-08,H2,7.35e-07,ours better
+4x4,CI_qlLA_G,MTR,LAT,fault-free,10,-11.29,-13.81,-8.7,5.87e-06,H2,0.0001057,ours better
+4x4,CI_qlLA_G,MTR,P99,fault-free,10,-25.48,-29.48,-21.24,7.468e-07,H2,2.166e-05,ours better
+4x4,CI_qlLA_G,RC,LAT,fault-free,10,-11.25,-14.84,-7.52,0.0001054,H2,0.001054,ours better
+4x4,CI_qlLA_G,RC,P99,fault-free,10,-26.5,-31.68,-20.92,5.337e-06,H2,0.0001014,ours better
+4x4,CI_qlLA_G,DeFT_Dis,LAT,all,10,-47.94,-49.75,-46.07,1.272e-11,H2,7.126e-10,ours better
+4x4,CI_qlLA_G,DeFT_Dis,P99,all,10,-65.25,-68.46,-61.72,1.398e-09,H2,7.407e-08,ours better
+4x4,CI_qlLA_G,DeFT_Ran,LAT,all,10,-32.21,-35.73,-28.5,4.898e-08,H2,2.008e-06,ours better
+4x4,CI_qlLA_G,DeFT_Ran,P99,all,10,-45.6,-50.95,-39.67,3.165e-07,H2,1.076e-05,ours better
+4x4,FULL_qlLA_G,MTR,LAT,fault-free,10,-12.76,-15.45,-9.98,4.073e-06,H2,8.553e-05,ours better
+4x4,FULL_qlLA_G,MTR,P99,fault-free,10,-23.78,-27.85,-19.48,1.391e-06,H2,3.615e-05,ours better
+4x4,FULL_qlLA_G,RC,LAT,fault-free,10,-12.72,-15.31,-10.06,2.957e-06,H2,6.801e-05,ours better
+4x4,FULL_qlLA_G,RC,P99,fault-free,10,-24.82,-28.67,-20.77,6.295e-07,H2,1.888e-05,ours better
+4x4,FULL_qlLA_G,DeFT_Dis,LAT,all,10,-50.02,-51.07,-48.95,7.672e-14,H2,4.603e-12,ours better
+4x4,FULL_qlLA_G,DeFT_Dis,P99,all,10,-66.5,-68.02,-64.9,1.478e-12,H2,8.718e-11,ours better
+4x4,FULL_qlLA_G,DeFT_Ran,LAT,all,10,-34.91,-38.36,-31.27,2.465e-08,H2,1.085e-06,ours better
+4x4,FULL_qlLA_G,DeFT_Ran,P99,all,10,-47.55,-52.45,-42.15,1.203e-07,H2,4.33e-06,ours better

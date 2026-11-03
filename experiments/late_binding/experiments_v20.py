@@ -124,7 +124,7 @@ def sanity(nproc):
                 cells.append(f'{rise:.2f} / {n * h:.2f}')
             l1 = get[1]['deft_lb']
             L.append(f'| {z} | {v} | {(l1["hops_chip_multi"] + l1["hops_ipos_multi"]) / get[1]["summary"]["total_received_packets"]:.2f} | {lat[0]:.2f} | ' + ' | '.join(cells) + ' |')
-    L += ['', f'Largest relative difference between the rise and N x h: {100 * worst:.1f} %. Differences come from packets that meet each other even at this load, and from the hops counted at injection order rather than per received packet.']
+    L += ['', f'Largest relative difference between the rise and N x h: {100 * worst:.1f} %. Each run has only about 100 packets, and the chosen paths change with N (h is measured per N), so single cells are noisy; the agreement is closest at N = 4, where the rise is largest.']
     open(os.path.join(RES, 'delay_sanity.md'), 'w', newline=NL).write(NL.join(L) + NL)
     print(NL.join(L))
     shutil.rmtree(out)

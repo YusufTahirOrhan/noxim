@@ -178,6 +178,7 @@ def k5():
         ax.set_title(f'{z}, uniform', fontsize=9.5, loc='left')
         ax.set_xlabel('injection rate (packets / cycle / node)')
         ax.set_ylim(0, 300)
+        ax.xaxis.set_major_locator(plt.MaxNLocator(5))
         for sp in ('top', 'right'):
             ax.spines[sp].set_visible(False)
     axes[0].set_ylabel('mean latency (cycles)')
