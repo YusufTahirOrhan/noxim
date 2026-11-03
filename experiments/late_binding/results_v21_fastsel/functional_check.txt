@@ -14,7 +14,7 @@ RESULT fast ipos=1 has_hub=1 xw=3 use_q=1 f=10 cut=1 vectors=20000 skipped=0 mis
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=1 has_hub=0 xw=3 use_q=1 f=10 cut=1 vectors=19197 skipped=803 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 57591 (1s)
-RESULT fast_regs w_shift=0 beta=4 gx=2 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=1 beta=4 gx=2 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 RESULT fast_fb f=10 vectors=20000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:165: $finish called at 20000 (1s)
@@ -50,7 +50,7 @@ RESULT fast ipos=0 has_hub=1 xw=3 use_q=1 f=10 cut=1 vectors=20000 skipped=0 mis
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=0 has_hub=0 xw=3 use_q=1 f=10 cut=1 vectors=15881 skipped=4119 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 47643 (1s)
-RESULT fast_regs w_shift=1 beta=0 gx=2 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=1 beta=4 gx=2 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 RESULT fast ipos=1 has_hub=1 xw=4 use_q=0 f=0 cut=0 vectors=20000 skipped=0 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
@@ -68,7 +68,7 @@ RESULT fast ipos=1 has_hub=1 xw=4 use_q=1 f=8 cut=1 vectors=20000 skipped=0 mism
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=1 has_hub=0 xw=4 use_q=1 f=8 cut=1 vectors=19528 skipped=472 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 58584 (1s)
-RESULT fast_regs w_shift=1 beta=0 gx=3 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=2 beta=4 gx=3 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 RESULT fast_fb f=8 vectors=20000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:165: $finish called at 20000 (1s)
@@ -104,7 +104,7 @@ RESULT fast ipos=0 has_hub=1 xw=4 use_q=1 f=8 cut=1 vectors=20000 skipped=0 mism
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=0 has_hub=0 xw=4 use_q=1 f=8 cut=1 vectors=16212 skipped=3788 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 48636 (1s)
-RESULT fast_regs w_shift=1 beta=0 gx=3 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=1 beta=4 gx=3 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 RESULT fast ipos=1 has_hub=1 xw=4 use_q=0 f=0 cut=0 vectors=20000 skipped=0 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
@@ -122,7 +122,7 @@ RESULT fast ipos=1 has_hub=1 xw=4 use_q=1 f=8 cut=1 vectors=20000 skipped=0 mism
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=1 has_hub=0 xw=4 use_q=1 f=8 cut=1 vectors=19704 skipped=296 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 59112 (1s)
-RESULT fast_regs w_shift=1 beta=0 gx=4 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=1 beta=4 gx=4 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 RESULT fast_fb f=8 vectors=20000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:165: $finish called at 20000 (1s)
@@ -158,6 +158,6 @@ RESULT fast ipos=0 has_hub=1 xw=4 use_q=1 f=8 cut=1 vectors=20000 skipped=0 mism
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 60000 (1s)
 RESULT fast ipos=0 has_hub=0 xw=4 use_q=1 f=8 cut=1 vectors=15861 skipped=4139 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:94: $finish called at 47583 (1s)
-RESULT fast_regs w_shift=0 beta=4 gx=4 vectors=2000 mismatches=0
+RESULT fast_regs w_shift=2 beta=4 gx=4 vectors=2000 mismatches=0
 /mnt/c/Projects/CMP-720-Project-Proposal/external/noxim/experiments/late_binding/results_v21_fastsel/tb/tb_fast.v:131: $finish called at 6000 (1s)
 total vectors 1450802 mismatches 0
