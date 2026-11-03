@@ -1,0 +1,169 @@
+2x2 scope I mask 0: inputs 549888, moves compared 616960, MISMATCHES 0
+  index (router, o, M)                   entries     2439  with more than one value     2439 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     5548  with more than one value     5548 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    69696  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries      960  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 84096 1: 106368 2: 47616 3: 4608
+  offered outputs before the VN rules, interposer: 0: 54688 1: 123136 2: 111008 3: 17088 4: 1280
+2x2 scope F mask 0: inputs 549888, moves compared 752160, MISMATCHES 0
+  index (router, o, M)                   entries     2603  with more than one value     2603 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     6040  with more than one value     6040 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    72768  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     1296  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 36256 1: 97376 2: 77760 3: 27456 4: 3840
+  offered outputs before the VN rules, interposer: 0: 54688 1: 123136 2: 111008 3: 17088 4: 1280
+2x2 scope I mask 0x1111: inputs 263168, moves compared 267776, MISMATCHES 0
+  index (router, o, M)                   entries     1228  with more than one value     1228 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     2864  with more than one value     2864 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    35776  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries      960  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 46464 1: 55680 2: 16896 3: 768
+  offered outputs before the VN rules, interposer: 0: 26848 1: 62464 2: 48928 3: 4800 4: 320
+2x2 scope F mask 0x1111: inputs 263168, moves compared 328096, MISMATCHES 0
+  index (router, o, M)                   entries     1328  with more than one value     1328 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     3164  with more than one value     3164 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    37504  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     1296  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 20704 1: 55904 2: 34368 3: 7872 4: 960
+  offered outputs before the VN rules, interposer: 0: 26848 1: 62464 2: 48928 3: 4800 4: 320
+2x2 scope I mask 0x9C63: inputs 119808, moves compared 104256, MISMATCHES 0
+  index (router, o, M)                   entries     1015  with more than one value     1015 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     1508  with more than one value     1508 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    18784  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries      960  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 26112 1: 28800 2: 3456
+  offered outputs before the VN rules, interposer: 0: 13312 1: 28464 2: 18912 3: 752
+2x2 scope F mask 0x9C63: inputs 119808, moves compared 129440, MISMATCHES 0
+  index (router, o, M)                   entries     1069  with more than one value     1069 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries     1670  with more than one value     1670 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    19168  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     1296  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 13456 1: 30224 2: 13392 3: 1296
+  offered outputs before the VN rules, interposer: 0: 13312 1: 28464 2: 18912 3: 752
+2x2 scope I mask 0x7BDE: inputs 48128, moves compared 35072, MISMATCHES 0
+  index (router, o, M)                   entries      446  with more than one value      446 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries      574  with more than one value      574 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries     7168  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries      960  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 13248 1: 14400
+  offered outputs before the VN rules, interposer: 0: 4960 1: 10368 2: 5152
+2x2 scope F mask 0x7BDE: inputs 48128, moves compared 45664, MISMATCHES 0
+  index (router, o, M)                   entries      467  with more than one value      467 (100.0 %)  largest spread 21
+  index (router, o, M, dest chiplet)     entries      637  with more than one value      637 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries     7168  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     1296  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 7408 1: 15488 2: 4752
+  offered outputs before the VN rules, interposer: 0: 4960 1: 10368 2: 5152
+3x3 scope I mask 0: inputs 2965248, moves compared 3234912, MISMATCHES 0
+  index (router, o, M)                   entries     6789  with more than one value     6789 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries    33069  with more than one value    33069 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   396096  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2160  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 482976 1: 613728 2: 285696 3: 27648
+  offered outputs before the VN rules, interposer: 0: 290640 1: 624336 2: 581040 3: 56304 4: 2880
+3x3 scope F mask 0: inputs 2965248, moves compared 4028712, MISMATCHES 0
+  index (router, o, M)                   entries     7158  with more than one value     7158 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries    36021  with more than one value    36021 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   414528  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2916  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 204696 1: 559656 2: 457920 3: 164736 4: 23040
+  offered outputs before the VN rules, interposer: 0: 290640 1: 624336 2: 581040 3: 56304 4: 2880
+3x3 scope I mask 0x111111111: inputs 1398528, moves compared 1405824, MISMATCHES 0
+  index (router, o, M)                   entries     3345  with more than one value     3345 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries    16719  with more than one value    16719 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   200784  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2160  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 257184 1: 309600 2: 101376 3: 4608
+  offered outputs before the VN rules, interposer: 0: 140160 1: 308688 2: 260496 3: 15696 4: 720
+3x3 scope F mask 0x111111111: inputs 1398528, moves compared 1750344, MISMATCHES 0
+  index (router, o, M)                   entries     3570  with more than one value     3570 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries    18519  with more than one value    18519 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   211152  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2916  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 111384 1: 310824 2: 197568 3: 47232 4: 5760
+  offered outputs before the VN rules, interposer: 0: 140160 1: 308688 2: 260496 3: 15696 4: 720
+3x3 scope I mask 0x996553A66: inputs 615168, moves compared 542720, MISMATCHES 0
+  index (router, o, M)                   entries     3075  with more than one value     3075 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries     8450  with more than one value     8450 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   103120  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2160  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 134816 1: 148320 2: 20992
+  offered outputs before the VN rules, interposer: 0: 67952 1: 136752 2: 103344 3: 2992
+3x3 scope F mask 0x996553A66: inputs 615168, moves compared 672712, MISMATCHES 0
+  index (router, o, M)                   entries     3183  with more than one value     3183 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries     9314  with more than one value     9314 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   104784  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2916  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 71960 1: 152616 2: 70976 3: 8576
+  offered outputs before the VN rules, interposer: 0: 67952 1: 136752 2: 103344 3: 2992
+3x3 scope I mask 0xBB7D7D77B: inputs 223488, moves compared 169424, MISMATCHES 0
+  index (router, o, M)                   entries     1290  with more than one value     1290 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries     3152  with more than one value     3152 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    39168  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2160  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 57888 1: 61920
+  offered outputs before the VN rules, interposer: 0: 25568 1: 48720 2: 29392
+3x3 scope F mask 0xBB7D7D77B: inputs 223488, moves compared 209304, MISMATCHES 0
+  index (router, o, M)                   entries     1329  with more than one value     1329 (100.0 %)  largest spread 37
+  index (router, o, M, dest chiplet)     entries     3464  with more than one value     3464 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries    39168  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     2916  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 35480 1: 66856 2: 17472
+  offered outputs before the VN rules, interposer: 0: 25568 1: 48720 2: 29392
+4x4 scope I mask 0: inputs 9572352, moves compared 10328320, MISMATCHES 0
+  index (router, o, M)                   entries    13275  with more than one value    13275 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries   112144  with more than one value   112144 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries  1305984  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     3840  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 1589760 1: 2022912 2: 952320 3: 92160
+  offered outputs before the VN rules, interposer: 0: 937536 1: 1973120 2: 1867584 3: 131840 4: 5120
+4x4 scope F mask 0: inputs 9572352, moves compared 12958080, MISMATCHES 0
+  index (router, o, M)                   entries    13931  with more than one value    13931 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries   121984  with more than one value   121984 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries  1367424  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     5184  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 670336 1: 1842560 2: 1518336 3: 549120 4: 76800
+  offered outputs before the VN rules, interposer: 0: 937536 1: 1973120 2: 1867584 3: 131840 4: 5120
+4x4 scope I mask 0x1111111111111111: inputs 4493312, moves compared 4498688, MISMATCHES 0
+  index (router, o, M)                   entries     6484  with more than one value     6484 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    56176  with more than one value    56176 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   658944  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     3840  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 837120 1: 1009152 2: 337920 3: 15360
+  offered outputs before the VN rules, interposer: 0: 448320 1: 962432 2: 845120 3: 36608 4: 1280
+4x4 scope F mask 0x1111111111111111: inputs 4493312, moves compared 5630848, MISMATCHES 0
+  index (router, o, M)                   entries     6884  with more than one value     6884 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    62176  with more than one value    62176 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   693504  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     5184  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 359296 1: 1013120 2: 650496 3: 157440 4: 19200
+  offered outputs before the VN rules, interposer: 0: 448320 1: 962432 2: 845120 3: 36608 4: 1280
+4x4 scope I mask 0x9C665369659A555A: inputs 1953792, moves compared 1751232, MISMATCHES 0
+  index (router, o, M)                   entries     6920  with more than one value     6920 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    27759  with more than one value    27759 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   332496  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     3840  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 426240 1: 471552 2: 72960
+  offered outputs before the VN rules, interposer: 0: 206944 1: 426288 2: 341952 3: 7856
+4x4 scope F mask 0x9C665369659A555A: inputs 1953792, moves compared 2196512, MISMATCHES 0
+  index (router, o, M)                   entries     7129  with more than one value     7129 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    30894  with more than one value    30894 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   339456  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     5184  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 211216 1: 489200 2: 237456 3: 32880
+  offered outputs before the VN rules, interposer: 0: 206944 1: 426288 2: 341952 3: 7856
+4x4 scope I mask 0xDEB77DEDDBBED7D7: inputs 684032, moves compared 549568, MISMATCHES 0
+  index (router, o, M)                   entries     3106  with more than one value     3106 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    10531  with more than one value    10531 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   126976  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     3840  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 172800 1: 183552
+  offered outputs before the VN rules, interposer: 0: 70384 1: 148576 2: 108720
+4x4 scope F mask 0xDEB77DEDDBBED7D7: inputs 684032, moves compared 699648, MISMATCHES 0
+  index (router, o, M)                   entries     3199  with more than one value     3199 (100.0 %)  largest spread 53
+  index (router, o, M, dest chiplet)     entries    11926  with more than one value    11926 (100.0 %)  largest spread 5
+  index (router, M, dst)                 entries   126976  with more than one value        0 (  0.0 %)  largest spread 0
+  index (router, o, dst), dest phase     entries     5184  with more than one value        0 (  0.0 %)  largest spread 0
+  offered outputs before the VN rules, chiplet: 0: 85936 1: 207200 2: 63216
+  offered outputs before the VN rules, interposer: 0: 70384 1: 148576 2: 108720
+ROM check exit status: 0

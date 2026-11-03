@@ -137,6 +137,15 @@ int selectHeuristic(Router *router, const std::vector<int> &directions,
                     const RouteData &route_data);
 int selectQLearning(Router *router, const std::vector<int> &directions,
                     const RouteData &route_data);
+// DEFT_FAST (v21): a selection meant to decide within one cycle. Off unless -sel DEFT_FAST.
+// cost(o) = w f(o) + beta b(o) + H(o) + L(o) [+ R(o, chiplet(d)) with -deft_lb fast_ql 1], with w = heur_w and beta = heur_busy.
+// f, b: registered in the previous cycle. L(o): the minimum of w f + beta b over the outputs of the router behind o, registered
+// there and sent over the link, so one cycle older. H(o): from a ROM, equal to hopsAfterMove (results_v21_fastsel/tb/rom_check.cpp).
+int selectFast(Router *router, const std::vector<int> &directions,
+               const RouteData &route_data);
+bool fastActive();
+void fastTick(double now);     // once per cycle, before any router changes state; only called when fastActive()
+double fastHops(const RouteData &route_data, int out_dir);
 bool qLearningEnabled();
 
 // ---- RC baseline (-deft_lb rc 1; off by default) ---------------------

@@ -72,6 +72,8 @@ void Router::vcStatsWaitPass()
 
 void Router::rxProcess()
 {
+    if (DeftLB::fastActive() && !reset.read())
+	DeftLB::fastTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
     if (reset.read()) {
 	TBufferFullStatus bfs;
 	// Clear outputs and indexes of receiving protocol
@@ -142,6 +144,8 @@ void Router::rxProcess()
 
 void Router::txProcess()
 {
+  if (DeftLB::fastActive() && !reset.read())
+      DeftLB::fastTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 
   if (reset.read()) 
     {

@@ -81,6 +81,20 @@ std::string g_stats_file;
 int g_decision_delay = 0;
 bool g_hop_stats = false;
 unsigned long g_hops[2][2] = {{0, 0}, {0, 0}};    // [0 chiplet, 1 interposer][1 = more than one output offered]
+// DEFT_FAST (v21; -sel DEFT_FAST, -deft_lb fast_ql). See selectFast.
+bool g_fast_on = false;
+bool g_fast_ql = false;
+double g_fast_tick = -1.0;
+std::vector<double> g_ff_next, g_ff_used;   // w f + beta b, [(router * 6 + dir) * 2 + vc]: of the cycle before / two before the use
+std::deque<std::vector<double> > g_ff_mid;  // fast_stale K: K more cycles, for a decision whose costs are registered K cycles before the choice
+int g_fast_stale = 0;
+std::vector<double> g_fl_used;              // L per router: minimum over its outputs, one cycle older than g_ff_used
+std::vector<float> g_fast_rom;              // [(router * chiplet routers + dst) * 16 + slot mask], < 0 = not filled yet
+std::vector<unsigned char> g_fast_hub_ok;   // router has a functional VL
+struct FastUpdate { double at; size_t index; double goal; };
+std::deque<FastUpdate> g_fast_updates;      // Eq. (2) writes, applied FAST_Q_WRITE_DELAY cycles later
+const double FAST_Q_WRITE_DELAY = 3.0;
+unsigned long g_fast_offered[2][7] = {{0}, {0}};    // decisions by layer and number of offered outputs
 // Optional VC usage file (parameter vc_stats); empty = off (default).
 std::string g_vc_stats_file;
 double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
@@ -651,6 +665,20 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_decision_delay = (int) d;
     }
+    else if (key == "fast_ql") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "fast_ql must be 0 or 1";
+            return false;
+        }
+        g_fast_ql = d != 0.0;
+    }
+    else if (key == "fast_stale") {
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "fast_stale must be an integer >= 0";
+            return false;
+        }
+        g_fast_stale = (int) d;
+    }
     else if (key == "hop_stats") {
         if (d != 0.0 && d != 1.0) {
             if (error_message) *error_message = "hop_stats must be 0 or 1";
@@ -680,12 +708,26 @@ bool isActive()
 
 bool qLearningEnabled()
 {
-    return isActive() && GlobalParams::selection_strategy == "DEFT_QL";
+    return isActive() && (GlobalParams::selection_strategy == "DEFT_QL" || (g_fast_on && g_fast_ql));
+}
+
+bool fastActive()
+{
+    return g_fast_on;
 }
 
 bool validateConfiguration(std::string *error_message)
 {
     const Config &c = g_config;
+    g_fast_on = isActive() && GlobalParams::selection_strategy == "DEFT_FAST";
+    if (g_fast_ql && !g_fast_on) {
+        if (error_message) *error_message = "fast_ql requires -sel DEFT_FAST";
+        return false;
+    }
+    if (g_fast_on && g_fast_ql && c.ql_key != 1) {
+        if (error_message) *error_message = "fast_ql is keyed by the destination chiplet: use ql_key 1";
+        return false;
+    }
     if (c.exit_policy == POLICY_LATE && c.entry_policy != POLICY_LATE) {
         if (error_message)
             *error_message = "late exit requires late entry (exit late / entry fixed is not a checked relation)";
@@ -1402,10 +1444,43 @@ double bestContinuation(const RouteData &rd, int o, double w)
     return best;
 }
 
+// ---- DEFT_FAST ----
+size_t fastIndex(int router, int dir, int vc)
+{
+    return ((size_t) router * 6 + dir) * 2 + vc;
+}
+
+// LB-I has no table on chiplet routers: they offer one output.
+bool fastHasTable(int router)
+{
+    return isInterposer(router) || g_config.exit_policy == POLICY_LATE;
+}
+
+double fastLookahead(int router, int out_dir)
+{
+    const int n = neighborId(router, out_dir);
+    return n < 0 ? 0.0 : g_fl_used[n];
+}
+
+// Cost of output o as the decision cycle sees it: the registered terms, the ROM, and with fast_ql the residual read in the
+// previous cycle (the key is known when the head is buffered; writes come later, see g_fast_updates).
+double fastCost(const RouteData &rd, int out_dir)
+{
+    const int cur = rd.current_id;
+    double c = g_ff_used[fastIndex(cur, out_dir, outputVc(rd, out_dir))] + fastHops(rd, out_dir) + fastLookahead(cur, out_dir);
+    if (g_fast_ql && fastHasTable(cur)) {
+        ensureQ();
+        c += g_q[qIndex(cur, chipletOf(rd.dst_id), out_dir)];
+    }
+    return c;
+}
+
 // Static part of the learner's remote estimate; the learned residual is
 // kept over it (and stored in ql_prev_static when the head is forwarded).
 double remoteStatic(const RouteData &rd, int out_dir)
 {
+    if (g_fast_on)
+        return fastHops(rd, out_dir) + fastLookahead(rd.current_id, out_dir);
     if (g_ql_lookahead)
         return 1.0 + bestContinuation(rd, out_dir, g_config.ql_w);
     return g_config.ql_hop_cost * hopsAfterMove(rd, out_dir);
@@ -1426,11 +1501,35 @@ double remoteEstimate(const RouteData &rd, int out_dir)
 
 double learnerCost(Router *router, const RouteData &rd, int out_dir)
 {
+    if (g_fast_on)
+        return fastCost(rd, out_dir);
     return localCost(router, rd, out_dir, g_config.ql_w, g_config.ql_busy) +
            remoteEstimate(rd, out_dir);
 }
 
 } // namespace
+
+// Eq. (2) on the residual of entry i
+static void qApply(size_t i, double goal)
+{
+    const float before = g_q[i];
+    g_q[i] = (float) (g_q[i] + g_config.ql_alpha * (goal - g_q[i]));
+    if (g_ql_bits > 0) {
+        // signed fixed point: B bits, F fractional bits; round to nearest, saturate
+        const double scale = std::ldexp(1.0, g_ql_frac);
+        const double qmax = std::ldexp(1.0, g_ql_bits - 1) - 1.0, qmin = -std::ldexp(1.0, g_ql_bits - 1);
+        double q = std::floor(g_q[i] * scale + 0.5);
+        if (q > qmax) q = qmax;
+        if (q < qmin) q = qmin;
+        g_q[i] = (float) (q / scale);
+    }
+    if (g_ql_bits > 0 || g_ql_range) {
+        if (g_ql_updates == 0 || g_q[i] < g_r_min) g_r_min = g_q[i];
+        if (g_ql_updates == 0 || g_q[i] > g_r_max) g_r_max = g_q[i];
+        g_ql_changed += g_q[i] != before;
+    }
+    g_ql_updates++;
+}
 
 void onHeadAtFront(Router *router, int dir_in, const Flit &flit, double now)
 {
@@ -1469,23 +1568,14 @@ void onHeadAtFront(Router *router, int dir_in, const Flit &flit, double now)
     const int key = g_config.ql_key ? chipletOf(flit.dst_id) : flit.dst_id;
     const size_t i = qIndex(flit.ql_prev_router, key, flit.ql_prev_dir);
     const double goal = target - flit.ql_prev_static;
-    const float before = g_q[i];
-    g_q[i] = (float) (g_q[i] + g_config.ql_alpha * (goal - g_q[i]));
-    if (g_ql_bits > 0) {
-        // signed fixed point: B bits, F fractional bits; round to nearest, saturate
-        const double scale = std::ldexp(1.0, g_ql_frac);
-        const double qmax = std::ldexp(1.0, g_ql_bits - 1) - 1.0, qmin = -std::ldexp(1.0, g_ql_bits - 1);
-        double q = std::floor(g_q[i] * scale + 0.5);
-        if (q > qmax) q = qmax;
-        if (q < qmin) q = qmin;
-        g_q[i] = (float) (q / scale);
+    if (g_fast_on) {
+        if (fastHasTable(flit.ql_prev_router)) {
+            const FastUpdate u = {now + FAST_Q_WRITE_DELAY, i, goal};
+            g_fast_updates.push_back(u);
+        }
+        return;
     }
-    if (g_ql_bits > 0 || g_ql_range) {
-        if (g_ql_updates == 0 || g_q[i] < g_r_min) g_r_min = g_q[i];
-        if (g_ql_updates == 0 || g_q[i] > g_r_max) g_r_max = g_q[i];
-        g_ql_changed += g_q[i] != before;
-    }
-    g_ql_updates++;
+    qApply(i, goal);
 }
 
 int selectHeuristic(Router *router, const std::vector<int> &dirs,
@@ -1522,6 +1612,147 @@ int selectQLearning(Router *router, const std::vector<int> &dirs,
     for (size_t k = 0; k < dirs.size(); k++)
         cost[k] = learnerCost(router, rd, dirs[k]);
     return pickMin(dirs, cost);
+}
+
+// ---- DEFT_FAST ----
+// H from the ROM. One row per (router, destination); the mask is the 4-bit slot mask of the candidates kept by the move, so a row has 16
+// entries and the output is not part of the index: every kept candidate lies on a minimal path through the move, so the total through
+// it does not depend on the move. A destination chiplet or intra-chiplet hop has no candidates: 1 + distance to the destination.
+double fastHops(const RouteData &rd, int out_dir)
+{
+    const int cur = rd.current_id;
+    const int dst = rd.dst_id;
+    const Phase ph = phaseOf(cur, rd.src_id, dst);
+    if (ph != PH_SOURCE && ph != PH_IPOS)
+        return 1.0 + manhattan(neighborId(cur, out_dir), dst);
+    VlMask ne, nn;
+    nextMasks(cur, rd.dir_in, out_dir, rd.src_id, dst, rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn);
+    const VlMask kept = ph == PH_SOURCE ? ne : nn;
+    int slots = 0;
+    for (int v = 0; v < NVL; v++)
+        if (kept & bit(v))
+            slots |= 1 << (int) DeftTopology::verticalLinkById(v)->slot;
+    if (g_fast_rom.empty())
+        g_fast_rom.assign((size_t) NROUTERS * NCHIP_ROUTERS * 16, -1.0f);
+    const size_t row = ((size_t) cur * NCHIP_ROUTERS + dst) * 16;
+    if (g_fast_rom[row + slots] < 0) {
+        const double g = g_hop_weight_ipos;
+        const int cx = footprintX(cur), cy = footprintY(cur), dx = footprintX(dst), dy = footprintY(dst);
+        const VlMask entries = functionalMask(chipletOf(dst));
+        const int chip = ph == PH_SOURCE ? chipletOf(cur) : chipletOf(dst);
+        std::vector<DeftTopology::VerticalLinkInfo> slot_links = DeftTopology::verticalLinksForChiplet(chip);
+        double t = 1 << 20;
+        for (size_t k = 0; k < slot_links.size(); k++) {
+            if (!(slots >> (int) slot_links[k].slot & 1))
+                continue;
+            const int c = slot_links[k].vl_id;
+            double total;
+            if (ph == PH_IPOS) {
+                total = g * manhattanXY(cx, cy, vlChipX(c), vlChipY(c)) + 1 + manhattanXY(vlChipX(c), vlChipY(c), dx, dy);
+            } else {
+                double rest = 1 << 20;
+                for (int e = 0; e < NVL; e++)
+                    if (entries & bit(e))
+                        rest = std::min(rest, g * manhattanXY(vlChipX(c), vlChipY(c), vlChipX(e), vlChipY(e)) + 1 +
+                                              manhattanXY(vlChipX(e), vlChipY(e), dx, dy));
+                total = manhattanXY(cx, cy, vlChipX(c), vlChipY(c)) + 1 + rest;
+            }
+            t = std::min(t, total);
+        }
+        g_fast_rom[row + slots] = (float) t;
+    }
+    return g_fast_rom[row + slots];
+}
+
+void fastTick(double now)
+{
+    if (now == g_fast_tick)
+        return;
+    g_fast_tick = now;
+    const int VC = GlobalParams::n_virtual_channels;
+    if (g_ff_used.empty()) {
+        g_ff_used.assign(fastIndex(NROUTERS, 0, 0), 0.0);
+        g_ff_next = g_ff_used;
+        g_ff_mid.assign(g_fast_stale, g_ff_used);
+        g_fl_used.assign(NROUTERS, 0.0);
+        g_fast_hub_ok.assign(NROUTERS, 0);
+        for (int c = 0; c < DeftTopology::ChipletCount; c++) {
+            std::vector<DeftTopology::VerticalLinkInfo> ls = DeftTopology::functionalVerticalLinksForChiplet(c);
+            for (size_t i = 0; i < ls.size(); i++) {
+                g_fast_hub_ok[ls[i].chiplet_endpoint_router_id] = 1;
+                g_fast_hub_ok[ls[i].interposer_endpoint_router_id] = 1;
+            }
+        }
+    }
+    static const int DIRS[5] = {0, 1, 2, 3, DIRECTION_HUB};
+    for (int r = 0; r < NROUTERS; r++) {
+        double best = std::numeric_limits<double>::max();
+        for (int k = 0; k < 5; k++) {
+            const int d = DIRS[k];
+            if (neighborId(r, d) < 0 || (d == DIRECTION_HUB && !g_fast_hub_ok[r]))
+                continue;
+            for (int v = 0; v < VC; v++)
+                best = std::min(best, g_ff_used[fastIndex(r, d, v)]);
+        }
+        g_fl_used[r] = best == std::numeric_limits<double>::max() ? 0.0 : best;
+    }
+    if (g_fast_stale > 0) {
+        g_ff_mid.push_back(std::vector<double>());
+        g_ff_mid.back().swap(g_ff_next);
+        g_ff_next.swap(g_ff_used);
+        g_ff_used.swap(g_ff_mid.front());
+        g_ff_mid.pop_front();
+    } else {
+        g_ff_used.swap(g_ff_next);
+    }
+    TReservation probe;
+    probe.input = -1;
+    probe.vc = -1;
+    for (int r = 0; r < NROUTERS; r++) {
+        Router *router = routerById(r);
+        for (int k = 0; k < 5; k++) {
+            const int d = DIRS[k];
+            Router *n = neighborId(r, d) < 0 || (d == DIRECTION_HUB && !g_fast_hub_ok[r]) ? 0 : routerById(neighborId(r, d));
+            for (int v = 0; v < VC; v++) {
+                double c = 0.0;
+                if (n) {
+                    probe.output_vc = v;
+                    c = g_config.heur_w * n->buffer[arrivalPort(d)][v].Size();
+                    if (router->reservation_table.checkReservation(probe, d) == RT_OUTVC_BUSY)
+                        c += g_config.heur_busy;
+                }
+                g_ff_next[fastIndex(r, d, v)] = c;
+            }
+        }
+    }
+    if (!g_fast_updates.empty()) {
+        ensureQ();
+        while (!g_fast_updates.empty() && g_fast_updates.front().at <= now) {
+            qApply(g_fast_updates.front().index, g_fast_updates.front().goal);
+            g_fast_updates.pop_front();
+        }
+    }
+}
+
+int selectFast(Router *router, const std::vector<int> &dirs, const RouteData &rd)
+{
+    (void) router;
+    g_selection_calls++;
+    if (dirs.size() > 1)
+        g_adaptive_decisions++;
+    g_fast_offered[isInterposer(rd.current_id) ? 1 : 0][std::min<size_t>(dirs.size(), 6)]++;
+    std::vector<double> cost(dirs.size(), 0.0);
+    for (size_t k = 0; k < dirs.size(); k++)
+        cost[k] = fastCost(rd, dirs[k]);
+    const int choice = pickMin(dirs, cost);
+    // the selection only picks an output the relation offers
+    std::vector<int> offered;
+    legalOutputsWithVn(rd, &offered);
+    if (std::find(offered.begin(), offered.end(), choice) == offered.end()) {
+        std::cerr << "DEFT_FAST picked an output that is not offered: router " << rd.current_id << " output " << choice << std::endl;
+        std::abort();
+    }
+    return choice;
 }
 
 // ---- RC baseline: outbound injection permission (OPIC model) ----
@@ -1853,6 +2084,13 @@ void writeJson(std::ostream &out)
             << "," << std::endl;
     if (DeftVirtualNetwork::roundRobinActive())  // field only present with -deft_vn_rr 1
         out << "    \"vn_rr\": 1," << std::endl;
+    if (g_fast_on) {    // fields only present with -sel DEFT_FAST
+        out << "    \"fast_offered_chip\": [";
+        for (int n = 0; n < 7; n++) out << g_fast_offered[0][n] << (n < 6 ? ", " : "");
+        out << "], \"fast_offered_ipos\": [";
+        for (int n = 0; n < 7; n++) out << g_fast_offered[1][n] << (n < 6 ? ", " : "");
+        out << "],\n";
+    }
     if (g_hop_stats || g_decision_delay > 0)    // fields only present with the v20 options
         out << "    \"decision_delay\": " << g_decision_delay << ", \"hops_chip\": " << g_hops[0][0] + g_hops[0][1]
             << ", \"hops_chip_multi\": " << g_hops[0][1] << ", \"hops_ipos\": " << g_hops[1][0] + g_hops[1][1]
