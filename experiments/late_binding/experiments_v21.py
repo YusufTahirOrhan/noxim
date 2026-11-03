@@ -523,6 +523,9 @@ def eval_jobs(seeds=SEEDS):
         c = choice()[z]['CI']
         a1 = fast_args('CI', z, c['w'], c['beta']) + E19.RR + ['-deft_lb', 'decision_delay', '1', '-deft_lb', 'fast_stale', '1']
         n1 += [E5.job('eval', z, 'CI_fast-n1', a1, p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, 'CI_fast') for s in SENS_SEEDS]
+        c = choice()[z]['FULL']
+        a2 = fast_args('FULL', z, c['w'], c['beta']) + E19.RR + ['-deft_lb', 'decision_delay', '2', '-deft_lb', 'fast_stale', '1']
+        n1 += [E5.job('eval', z, 'FULL_fast-n2', a2, p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, 'FULL_fast') for s in SENS_SEEDS]
         for v in FAST:
             sens += [E5.job('eval', z, f'{v}-plus1', variant_args(z, v, 1), p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, v) for s in SENS_SEEDS]
     return first + later + n1 + sens

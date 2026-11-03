@@ -30,9 +30,11 @@ run() {   # top, parameters..., vector file
     vvp $V/$$.vvp +vec=$vec | tee -a $RES | tail -6
 }
 #          size scope xw w_shift beta f gx
-for cfg in "2x2 I 3 0 4 10 2" "2x2 F 3 1 0 10 2" "3x3 I 4 1 0 8 3" "3x3 F 4 1 0 8 3" "4x4 I 4 1 0 8 4" "4x4 F 4 0 4 8 4"; do
+# the tuned weights (tuning_choice.json)
+for cfg in "2x2 I 3 1 4 10 2" "2x2 F 3 1 4 10 2" "3x3 I 4 2 4 8 3" "3x3 F 4 1 4 8 3" "4x4 I 4 1 4 8 4" "4x4 F 4 2 4 8 4"; do
     set -- $cfg
     Z=$1; S=$2; XW=$3; WS=$4; B=$5; F=$6; GX=$7
+    export FAST_W=$((1 << WS)) FAST_BETA=$B
     for Q in 0 1; do
         FF=$([ $Q = 1 ] && echo $F || echo 0)
         $EX sel_ipos $Z $S $Q $V/ipos.txt $NV

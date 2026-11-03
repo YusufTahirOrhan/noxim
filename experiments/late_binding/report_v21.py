@@ -154,6 +154,9 @@ def main():
             x = test(z, 'CI_fast-n1', 'DeFT', n, R5.scen(z), idx, DS)
             if x:
                 sens.append(dict(x, base='CI_fast', delay='N = 1 (misses timing)'))
+            x = test(z, 'FULL_fast-n2', 'DeFT', n, R5.scen(z), idx, DS)
+            if x:
+                sens.append(dict(x, base='FULL_fast', delay='N = 2 (misses timing)'))
     write(os.path.join(OUT, 'sensitivity.csv'), sens)
 
     def find(rows, z, a, b, n):
@@ -213,7 +216,7 @@ def main():
     L += ['', '## Sensitivity: N_fast + 1 against DeFT(rho*), seeds 81-85 (unadjusted)', '', '| size | variant | delay | LAT @1.0 Lsat | LAT @0.2 Lsat | P99 | THR |', '|---|---|---|---|---|---|---|']
     for z in SIZES:
         for v in FAST:
-            for name in ('N_fast', 'N_fast + 1') + (('N = 1 (misses timing)',) if v == 'CI_fast' else ()):
+            for name in ('N_fast', 'N_fast + 1') + (('N = 1 (misses timing)',) if v == 'CI_fast' else ('N = 2 (misses timing)',) if v == 'FULL_fast' else ()):
                 g = {x['metric']: x for x in sens if (x['size'], x['base'], x['delay']) == (z, v, name)}
                 L.append(f'| {z} | {v} | {name} | ' + ' | '.join(fmt(g.get(n)) for n in ('LAT', 'LAT@0.2', 'P99', 'THR')) + ' |')
     L.append('')

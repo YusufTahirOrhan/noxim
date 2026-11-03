@@ -163,6 +163,10 @@ extern "C" int sc_main(int argc, char *argv[])
     const long nvec = argc > 6 ? atol(argv[6]) : 20000;
     srand(20261103);
     setup(size, scope, useq);
+    if (getenv("FAST_W"))     // the tuned weights instead of those of v10
+        config().heur_w = atof(getenv("FAST_W"));
+    if (getenv("FAST_BETA"))
+        config().heur_busy = atof(getenv("FAST_BETA"));
     fastSetup(useq);
     if (mode == "sel_ipos")
         fastSel(bfs(startsIpos(size == "2x2" ? 0 : 8), keepAny), true, nvec);
