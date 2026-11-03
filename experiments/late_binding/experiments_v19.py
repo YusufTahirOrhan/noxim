@@ -16,6 +16,7 @@ Stages (python3 experiments_v19.py STAGE [nproc] [extra]; --shard i/n accepted):
   fcsv      K6: fault_runs.csv; raw outputs deleted
   apps      K7: PARSEC, single application, 9 benchmarks x 2 masks x 3 methods x seeds 41-43
   appscsv   K7: app_runs.csv; raw outputs deleted
+  check     integrity of a raw folder (extra = eval, fsweep, feval or app): names against the job list, every JSON whole, no two seeds of a cell identical; prints no results
 Raw outputs stay under ~/lbraw/v19 (not in the repository). Method parameters: experiments_v10.methods, unchanged (tuned without the round-robin).
 """
 import csv
@@ -463,12 +464,47 @@ def apps_csv():
     return len(rows), bad
 
 
+# ---- integrity of a raw folder (structure only; no result is printed) ----
+REQUIRED = {'eval': (('summary', 'global_average_delay_cycles'), ('summary', 'average_ip_throughput_flits_per_cycle_per_ip'), ('summary', 'total_injected_packets'),
+                     ('summary', 'total_received_packets'), ('deft_lb', 'delay_p99'), ('deft_lb', 'dead_end_events'))}
+REQUIRED['fsweep'] = REQUIRED['feval'] = REQUIRED['delay'] = REQUIRED['eval']
+REQUIRED['app'] = (('summary', 'global_average_delay_cycles'), ('deft_lb', 'delay_p99'), ('deft_lb', 'netrace_finished'), ('deft_lb', 'dead_end_events'))
+
+
+def check_raw(folder, jobs, kind):
+    names = [n for n, _ in jobs]
+    want, have = set(names), {os.path.basename(f)[:-5] for f in glob.glob(os.path.join(folder, '*.json'))}
+    logs = [os.path.basename(f)[:-4] for f in glob.glob(os.path.join(folder, '*.log'))]
+    bad, dead, cells = [], 0, {}
+    for n in sorted(have):
+        raw_bytes = open(os.path.join(folder, n + '.json'), 'rb').read()
+        try:
+            d = json.loads(raw_bytes)
+            for a, b in REQUIRED[kind]:
+                d[a][b]
+            dead += d['deft_lb']['dead_end_events']
+        except Exception as e:
+            bad.append(f'{n}: {type(e).__name__}')
+            continue
+        cells.setdefault(n.rsplit('__s', 1)[0], {}).setdefault(raw_bytes, []).append(n)
+    same = [v for c in cells.values() for v in c.values() if len(v) > 1]
+    print(f'{folder}: jobs {len(names)} (distinct {len(want)}), complete {len(have)}, missing {len(want - have)}, not in the job list {len(have - want)}, '
+          f'truncated or incomplete {len(bad)}, byte-identical across seeds {len(same)}, in flight or failed (log without JSON) {len(logs)}, dead-end events {dead}')
+    for x in bad[:20] + [str(v) for v in same[:20]] + sorted(have - want)[:20]:
+        print(' ', x)
+    return not bad and not same and not (have - want)
+
+
 if __name__ == '__main__':
     stage = sys.argv[1]
     nproc = int(sys.argv[2]) if len(sys.argv) > 2 else 12
     os.makedirs(RES, exist_ok=True)
     os.makedirs(RAW, exist_ok=True)
-    if stage == 'regress':
+    if stage == 'check':
+        kind = sys.argv[3]
+        jobs = {'eval': eval_jobs, 'fsweep': fsweep_jobs, 'feval': feval_jobs, 'app': app_jobs}[kind]()
+        sys.exit(0 if check_raw(raw(kind), jobs, kind) else 1)
+    elif stage == 'regress':
         sys.exit(0 if regress(sys.argv[3].split(','), nproc) else 1)
     elif stage == 'drain':
         res = run_jobs(drain_jobs(), raw('drain'), nproc=nproc, timeout=14400)

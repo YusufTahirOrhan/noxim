@@ -48,5 +48,11 @@ So the channel dependency graph has no cycle.
 ## Method parameters
 `experiments_v10.methods`, no re-tuning, as the prompt requires: **all parameters and DeFT's rho\* were tuned without the round-robin**. This holds for DeFT(rho\*)'s LUT as well as for the learners. Which way it biases the comparison is not known.
 
+## K5 on resuming (3 November)
+* **The runner had not stopped.** The resume prompt says K5 was stopped. It was in fact still running, 17.2 h in, under the `wsl.exe` of the previous session. It was left running: a second runner would have duplicated in-flight runs, and stopping it would have gained nothing but a log file. Its binary is the one that passed the regression (md5 f72577901551675dfc2767526fd36844).
+* **It is not detached in the sense of the new rule,** since it depends on the previous session's PowerShell process. If it ends before the design is complete, K5 is restarted detached with the same command; the runner skips completed runs. All later stages run through `detach.sh`.
+* **Integrity at 09:38:** 17,123 of 17,850 complete; missing 727 (RC and DeFT_noRR on 4x4); 0 truncated; 0 not in the job list; 0 byte-identical across seeds of a cell; 0 dead-end events (`experiments_v19.py check 1 eval`, which prints no results).
+* **Time rule:** 207 runs in the last 30 minutes, so about 1.8 h remain, below the 16 h limit. The full design stays; there is no addendum and seeds 66-70 are kept.
+
 ## Figure
 The prompt names `paper2/figures/latency_load` as the model of the latency-versus-load figure. No such file is in this checkout or in the parent repository, so the figure follows the v17 and v18 style: small multiples per size.
