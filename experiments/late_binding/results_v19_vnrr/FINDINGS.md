@@ -8,7 +8,7 @@
 * Model check: clean on all relations and sizes; its negative control reports a cycle (`formal_vnrr.md`).
 
 ## K3: VC balance (exploratory; `vc_balance.md`)
-The option does what it should on the VC split: interposer and Down VL go from 87-88 : 12-13 (LB-F 100 : 0) to 50 : 50 (LB-F 56 : 44). The Up VL stays 0 : 100. Down VL waits fall, and **Up VL waits rise about 2 to 4 times**, for DeFT and for the learners: the rebalancing moves part of the wait rather than removing it. At the old 1.0 x Lsat, three seeds, DeFT's latency rises on 2x2 (54.3 to 58.1) and falls on 4x4 (83.4 to 75.9). The learners' latency rises on both sizes.
+The option does what it should on the VC split: interposer and Down VL go from 87-88 : 12-13 (LB-F 100 : 0) to 50 : 50 (LB-F 56 : 44). The Up VL stays 0 : 100. Down VL waits fall, and **Up VL waits rise about 2 to 5 times**, for DeFT and for the learners: the rebalancing moves part of the wait rather than removing it. At the old 1.0 x Lsat, three seeds, DeFT's latency rises on 2x2 (54.3 to 58.1) and falls on 4x4 (83.4 to 75.9). The learners' latency rises on both sizes.
 
 ## K5: confirmatory re-evaluation (Holm over 60)
 17,850 of 17,850 runs, 0 missing, 0 dead-end events. Binary md5 f72577901551675dfc2767526fd36844, the one that passed the gates. Seeds 61-70 were not reduced (`DECISIONS.md`).
