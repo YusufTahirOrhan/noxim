@@ -1,0 +1,42 @@
+{
+ "FULL_fast": {
+  "n": 2,
+  "stale": 1,
+  "worst_router": [
+   "LBF_fast",
+   "chip5",
+   "2x2",
+   "P"
+  ]
+ },
+ "FULL_fastQL": {
+  "n": 3,
+  "stale": 2,
+  "worst_router": [
+   "LBF_fastQL",
+   "chip5",
+   "2x2",
+   "P"
+  ]
+ },
+ "CI_fast": {
+  "n": 2,
+  "stale": 2,
+  "worst_router": [
+   "LBI_fast",
+   "ipos6",
+   "4x4",
+   "P"
+  ]
+ },
+ "CI_fastQL": {
+  "n": 3,
+  "stale": 2,
+  "worst_router": [
+   "LBI_fastQL",
+   "ipos5",
+   "3x3",
+   "P"
+  ]
+ }
+}

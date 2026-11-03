@@ -1,0 +1,56 @@
+{
+ "2x2": {
+  "CI": {
+   "w": 2.0,
+   "beta": 4.0,
+   "heur_score": 53.34771241205391,
+   "alpha": 0.1,
+   "ql_score": 51.17392075652982,
+   "best": "CI_fastQL"
+  },
+  "FULL": {
+   "w": 2.0,
+   "beta": 4.0,
+   "heur_score": 68.72804529549232,
+   "alpha": 0.05,
+   "ql_score": 58.83195028456749,
+   "best": "FULL_fastQL"
+  }
+ },
+ "3x3": {
+  "CI": {
+   "w": 4.0,
+   "beta": 4.0,
+   "heur_score": 71.97935137969661,
+   "alpha": 0.02,
+   "ql_score": 70.41876575504584,
+   "best": "CI_fastQL"
+  },
+  "FULL": {
+   "w": 2.0,
+   "beta": 4.0,
+   "heur_score": 78.61883339773593,
+   "alpha": 0.05,
+   "ql_score": 77.5581595146642,
+   "best": "FULL_fastQL"
+  }
+ },
+ "4x4": {
+  "CI": {
+   "w": 2.0,
+   "beta": 4.0,
+   "heur_score": 81.48826494597303,
+   "alpha": 0.01,
+   "ql_score": 81.09752473063836,
+   "best": "CI_fastQL"
+  },
+  "FULL": {
+   "w": 4.0,
+   "beta": 4.0,
+   "heur_score": 83.6542912871416,
+   "alpha": 0.02,
+   "ql_score": 85.448494934985,
+   "best": "FULL_fast"
+  }
+ }
+}

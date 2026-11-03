@@ -220,7 +220,10 @@ def synth_script(d, flat, odir, name):
     fx, fy = fix_position(t, z)
     p = dict(METHOD=m, LAYER=layer, HAS_HUB=hub, RS_PER_PORT=pp, PIPE=0, FIX_X=fx, FIX_Y=fy, W_SHIFT=ws, BETA=b, CUT=SYNTH_CUT, **S.SIZES[z])
     if m in (11, 13):
-        p.update(S1=4, S2=5)
+        # alpha = 2^-S1 + 2^-S2 in the RTL, the nearest such value
+        f = os.path.join(RES, 'tuning_choice.json')
+        al = json.load(open(f))[z]['CI' if m == 11 else 'FULL']['alpha'] if os.path.exists(f) else 0.05
+        p.update(dict(zip(('S1', 'S2'), {0.005: (8, 10), 0.01: (7, 9), 0.02: (6, 8), 0.05: (5, 6), 0.1: (4, 5)}[al])))
     ch = ' '.join(f'-set {k} {v}' for k, v in p.items())
     R21 = os.path.join(RES, 'rtl')
     srcs = ' '.join([os.path.join(S.RTL, f) for f in ('lb_units.v', 'method_units.v')] + [os.path.join(R21, f) for f in ('router_core.v', 'fast_units.v', 'router_top.v')])
@@ -346,6 +349,13 @@ def nfast_table():
     for v, rows in res.items():
         w = max(rows, key=lambda x: x[0])
         table[v] = dict(n=w[0], stale=max(x[1] for x in rows), worst_router=list(w[2]))
+    # pre-registered: if the tuned RTL differs from the N_fast fixed before tuning, the larger applies
+    pre = os.path.join(RES, 'n_fast_prereg.json')
+    if os.path.exists(pre):
+        old = json.load(open(pre))
+        for v, p in table.items():
+            p['measured_n'], p['measured_stale'] = p['n'], p['stale']
+            p['n'], p['stale'] = max(p['n'], old[v]['n']), max(p['stale'], old[v]['stale'])
     json.dump(table, open(os.path.join(RES, 'n_fast.json'), 'w'), indent=1)
     open(os.path.join(RES, 'timing.md'), 'w', newline=NL).write(NL.join(L) + NL)
     print(NL.join(L[-40:]))
