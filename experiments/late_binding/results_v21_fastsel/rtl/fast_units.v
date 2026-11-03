@@ -68,12 +68,12 @@ module fast_decide #(parameter USE_Q = 0, parameter F = 0, parameter CUT = 0, pa
     wire [5*CW-1:0] cost_d;
     // the comparisons of the candidates' totals, shared by all outputs; each bit: the lower-numbered candidate wins (also on equal totals)
     wire [5:0] le;
-    assign le[0] = T[7:0] <= T[31:24];      // 0 against 3
-    assign le[1] = T[15:8] <= T[31:24];     // 1 against 3
-    assign le[2] = T[23:16] <= T[31:24];    // 2 against 3
-    assign le[3] = T[7:0] <= T[23:16];      // 0 against 2
-    assign le[4] = T[15:8] <= T[23:16];     // 1 against 2
-    assign le[5] = T[7:0] <= T[15:8];       // 0 against 1
+    assign le[0] = T[6:0] <= T[30:24];      // 0 against 3
+    assign le[1] = T[14:8] <= T[30:24];     // 1 against 3
+    assign le[2] = T[22:16] <= T[30:24];    // 2 against 3
+    assign le[3] = T[6:0] <= T[22:16];      // 0 against 2
+    assign le[4] = T[14:8] <= T[22:16];     // 1 against 2
+    assign le[5] = T[6:0] <= T[14:8];       // 0 against 1
     generate
         for (o = 0; o < 5; o = o + 1) begin : c
             // H(o): the smallest total among the candidates kept by o, from the shared comparisons
@@ -82,7 +82,8 @@ module fast_decide #(parameter USE_Q = 0, parameter F = 0, parameter CUT = 0, pa
                                m[2] && (!m[0] || !le[3]) && (!m[1] || !le[4]) && (!m[3] || le[2]),
                                m[1] && (!m[0] || !le[5]) && (!m[2] || le[4]) && (!m[3] || le[1]),
                                m[0] && (!m[1] || le[5]) && (!m[2] || le[3]) && (!m[3] || le[0])};
-            assign h[o*8+:8] = (m == 4'd0) ? 8'hff : ({8{best[0]}} & T[7:0]) | ({8{best[1]}} & T[15:8]) | ({8{best[2]}} & T[23:16]) | ({8{best[3]}} & T[31:24]);
+            // an output that keeps no candidate is not offered: its H is not read. The totals fit 7 bits (largest: 74, on 4x4).
+            assign h[o*8+:8] = {1'b0, ({7{best[0]}} & T[6:0]) | ({7{best[1]}} & T[14:8]) | ({7{best[2]}} & T[22:16]) | ({7{best[3]}} & T[30:24])};
             // Value ranges: w f + beta b + L fits 6 bits and H 7 on the grids of the tuning.
             wire [8:0] p = {3'b0, pre_p[(o*2+(vcout[o] ? 1 : 0))*9+:6]};
             wire [8:0] hh = {2'b0, h[o*8+:7]};

@@ -473,7 +473,7 @@ def k5check(nproc):
         r = P[E5.key(z, p, m)]['eval'][i]
         if k % 3 != 2:
             js.append(E5.job('eval', z, v, E19.args_of(z, v), p, m, r, s, E10.lut(z, v, p)))
-    js = js[:20]
+    js = js[::2]
     res = run_jobs(js, raw('k5check'), nproc=nproc, timeout=14400)
     same = 0
     L = ['# K5 baseline runs on the current binary', '', f'{len(js)} runs of `results_v19_vnrr/eval_runs.csv`, every value in the CSV row compared exactly (the raw K5 files were deleted after that round).', '']
@@ -495,9 +495,9 @@ def k5check(nproc):
 
 
 def eval_jobs(seeds=SEEDS):
-    """In the order of the prompt: DeFT, MTR, RC and the four variants; then DeFT-Dis and DeFT-Ran; then N_fast + 1 on seeds 81-85."""
+    """In the pre-registered order: DeFT, MTR, RC and the four variants; DeFT-Dis and DeFT-Ran; CI_fast at N = 1; N_fast + 1 on seeds 81-85."""
     P = E19.lp()
-    first, later, sens = [], [], []
+    first, later, n1, sens = [], [], [], []
 
     def cells(z, v):
         for p, m in E19.scen(z, v):
@@ -510,14 +510,16 @@ def eval_jobs(seeds=SEEDS):
             first += [E5.job('eval', z, v, variant_args(z, v), p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, v) for s in seeds]
         for v in BASE_LATER:
             later += [E5.job('eval', z, v, E19.args_of(z, v), p, m, r, s, E10.lut(z, v, p)) for p, m, r in cells(z, v) for s in seeds]
+        c = choice()[z]['CI']
+        a1 = fast_args('CI', z, c['w'], c['beta']) + E19.RR + ['-deft_lb', 'decision_delay', '1', '-deft_lb', 'fast_stale', '1']
+        n1 += [E5.job('eval', z, 'CI_fast-n1', a1, p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, 'CI_fast') for s in SENS_SEEDS]
         for v in FAST:
             sens += [E5.job('eval', z, f'{v}-plus1', variant_args(z, v, 1), p, m, r, s, E10.lut(z, 'DeFT', 'uniform')) for p, m, r in cells(z, v) for s in SENS_SEEDS]
-    return first + later + sens
+    return first + later + n1 + sens
 
 
 def timing(nproc):
-    js = [j for j in eval_jobs((1001,)) if '__s1001' in j[0]]
-    js = [j for j in js if any(f'__{r:.4f}__' in j[0] for r in [])] or js[::9][:480]
+    js = [j for j in eval_jobs((1001,)) if '__s1001' in j[0]][::9][:480]
     t = time.time()
     res = run_jobs(js, raw('timing'), nproc=nproc, timeout=7200)
     el = time.time() - t
