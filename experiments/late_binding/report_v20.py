@@ -98,6 +98,14 @@ def main():
             for v in VARIANTS:
                 L.append(f'| {z} | {v} | ' + ' | '.join(fmt(get(z, v, n, name)) for n in DELAYS) + ' |')
         L.append('')
+    # Not pre-registered: the delay costs most at low load, which LAT at 1.0 x Lsat does not show.
+    low = {(z, v, n): pct(D[z].per_seed(f'{v}-N{n}', 'DeFT', 'LAT', idx=0)) for z in SIZES for v in VARIANTS for n in DELAYS}
+    write(os.path.join(OUT, 'low_load.csv'), [dict(size=z, variant=v, delay=n, effect_pct=round(low[(z, v, n)][0], 2), ci_low=round(low[(z, v, n)][1], 2), ci_high=round(low[(z, v, n)][2], 2)) for z in SIZES for v in VARIANTS for n in DELAYS])
+    L += ['## LAT at 0.2 x Lsat (exploratory, not pre-registered)', '', 'Added after seeing the per-load data, because at low load a head is held by nothing else and pays the whole delay. Same effect and CI as above, no stop point derived.', '', '| size | variant | N = 0 | N = 1 | N = 2 | N = 4 |', '|---|---|---|---|---|---|']
+    for z in SIZES:
+        for v in VARIANTS:
+            L.append(f'| {z} | {v} | ' + ' | '.join('{:+.1f} [{:+.1f}, {:+.1f}]'.format(*low[(z, v, n)]) for n in DELAYS) + ' |')
+    L.append('')
     L += ['## Smallest N at which the variant stops beating DeFT', '', 'Smallest N of {0, 1, 2, 4} without the \\*; "> 4" if it still beats DeFT at N = 4. With n = 5, a variant can stop through a wide CI alone: read this with the point estimates above.', '',
           '| size | variant | LAT | THR |', '|---|---|---|---|']
     for z in SIZES:

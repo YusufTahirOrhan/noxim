@@ -1,0 +1,19 @@
+size,variant,metric,stops_at
+2x2,CI_heurLA_G,LAT,4
+2x2,CI_heurLA_G,THR,> 4
+2x2,CI_qlLA_G,LAT,4
+2x2,CI_qlLA_G,THR,> 4
+2x2,FULL_qlLA_G,LAT,2
+2x2,FULL_qlLA_G,THR,0
+3x3,CI_heurLA_G,LAT,1
+3x3,CI_heurLA_G,THR,> 4
+3x3,CI_qlLA_G,LAT,4
+3x3,CI_qlLA_G,THR,> 4
+3x3,FULL_qlLA_G,LAT,1
+3x3,FULL_qlLA_G,THR,0
+4x4,CI_heurLA_G,LAT,1
+4x4,CI_heurLA_G,THR,0
+4x4,CI_qlLA_G,LAT,2
+4x4,CI_qlLA_G,THR,> 4
+4x4,FULL_qlLA_G,LAT,4
+4x4,FULL_qlLA_G,THR,0
