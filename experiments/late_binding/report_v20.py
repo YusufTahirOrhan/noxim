@@ -6,6 +6,7 @@ results_v20_delay/delay_runs.csv, results_v19_vnrr/eval_runs.csv (N = 0 and the 
 """
 import csv
 import json
+import math
 import os
 
 import matplotlib
@@ -107,6 +108,20 @@ def main():
         for v in VARIANTS:
             c = [next(x for x in share if (x['size'], x['variant'], x['layer']) == (z, v, y)) for y in ('chiplet', 'interposer')]
             L.append(f'| {z} | {v} | ' + ' | '.join(f'{x["share_pct"]} %' for x in c) + ' |')
+    L += ['', '## L3: decision cycle with terms computed in the previous cycle (estimate, timing only)', '',
+          'Longest path into the route registers, ns, and cycles at 1 GHz (ceil(arrival + setup), no register overhead), flattened, form S, NanGate45 pre-layout. **An estimate, not functionally checked. PRE 2 is a different selection function, so no simulated latency applies to it** (`DECISIONS.md`). '
+          'PRE 1 keeps the function apart from occupancy one cycle old. Last column: longest path into the occupancy registers of PRE 2, which must fit the previous cycle.', '',
+          '| size | method | router | as simulated (v18) | PRE 1 | PRE 2 | occupancy terms, PRE 2 |', '|---|---|---|---|---|---|---|']
+    base = {(r['method'], r['rtype'], r['size']): r for r in csv.DictReader(open(os.path.join(HERE, 'results_v18_area', 'timing_runs.csv'))) if r['form'] == 'S'}
+    pre = {(r['method'], r['rtype'], r['size'], r['pre']): r for r in csv.DictReader(open(os.path.join(RES, 'pre_runs.csv')))}
+    names = {'LBI_heur': 'LB-I heuristic', 'LBI_ql': 'LB-I Q-learning', 'LBF_heur': 'LB-F heuristic', 'LBF_ql': 'LB-F Q-learning'}
+    for z in SIZES:
+        for m, t in (('LBI_heur', 'ipos6'), ('LBI_ql', 'ipos6'), ('LBF_heur', 'chip6'), ('LBF_ql', 'chip6'), ('LBF_heur', 'ipos6'), ('LBF_ql', 'ipos6')):
+            b = base[(m, t, z)]
+            sl = min(float(b['slack_ROUTE_REG']), float(b['slack_OVC_REG']))
+            p1, p2 = pre[(m, t, z, '1')], pre[(m, t, z, '2')]
+            L.append(f'| {z} | {names[m]} | {"chiplet" if t == "chip6" else "interposer"} | {max(float(b["arrival_ROUTE_REG"]), float(b["arrival_OVC_REG"])):.2f} ns, {math.ceil(1 - sl)} | '
+                     f'{float(p1["arrival_decision_ns"]):.2f} ns, {p1["cycles_at_1ghz"]} | {float(p2["arrival_decision_ns"]):.2f} ns, {p2["cycles_at_1ghz"]} | {float(p2["arrival_occ_terms_ns"]):.2f} ns |')
     L += ['', 'Figure: `delay_effects.png` / `.pdf`.']
     open(os.path.join(OUT, 'summary.md'), 'w', newline=NL).write(NL.join(L) + NL)
 
