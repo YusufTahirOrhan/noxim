@@ -142,10 +142,10 @@ def drain_jobs(tuned):
             if size == '2x2':
                 for m in masks2:
                     for seed in (1, 2):
-                        js.append((f'allpairs__{v}__2x2-{m}__s{seed}', common_args(seed, m, hardcoded=E5.REL + 'traffic/allpairs_burst.txt', lut=E10.lut(size, 'DeFT', 'uniform')) + a0 + E10.DRAIN_ALLPAIRS_2X2))
+                        js.append((f'allpairs__{v}__2x2-{m}__s{seed}', common_args(seed, m, hardcoded=E5.REL + 'traffic/allpairs_burst.txt', lut=None) + a0 + E10.DRAIN_ALLPAIRS_2X2))
                 for m in ['0x0000', '0x1111', '0x9C63', '0x7BDE']:
                     for pat in ('uniform', 'chipperm', 'hotspot'):
-                        js.append((f'{pat}0.03__{v}__2x2-{m}__s1', common_args(1, m, traffic=E5.REL + f'traffic/{pat}_0.0300.txt', lut=E10.lut(size, 'DeFT', 'uniform')) + a0 + E10.DRAIN_OVERSAT_2X2))
+                        js.append((f'{pat}0.03__{v}__2x2-{m}__s1', common_args(1, m, traffic=E5.REL + f'traffic/{pat}_0.0300.txt', lut=None) + a0 + E10.DRAIN_OVERSAT_2X2))
                 continue
             for m in [E5.FREE[size], E5.NORTH[size]]:
                 for seed in (1, 2):
@@ -223,7 +223,7 @@ def synth_script(d, flat, odir, name):
         p.update(S1=4, S2=5)
     ch = ' '.join(f'-set {k} {v}' for k, v in p.items())
     R21 = os.path.join(RES, 'rtl')
-    srcs = ' '.join([os.path.join(S.RTL, f) for f in ('router_core.v', 'lb_units.v', 'method_units.v')] + [os.path.join(R21, 'fast_units.v'), os.path.join(R21, 'router_top.v')])
+    srcs = ' '.join([os.path.join(S.RTL, f) for f in ('lb_units.v', 'method_units.v')] + [os.path.join(R21, f) for f in ('router_core.v', 'fast_units.v', 'router_top.v')])
     L = [f'read_verilog -sv -I{S.RTL} {srcs}', f'chparam {ch} router_top', 'hierarchy -top router_top', 'flatten t:*pipe_reg*', 'synth -top router_top' + (' -flatten' if flat else ''),
          f'dfflibmap -liberty {S.LIB}', f'abc -liberty {S.LIB} -D {S.CLOCK_PS} -constr {os.path.join(S.RAW, "abc.constr")}',
          'opt_clean -purge', 'setundef -zero', 'hilomap -singleton -hicell LOGIC1_X1 Z -locell LOGIC0_X1 ZN', 'insbuf -buf BUF_X1 A Z',

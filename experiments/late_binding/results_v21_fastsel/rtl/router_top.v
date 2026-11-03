@@ -52,7 +52,7 @@ module router_top #(
 
     // The ROM belongs to one router: in synthesis its position is a constant.
     wire [3:0] x = FIX_X >= 0 ? FIX_X : my_x, y = FIX_Y >= 0 ? FIX_Y : my_y;
-    wire [2*P-1:0] rt_req, rt_ack, rt_ovc, tail_pop, busy;
+    wire [2*P-1:0] rt_req, rt_ack, rt_ovc, tail_pop, busy, core_empty;
     wire [2*P*W-1:0] rt_front;
     wire [3*2*P-1:0] rt_port, occ;
     wire [(HDRW+1)*2*P-1:0] rt_hdr;
@@ -188,7 +188,7 @@ module router_top #(
         .clk(clk), .rst(rst), .in_flit(core_in_flit), .in_valid(core_in_valid), .in_vc(core_in_vc), .in_credit(in_credit),
         .out_flit(core_out_flit), .out_valid(core_out_valid), .out_vc(core_out_vc), .out_credit(core_credit),
         .rt_req(rt_req), .rt_front(rt_front), .rt_ack(rt_ack), .rt_port(rt_port), .rt_ovc(rt_ovc), .rt_hdr(rt_hdr),
-        .occ(occ), .busy(busy), .tail_pop_o(tail_pop));
+        .occ(occ), .busy(busy), .tail_pop_o(tail_pop), .empty_o(core_empty));
 
     // ---- occupancy as the selection and the neighbours see it: N, E, S, W, Hub ----
     wire [29:0] occ5;
@@ -371,7 +371,8 @@ module router_top #(
                             already = already | fb_sent[BASE+k];
                         end
                 end
-                wire byp = RS_PER_PORT && !(|g) && core_in_valid[RS_PER_PORT ? b : 0] && core_in_flit[(RS_PER_PORT ? b : 0)*W+30];
+                wire byp_vc = core_in_vc[RS_PER_PORT ? b : 0];
+                wire byp = RS_PER_PORT && !(|g) && core_in_valid[RS_PER_PORT ? b : 0] && core_in_flit[(RS_PER_PORT ? b : 0)*W+30] && core_empty[2*(RS_PER_PORT ? b : 0)+byp_vc];
                 wire [W-1:0] fr_a = byp ? core_in_flit[(RS_PER_PORT ? b : 0)*W+:W] : fr;
                 wire [2:0] ip_a = byp ? BI : ip;
                 wire vc_a = byp ? core_in_vc[RS_PER_PORT ? b : 0] : vc_in;
