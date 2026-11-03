@@ -5,7 +5,8 @@ Stages (python3 experiments_v21.py STAGE [nproc] [extra]; --shard i/n accepted):
   drain     F3: drain tests of the 4 variants with -deft_vn_rr 1 (v10 protocol and masks) -> drain_summary.csv
   alpha0    F3: fastQL with alpha 0 against the fast heuristic, whole stats summary
   synth     F2: yosys and OpenSTA of the v18 flow on the fast designs, hierarchy kept and flattened (extra = hier | flat | one)
-  synthcsv  F2: timing_runs.csv, area_runs.csv
+  synthcsv  F2: timing_runs_cutC.csv, area_runs_cutC.csv (environment V21_CUT = C; 1 by default)
+  nfast     F2: N_fast and the staleness per variant, from the timing -> n_fast.json, timing.md
   tune      F4: heuristic grid (w x beta), then the learners' alpha (extra = heur | ext | ql), seeds 101/102
   choose    F4: choice per size and scope (extra = heur | ql) -> tuning_choice.json, tuning.md
   k5check   F4: 20 K5 baseline runs on the current binary against results_v19_vnrr/eval_runs.csv
@@ -60,8 +61,10 @@ def n_fast():
     return json.load(open(os.path.join(RES, 'n_fast.json')))
 
 
-def delay_args(n):
-    return E19.RR + ['-deft_lb', 'decision_delay', str(n)]
+def delay_args(v, extra=0):
+    """The round-robin, and the decision delay and the age of the registered terms that the timing of variant v implies."""
+    p = n_fast()[v]
+    return E19.RR + ['-deft_lb', 'decision_delay', str(p['n'] + extra), '-deft_lb', 'fast_stale', str(p['stale'])]
 
 
 def fast_args(scope, size, w, b, alpha=None):
@@ -81,7 +84,7 @@ def variant_args(size, v, extra_delay=0):
     scope, kind = v.split('_')
     p = c[scope]
     a = fast_args(scope, size, p['w'], p['beta'], p['alpha'] if kind == 'fastQL' else None)
-    return a + delay_args(n_fast()[f'{scope}_{kind}'] + extra_delay)
+    return a + delay_args(v, extra_delay)
 
 
 # ---- regression ----
@@ -124,19 +127,18 @@ def regress(refs, nproc):
 
 
 # ---- F3 ----
-def drain_methods():
-    """The drain tests run at N = 0: the delay changes timing, and it is tested too, in drain at N_fast when N_fast > 0."""
-    return {}
-
-
-def drain_jobs(delay):
+def drain_jobs(tuned):
+    """v10 protocol and masks. tuned = False: (w, beta, alpha) = (1, 4, 0.05) at N = 0; tuned = True: the tuned variants at N_fast."""
     js = []
     masks2 = [l.strip() for l in open(os.path.join(HERE, 'drain_masks.txt')) if l.strip()]
     for size in SIZES:
-        cfg = {'CI_fast': fast_args('CI', size, 1.0, 4.0), 'CI_fastQL': fast_args('CI', size, 1.0, 4.0, 0.05),
-               'FULL_fast': fast_args('FULL', size, 1.0, 4.0), 'FULL_fastQL': fast_args('FULL', size, 1.0, 4.0, 0.05)}
-        for v, a in cfg.items():
-            a0 = a + delay_args(delay)
+        if tuned:
+            cfg = {v: variant_args(size, v) for v in FAST}
+        else:
+            cfg = {'CI_fast': fast_args('CI', size, 1.0, 4.0), 'CI_fastQL': fast_args('CI', size, 1.0, 4.0, 0.05),
+                   'FULL_fast': fast_args('FULL', size, 1.0, 4.0), 'FULL_fastQL': fast_args('FULL', size, 1.0, 4.0, 0.05)}
+            cfg = {v: a + E19.RR for v, a in cfg.items()}
+        for v, a0 in cfg.items():
             if size == '2x2':
                 for m in masks2:
                     for seed in (1, 2):
@@ -308,6 +310,48 @@ def synth_csv():
     print(f'timing {len(tim)}, area {len(ar)} rows')
 
 
+def nfast_table():
+    """N = (cycles of stage A - 1) + (cycles of the decision - 1), per variant, the worst over sizes and router types of the form with one unit per port (the
+    form the simulator models). Cycles of a stage: ceil(arrival + setup) at 1 GHz, v18's convention. The decision: 1 cycle if the path without a cut fits, 2 if
+    both stages with the cut fit, otherwise 3. Staleness: the cycles from the cost registers to the choice."""
+    cut0 = {(r['method'], r['rtype'], r['size'], r['form']): r for r in csv.DictReader(open(os.path.join(RES, 'timing_runs_cut0.csv')))}
+    cut1 = {(r['method'], r['rtype'], r['size'], r['form']): r for r in csv.DictReader(open(os.path.join(RES, 'timing_runs_cut1.csv')))}
+
+    def num(r, k):
+        return float(r[k]) if r.get(k) not in (None, '', 'None') else None
+
+    def worst(r, *keys):
+        return min(x for x in (num(r, k) for k in keys) if x is not None)
+    table = {}
+    L = ['# v21 F2: the decision path per router (flattened, NanGate45 typical, pre-layout)', '', 'Arrival + setup = 1 ns - slack, in ns. Stage A: relation + path totals + Q read, from the buffer or the link into the stage registers. '
+         'Without a cut: registered inputs to the route registers. With the cut: first stage (into the cost registers), second stage (into the route registers).', '',
+         '| size | variant | router | form | stage A | no cut | cut: first | cut: second | value on the link | N_stage_A | N_decision |', '|---|---|---|---|---|---|---|---|---|---|---|']
+    res = {}
+    for key in sorted(cut1):
+        m, t, z, f = key
+        a, b = cut0[key], cut1[key]
+        if b['arrival_stage_a'] in ('', 'None'):
+            continue
+        sa = 1 - worst(b, 'slack_stage_a', 'slack_stage_q')
+        d0 = 1 - worst(a, 'slack_route', 'slack_ovc', 'slack_hdr')
+        d1, d2 = 1 - worst(b, 'slack_dec_cut'), 1 - worst(b, 'slack_route', 'slack_ovc', 'slack_hdr')
+        nd = 0 if d0 <= 1.0 else 1 if max(d1, d2) <= 1.0 else 2
+        na = math.ceil(sa) - 1
+        scope, kind = m.split('_')
+        v = ('CI_' if scope == 'LBI' else 'FULL_') + kind
+        lo = num(b, 'arrival_l_out')
+        L.append(f'| {z} | {v} | {t} | {f} | {sa:.2f} | {d0:.2f} | {d1:.2f} | {d2:.2f} | {lo:.2f} | {na} | {nd} |')
+        if f == 'P':
+            res.setdefault(v, []).append((na + nd, nd, key, sa, d0, d1, d2))
+    for v, rows in res.items():
+        w = max(rows, key=lambda x: x[0])
+        table[v] = dict(n=w[0], stale=max(x[1] for x in rows), worst_router=list(w[2]))
+    json.dump(table, open(os.path.join(RES, 'n_fast.json'), 'w'), indent=1)
+    open(os.path.join(RES, 'timing.md'), 'w', newline=NL).write(NL.join(L) + NL)
+    print(NL.join(L[-40:]))
+    print(json.dumps(table, indent=1))
+
+
 # ---- F4: tuning (v6 protocol at the K5 load points) ----
 def tune_rates(z, p, m):
     lp = E19.lp()[E5.key(z, p, m)]
@@ -321,19 +365,18 @@ def tune_rates(z, p, m):
 
 def tune_jobs(grid):
     js = []
-    for z, name, kind_n, args in grid:
+    for z, name, var, args in grid:
         for p, m in E5.tune_cells(z):
             rates = tune_rates(z, p, m)
             E5.gen_tables(z, p, rates)
             for r, s in itertools.product(rates, TUNE_SEEDS):
                 n = f'tune__{name}__{z}-{p}__{m}__{r:.4f}__s{s}'
-                js.append((n, common_args(s, m, traffic=E5.REL + f'{E5.tdir(z)}/{p}_{r:.4f}.txt', lut=E10.lut(z, 'DeFT', 'uniform')) + E5.size_args(z) + args + delay_args(kind_n) + E5.SIM))
+                js.append((n, common_args(s, m, traffic=E5.REL + f'{E5.tdir(z)}/{p}_{r:.4f}.txt', lut=E10.lut(z, 'DeFT', 'uniform')) + E5.size_args(z) + args + delay_args(var) + E5.SIM))
     return js
 
 
 def heur_grid(ws=W_GRID, bs=B_GRID):
-    nf = n_fast()
-    return [(z, f'{sc}-heur-w{w}-b{b}', nf[f'{sc}_fast'], fast_args(sc, z, w, b)) for z in SIZES for sc in SCOPES for w in ws for b in bs]
+    return [(z, f'{sc}-heur-w{w}-b{b}', f'{sc}_fast', fast_args(sc, z, w, b)) for z in SIZES for sc in SCOPES for w in ws for b in bs]
 
 
 def tune_results():
@@ -365,7 +408,6 @@ def parse_wb(name):
 
 def ext_grid(res):
     """v6: one step beyond an edge optimum (w x2 above 2, x0.5 below 0.5; beta +4 above 8; beta 0 is a hard bound)."""
-    nf = n_fast()
     ext = []
     for z, sc in itertools.product(SIZES, SCOPES):
         names = sorted({n for (n, y, *_r) in res if y == z and n.startswith(f'{sc}-heur-')})
@@ -376,14 +418,13 @@ def ext_grid(res):
         for w2, b2 in itertools.product(ws, bs):
             name = f'{sc}-heur-w{w2}-b{b2}'
             if name not in names:
-                ext.append((z, name, nf[f'{sc}_fast'], fast_args(sc, z, w2, b2)))
+                ext.append((z, name, f'{sc}_fast', fast_args(sc, z, w2, b2)))
     return ext
 
 
 def ql_grid():
-    nf = n_fast()
     ch = choice()
-    return [(z, f'{sc}-ql-a{a}', nf[f'{sc}_fastQL'], fast_args(sc, z, ch[z][sc]['w'], ch[z][sc]['beta'], a)) for z in SIZES for sc in SCOPES for a in ALPHAS]
+    return [(z, f'{sc}-ql-a{a}', f'{sc}_fastQL', fast_args(sc, z, ch[z][sc]['w'], ch[z][sc]['beta'], a)) for z in SIZES for sc in SCOPES for a in ALPHAS]
 
 
 def choose(part):
@@ -516,10 +557,10 @@ if __name__ == '__main__':
     if stage == 'regress':
         sys.exit(0 if regress(extra.split(','), nproc) else 1)
     elif stage == 'drain':
-        delay = int(extra or 0)
-        d = raw(f'drain{delay}')
-        res = run_jobs(drain_jobs(delay), d, nproc=nproc, timeout=14400)
-        fails = E19.drain_report(res, os.path.join(RES, f'drain_summary_N{delay}.csv'))
+        tuned = extra == 'tuned'
+        d = raw(f'drain_{extra or "n0"}')
+        res = run_jobs(drain_jobs(tuned), d, nproc=nproc, timeout=14400)
+        fails = E19.drain_report(res, os.path.join(RES, 'drain_summary_tuned.csv' if tuned else 'drain_summary.csv'))
         if not fails:
             shutil.rmtree(d)
         sys.exit(1 if fails else 0)
@@ -539,6 +580,8 @@ if __name__ == '__main__':
         print('failed:', [n for n, ok in res if not ok], flush=True)
     elif stage == 'synthcsv':
         synth_csv()
+    elif stage == 'nfast':
+        nfast_table()
     elif stage == 'tune':
         if extra == 'heur':
             js = tune_jobs(heur_grid())

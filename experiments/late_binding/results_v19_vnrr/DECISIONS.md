@@ -54,5 +54,8 @@ So the channel dependency graph has no cycle.
 * **Integrity at 09:38:** 17,123 of 17,850 complete; missing 727 (RC and DeFT_noRR on 4x4); 0 truncated; 0 not in the job list; 0 byte-identical across seeds of a cell; 0 dead-end events (`experiments_v19.py check 1 eval`, which prints no results).
 * **Time rule:** 207 runs in the last 30 minutes, so about 1.8 h remain, below the 16 h limit. The full design stays; there is no addendum and seeds 66-70 are kept.
 
+## K6 and K7 postponed (3 November)
+The K6 load sweep finished (1,260 of 1,260, 0 dead-end events; `fault_sweep_runs.csv`) and the load choice is committed (`fault_load_choice.json`, `.md`). **The K6 confirmatory runs and K7 are postponed by the v21 prompt and were not started.** Reason: they would measure a selection that is about to be replaced, since v20 showed that the simulated selection's latency gain does not survive the delay its timing implies. If they run later for the v21 selection, the load choice stands, because it depends only on DeFT(rho\*) with the round-robin. Seeds 71-75 and 41-43 of K6 and K7 stay unused.
+
 ## Figure
 The prompt names `paper2/figures/latency_load` as the model of the latency-versus-load figure. No such file is in this checkout or in the parent repository, so the figure follows the v17 and v18 style: small multiples per size.
