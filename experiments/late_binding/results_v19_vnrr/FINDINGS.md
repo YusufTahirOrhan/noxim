@@ -1,5 +1,7 @@
 # v19 findings: DeFT's boundary round-robin (Part K)
 
+**K6 and K7 are not in this file:** the K6 confirmatory runs and K7 were postponed by the v21 prompt and not run (`DECISIONS.md`). The K6 load sweep and load choice are done (`fault_sweep_runs.csv`, `fault_load_choice.md`).
+
 **Sources:** design `PREREGISTRATION.md` (dea53a6, before any evaluation run); decisions `DECISIONS.md`; tables `report/summary.md`; figure `report/latency_load.{png,pdf}`; data `eval_runs.csv`.
 
 ## Gates

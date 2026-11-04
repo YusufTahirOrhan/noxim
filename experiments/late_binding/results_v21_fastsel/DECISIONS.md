@@ -58,5 +58,11 @@ Every change below was made to the RTL after measuring the path (`experiments_v2
   * The round-robin counter read in the first decision stage.
   * The early exit: a single-output hop skips the delay in the simulator, as in v20. The RTL computes the same stages for it and would need a bypass, which is **not implemented** in the RTL. Its timing is not measured.
 
+## Corrections made during the round
+* **Drain tests, first run: 38 FAIL, all `NO_OUTPUT` on 2x2 CI.** The runs stopped at `LUT lookup failed: missing VL LUT entry`: the jobs passed DeFT's rho\* LUT, which lacks the exotic drain masks, instead of the default LUT of the v10 and v19 protocols. No packet ran, so this was not a deadlock. The LUT was fixed and the 2x2 tests re-run; the other 178 had drained completely. All 216 pass.
+* **Router smoke test, first run: FAIL with one unit per port.** The direct entry from the link took a head whose VC buffer still held flits. It now requires that VC to be empty. All 112 pass. The vectors could not see this: they check the decision units, not the router around them.
+* **The vector job was stopped and restarted** whenever the RTL it read changed. The result on file is from the frozen RTL, with the tuned weights.
+* **Raw tuning outputs** were deleted before a per-run CSV was written (addendum).
+
 ## Tuning
 Variants are tuned at the N_fast of their scope and kind, as the prompt asks. The learners inherit (w, beta) of the heuristic of their scope and size, and the grid for alpha has 5 points, since the prompt fixes the key to the destination chiplet (the v6 grid's key dimension does not apply).

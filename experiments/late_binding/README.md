@@ -332,3 +332,46 @@ python3 synth_v18.py pipe 10 && python3 synth_v18.py relax 10 && python3 synth_v
 * **Cross-check:** DSENT gives 0.93-0.94 of this flow's reference router area.
 
 Start with `results_v17_vcdiag/FINDINGS.md` and `results_v18_area/FINDINGS.md`.
+
+## Rounds 19-21 (results_v19_vnrr/, results_v20_delay/, results_v21_fastsel/): the round-robin, decision delay, a fast selection
+New simulator options, all off by default. With the defaults, the 84-configuration regression set is byte-identical (`results_v19_vnrr/regression.md`, `results_v21_fastsel/regression.md`).
+* `-deft_vn_rr 1`: DeFT's boundary round-robin (Algorithm 1 except the F1 source rule), R3 on the input VN, per-router counters.
+* `-deft_lb decision_delay N`: N extra cycles on hops with more than one offered output. `-deft_lb hop_stats 1`: counts those hops.
+* `-sel DEFT_FAST`, `-deft_lb fast_ql 1`, `-deft_lb fast_stale K`: the fast selection, its learner, and K more cycles of age of the registered terms.
+
+Long jobs run detached: `bash detach.sh NAME COMMAND...` (tmux, log in `~/lbraw/logs`), with `keepalive.sh` started on the Windows side to hold the distro open. Runners skip completed runs.
+```
+python3 experiments_v19.py regress 12 BIN_3AC1BAE,BIN_D6F65F8 && python3 experiments_v19.py drain 12 && python3 experiments_v19.py vcbal 12
+python3 experiments_v19.py sat 12 && python3 experiments_v19.py points && python3 experiments_v19.py timing 12 && python3 experiments_v19.py eval 12
+python3 experiments_v19.py check 1 eval && python3 experiments_v20.py n0check 12 && python3 experiments_v19.py csv 1 && python3 report_v19.py k5
+python3 experiments_v19.py fsweep 12 && python3 experiments_v19.py fchoose 1
+python3 experiments_v20.py drain 12 && python3 experiments_v20.py sanity 12 && python3 experiments_v20.py pre 2 && python3 experiments_v20.py precsv 1
+python3 experiments_v20.py eval 12 && python3 experiments_v20.py csv 1 && python3 report_v20.py
+python3 experiments_v21.py regress 12 BIN_3AC1BAE,BIN_K5 && python3 experiments_v21.py alpha0 12 && python3 experiments_v21.py drain 12
+bash results_v21_fastsel/tb/run_rom_check.sh OBJDIR && bash results_v21_fastsel/tb/run_fast_vectors.sh OBJDIR 20000 && bash results_v21_fastsel/tb/run_router_smoke.sh
+V21_CUT=1 python3 experiments_v21.py synth 12 && V21_CUT=0 python3 experiments_v21.py synth 12 flat && V21_CUT=1 python3 experiments_v21.py synthcsv && V21_CUT=0 python3 experiments_v21.py synthcsv && python3 experiments_v21.py nfast
+python3 experiments_v21.py tune 12 heur && python3 experiments_v21.py tune 12 ext && python3 experiments_v21.py choose 1 heur && python3 experiments_v21.py tune 12 ql && python3 experiments_v21.py choose 1 ql
+python3 experiments_v21.py k5check 12 && python3 experiments_v21.py drain 12 tuned && python3 experiments_v21.py eval 12 && python3 experiments_v21.py csv 1 && python3 report_v21.py
+```
+
+### v19 (Part K): DeFT's round-robin
+* **H1 (K5, Holm over 60): 12 / 12.** Gains over DeFT are smaller than in v9: LAT -10 % to -24 %, P99 -27 % to -42 %.
+* **H2: 41 / 48, 6 n.s., 1 against.** All 7 misses are on 2x2 against MTR and RC, so "beats MTR and RC on all sizes" no longer stands.
+* **The fix does not close the gap to the DeFT paper:** DeFT stays below MTR and RC in throughput on every size. It worsens DeFT's latency on 2x2 (+9 %) and improves p99 on 3x3 and 4x4.
+* **K6 and K7:** the load choice is committed; the confirmatory runs were postponed by v21 and not run.
+
+### v20 (Part L): decision delay (descriptive)
+* **At 1.0 x Lsat,** the gain over DeFT shrinks with N and is gone by N = 4 on 3x3 and 4x4. **At 0.2 x Lsat, N = 1 already reverses it** (+8 % to +18 %).
+* p99 and throughput hold up, with a caveat: the delay reduces the collapse beyond saturation, for a reason not separated here.
+* **L3:** computing terms in the previous cycle helps only with a different function: 4-5 cycles, against 5-7.
+
+### v21: DEFT_FAST
+* **Timing:** no variant decides in one cycle. N_fast = 2 (CI_fast), 3 (the others). RTL against the simulator: 1,450,802 vectors, 0 mismatches.
+* **At its N_fast, against DeFT with the round-robin (Holm over 36):**
+  - Mean latency at saturation: a gain only on 2x2 CI (-12.4 %). 5 of 6 tests n.s.
+  - Mean latency at 0.2 x Lsat: **worse everywhere,** +23 % to +67 %.
+  - p99 at saturation: 6 / 6, -30 % to -44 %.
+* **Against MTR and RC:** 9 / 24 supported, all p99; 7 significantly against ours, all mean latency.
+* **Area relative to DeFT, one unit per port (the form simulated):** CI_fast 1.5, CI_fastQL 2.0-2.4, FULL_fast 2.2, FULL_fastQL 3.2-4.0. With one unit per router it is 1.16-2.32, but slower and not simulated as such.
+
+Start with `results_v19_vnrr/FINDINGS.md`, `results_v20_delay/FINDINGS.md` and `results_v21_fastsel/FINDINGS.md`.

@@ -1,0 +1,37 @@
+size,variant,reference,metric,scenarios,n_seeds,effect_pct,ci_low,ci_high,p,family,scope,p_holm,verdict
+2x2,CI_fastQL,DeFT,LAT,all,10,-12.36,-14.98,-9.66,4.148e-06,vs DeFT,CI,9.541e-05,ours better
+2x2,CI_fastQL,DeFT,P99,all,10,-43.62,-47.1,-39.92,7.71e-09,vs DeFT,CI,2.776e-07,ours better
+2x2,CI_fastQL,MTR,LAT,fault-free,10,7.02,2.82,11.4,0.004012,vs baseline,CI,0.05215,n.s.
+2x2,CI_fastQL,MTR,P99,fault-free,10,-22.01,-26.55,-17.2,6.062e-06,vs baseline,CI,0.0001334,ours better
+2x2,CI_fastQL,RC,LAT,fault-free,10,18.39,12.0,25.15,7.216e-05,vs baseline,CI,0.001371,ours worse
+2x2,CI_fastQL,RC,P99,fault-free,10,-9.44,-18.35,0.45,0.05875,vs baseline,CI,0.4774,n.s.
+2x2,FULL_fastQL,DeFT,LAT,all,10,-1.45,-4.78,2.01,0.3631,vs DeFT,FULL,1,n.s.
+2x2,FULL_fastQL,DeFT,P99,all,10,-37.7,-42.81,-32.13,5.414e-07,vs DeFT,FULL,1.57e-05,ours better
+2x2,FULL_fastQL,MTR,LAT,fault-free,10,20.38,15.05,25.95,6.739e-06,vs baseline,FULL,0.0001415,ours worse
+2x2,FULL_fastQL,MTR,P99,fault-free,10,-13.57,-20.47,-6.07,0.003272,vs baseline,FULL,0.0458,ours better
+2x2,FULL_fastQL,RC,LAT,fault-free,10,33.16,25.74,41.02,1.287e-06,vs baseline,FULL,3.346e-05,ours worse
+2x2,FULL_fastQL,RC,P99,fault-free,10,0.37,-10.9,13.06,0.9458,vs baseline,FULL,1,n.s.
+3x3,CI_fastQL,DeFT,LAT,all,10,0.04,-3.91,4.16,0.9814,vs DeFT,CI,1,n.s.
+3x3,CI_fastQL,DeFT,P99,all,10,-32.18,-37.78,-26.07,3.056e-06,vs DeFT,CI,7.639e-05,ours better
+3x3,CI_fastQL,MTR,LAT,fault-free,10,-4.16,-8.1,-0.05,0.04774,vs baseline,CI,0.4774,n.s.
+3x3,CI_fastQL,MTR,P99,fault-free,10,-28.0,-33.17,-22.44,3.627e-06,vs baseline,CI,8.706e-05,ours better
+3x3,CI_fastQL,RC,LAT,fault-free,10,-2.29,-6.03,1.59,0.2109,vs baseline,CI,1,n.s.
+3x3,CI_fastQL,RC,P99,fault-free,10,-25.5,-30.74,-19.86,7.596e-06,vs baseline,CI,0.0001519,ours better
+3x3,FULL_fastQL,DeFT,LAT,all,10,4.22,0.83,7.72,0.01974,vs DeFT,FULL,0.2171,n.s.
+3x3,FULL_fastQL,DeFT,P99,all,10,-36.82,-41.38,-31.92,2.194e-07,vs DeFT,FULL,7.24e-06,ours better
+3x3,FULL_fastQL,MTR,LAT,fault-free,10,-0.92,-4.29,2.57,0.5609,vs baseline,FULL,1,n.s.
+3x3,FULL_fastQL,MTR,P99,fault-free,10,-34.02,-37.29,-30.58,1.817e-08,vs baseline,FULL,6.361e-07,ours better
+3x3,FULL_fastQL,RC,LAT,fault-free,10,1.01,-3.41,5.64,0.6229,vs baseline,FULL,1,n.s.
+3x3,FULL_fastQL,RC,P99,fault-free,10,-31.73,-36.2,-26.94,4.597e-07,vs baseline,FULL,1.379e-05,ours better
+4x4,CI_fastQL,DeFT,LAT,all,10,-2.73,-7.59,2.39,0.2529,vs DeFT,CI,1,n.s.
+4x4,CI_fastQL,DeFT,P99,all,10,-42.01,-46.48,-37.17,9.04e-08,vs DeFT,CI,3.073e-06,ours better
+4x4,CI_fastQL,MTR,LAT,fault-free,10,7.94,4.62,11.36,0.0003619,vs baseline,CI,0.006152,ours worse
+4x4,CI_fastQL,MTR,P99,fault-free,10,-21.73,-27.99,-14.93,9.336e-05,vs baseline,CI,0.00168,ours better
+4x4,CI_fastQL,RC,LAT,fault-free,10,4.47,2.33,6.65,0.0009908,vs baseline,CI,0.01585,ours worse
+4x4,CI_fastQL,RC,P99,fault-free,10,-24.95,-29.12,-20.54,1.226e-06,vs baseline,CI,3.31e-05,ours better
+4x4,FULL_fast,DeFT,LAT,all,10,8.52,3.17,14.15,0.005246,vs DeFT,FULL,0.06295,n.s.
+4x4,FULL_fast,DeFT,P99,all,10,-30.31,-35.02,-25.25,9.806e-07,vs DeFT,FULL,2.746e-05,ours better
+4x4,FULL_fast,MTR,LAT,fault-free,10,21.1,17.27,25.06,2.867e-07,vs baseline,FULL,9.174e-06,ours worse
+4x4,FULL_fast,MTR,P99,fault-free,10,-5.77,-11.22,0.03,0.05092,vs baseline,FULL,0.4774,n.s.
+4x4,FULL_fast,RC,LAT,fault-free,10,17.21,14.06,20.44,3.429e-07,vs baseline,FULL,1.063e-05,ours worse
+4x4,FULL_fast,RC,P99,fault-free,10,-9.64,-13.96,-5.1,0.001151,vs baseline,FULL,0.01727,ours better

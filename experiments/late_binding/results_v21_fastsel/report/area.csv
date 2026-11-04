@@ -1,0 +1,13 @@
+variant,size,form_P,form_S,v18_slow_form_S
+CI_fast,2x2,1.522,1.155,1.169
+CI_fast,3x3,1.517,1.156,1.166
+CI_fast,4x4,1.514,1.157,1.167
+CI_fastQL,2x2,1.996,1.394,1.377
+CI_fastQL,3x3,2.163,1.502,1.467
+CI_fastQL,4x4,2.435,1.659,1.626
+FULL_fast,2x2,2.249,1.355,1.39
+FULL_fast,3x3,2.231,1.35,1.388
+FULL_fast,4x4,2.223,1.349,1.39
+FULL_fastQL,2x2,3.18,1.809,1.774
+FULL_fastQL,3x3,3.505,2.008,1.98
+FULL_fastQL,4x4,4.03,2.319,2.3
