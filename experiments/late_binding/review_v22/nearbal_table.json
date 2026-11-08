@@ -1,0 +1,49 @@
+{
+ "inbound": [
+  0,
+  0,
+  0,
+  1,
+  3,
+  0,
+  1,
+  1,
+  3,
+  3,
+  2,
+  1,
+  3,
+  2,
+  2,
+  2
+ ],
+ "outbound": [
+  0,
+  0,
+  0,
+  1,
+  3,
+  0,
+  1,
+  1,
+  3,
+  3,
+  2,
+  1,
+  3,
+  2,
+  2,
+  2
+ ],
+ "table_index": "local_y * 4 + local_x",
+ "table_value": "VL slot (0 N, 1 E, 2 S, 3 W)",
+ "total_distance": 12,
+ "note": "balanced (4/4/4/4) minimum-distance assignment of the 16 routers of a 4x4 chiplet to its 4 VLs; the paper-style second (entry) selection for uniform demand, keyed by the destination router. The same table serves as the nearest-VL entry of DeFT-Dis/RC with ties broken for balance. near_counts = loads of the `near` policy (ties to the lowest VL id).",
+ "near_counts": [
+  4,
+  4,
+  4,
+  4
+ ],
+ "near_total_distance": 12
+}
