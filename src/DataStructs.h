@@ -81,8 +81,10 @@ struct RouteData {
     int vc_id;
     uint64_t deft_exit_mask;		// DEFT_LB candidate exit VLs (0 = unset)
     uint64_t deft_entry_mask;	// DEFT_LB candidate entry VLs (0 = unset)
+    int deft_lookahead_out;		// DEFT_LB lookahead routing: output chosen for this router by the previous one (-1 = none)
+    bool deft_first_eval;		// first routing evaluation of this head at this router (lookahead staleness statistic)
     RouteData() : current_id(-1), src_id(-1), dst_id(-1), dir_in(-1), vc_id(0),
-                  deft_exit_mask(0), deft_entry_mask(0) { }
+                  deft_exit_mask(0), deft_entry_mask(0), deft_lookahead_out(-1), deft_first_eval(false) { }
 };
 
 struct ChannelStatus {
@@ -144,6 +146,7 @@ struct Flit {
 
     uint64_t deft_exit_mask;		// DEFT_LB: candidate exit VLs carried by the head flit
     uint64_t deft_entry_mask;	// DEFT_LB: candidate entry VLs carried by the head flit
+    int deft_lookahead_out;		// DEFT_LB (-deft_lb lookahead_route 1): output precomputed for the next router (-1 = none)
     double arrival_cycle;	// cycle at which the flit entered the current router buffer
     int ql_prev_router;		// DEFT_QL: router that forwarded the head flit (-1 = none)
     int ql_prev_dir;		// DEFT_QL: output direction taken at that router

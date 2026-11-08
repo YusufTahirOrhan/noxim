@@ -97,10 +97,11 @@ vector<int> Routing_DEFT::route(Router * router, const RouteData & routeData)
     }
 
     DeftVerticalLinkLut::Entry entry;
-    if (!DeftVerticalLinkLut::lookup(source.chiplet_id,
-                                     routeData.src_id,
-                                     destination.chiplet_id,
-                                     &entry))
+    if (!DeftVerticalLinkLut::lookupPair(source.chiplet_id,
+                                         routeData.src_id,
+                                         destination.chiplet_id,
+                                         routeData.dst_id,
+                                         &entry))
         return directions;
 
     if (current.layer == DeftTopology::ROUTER_LAYER_CHIPLET) {

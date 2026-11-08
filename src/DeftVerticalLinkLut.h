@@ -49,6 +49,20 @@ bool lookup(int source_chiplet_id,
             Entry *entry,
             std::string *error_message = 0);
 
+// v23 (-deft_lut_entry dst): entry VL keyed by the destination router, from the LUT's optional
+// `entries_by_destination` table (one selection per fault mask and destination router).
+bool hasDestinationEntries();
+bool lookupDestinationEntry(int destination_router_id,
+                            VerticalLinkSelection *selection,
+                            std::string *error_message = 0);
+// lookup() for the pair; with -deft_lut_entry dst the destination_entry comes from the destination table.
+bool lookupPair(int source_chiplet_id,
+                int source_router_id,
+                int destination_chiplet_id,
+                int destination_router_id,
+                Entry *entry,
+                std::string *error_message = 0);
+
 } // namespace DeftVerticalLinkLut
 
 #endif

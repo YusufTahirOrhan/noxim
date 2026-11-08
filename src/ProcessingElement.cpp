@@ -13,10 +13,45 @@
 #include "DeftLateBinding.h"
 #include "NetraceDriver.h"
 
+#include <random>
+
+namespace {
+
+// -traffic_rng 1: the traffic generator's own stream, seeded once from the run seed
+std::mt19937 &trafficRng()
+{
+    static std::mt19937 generator;
+    static bool seeded = false;
+    if (!seeded) {
+	generator.seed((unsigned int) GlobalParams::rnd_generator_seed);
+	seeded = true;
+    }
+    return generator;
+}
+
+} // namespace
+
 int ProcessingElement::randInt(int min, int max)
 {
+    if (!GlobalParams::traffic_rng)
+	return min +
+	    (int) ((double) (max - min + 1) * rand() / (RAND_MAX + 1.0));
     return min +
-	(int) ((double) (max - min + 1) * rand() / (RAND_MAX + 1.0));
+	(int) ((double) (max - min + 1) * trafficRng()() / (std::mt19937::max() + 1.0));
+}
+
+double ProcessingElement::randUnit()
+{
+    if (!GlobalParams::traffic_rng)
+	return (double) rand() / RAND_MAX;
+    return (double) trafficRng()() / std::mt19937::max();
+}
+
+int ProcessingElement::randMod(int n)
+{
+    if (!GlobalParams::traffic_rng)
+	return rand() % n;
+    return (int) (trafficRng()() % (unsigned int) n);
 }
 
 void ProcessingElement::rxProcess()
@@ -108,8 +143,14 @@ void ProcessingElement::txProcess()
 Flit ProcessingElement::nextFlit()
 {
     Flit flit;
-    if (packet_queue.front().size == packet_queue.front().flit_left)
-        DeftLB::prepareHeadPacket(packet_queue.front());   // injection-time decisions
+    if (packet_queue.front().size == packet_queue.front().flit_left) {
+	// injection-time decisions; the router's full local VC buffers are passed for the source round-robin fallback (v23)
+	bool local_vc_full[MAX_VIRTUAL_CHANNELS];
+	const TBufferFullStatus status = buffer_full_status_tx.read();
+	for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++)
+	    local_vc_full[vc] = status.mask[vc];
+	DeftLB::prepareHeadPacket(packet_queue.front(), local_vc_full);
+    }
     Packet packet = packet_queue.front();
 
     flit.src_id = packet.src_id;
@@ -124,6 +165,7 @@ Flit ProcessingElement::nextFlit()
     flit.hub_relay_node = NOT_VALID;
     flit.deft_exit_mask = packet.deft_exit_mask;
     flit.deft_entry_mask = packet.deft_entry_mask;
+    flit.deft_lookahead_out = -1;
     flit.trace_id = packet.trace_id;
     flit.arrival_cycle = 0.0;
     flit.ql_prev_router = -1;
@@ -223,7 +265,7 @@ bool ProcessingElement::canShot(Packet & packet)
 	else
 	    threshold = GlobalParams::probability_of_retransmission;
 
-	shot = (((double) rand()) / RAND_MAX < threshold);
+	shot = (randUnit() < threshold);
 	if (shot) {
 	    if (GlobalParams::traffic_distribution == TRAFFIC_RANDOM)
 		    packet = trafficRandom();
@@ -255,7 +297,7 @@ bool ProcessingElement::canShot(Packet & packet)
 	double threshold =
 	    traffic_table->getCumulativePirPor(local_id, (int) now, use_pir, dst_prob);
 
-	double prob = (double) rand() / RAND_MAX;
+	double prob = randUnit();
 	shot = (prob < threshold);
 	if (shot) {
 	    for (unsigned int i = 0; i < dst_prob.size(); i++) {
@@ -281,7 +323,7 @@ Packet ProcessingElement::trafficLocal()
 {
     Packet p;
     p.src_id = local_id;
-    double rnd = rand() / (double) RAND_MAX;
+    double rnd = randUnit();
 
     vector<int> dst_set;
 
@@ -300,7 +342,7 @@ Packet ProcessingElement::trafficLocal()
     }
 
 
-    int i_rnd = rand()%dst_set.size();
+    int i_rnd = randMod((int) dst_set.size());
 
     p.dst_id = dst_set[i_rnd];
     p.timestamp = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
@@ -315,8 +357,8 @@ int ProcessingElement::findRandomDestination(int id, int hops)
 {
     assert(GlobalParams::topology == TOPOLOGY_MESH);
 
-    int inc_y = rand()%2?-1:1;
-    int inc_x = rand()%2?-1:1;
+    int inc_y = randMod(2)?-1:1;
+    int inc_x = randMod(2)?-1:1;
     
     Coord current =  id2Coord(id);
     
@@ -337,7 +379,7 @@ int ProcessingElement::findRandomDestination(int id, int hops)
 	if (current.y==GlobalParams::mesh_dim_y-1)
 	    if (inc_y>0) inc_y=0;
 
-	if (rand()%2)
+	if (randMod(2))
 	    current.x +=inc_x;
 	else
 	    current.y +=inc_y;
@@ -351,7 +393,7 @@ int roulette()
     int slices = GlobalParams::mesh_dim_x + GlobalParams::mesh_dim_y -2;
 
 
-    double r = rand()/(double)RAND_MAX;
+    double r = ProcessingElement::randUnit();
 
 
     for (int i=1;i<=slices;i++)
@@ -386,7 +428,7 @@ Packet ProcessingElement::trafficRandom()
 {
     Packet p;
     p.src_id = local_id;
-    double rnd = rand() / (double) RAND_MAX;
+    double rnd = randUnit();
     double range_start = 0.0;
     int max_id;
 

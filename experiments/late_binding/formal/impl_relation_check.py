@@ -58,6 +58,9 @@ CONFIGS_FIXEDOE = {
 ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED, **CONFIGS_FIXEDOE)
 # Negative control (vnrr_check.py): R3 and the F1 source rule removed. Must produce a cyclic CDG.
 NO_R3 = False
+# v23 (-deft_up_keep 1, review R1): the Up channel carries the VN the packet has on the interposer and the destination
+# chiplet is VN1 (the paper's Algorithm 1 / Theorem III.4). False: the Up channel is VN1 (the code of v1-v22).
+UP_KEEP = False
 
 
 def functional(c, faulty):
@@ -178,7 +181,7 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
             ex, en = m
             here = POS2VL.get(p)
             if here is not None and here in en:
-                out.append((('D', p, None, None, 1, d), ('U', here, 1)))
+                out.append((('D', p, None, None, 1, d), ('U', here, vn if UP_KEEP else 1)))
                 if en == frozenset([here]):
                     return out
             for mv, nen in moves_towards(ipos_tm, p, last, en, here).items():

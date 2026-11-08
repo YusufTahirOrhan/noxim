@@ -166,6 +166,11 @@ struct GlobalParams {
     static int deft_chiplets_y;
     static int deft_chiplet_w;
     static int deft_chiplet_h;
+    // v23 (results_v23_fidelity): DeFT fidelity and modelling options, all off by default
+    static string deft_lut_entry;   // "src": LUT entry keyed by the source router (v1-v21); "dst": keyed by the destination router
+    static bool traffic_rng;        // the traffic generator draws from its own RNG seeded from the run seed
+    static int pipe_all;            // N: every head of every algorithm waits N cycles at an input-buffer front before reserving
+    static bool vc_per_hop;         // VN rules off (MTR, RC): any free output VC at each hop instead of the injection VC
     static int mesh_dim_x;
     static int mesh_dim_y;
     static int n_delta_tiles;

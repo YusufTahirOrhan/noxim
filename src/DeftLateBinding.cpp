@@ -77,6 +77,10 @@ bool g_count_vl = false;
 
 // Optional statistics file (parameter stats_file); empty = off (default).
 std::string g_stats_file;
+// v23: lookahead routing (parameter lookahead_route) and the herding guard (parameter hysteresis); both off by default.
+int g_lookahead_route = 0;
+double g_hysteresis = 0.0;
+unsigned long g_la_stored = 0, g_la_used = 0, g_la_mismatch = 0;
 // Decision delay and the count of hops by offered outputs (parameters decision_delay, hop_stats; off by default).
 int g_decision_delay = 0;
 bool g_hop_stats = false;
@@ -377,7 +381,7 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
     if (c.exit_policy == POLICY_LUT || c.entry_policy == POLICY_LUT) {
         DeftVerticalLinkLut::Entry entry;
         std::string err;
-        if (!DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &entry, &err)) {
+        if (!DeftVerticalLinkLut::lookupPair(chipletOf(src), src, chipletOf(dst), dst, &entry, &err)) {
             std::cerr << "DEFT_LB: LUT lookup failed: " << err << std::endl;
             exit(1);
         }
@@ -685,6 +689,20 @@ bool setParam(const std::string &key, const std::string &value,
             return false;
         }
         g_hop_stats = d != 0.0;
+    }
+    else if (key == "lookahead_route") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "lookahead_route must be 0 or 1";
+            return false;
+        }
+        g_lookahead_route = (int) d;
+    }
+    else if (key == "hysteresis") {
+        if (d < 0) {
+            if (error_message) *error_message = "hysteresis must be >= 0";
+            return false;
+        }
+        g_hysteresis = d;
     }
     else if (key == "entry_bound_k") {
         if (d < 0 || d != std::floor(d)) {
@@ -1093,7 +1111,7 @@ VlMask boundEntryMask(int src, int dst, VlMask exit_mask, VlMask entry_mask)
     int e_lut = -1;
     if (g_entry_bound_mode == EB_LUT) {
         DeftVerticalLinkLut::Entry entry;
-        if (DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &entry, 0) &&
+        if (DeftVerticalLinkLut::lookupPair(chipletOf(src), src, chipletOf(dst), dst, &entry, 0) &&
             (entry_mask & bit(entry.destination_entry.selected_vl_id))) {
             e_lut = entry.destination_entry.selected_vl_id;
             ref = len[e_lut];
@@ -1112,7 +1130,7 @@ VlMask boundEntryMask(int src, int dst, VlMask exit_mask, VlMask entry_mask)
 
 } // namespace
 
-void prepareHeadPacket(Packet &p)
+void prepareHeadPacket(Packet &p, const bool *local_vc_full)
 {
     if (!DeftVirtualNetwork::isEnabled())
         return;
@@ -1134,7 +1152,7 @@ void prepareHeadPacket(Packet &p)
     p.deft_exit_mask = exit_mask;
     p.deft_entry_mask = entry_mask;
     if (DeftVirtualNetwork::rulesActive())
-        p.vc_id = DeftVirtualNetwork::assignSourceVirtualNetwork(p.src_id, p.dst_id, exit_mask);
+        p.vc_id = DeftVirtualNetwork::assignSourceVirtualNetwork(p.src_id, p.dst_id, exit_mask, local_vc_full);
     // VN rules off (MTR, RC): the packet keeps the VC drawn by the PE, as in Noxim.
 }
 
@@ -1201,7 +1219,7 @@ void statsForward(Router *router, int dir_in, int out_dir, const Flit &flit, dou
         it = g_ptrack.insert(std::make_pair(k, PacketTrack())).first;
         if (DeftVerticalLinkLut::isLoaded()) {
             DeftVerticalLinkLut::Entry e;
-            if (DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &e, 0)) {
+            if (DeftVerticalLinkLut::lookupPair(chipletOf(src), src, chipletOf(dst), dst, &e, 0)) {
                 it->second.lut_exit = e.source_exit.selected_vl_id;
                 it->second.lut_entry = e.destination_entry.selected_vl_id;
             }
@@ -1356,7 +1374,76 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
                      nrd.deft_exit_mask, nrd.deft_entry_mask);
     flit->deft_exit_mask = nrd.deft_exit_mask;
     flit->deft_entry_mask = nrd.deft_entry_mask;
+    // v23 B2: the next router's decision, from its state now, travels in the head
+    flit->deft_lookahead_out = (g_lookahead_route && nrd.current_id >= 0 && nrd.current_id != rd.dst_id) ?
+                               precomputeNextDecision(nrd) : -1;
 }
+
+bool lookaheadRoute()
+{
+    return g_lookahead_route != 0 && isActive();
+}
+
+// The decision the next router would take now for this head: its offered outputs after the move, and the active
+// selection applied with that router's state. The selection counters are restored: the decision is counted where it is used.
+int precomputeNextDecision(const RouteData &nrd)
+{
+    std::vector<int> offered;
+    legalOutputsWithVn(nrd, &offered);
+    if (offered.empty())
+        return -1;
+    g_la_stored++;
+    if (offered.size() == 1)
+        return offered[0];
+    Router *next = routerById(nrd.current_id);
+    if (!next)
+        return -1;
+    const unsigned long calls = g_selection_calls, adaptive = g_adaptive_decisions;
+    int choice;
+    if (g_fast_on)
+        choice = selectFast(next, offered, nrd);
+    else if (GlobalParams::selection_strategy == "DEFT_QL")
+        choice = selectQLearning(next, offered, nrd);
+    else if (GlobalParams::selection_strategy == "DEFT_HEUR")
+        choice = selectHeuristic(next, offered, nrd);
+    else
+        choice = offered[rand() % offered.size()];
+    g_selection_calls = calls;
+    g_adaptive_decisions = adaptive;
+    return choice;
+}
+
+void onStoredDecisionUsed(int stored, int fresh)
+{
+    g_la_used++;
+    if (fresh != stored)
+        g_la_mismatch++;
+}
+
+double hysteresis()
+{
+    return g_hysteresis;
+}
+
+namespace {
+
+// v23 B4: default output = smallest remaining hop count (first in the offer order on ties); another output only if its
+// cost is below the default's by more than D. Called only when D > 0, so D = 0 keeps the previous code path.
+int chooseWithHysteresis(const std::vector<int> &dirs, const std::vector<double> &cost, const std::vector<double> &hops)
+{
+    size_t def = 0;
+    for (size_t k = 1; k < dirs.size(); k++)
+        if (hops[k] < hops[def] - 1e-9)
+            def = k;
+    double best = cost[0];
+    for (size_t k = 1; k < cost.size(); k++)
+        best = std::min(best, cost[k]);
+    if (best < cost[def] - g_hysteresis - 1e-9)
+        return pickMin(dirs, cost);
+    return dirs[def];
+}
+
+} // namespace
 
 void onRouteFailure(int router_id, const Flit &flit)
 {
@@ -1597,6 +1684,12 @@ int selectHeuristic(Router *router, const std::vector<int> &dirs,
         }
         cost[k] = c;
     }
+    if (g_hysteresis > 0) {
+        std::vector<double> hops(dirs.size(), 0.0);
+        for (size_t k = 0; k < dirs.size(); k++)
+            hops[k] = hopsAfterMove(rd, dirs[k]);
+        return chooseWithHysteresis(dirs, cost, hops);
+    }
     return pickMin(dirs, cost);
 }
 
@@ -1611,6 +1704,12 @@ int selectQLearning(Router *router, const std::vector<int> &dirs,
     std::vector<double> cost(dirs.size(), 0.0);
     for (size_t k = 0; k < dirs.size(); k++)
         cost[k] = learnerCost(router, rd, dirs[k]);
+    if (g_hysteresis > 0) {
+        std::vector<double> hops(dirs.size(), 0.0);
+        for (size_t k = 0; k < dirs.size(); k++)
+            hops[k] = g_fast_on ? fastHops(rd, dirs[k]) : hopsAfterMove(rd, dirs[k]);
+        return chooseWithHysteresis(dirs, cost, hops);
+    }
     return pickMin(dirs, cost);
 }
 
@@ -1744,7 +1843,15 @@ int selectFast(Router *router, const std::vector<int> &dirs, const RouteData &rd
     std::vector<double> cost(dirs.size(), 0.0);
     for (size_t k = 0; k < dirs.size(); k++)
         cost[k] = fastCost(rd, dirs[k]);
-    const int choice = pickMin(dirs, cost);
+    int choice;
+    if (g_hysteresis > 0) {
+        std::vector<double> hops(dirs.size(), 0.0);
+        for (size_t k = 0; k < dirs.size(); k++)
+            hops[k] = fastHops(rd, dirs[k]);
+        choice = chooseWithHysteresis(dirs, cost, hops);
+    } else {
+        choice = pickMin(dirs, cost);
+    }
     // the selection only picks an output the relation offers
     std::vector<int> offered;
     legalOutputsWithVn(rd, &offered);
@@ -2091,6 +2198,11 @@ void writeJson(std::ostream &out)
         for (int n = 0; n < 7; n++) out << g_fast_offered[1][n] << (n < 6 ? ", " : "");
         out << "],\n";
     }
+    if (g_lookahead_route)                   // fields only present with -deft_lb lookahead_route 1 (v23)
+        out << "    \"lookahead_stored\": " << g_la_stored << ", \"lookahead_used\": " << g_la_used
+            << ", \"lookahead_mismatch\": " << g_la_mismatch << "," << std::endl;
+    if (g_hysteresis > 0)                    // field only present with -deft_lb hysteresis D > 0 (v23)
+        out << "    \"hysteresis\": " << g_hysteresis << "," << std::endl;
     if (g_hop_stats || g_decision_delay > 0)    // fields only present with the v20 options
         out << "    \"decision_delay\": " << g_decision_delay << ", \"hops_chip\": " << g_hops[0][0] + g_hops[0][1]
             << ", \"hops_chip_multi\": " << g_hops[0][1] << ", \"hops_ipos\": " << g_hops[1][0] + g_hops[1][1]

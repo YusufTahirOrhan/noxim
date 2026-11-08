@@ -76,7 +76,11 @@ SC_MODULE(ProcessingElement)
     //  (valid only for the table based traffic)
 
     void fixRanges(const Coord, Coord &);	// Fix the ranges of the destination
-    int randInt(int min, int max);	// Extracts a random integer number between min and max
+    // Random draws of the traffic generator: the global rand() stream, or with -traffic_rng 1 (v23) a generator of its own
+    // seeded from the run seed, so that every variant sees the same traffic realisation for a seed.
+    static int randInt(int min, int max);	// Extracts a random integer number between min and max
+    static double randUnit();		// in [0, 1], as rand() / RAND_MAX
+    static int randMod(int n);		// in [0, n), as rand() % n
     int getRandomSize();	// Returns a random size in flits for the packet
     void setBit(int &x, int w, int v);
     int getBit(int x, int w);

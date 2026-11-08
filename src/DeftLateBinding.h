@@ -119,7 +119,21 @@ bool mustWaitDecision(const RouteData &route_data, double front_cycle, double no
 // non-empty subset of the functional entry candidates whose shortest
 // turn-legal path length is within K of the shortest (min) or of the LUT
 // entry's (lut).
-void prepareHeadPacket(Packet &packet);
+// local_vc_full (optional, v23): which local input-buffer VCs of the source router are full (for -deft_rr_fallback).
+void prepareHeadPacket(Packet &packet, const bool *local_vc_full = 0);
+
+// ---- v23 B2: lookahead routing (-deft_lb lookahead_route 1; off by default) -------
+// The router that forwards a head computes the next router's decision from that router's state at this moment
+// (candidate masks after the move, arrival port, destination, occupancies, lookahead value, residuals) and stores it in
+// the head. The next router uses the stored output if it is among its offered outputs (it must be).
+bool lookaheadRoute();
+int precomputeNextDecision(const RouteData &next_route_data);
+void onStoredDecisionUsed(int stored, int fresh);
+
+// ---- v23 B4: herding guard (-deft_lb hysteresis D; 0 by default) ----------------------
+// The selection leaves the default output (smallest remaining hop count, first in the offer order on ties) only if
+// cost(best) < cost(default) - D.
+double hysteresis();
 
 // ---- router hooks ----------------------------------------------------
 // Called when the head flit is forwarded from router through out_dir.

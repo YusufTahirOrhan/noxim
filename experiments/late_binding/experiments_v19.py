@@ -238,7 +238,7 @@ def lat_of(s, p, m, r):
 
 
 def coarse_lsat(s, p, m):
-    l0 = lat_of(s, p, m, 0.001)
+    l0 = lat_of(s, p, m, E5.L0_RATE)    # v23 (review R13): the same L0 rate as the fine pass; load_points_rr.json was made with 0.001 here
     lsat = None
     for r in E5.SAT_RATES:
         if lat_of(s, p, m, r) > 3 * l0:

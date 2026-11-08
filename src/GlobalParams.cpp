@@ -34,6 +34,10 @@ int GlobalParams::deft_chiplets_x = 2;
 int GlobalParams::deft_chiplets_y = 2;
 int GlobalParams::deft_chiplet_w = 4;
 int GlobalParams::deft_chiplet_h = 4;
+string GlobalParams::deft_lut_entry = "src";
+bool GlobalParams::traffic_rng = false;
+int GlobalParams::pipe_all = 0;
+bool GlobalParams::vc_per_hop = false;
 
 int GlobalParams::mesh_dim_x;
 int GlobalParams::mesh_dim_y;

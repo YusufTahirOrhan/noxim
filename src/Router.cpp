@@ -13,6 +13,8 @@
 #include "DeftLateBinding.h"
 #include "NetraceDriver.h"
 
+#include <algorithm>
+
 
 inline int toggleKthBit(int n, int k)
 {
@@ -182,6 +184,7 @@ void Router::txProcess()
 			  deft_front_seen[i][vc] = true;
 			  deft_front_cycle[i][vc] =
 			      sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+			  deft_eval_done[i][vc] = false;
 			  if (DeftLB::isActive())
 			      DeftLB::onHeadAtFront(this, i, flit, deft_front_cycle[i][vc]);
 		      }
@@ -195,15 +198,26 @@ void Router::txProcess()
 		      route_data.vc_id = flit.vc_id;
 		      route_data.deft_exit_mask = flit.deft_exit_mask;
 		      route_data.deft_entry_mask = flit.deft_entry_mask;
+		      route_data.deft_lookahead_out = flit.deft_lookahead_out;
+		      route_data.deft_first_eval = !deft_eval_done[i][vc];
 
-		      // -deft_lb decision_delay N (off by default): N extra cycles where more than one output is offered
+		      // -pipe_all N (v23 B1, off by default): every head of every algorithm waits N cycles at the buffer front
+		      // before it may reserve an output (the post-routing stages of an N-stage router)
+		      if (GlobalParams::pipe_all > 0 &&
+			  sc_time_stamp().to_double() / GlobalParams::clock_period_ps <
+			      deft_front_cycle[i][vc] + GlobalParams::pipe_all)
+			  continue;
+
+		      // -deft_lb decision_delay N (off by default): N extra cycles where more than one output is offered,
+		      // counted from the end of the pipe_all wait
 		      if (DeftLB::decisionDelay() > 0 &&
-			  DeftLB::mustWaitDecision(route_data, deft_front_cycle[i][vc],
+			  DeftLB::mustWaitDecision(route_data, deft_front_cycle[i][vc] + GlobalParams::pipe_all,
 						   sc_time_stamp().to_double() / GlobalParams::clock_period_ps))
 			  continue;
 
 		      // TODO: see PER POSTERI (adaptive routing should not recompute route if already reserved)
 		      int o = route(route_data);
+		      deft_eval_done[i][vc] = true;
                       if (o == NOT_VALID)
                       {
                           DeftLB::onRouteFailure(local_id, flit);
@@ -250,9 +264,45 @@ void Router::txProcess()
                           << "[" << r.output_vc << "] for Input[" << i
                           << "][" << vc << "] flit " << flit << endl;
 
-		      int rt_status = reservation_table.checkReservation(r,o);
+		      // -vc_per_hop 1 (v23 B3): without VN rules (MTR, RC), any free output VC, round-robin among the free ones
+		      const bool per_hop_vc = GlobalParams::vc_per_hop &&
+			  !(DeftVirtualNetwork::isEnabled() && DeftVirtualNetwork::rulesActive());
+		      int rt_status;
+		      if (per_hop_vc)
+		      {
+			  rt_status = RT_OUTVC_BUSY;
+			  for (int k = 0; k < GlobalParams::n_virtual_channels; k++)
+			  {
+			      TReservation r2 = r;
+			      r2.output_vc = (vc_rr[o] + k) % GlobalParams::n_virtual_channels;
+			      const int st = reservation_table.checkReservation(r2, o);
+			      if (st == RT_ALREADY_SAME || st == RT_AVAILABLE || st == RT_ALREADY_OTHER_OUT)
+			      {
+				  r = r2;
+				  rt_status = st;
+				  break;
+			      }
+			  }
+			  if (rt_status == RT_AVAILABLE)
+			      vc_rr[o] = (r.output_vc + 1) % GlobalParams::n_virtual_channels;
+		      }
+		      else
+			  rt_status = reservation_table.checkReservation(r,o);
 
-		      if (rt_status == RT_AVAILABLE) 
+		      // -deft_rr_fallback 1 (v23 A1, review R2): the round-robin counter's VC is held, take the other VC if free
+		      if (rt_status == RT_OUTVC_BUSY && uses_deft_round_robin_reassignment &&
+			  DeftVirtualNetwork::rrFallback())
+		      {
+			  TReservation r2 = r;
+			  r2.output_vc = 1 - r.output_vc;
+			  if (reservation_table.checkReservation(r2, o) == RT_AVAILABLE)
+			  {
+			      r = r2;
+			      rt_status = RT_AVAILABLE;
+			  }
+		      }
+
+		      if (rt_status == RT_AVAILABLE)
 		      {
 			  LOG << " reserving direction " << o << " for flit " << flit << endl;
 			  reservation_table.reserve(r, o);
@@ -449,6 +499,7 @@ bool Router::rcRouter()
             rc_busy.assign(n, false);
             rc_dir_in.assign(n, DIRECTION_LOCAL);
             rc_front_cycle.assign(n, 0.0);
+            rc_slot_vc.assign(n, -1);
         }
     }
     return rc_router == 1;
@@ -468,8 +519,22 @@ void Router::rcDrain()
         if (rc_fifo[f].empty())
             continue;
         Flit flit = rc_fifo[f].front();
-        const int ovc = flit.vc_id;
-        if (flit.flit_type == FLIT_TYPE_HEAD) {
+        int ovc = flit.vc_id;
+        if (GlobalParams::vc_per_hop) {
+            // v23 B3 (the paper's RCVA): the head takes any free Up-link VC, round-robin; the body follows on the slot's VC
+            if (flit.flit_type == FLIT_TYPE_HEAD) {
+                ovc = -1;
+                for (int k = 0; k < GlobalParams::n_virtual_channels && ovc < 0; k++) {
+                    const int cand = (rc_vc_rr + k) % GlobalParams::n_virtual_channels;
+                    if (rc_vc_owner[cand] < 0)
+                        ovc = cand;
+                }
+                if (ovc < 0)
+                    continue;
+            } else {
+                ovc = rc_slot_vc[f];
+            }
+        } else if (flit.flit_type == FLIT_TYPE_HEAD) {
             if (rc_vc_owner[ovc] >= 0)
                 continue;
         } else if (rc_vc_owner[ovc] != f) {
@@ -479,9 +544,13 @@ void Router::rcDrain()
             continue;
         if (flit.flit_type == FLIT_TYPE_HEAD) {
             rc_vc_owner[ovc] = f;
+            rc_slot_vc[f] = ovc;
+            if (GlobalParams::vc_per_hop)
+                rc_vc_rr = (ovc + 1) % GlobalParams::n_virtual_channels;
             if (DeftLB::isActive())
                 DeftLB::onHeadForward(this, rc_dir_in[f], o, ovc, &flit, now, rc_front_cycle[f]);
         }
+        flit.vc_id = ovc;
         if (DeftLB::vcStatsOn())
             DeftLB::vcStatsForward(local_id, o, ovc, flit, now);
         flit_tx[o].write(flit);
@@ -774,6 +843,26 @@ int Router::selectionFunction(const vector < int >&directions,
     if (legal_directions.empty())
         return NOT_VALID;
 
+    // v23 B2 (-deft_lb lookahead_route 1): the output precomputed by the previous router; the fresh decision is
+    // computed once per head, for the staleness statistic only
+    if (route_data.deft_lookahead_out >= 0 && DeftLB::lookaheadRoute())
+    {
+        const int stored = route_data.deft_lookahead_out;
+        if (std::find(legal_directions.begin(), legal_directions.end(), stored) == legal_directions.end())
+        {
+            cerr << "lookahead_route: stored output " << stored << " is not offered at router " << local_id
+                 << " (src " << route_data.src_id << ", dst " << route_data.dst_id << ")" << endl;
+            abort();
+        }
+        if (route_data.deft_first_eval)
+        {
+            const int fresh = legal_directions.size() == 1 ? legal_directions[0]
+                                                           : selectionStrategy->apply(this, legal_directions, route_data);
+            DeftLB::onStoredDecisionUsed(stored, fresh);
+        }
+        return stored;
+    }
+
     // not so elegant but fast escape ;)
     if (legal_directions.size() == 1)
 	return legal_directions[0];
@@ -794,6 +883,7 @@ void Router::configure(const int _id,
     start_from_port = DIRECTION_LOCAL;
     rc_router = -1;
     rc_rr = 0;
+    rc_vc_rr = 0;
     for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++)
         rc_vc_owner[vc] = -1;
   
@@ -811,9 +901,11 @@ void Router::configure(const int _id,
 	    buffer[i][vc].setLabel(string(name())+"->buffer["+i_to_string(i)+"]");
 	}
 	start_from_vc[i] = 0;
+	vc_rr[i] = 0;
 	for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++) {
 	    deft_front_seen[i][vc] = false;
 	    deft_front_cycle[i][vc] = 0.0;
+	    deft_eval_done[i][vc] = false;
 	    rc_in[i][vc] = -1;
 	}
     }

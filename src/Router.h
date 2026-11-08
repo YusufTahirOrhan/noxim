@@ -161,6 +161,12 @@ SC_MODULE(Router)
     int rc_in[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS]; // slot reserved by the packet in input [port][vc], -1 none
     int rc_vc_owner[MAX_VIRTUAL_CHANNELS];         // slot sending on the Up link's VC, -1 none
     int rc_rr;
+    // v23: -vc_per_hop (B3) round-robin pointers over the output VCs, per output port and for the RC Up link, and the VC
+    // each RC slot sends on; -deft_lb lookahead_route (B2): whether the head at [port][vc] has had its first routing evaluation
+    int vc_rr[DIRECTIONS+2];
+    int rc_vc_rr;
+    vector<int> rc_slot_vc;
+    bool deft_eval_done[DIRECTIONS+2][MAX_VIRTUAL_CHANNELS];
     bool rcRouter();
     void rcDrain();
     void vcStatsCycle();

@@ -19,6 +19,9 @@ bool vn_rules_active = true;
 int next_boundary_vn = DeftVirtualNetwork::VN0;
 // -deft_vn_rr 1: per-router round-robin counters, sized to TotalRouters on first use.
 bool vn_rr_active = false;
+// v23: -deft_up_keep (the Up VL keeps the VN) and -deft_rr_fallback (take the other VC when the round-robin VC is busy)
+bool vn_up_keep = false;
+bool vn_rr_fallback = false;
 std::vector<int> router_source_vn;
 std::vector<int> router_boundary_vn;
 
@@ -226,6 +229,26 @@ bool roundRobinActive()
     return vn_rr_active;
 }
 
+void setUpKeep(bool active)
+{
+    vn_up_keep = active;
+}
+
+bool upKeep()
+{
+    return vn_up_keep;
+}
+
+void setRrFallback(bool active)
+{
+    vn_rr_fallback = active;
+}
+
+bool rrFallback()
+{
+    return vn_rr_fallback;
+}
+
 bool isOutputDirectionAllowed(const RouteData &route_data,
                               int output_direction)
 {
@@ -256,13 +279,21 @@ bool isOutputDirectionAllowed(const RouteData &route_data,
     return true;
 }
 
-int assignSourceVirtualNetwork(int src_id, int dst_id, uint64_t exit_mask)
+int assignSourceVirtualNetwork(int src_id, int dst_id, uint64_t exit_mask, const bool *local_vc_full)
 {
     if (!isEnabled())
         return DEFAULT_VC;
 
     if (sourceCanUseEitherVirtualNetwork(src_id, dst_id, exit_mask))
-        return takeRoundRobin(vn_rr_active ? routerCounter(router_source_vn, src_id) : next_source_vn);
+    {
+        int &counter = vn_rr_active ? routerCounter(router_source_vn, src_id) : next_source_vn;
+        int vn = peekRoundRobin(counter);
+        // v23 source fallback: the counter's local VC buffer is full and the other VC has room
+        if (vn_rr_fallback && local_vc_full != 0 && local_vc_full[vn] && !local_vc_full[1 - vn])
+            vn = 1 - vn;
+        advanceRoundRobin(counter);
+        return vn;
+    }
 
     return VN0;
 }
@@ -304,10 +335,16 @@ int selectOutputVirtualNetwork(const RouteData &route_data,
             output_vn = VN1;
         }
     }
-    else if (isInterposerToChiplet(route_data, output_direction) ||
-             isFromInterposerInsideChiplet(route_data))
+    else if (isFromInterposerInsideChiplet(route_data))
     {
+        // destination chiplet: VN1 on every output of the boundary router ("coming from the interposer: go to VN.1")
         output_vn = VN1;
+    }
+    else if (isInterposerToChiplet(route_data, output_direction))
+    {
+        // the Up VL: VN1 (v1-v22), or the packet's own VN with -deft_up_keep 1 (the paper's rule: the interposer router
+        // "stays in the previously assigned VN", the switch happens at the chiplet boundary router above)
+        output_vn = vn_up_keep ? input_vn : VN1;
     }
 
     if (!canTransition(input_vn, output_vn))

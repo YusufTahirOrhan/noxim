@@ -451,6 +451,26 @@ def destination_demand_points(
     return tuple(points)
 
 
+def destination_router_demand_points(chiplet_id: int) -> Tuple[DemandPoint, ...]:
+    """v23 (--entry-model dst): the destination chiplet's routers as demand points of the entry selection,
+    as the paper's second selection ("packets headed for the destination-chiplet routers", distance inside the chiplet)."""
+    return source_demand_points(chiplet_id)
+
+
+def destination_router_weights(
+    destination_chiplet_id: int, demand: Dict[Tuple[int, int], Fraction]
+) -> Dict[Tuple[int, ...], Fraction]:
+    """Inter-chiplet demand entering each router of the destination chiplet."""
+    return {
+        (router_id,): sum(
+            (rate for (src, dst), rate in demand.items()
+             if dst == router_id and chiplet_id_for_router(src) != destination_chiplet_id),
+            Fraction(0),
+        )
+        for router_id in chiplet_routers(destination_chiplet_id)
+    }
+
+
 def read_demand_table(path: Path) -> Dict[Tuple[int, int], Fraction]:
     """Time-averaged demand (packets/cycle) per (source, destination) router.
 
@@ -666,6 +686,7 @@ def generate_lut_text(
     traffic_profile_id: str = DEFAULT_TRAFFIC_PROFILE_ID,
     include_costs: bool = True,
     demand: Dict[Tuple[int, int], Fraction] | None = None,
+    entry_model: str = "src",
 ) -> str:
     lines: List[str] = []
     lines.append(f"schema: {SCHEMA}")
@@ -688,6 +709,8 @@ def generate_lut_text(
         lines.append("  traffic_assumption: demand_matrix_from_traffic_table_time_averaged")
     lines.append("  source_selection_model: exhaustive_dynamic_programming_per_chiplet")
     lines.append("  destination_entry_model: interposer_context_assignment_without_destination_router_id")
+    if entry_model != "src":
+        lines.append("  destination_entry_model_by_destination: balanced_in_chiplet_assignment_per_destination_router")
     lines.append("fault_scenarios:")
 
     for mask in fault_masks:
@@ -803,6 +826,39 @@ def generate_lut_text(
                             f"{decimal_string(destination_load)}"
                         )
 
+    if entry_model != "src":
+        # v23: the paper's second selection, per destination router inside the destination chiplet
+        # (-deft_lut_entry dst in Noxim). Keyed by (fault mask, destination chiplet, destination router).
+        lines.append("entries_by_destination:")
+        for mask in fault_masks:
+            functional = functional_vl_ids(mask)
+            for chiplet_id in range(CHIPLET_COUNT):
+                result = optimize_assignments(
+                    destination_router_demand_points(chiplet_id),
+                    links_for_chiplet(chiplet_id, functional),
+                    rho,
+                    None if demand is None else destination_router_weights(chiplet_id, demand),
+                )
+                for router_id in chiplet_routers(chiplet_id):
+                    point = result.demand_by_key[(router_id,)]
+                    vl_id = result.selected_by_key[(router_id,)]
+                    link = LINK_BY_ID[vl_id]
+                    rank = candidate_rank(point, vl_id, result, rho)
+                    lines.append("  - key:")
+                    lines.append(f"      fault_mask_id: \"{format_fault_mask(mask)}\"")
+                    lines.append(f"      destination_chiplet_id: {chiplet_id}")
+                    lines.append(f"      destination_router_id: {router_id}")
+                    lines.append("    value:")
+                    lines.append(f"      selected_vl_id: {link.vl_id}")
+                    lines.append(f"      boundary_router_id: {link.chiplet_endpoint_router_id}")
+                    lines.append(f"      interposer_endpoint_router_id: {link.interposer_endpoint_router_id}")
+                    lines.append(f"      ranked_vl_ids: {inline_int_list(rank)}")
+                    if include_costs:
+                        total, distance, load = entry_cost(point, vl_id, result, rho)
+                        lines.append(f"      cost_total: {decimal_string(total)}")
+                        lines.append(f"      cost_distance: {distance}")
+                        lines.append(f"      cost_load_imbalance: {decimal_string(load)}")
+
     lines.append("")
     return "\n".join(lines)
 
@@ -861,6 +917,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Omit optional per-entry inspectability cost fields.",
     )
     parser.add_argument(
+        "--entry-model",
+        choices=("src", "dst", "both"),
+        default="src",
+        help="src (default): entry keyed by the source router, as v1-v21. dst or both: also write "
+             "entries_by_destination, the paper's second selection per destination router (v23, -deft_lut_entry dst).",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         help="Output YAML path. Writes to standard output when omitted.",
@@ -887,6 +950,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             traffic_profile_id=args.traffic_profile_id,
             include_costs=not args.omit_costs,
             demand=None if args.demand_table is None else read_demand_table(args.demand_table),
+            entry_model=args.entry_model,
         )
     except ValueError as exc:
         parser.error(str(exc))

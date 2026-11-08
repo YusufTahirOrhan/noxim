@@ -35,8 +35,11 @@ struct LookupKey {
 };
 
 typedef std::map<LookupKey, DeftVerticalLinkLut::Entry> EntryMap;
+// v23: entry selections keyed by (fault mask, destination router)
+typedef std::map<std::pair<uint64_t, int>, DeftVerticalLinkLut::VerticalLinkSelection> DestinationEntryMap;
 
 EntryMap loaded_entries;
+DestinationEntryMap loaded_destination_entries;
 std::string loaded_filename;
 bool loaded = false;
 
@@ -452,6 +455,46 @@ bool parseEntry(const YAML::Node &node,
     return true;
 }
 
+// v23: optional `entries_by_destination` table: key {fault_mask_id, destination_chiplet_id, destination_router_id},
+// value {selected_vl_id, boundary_router_id, interposer_endpoint_router_id, ranked_vl_ids}.
+bool parseDestinationEntries(const YAML::Node &root,
+                             const std::set<uint64_t> &scenario_masks,
+                             DestinationEntryMap *out,
+                             std::string *error_message)
+{
+    out->clear();
+    if (!root["entries_by_destination"])
+        return true;
+    const YAML::Node entries = root["entries_by_destination"];
+    if (!entries.IsSequence())
+        return fail(error_message, "entries_by_destination must be a sequence");
+    for (YAML::const_iterator it = entries.begin(); it != entries.end(); ++it) {
+        if (!(*it)["key"] || !(*it)["value"])
+            return fail(error_message, "entries_by_destination item missing key or value");
+        const YAML::Node key = (*it)["key"];
+        std::string mask_text;
+        uint64_t mask = 0;
+        int chiplet_id = -1, router_id = -1;
+        if (!readString(key, "fault_mask_id", "entries_by_destination key", &mask_text, error_message) ||
+            !parseFaultMaskId(mask_text, &mask, error_message) ||
+            !readInt(key, "destination_chiplet_id", "entries_by_destination key", &chiplet_id, error_message) ||
+            !readInt(key, "destination_router_id", "entries_by_destination key", &router_id, error_message))
+            return false;
+        if (scenario_masks.find(mask) == scenario_masks.end())
+            return fail(error_message, "entries_by_destination references fault scenario " + mask_text +
+                        " not listed in fault_scenarios");
+        DeftTopology::RouterInfo router = DeftTopology::decodeRouterId(router_id);
+        if (router.layer != DeftTopology::ROUTER_LAYER_CHIPLET || router.chiplet_id != chiplet_id)
+            return fail(error_message, "entries_by_destination router does not belong to its chiplet");
+        DeftVerticalLinkLut::VerticalLinkSelection selection;
+        if (!parseSelection((*it)["value"], chiplet_id, mask, "entries_by_destination value", &selection, error_message))
+            return false;
+        if (!out->insert(std::make_pair(std::make_pair(mask, router_id), selection)).second)
+            return fail(error_message, "duplicate entries_by_destination item for " + mask_text);
+    }
+    return true;
+}
+
 bool selectedLinkIsCurrentlyFunctional(
     const DeftVerticalLinkLut::VerticalLinkSelection &selection,
     int owner_chiplet_id,
@@ -499,6 +542,7 @@ bool loadFromFile(const std::string &filename,
                   std::string *error_message)
 {
     loaded_entries.clear();
+    loaded_destination_entries.clear();
     loaded_filename.clear();
     loaded = false;
 
@@ -570,6 +614,12 @@ bool loadFromFile(const std::string &filename,
 
         if (loaded_entries.empty())
             return fail(error_message, "VL LUT contains no entries");
+
+        if (!parseDestinationEntries(root, scenario_masks, &loaded_destination_entries, error_message))
+            return false;
+        if (GlobalParams::deft_lut_entry == "dst" && loaded_destination_entries.empty())
+            return fail(error_message, "-deft_lut_entry dst needs a LUT with entries_by_destination "
+                        "(other/deft_vl_lut_generator.py --entry-model dst|both)");
 
         loaded_filename = filename;
         loaded = true;
@@ -691,6 +741,53 @@ bool lookup(int source_chiplet_id,
 
     if (error_message != 0)
         error_message->clear();
+    return true;
+}
+
+bool hasDestinationEntries()
+{
+    return loaded && !loaded_destination_entries.empty();
+}
+
+bool lookupDestinationEntry(int destination_router_id,
+                            VerticalLinkSelection *selection,
+                            std::string *error_message)
+{
+    if (!loaded)
+        return fail(error_message, "VL LUT is not loaded");
+    DestinationEntryMap::const_iterator found =
+        loaded_destination_entries.find(std::make_pair(currentFaultMask(), destination_router_id));
+    if (found == loaded_destination_entries.end()) {
+        std::ostringstream message;
+        message << "missing entries_by_destination item for fault_mask_id=" << currentFaultMaskId()
+                << " destination_router_id=" << destination_router_id;
+        return fail(error_message, message.str());
+    }
+    DeftTopology::RouterInfo router = DeftTopology::decodeRouterId(destination_router_id);
+    if (!selectedLinkIsCurrentlyFunctional(found->second, router.chiplet_id, "destination_entry", error_message))
+        return false;
+    if (selection != 0)
+        *selection = found->second;
+    if (error_message != 0)
+        error_message->clear();
+    return true;
+}
+
+bool lookupPair(int source_chiplet_id,
+                int source_router_id,
+                int destination_chiplet_id,
+                int destination_router_id,
+                Entry *entry,
+                std::string *error_message)
+{
+    Entry found;
+    if (!lookup(source_chiplet_id, source_router_id, destination_chiplet_id, &found, error_message))
+        return false;
+    if (GlobalParams::deft_lut_entry == "dst" &&
+        !lookupDestinationEntry(destination_router_id, &found.destination_entry, error_message))
+        return false;
+    if (entry != 0)
+        *entry = found;
     return true;
 }
 

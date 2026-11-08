@@ -222,6 +222,10 @@ void loadConfiguration() {
     GlobalParams::deft_chiplets_y = readParam<int>(config, "deft_chiplets_y", 2);
     GlobalParams::deft_chiplet_w = readParam<int>(config, "deft_chiplet_w", 4);
     GlobalParams::deft_chiplet_h = readParam<int>(config, "deft_chiplet_h", 4);
+    GlobalParams::deft_lut_entry = readParam<string>(config, "deft_lut_entry", "src");
+    GlobalParams::traffic_rng = readParam<bool>(config, "traffic_rng", false);
+    GlobalParams::pipe_all = readParam<int>(config, "pipe_all", 0);
+    GlobalParams::vc_per_hop = readParam<bool>(config, "vc_per_hop", false);
 
     //Mesh network params
     if (GlobalParams::topology == TOPOLOGY_MESH) {
@@ -448,6 +452,12 @@ void showHelp(char selfname[])
          << "\t-deft_faulty_vls LIST\tComma-separated explicit DEFT_2_5D VL fault IDs" << endl
          << "\t-deft_vl_lut FILE\tLoad a deft_vl_lut.v1 routing table" << endl
          << "\t-deft_vn_rr 0|1\tDeFT's round-robin VN reassignment at the Down port, per-router counters (default 0)" << endl
+         << "\t-deft_up_keep 0|1\tThe Up VL keeps the packet's VN; VN1 is assigned at the destination boundary router (paper's Algorithm 1; default 0)" << endl
+         << "\t-deft_rr_fallback 0|1\tRound-robin VN: take the other VC when the counter's VC is held/full (default 0)" << endl
+         << "\t-deft_lut_entry src|dst\tLUT entry VL keyed by the source router (default) or by the destination router" << endl
+         << "\t-traffic_rng 0|1\tTraffic generator with its own RNG seeded from -seed (default 0)" << endl
+         << "\t-pipe_all N\t\tEvery head waits N cycles at an input-buffer front before it may reserve an output (default 0)" << endl
+         << "\t-vc_per_hop 0|1\tWithout VN rules (MTR, RC): any free output VC at each hop, round-robin (default 0)" << endl
          << "\t-deft_chiplets_x N, -deft_chiplets_y N\tDEFT_2_5D chiplet grid (default 2 x 2)" << endl
          << "\t-deft_chiplet_w N, -deft_chiplet_h N\tDEFT_2_5D routers per chiplet (default 4 x 4)" << endl
          << "\t-detailed\t\tShow detailed statistics" << endl
@@ -555,6 +565,11 @@ void checkConfiguration()
                  << " virtual channels for VN.0 and VN.1" << endl;
             exit(1);
         }
+        if (GlobalParams::deft_lut_entry != "src" && GlobalParams::deft_lut_entry != "dst")
+        {
+            cerr << "Error: deft_lut_entry must be src or dst" << endl;
+            exit(1);
+        }
 	}
 	else // other delta topologies
 	{
@@ -603,6 +618,11 @@ void checkConfiguration()
     {
         cerr << "Error: INTERPOSER_AWARE_XY requires DEFT_2_5D topology" << endl;
         exit(1);
+    }
+
+    if (GlobalParams::pipe_all < 0) {
+	cerr << "Error: pipe_all must be >= 0" << endl;
+	exit(1);
     }
 
     if (GlobalParams::buffer_depth < 1) {
@@ -949,6 +969,18 @@ void parseCmdLine(int arg_num, char *arg_vet[])
             GlobalParams::netrace_deps = atoi(requireOptionValue(i, arg_num, arg_vet, "-netrace_deps"));
         else if (!strcmp(arg_vet[i], "-deft_vn_rr"))
             DeftVirtualNetwork::setRoundRobinActive(atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_vn_rr")) != 0);
+        else if (!strcmp(arg_vet[i], "-deft_up_keep"))
+            DeftVirtualNetwork::setUpKeep(atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_up_keep")) != 0);
+        else if (!strcmp(arg_vet[i], "-deft_rr_fallback"))
+            DeftVirtualNetwork::setRrFallback(atoi(requireOptionValue(i, arg_num, arg_vet, "-deft_rr_fallback")) != 0);
+        else if (!strcmp(arg_vet[i], "-deft_lut_entry"))
+            GlobalParams::deft_lut_entry = requireOptionValue(i, arg_num, arg_vet, "-deft_lut_entry");
+        else if (!strcmp(arg_vet[i], "-traffic_rng"))
+            GlobalParams::traffic_rng = atoi(requireOptionValue(i, arg_num, arg_vet, "-traffic_rng")) != 0;
+        else if (!strcmp(arg_vet[i], "-pipe_all"))
+            GlobalParams::pipe_all = atoi(requireOptionValue(i, arg_num, arg_vet, "-pipe_all"));
+        else if (!strcmp(arg_vet[i], "-vc_per_hop"))
+            GlobalParams::vc_per_hop = atoi(requireOptionValue(i, arg_num, arg_vet, "-vc_per_hop")) != 0;
         else if (!strcmp(arg_vet[i], "-deft_lb"))
         {
             string key = requireOptionValue(i, arg_num, arg_vet, "-deft_lb");
