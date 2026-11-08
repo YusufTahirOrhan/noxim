@@ -95,3 +95,26 @@ independent review `review_v22/REVIEW.md` (R1, R2, R4, R6, R7, R9, R10, R13); th
 * The lookahead variants' drain tests run at their v21 N_fast with pipe_all 0 (the largest decision delay a run of this round
   can use for them) and with DeFT-P's VN options.
 * In D5 the ideal learners' N_fast is 3 (CI_qlLA_G, FULL_qlLA_G), the value of their learning kind, as the prompt fixes.
+
+## Part C: cross-validation against CEA's simulator (cea_crossval.py; `cea/config_notes.md`)
+
+* One build of CEA's `noxim3.5d-sop` in a scratch clone (`~/lbrev/cea`, read-only; yaml-cpp 0.6.0 needs two `cmake_policy(... OLD)` lines
+  removed for cmake 4, nothing else is touched; the SystemC 2.3.4 shipped in the repository is used). Our 2x2 system is written in CEA's
+  `MULTI_MESH` format: an 8 x 8 interposer without PEs and four 4 x 4 chiplets with our four VL slots each.
+* CEA's exit is a per-source-router table consulted once at the source and its entry a per-(landing interposer router, destination
+  chiplet) table consulted once where the packet lands. The exit is filled from the LUT's `entries` (every source router has one exit for
+  all destination chiplets). **The paper's per-destination-router entry (DeFT-P) cannot be expressed**; the entry table carries the v1-v21
+  `destination_entry` (DeFT-B's) of the pairs landing at each router (the majority where they differ, 29 of 48 cells agree), so the
+  cross-validation reference is DeFT-B and DeFT-P is shown next to it. Conservative: the comparison validates the shared DeFT mechanics,
+  not the DeFT-P entry.
+* Two CEA variants: `rr` (DeFT's own round-robin VC choice, `route_using_selection_strategy: false`, the paper's Algorithm 1) as the
+  primary, `bl` (CEA's `BUFFER_LEVEL` selection choosing among the offered VNs) as a secondary row.
+* Both simulators record the head flit's latency from its generation timestamp (identical `Stats::receivedFlit`), so latencies compare
+  directly; CEA's per-IP throughput is recomputed per chiplet router (64) from its network throughput.
+* Runs: uniform fault-free only (the LUT and CEA's tables are fault-free); the D1 grid at seed 101 for Lsat on both simulators (ours:
+  DeFT-B at pipe_all 0), then the 9 loads of DeFT-P's v23 ladder at seeds 91-93 against the D2 runs of DeFT-B and DeFT-P.
+
+## Regression
+* One regression run covers A1 and B1-B4 together (the options were implemented in one source change; `regression.md` lists every option
+  absent and every option given explicitly off, 84 / 84 byte-identical against the 780fa6b and 3ac1bae builds). No per-option
+  regression was run, since a byte-identical result with every option off is what each per-option check would test.
