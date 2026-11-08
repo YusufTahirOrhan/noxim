@@ -15,6 +15,7 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.ticker  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from primary_from_csv import holm, ttest  # noqa: E402
@@ -231,7 +232,8 @@ def d2():
 
 
 def figure(R):
-    series = [('DeFT_P', '#2a78d6', 'o', '-'), ('DeFT_B', '#2a78d6', 'o', '--'), ('DeFT_old', '#2a78d6', 'o', ':'), ('MTR', '#eb6834', 's', '-'),
+    # one hue per family (the DeFT variants share blue and differ by line style and marker), markers as the secondary encoding
+    series = [('DeFT_P', '#2a78d6', 'o', '-'), ('DeFT_B', '#2a78d6', '^', '--'), ('DeFT_old', '#2a78d6', 'x', ':'), ('MTR', '#eb6834', 's', '-'),
               ('RC', '#1baf7a', 'D', '-'), ('CI_qlLA_G', '#e87ba4', 'v', '-'), ('FULL_qlLA_G', '#008300', 'P', '-')]
     plt.rcParams.update({'font.size': 9, 'axes.edgecolor': '#b5b4ad', 'axes.linewidth': 0.8, 'xtick.color': '#52514e', 'ytick.color': '#52514e',
                          'axes.labelcolor': '#52514e', 'text.color': '#0b0b0b'})
@@ -253,6 +255,8 @@ def figure(R):
                         ys.append(gmean(vals))
                 ax.plot(xs, ys, color=col, marker=mk, linestyle=ls, linewidth=2, markersize=7, markeredgecolor='white', markeredgewidth=1.0, label=lab(v))
             ax.set_yscale('log')
+            ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+            ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
             ax.set_title('%s, uniform, pipe_all = %d' % (z, q), fontsize=9.5, loc='left')
             if i == 1:
                 ax.set_xlabel('injection rate (packets / cycle / node)')

@@ -6,7 +6,7 @@ multi_mesh:
     dim_y: 8
     dim_z: 1
     n_virtual_channels: 2
-    custom_pe: [999]
+    custom_pe: [0]
     vertical_links_placement:
       up:
         C0:
