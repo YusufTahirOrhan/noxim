@@ -1,6 +1,6 @@
 # Findings v23: DeFT fidelity, modelling fixes, cross-validation, reference measurements
 
-Status: Parts A, B, C, D1 and D2 complete (8,370 D2 runs, 0 missing, 0 dead ends); D5 running; D4 and the answers to questions 3 and 5 follow.
+Status: Parts A, B, C, D1, D2 and D5 complete (8,370 + 180 runs, 0 missing, 0 dead ends); D4 running; the answer to question 5 follows.
 
 ## Gates (Parts A and B)
 * **Regression** (`regression.md`): 84 / 84 configurations byte-identical against the 780fa6b build, three times: the 3ac1bae
@@ -78,7 +78,21 @@ At pipe_all 2 (secondary): the learners' aggregate LAT gain grows on 2x2 (CI -25
 learners have LAT -23 / -30 % and P99 -51 / -56 %.
 
 ### 3. Does the lookahead model keep most of that gain at pipe_all = 2?
-(pending D5)
+No. With `lookahead_route 1` and the residual decision_delay 1 (`report/lookahead.csv`; uniform, fault-free, seeds 91-95,
+against the same learner at decision_delay 0 and pipe_all 2):
+* at 0.2 x Lsat the lookahead variants are +10 to +15 % slower (4-7 cycles, about the residual cycle per router on the path);
+* at 1.0 x Lsat they are +22 % (2x2 CI), +39 % (2x2 FULL), +521 % (4x4 CI) and +34 % (4x4 FULL) slower than the ideal learner,
+  and THR drops 4.0 %, 9.7 %, 17.4 % and 1.9 % (the last n.s.);
+* share of the ideal LAT gain over DeFT-P kept at 1.0 x Lsat: negative for 2x2 CI, 2x2 FULL and 4x4 CI (the lookahead variant is
+  slower than DeFT-P: 85 against 78 cycles on 2x2 CI, 638 against 133 on 4x4 CI, where the lookahead variant saturates between
+  0.8 and 1.0 x Lsat), and 16 % for 4x4 FULL (126 against 133 cycles; THR 0.0605 against DeFT-P's 0.0697 and the ideal
+  learner's 0.0636);
+* 4.6-5.9 % of the stored decisions differ from the fresh decision at the next router (1.4-3.3 % at 0.2 x Lsat, 4.8-6.5 % at
+  2.0 x Lsat).
+
+The low-load cost equals the residual delay; the cost at load grows faster than a fixed cycle per hop, so the stale decisions
+(taken one router early on queue state that has changed) carry most of it. The design has no decision_delay-1-without-lookahead
+control, so the split between the two is not measured in this round.
 
 ### 4. Did the cross-validation with CEA agree?
 Yes (`report/cea_crossval.md`). Same 2x2 system, uniform traffic, fault-free, DeFT-B semantics (CEA's format cannot express
