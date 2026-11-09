@@ -101,3 +101,54 @@ are treated as hypotheses; where a measurement of this round disagrees with one,
   lost (`checkReservation` answered ALREADY_SAME / ALREADY_OTHER_OUT for every output in that case).
 * Used in every lookahead run of this round (LF mechanism and the two controls). Check without lookahead:
   `busy_state_check.md`.
+
+## A3: drain tests (`experiments_v24.py drain v10 | bias | lf` → `drain_summary.csv`)
+* v10 protocol and masks with the v23 LUT of each mask, DeFT-P VN options and `-traffic_rng 1`: on 2x2 the all-pairs burst on
+  the 11 masks (seeds 1, 2) and over-saturated uniform, chipperm and hotspot tables on 4 masks; on 3x3 and 4x4 the all-pairs
+  burst (fault-free and one faulty VL per chiplet, seeds 1, 2) and the over-saturated tables of v10 on both masks.
+* Added as asked: 4x4 runs at 2.4 × Lsat (the top load of the pipe_all 2 ladders) on uniform, chipperm and chiptrans, sources
+  cut off after 3000 cycles.
+* **Parts.** `v10`: the five Part C variants with their v10 parameters and `DeFT_P_O1`, ideal decision. `bias`: the five
+  variants with `lut_bias 4`. `lf`: the five variants with lookahead, the fallback and the busy state at their residual
+  delay (0 heuristic, 1 Q-learning).
+* **Pipe depth.** Every run of this round has pipe_all 2, so the drain tests run at pipe_all 2. Part `v10` is run a second
+  time at pipe_all 0 (the depth of the v10 protocol and of the review's probes), because the two depths order the
+  reservations differently and the test is cheap.
+* The tuned parameters are not drained again: the prompt accepts the v10 parameters, the selection only picks among offered
+  outputs, and every evaluation run is checked for dead ends and for missing output.
+
+## A4: centre cut (`experiments_v24.py cut` → `centre_cut.md`, `centre_cut.csv`)
+* Run before the tuning (it needs nothing from it; the prompt's order has it after C2). Besides the 16 values, sum, max and
+  max / mean it reports the VN split of each cut, the waiting cycles per flit on the cut channels, and the fullest interposer
+  channel and VL of each run, to support the paragraph on what limits each method.
+
+## B5: chiptrans
+* `gen_traffic.py --patterns chiptrans` (square chiplet grids): chiplet (cx, cy) sends to chiplet (cy, cx), a diagonal
+  chiplet to its own other routers. Not in the default pattern list, so the commands of the earlier rounds write the same
+  files as before.
+* Ladders by the v23 D1 rule at pipe_all 2 (`load_points_v24.md`). The ladders were made before the drain tests because the
+  over-saturated chiptrans drain run needs the 2.4 × Lsat rate; they are DeFT-P runs with seed 101 and use no option of this
+  round.
+
+## C2: tuning
+* The rule is in `tuning.md` and was committed before the first tuning run.
+* **The preference among configurations within 0.02** is applied as successive filters in the order given (D = 0, then
+  G = 1, then B = 0, then W = 1); a filter that would leave no configuration is skipped; the largest score decides what is
+  left. Between D = 2 and D = 4 the rule states no preference, so only the later filters and the score separate them.
+* **The score of the v10 values.** For the heuristic the v10 values are grid points. For Q-learning the v10 configuration
+  (2x2: W 1, B 4, G 2, D 0, A 0.05; 4x4: W 2, B 0, G 2, D 0, A 0.1) is run in addition on both relations where the stage-1
+  choice differs from it (at most 160 runs more than the prompt's count). It is reported and never chosen.
+
+## Part D
+* **Timing test.** The timing runs are the 990 runs of seed 111 at the 2nd, 5th and 9th load of every cell: runs of the
+  design, kept, so no computing time is spent on a throw-away seed. Their results are not looked at before the whole design
+  has run. If the 30 h rule drops rows, their timing runs are deleted.
+* **Observation-only options.** Every DEFT_LB row runs with `-deft_lb hop_stats 1` (the prompt asks for it on the
+  candidates; the secondary rows get it too, for the decision-hop table), and DeFT_P and DeFT_B run with
+  `-deft_lb count_vl 1` so that the VL flit rate can be checked on plain DEFT routing. Both only count; `report/sanity.md`
+  compares runs with and without them.
+* **Controls.** Both carry `busy_state 1` like every lookahead run of the round: `Lnofb` = `lookahead_route 1 busy_state 1
+  decision_delay 1`; `LF0` = `lookahead_route 1 lookahead_fallback 1 busy_state 1 decision_delay 0`.
+* **Best baseline.** Per (size, scenario, metric) the baseline with the best arithmetic mean of the metric over the five
+  seeds (highest THR, lowest LAT, lowest P99). A size effect averages, per seed, the log ratios of the five scenarios, each
+  against its own best baseline. A row with fewer scenarios (MTR and RC: four; the controls: one) is averaged over those.
