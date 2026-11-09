@@ -1,0 +1,83 @@
+{
+ "md5": "2b58bee06d53c11c4dba50319a7a9530",
+ "rows": [
+  {
+   "method": "DeFT_P",
+   "extra": "",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.0421,
+   "probe_latency": 514,
+   "accepted": 0.04212255859375,
+   "latency": 514.1844642195032,
+   "received": 10788,
+   "within": true
+  },
+  {
+   "method": "MTR",
+   "extra": "",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.042,
+   "probe_latency": 465,
+   "accepted": 0.0419814453125,
+   "latency": 464.67652254765227,
+   "received": 10755,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.0485,
+   "probe_latency": 66,
+   "accepted": 0.0484912109375,
+   "latency": 66.14620400933902,
+   "received": 12421,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm XY",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.0431,
+   "probe_latency": 461,
+   "accepted": 0.0430703125,
+   "latency": 461.3432741116751,
+   "received": 11032,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm O1",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.0486,
+   "probe_latency": 49,
+   "accepted": 0.0485517578125,
+   "latency": 49.40405666452028,
+   "received": 12424,
+   "within": true
+  },
+  {
+   "method": "DeFT_Dis",
+   "extra": "ipos_tm O1",
+   "pipe_all": 0,
+   "pattern": "chiptrans",
+   "rate": 0.006,
+   "probe_accepted": 0.0485,
+   "probe_latency": 52,
+   "accepted": 0.04848486328125,
+   "latency": 51.58093626621545,
+   "received": 12411,
+   "within": true
+  }
+ ]
+}

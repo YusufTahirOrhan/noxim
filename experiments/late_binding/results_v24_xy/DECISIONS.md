@@ -32,6 +32,17 @@ are treated as hypotheses; where a measurement of this round disagrees with one,
   on DeFT's two interposer VNs: the VN that DeFT's boundary round-robin assigns for deadlock freedom also selects the
   dimension order, so no VC is added and no rule of DeFT changes.
 
+## A2: model check (`formal/xy_check.py` → `formal_xy.md`)
+* `formal/impl_relation_check.py` has the five relations of the prompt (`CI_XY_XY`, `FULL_XY_XY`, `CI_XY_O1`, `FULL_XY_O1`,
+  `FIXED_XY_O1`) and the turn model `YX` (`formal/deft_cdg_model.py`). For `O1` the interposer phase takes its turn model
+  from the VN of the state (XY in VN0, YX in VN1), as the simulator does.
+* Run as `upkeep_check.py`: `UP_KEEP = True`, all 897 masks of 2x2, the 22 masks of 3x3 and the 2 masks of 4x4, the same
+  negative control (R3 and the F1 source rule removed must give a cycle).
+* Two relations more than asked, on 2x2 only: `CI_XY_YX` and `FIXED_XY_YX`, so that the plain option `ipos_tm YX` (not used
+  by any run of this round) is not left unchecked.
+* Result: every check passes (acyclic CDG, no dead end, no livelock; longest path 24 / 32 / 40 hops); the negative control
+  reports a cycle.
+
 ## B1: `-deft_lb lut_bias D` (default 0 = off)
 * The **default VL** of a packet is DeFT-P's choice: the LUT's `source_exit` for the source router (exit) and its
   `entries_by_destination` entry for the destination router (entry), whatever `-deft_lut_entry` says; under faults the LUT's

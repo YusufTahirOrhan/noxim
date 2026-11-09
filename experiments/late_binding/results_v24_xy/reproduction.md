@@ -36,3 +36,14 @@ The probe code was throw-away and may differ from this round's implementation in
 | CI_qlLA_G `ipos_tm O1` | 0 | chipperm 0.0070 | 0.0479 / 735.3 | 0.0479 / 735.3 | -0.1 %, -0.0 % | yes |
 
 **6 / 6 rows within 3 % on both values.**
+
+## B5: the new pattern `chiptrans` (4x4, seed 91, pipe_all 0, rate 0.0060; binary md5 2b58bee06d53c11c4dba50319a7a9530)
+
+| method | accepted / latency: probe | this round | deviation (accepted, latency) |
+|---|---|---|---|
+| DeFT_P | 0.0421 / 514 | 0.0421 / 514.2 | +0.1 %, +0.0 % |
+| MTR | 0.0420 / 465 | 0.0420 / 464.7 | -0.0 %, -0.1 % |
+| CI_qlLA_G | 0.0485 / 66 | 0.0485 / 66.1 | -0.0 %, +0.2 % |
+| CI_qlLA_G `ipos_tm XY` | 0.0431 / 461 | 0.0431 / 461.3 | -0.1 %, +0.1 % |
+| CI_qlLA_G `ipos_tm O1` | 0.0486 / 49 | 0.0486 / 49.4 | -0.1 %, +0.8 % |
+| DeFT_Dis `ipos_tm O1` | 0.0485 / 52 | 0.0485 / 51.6 | -0.0 %, -0.8 % |
