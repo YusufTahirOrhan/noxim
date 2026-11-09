@@ -43,8 +43,9 @@ scenario (per-scenario effects, pipe_all 0, unadjusted):
   not measured: the destination-keyed entry sends every source's traffic for the hot chiplet through the same entry VL, the
   source-keyed entry spreads it over the four.
 
-**The two paper rules alone (DeFT-B against the old DeFT, i.e. up_keep + rr_fallback, same entry):** THR +6.8 / -1.0 / +4.2 %
-and LAT -12 / -7 / -14 % on 2x2 / 3x3 / 4x4 at pipe_all 0 (secondary.csv, DeFT_old and DeFT_B rows). The entry change (DeFT-P
+**The two paper rules alone (DeFT-B against the old DeFT, i.e. up_keep + rr_fallback, same entry):** THR +6.0 / +6.0 / +4.2 %
+and LAT -12 / -7 / -12 % on 2x2 / 3x3 / 4x4 at pipe_all 0 (every p < 0.003; computed from eval_runs.csv with the primary
+method, 4 scenarios). The entry change (DeFT-P
 against DeFT-B) adds THR +10.4 % (2x2), -6.8 % (3x3), +5.9 % (4x4): the 3x3 loss comes from hotspot (-13.5 %), chipperm
 (-4.4 %) and the faulty-VL scenario (-7.7 %).
 
