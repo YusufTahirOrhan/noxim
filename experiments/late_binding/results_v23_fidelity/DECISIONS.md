@@ -118,3 +118,10 @@ independent review `review_v22/REVIEW.md` (R1, R2, R4, R6, R7, R9, R10, R13); th
 * One regression run covers A1 and B1-B4 together (the options were implemented in one source change; `regression.md` lists every option
   absent and every option given explicitly off, 84 / 84 byte-identical against the 780fa6b and 3ac1bae builds). No per-option
   regression was run, since a byte-identical result with every option off is what each per-option check would test.
+
+## Part D: the 20 h rule
+* The timing test (`runtime_estimate.md`: 468 runs, 1966 s wall on 12 processes, with the CEA evaluation running alongside at
+  nice 19) estimates 9.8 h for the 8,370 D2 runs. Below 20 h, so the full design runs and pipe_all = 2 is kept for DeFT-Dis.
+* D1 observation written down before any D2 run (not a decision): DeFT-P saturates later than the old DeFT on uniform, localized,
+  chipperm and movinghot (ratios 1.05-2.56) but earlier on hotspot at 3x3 and 4x4 (ratios 0.75-0.84, `load_points_v23.md`).
+  The ladders follow the pre-registered rule either way.
