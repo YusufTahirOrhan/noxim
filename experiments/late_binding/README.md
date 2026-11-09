@@ -375,3 +375,45 @@ python3 experiments_v21.py k5check 12 && python3 experiments_v21.py drain 12 tun
 * **Area relative to DeFT, one unit per port (the form simulated):** CI_fast 1.5, CI_fastQL 2.0-2.4, FULL_fast 2.2, FULL_fastQL 3.2-4.0. With one unit per router it is 1.16-2.32, but slower and not simulated as such.
 
 Start with `results_v19_vnrr/FINDINGS.md`, `results_v20_delay/FINDINGS.md` and `results_v21_fastsel/FINDINGS.md`.
+
+## Round 23 (results_v23_fidelity/): DeFT as in the paper, modelling fixes, cross-validation, new reference measurements
+Follows the independent review `review_v22/REVIEW.md` (findings R1-R15). New simulator options, all off by default; with the
+defaults, and with every option given explicitly off, the 84-configuration regression set is byte-identical to the 780fa6b and
+3ac1bae builds (`results_v23_fidelity/regression.md`).
+* `-deft_up_keep 1` (R1): the Up link keeps the packet's VN; `-deft_rr_fallback 1` (R2): the boundary and source round-robin take
+  the other VC when the counter's VC is held; `-deft_lut_entry dst` (R4): the paper's entry per destination router
+  (`entries_by_destination` in the LUT, `deft_vl_lut_generator.py --entry-model`); `-traffic_rng 1` (R10): the traffic generator
+  on its own `mt19937`.
+* `-pipe_all N`: every head waits N cycles at the input-buffer front (one hop = 2 + N); `-deft_lb lookahead_route 1`: the
+  next router's decision is computed when the head leaves and carried in the header; `-vc_per_hop 1`: MTR and RC take any free
+  VC per hop (RC's buffer drains onto any free Up VC); `-deft_lb hysteresis D`: the default (fewest-hops) output unless another
+  wins by more than D.
+* **DeFT-P** = `-deft_up_keep 1 -deft_rr_fallback 1 -deft_vn_rr 1 -deft_lut_entry dst` is the reference of every later round;
+  **DeFT-B** = the same VN rules with the v1-v21 entry. LUTs: `luts/v23/` (`python3 experiments_v23.py luts 12`, not committed).
+```
+python3 experiments_v23.py regress 12 BIN780,BIN3AC && python3 experiments_v23.py luts 12 && python3 experiments_v23.py lutcheck
+python3 experiments_v23.py probe 12 && python3 experiments_v23.py formal 6 && python3 experiments_v23.py drain 12 && python3 experiments_v23.py vcsplit 4
+python3 experiments_v23.py sat 12 && python3 experiments_v23.py points && python3 experiments_v23.py timing 12 && python3 experiments_v23.py eval 12
+python3 experiments_v23.py check 1 eval && python3 experiments_v23.py csv 1 && python3 experiments_v23.py look 12 && python3 experiments_v23.py lookcsv 1
+python3 experiments_v23.py herd 12 && python3 experiments_v23.py herdcsv 1 && python3 report_v23.py all
+python3 cea_crossval.py config && python3 cea_crossval.py sweep 4 && python3 cea_crossval.py eval 4 && python3 cea_crossval.py report
+```
+
+### Gates (A2, B)
+* **Model check with the paper's Up rule** (`formal_upkeep.md`): all 897 masks of 2x2 and the sampled masks of 3x3 and 4x4, four
+  relations (fixed pair XY and odd-even, CI, FULL): acyclic CDG, no dead end, no livelock; the negative control fails as it should.
+* **Drain tests** (`drain_summary.csv`): 948 / 948 pass, 0 dead-end events (every VN-based method with the DeFT-P options, the
+  lookahead variants, MTR and RC with the per-hop VC).
+* **VC split** (`vc_split.md`): with the paper's rule the Up VL carries 50:50 (the old reference: 0:100) and the VC wait on the
+  Up VL falls from 1.21 to 0.38 cycles per flit (2x2) and from 0.85 to 0.27 (4x4).
+* `-pipe_all N` adds exactly N cycles per router (`probe_pipe.md`).
+
+### Part D (pre-registered, `PREREGISTRATION.md`; seeds 91-95, 9 loads up to 2.4 x Lsat, pipe_all 0 and 2)
+_Results are in `report/summary.md` and `FINDINGS.md` (filled in when the runs complete)._
+
+### Part C: CEA's simulator
+Our 2x2 system expressed in `noxim3.5d-sop`'s format (`cea/`): the paper's per-destination-router entry cannot be expressed, so
+the comparison is with DeFT-B. On the coarse grid the saturation loads agree (CEA 0.0115 / 0.011 against ours 0.011) and the
+latency curves within about one cycle; `report/cea_crossval.md` has the 9-load comparison.
+
+Start with `results_v23_fidelity/FINDINGS.md`.
