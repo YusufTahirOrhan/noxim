@@ -1,0 +1,83 @@
+{
+ "md5": "2b58bee06d53c11c4dba50319a7a9530",
+ "rows": [
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm XY lut_bias 4",
+   "pipe_all": 0,
+   "pattern": "chipperm",
+   "rate": 0.004,
+   "probe_accepted": 0.0326,
+   "probe_latency": 70.8,
+   "accepted": 0.03262255859375,
+   "latency": 70.8345108370255,
+   "received": 8351,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm XY hop_weight_ipos 1.0",
+   "pipe_all": 0,
+   "pattern": "chipperm",
+   "rate": 0.007,
+   "probe_accepted": 0.0532,
+   "probe_latency": 378.9,
+   "accepted": 0.0531611328125,
+   "latency": 378.9341515396487,
+   "received": 13607,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm XY lookahead_route 1 lookahead_fallback 1 decision_delay 1",
+   "pipe_all": 2,
+   "pattern": "uniform",
+   "rate": 0.008,
+   "probe_accepted": 0.0647,
+   "probe_latency": 94.4,
+   "accepted": 0.06469091796875,
+   "latency": 94.35960144927536,
+   "received": 16560,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm XY lookahead_route 1 lookahead_fallback 1 decision_delay 1",
+   "pipe_all": 2,
+   "pattern": "uniform",
+   "rate": 0.011,
+   "probe_accepted": 0.0831,
+   "probe_latency": 467.5,
+   "accepted": 0.08311572265625,
+   "latency": 467.4756309630117,
+   "received": 21277,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm O1",
+   "pipe_all": 0,
+   "pattern": "uniform",
+   "rate": 0.01,
+   "probe_accepted": 0.0793,
+   "probe_latency": 253.2,
+   "accepted": 0.0793291015625,
+   "latency": 253.15200906046877,
+   "received": 20308,
+   "within": true
+  },
+  {
+   "method": "CI_qlLA_G",
+   "extra": "ipos_tm O1",
+   "pipe_all": 0,
+   "pattern": "chipperm",
+   "rate": 0.007,
+   "probe_accepted": 0.0479,
+   "probe_latency": 735.3,
+   "accepted": 0.04785986328125,
+   "latency": 735.2807117786303,
+   "received": 12251,
+   "within": true
+  }
+ ]
+}

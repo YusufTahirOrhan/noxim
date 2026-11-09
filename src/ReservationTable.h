@@ -59,6 +59,9 @@ class ReservationTable {
     // Read-only: the output and output VC reserved by input/vc, if any (statistics)
     bool findReservation(const int port_in, const int vc, int * port_out, int * output_vc) const;
 
+    // Read-only (v24, -deft_lb busy_state): the input port and input VC of the reservation that holds output_vc on port_out, if any
+    bool outputVcHolder(const int port_out, const int output_vc, int * port_in, int * vc) const;
+
     // Returns output ports with full input/output VC reservation metadata
     vector<pair<int,TReservation> > getReservationEntries(const int port_int);
 

@@ -30,7 +30,9 @@ namespace DeftLB {
 
 typedef uint64_t VlMask;    // one bit per VL id (up to 64 VLs)
 
-enum TurnModel { TM_XY = 0, TM_OE = 1 };
+// TM_YX (v24): dimension order with Y first. TM_O1 (v24, interposer only): the order follows the packet's virtual network,
+// XY in VN0 and YX in VN1 (the VN does not change on the interposer, so each VN's interposer channels carry one order).
+enum TurnModel { TM_XY = 0, TM_OE = 1, TM_YX = 2, TM_O1 = 3 };
 
 enum InjectionPolicy {
     POLICY_LATE = 0,    // keep every functional VL as a candidate
@@ -94,10 +96,11 @@ int movesMask(int tm, int x, int y, int last, int tx, int ty);
 
 // ---- routing relation ------------------------------------------------
 void legalMoves(const RouteData &route_data, std::vector<int> *directions);
+// vn: the packet's virtual network at router_id (its input VC); it selects the interposer order with ipos_tm O1.
 void nextMasks(int router_id, int dir_in, int out_dir,
                int src_id, int dst_id,
                VlMask exit_mask, VlMask entry_mask,
-               VlMask *next_exit_mask, VlMask *next_entry_mask);
+               VlMask *next_exit_mask, VlMask *next_entry_mask, int vn = 0);
 // Static remaining-path length of the selection; interposer hops weighted by hop_weight_ipos.
 double remainingHops(int router_id, int src_id, int dst_id,
                   VlMask exit_mask, VlMask entry_mask);
@@ -128,7 +131,15 @@ void prepareHeadPacket(Packet &packet, const bool *local_vc_full = 0);
 // the head. The next router uses the stored output if it is among its offered outputs (it must be).
 bool lookaheadRoute();
 int precomputeNextDecision(const RouteData &next_route_data);
-void onStoredDecisionUsed(int stored, int fresh);
+void onStoredDecisionUsed(int stored, int fresh, bool multi = false);
+// v24 B2 (-deft_lb lookahead_fallback 1; off by default): a head with a stored decision that holds no output yet asks, every
+// cycle, for the stored output if it is free, else for the first other offered output that is free, else for the stored one
+// (Router::selectionFunction). blocked: the stored output was not free; other: another output was requested.
+bool lookaheadFallback();
+void onFallbackCheck(bool blocked, bool other);
+// The input buffer that output out_dir of router_id feeds, VC out_vc, is full: the neighbour's buffer read directly, as the
+// selection's occupancy term reads it.
+bool downstreamVcFull(int router_id, int out_dir, int out_vc);
 
 // ---- v23 B4: herding guard (-deft_lb hysteresis D; 0 by default) ----------------------
 // The selection leaves the default output (smallest remaining hop count, first in the offer order on ties) only if

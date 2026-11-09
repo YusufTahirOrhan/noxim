@@ -81,6 +81,17 @@ std::string g_stats_file;
 int g_lookahead_route = 0;
 double g_hysteresis = 0.0;
 unsigned long g_la_stored = 0, g_la_used = 0, g_la_mismatch = 0;
+// v24 (all off by default): the penalty on outputs that drop DeFT-P's VL (parameter lut_bias), the lookahead fallback
+// (parameter lookahead_fallback) and the busy term read from the reservation entries (parameter busy_state).
+double g_lut_bias = 0.0;
+int g_lookahead_fallback = 0;
+int g_busy_state = 0;
+bool g_asking_absent = false;        // the selection is being evaluated for a head that is not in the router yet (lookahead routing)
+unsigned long g_la_multi = 0;        // stored decisions used at a hop that offers more than one output
+unsigned long g_fb_checks = 0, g_fb_blocked = 0, g_fb_requests = 0, g_fb_taken = 0;
+std::vector<int> g_default_exit;     // [source router * chiplets + destination chiplet] -> DeFT-P's exit VL (-2 = not looked up)
+std::vector<int> g_default_entry;    // [destination router] -> DeFT-P's entry VL (-2 = not looked up)
+uint64_t g_default_mask = ~(uint64_t) 0;   // fault mask the two caches were filled for
 // Decision delay and the count of hops by offered outputs (parameters decision_delay, hop_stats; off by default).
 int g_decision_delay = 0;
 bool g_hop_stats = false;
@@ -182,6 +193,9 @@ bool legalTurn(int tm, int x, int last, int next)
     if (tm == TM_XY)
         return !((last == DIRECTION_NORTH || last == DIRECTION_SOUTH) &&
                  (next == DIRECTION_EAST || next == DIRECTION_WEST));
+    if (tm == TM_YX)    // v24: the mirror of XY
+        return !((last == DIRECTION_EAST || last == DIRECTION_WEST) &&
+                 (next == DIRECTION_NORTH || next == DIRECTION_SOUTH));
     // Chiu's odd-even turn model, column parity of the current node.
     const bool even = (x % 2) == 0;
     if (even && last == DIRECTION_EAST &&
@@ -204,7 +218,7 @@ int productiveMask(int x, int y, int tx, int ty)
 }
 
 // reach cache: [tm][x][y][last][tx][ty] -> 0 unknown, 1 false, 2 true
-// sized 2 x W x H x 5 x W x H on first use (W, H = footprint)
+// sized 3 x W x H x 5 x W x H on first use (W, H = footprint; tm = XY, OE or YX)
 std::vector<unsigned char> g_reach;
 
 bool reach(int tm, int x, int y, int last, int tx, int ty)
@@ -212,7 +226,7 @@ bool reach(int tm, int x, int y, int last, int tx, int ty)
     if (x == tx && y == ty)
         return true;
     if (g_reach.empty())
-        g_reach.assign((size_t) 2 * W * H * 5 * W * H, 0);
+        g_reach.assign((size_t) 3 * W * H * 5 * W * H, 0);
     unsigned char &c = g_reach[((((((size_t) tm * W + x) * H + y) * 5 + last) * W + tx) * H) + ty];
     if (c)
         return c == 2;
@@ -534,6 +548,8 @@ std::string policyName(InjectionPolicy p)
 
 std::string turnModelName(int tm)
 {
+    if (tm == TM_YX) return "YX";
+    if (tm == TM_O1) return "O1";
     return tm == TM_OE ? "OE" : "XY";
 }
 
@@ -554,6 +570,8 @@ bool setParam(const std::string &key, const std::string &value,
         int tm;
         if (value == "XY") tm = TM_XY;
         else if (value == "OE") tm = TM_OE;
+        else if (value == "YX" && key == "ipos_tm") tm = TM_YX;     // v24: interposer only
+        else if (value == "O1" && key == "ipos_tm") tm = TM_O1;     // v24: XY in VN0, YX in VN1; interposer only
         else {
             if (error_message) *error_message = "bad turn model " + value;
             return false;
@@ -704,6 +722,27 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_hysteresis = d;
     }
+    else if (key == "lut_bias") {
+        if (d < 0) {
+            if (error_message) *error_message = "lut_bias must be >= 0";
+            return false;
+        }
+        g_lut_bias = d;
+    }
+    else if (key == "lookahead_fallback") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "lookahead_fallback must be 0 or 1";
+            return false;
+        }
+        g_lookahead_fallback = (int) d;
+    }
+    else if (key == "busy_state") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "busy_state must be 0 or 1";
+            return false;
+        }
+        g_busy_state = (int) d;
+    }
     else if (key == "entry_bound_k") {
         if (d < 0 || d != std::floor(d)) {
             if (error_message) *error_message = "entry_bound_k must be an integer >= 0";
@@ -776,6 +815,27 @@ bool validateConfiguration(std::string *error_message)
     }
     if (c.exit_policy == POLICY_LATE && c.chip_tm != TM_OE && c.chip_tm != TM_XY) {
         if (error_message) *error_message = "bad chiplet turn model";
+        return false;
+    }
+    // v24
+    if (c.ipos_tm == TM_O1 && !DeftVirtualNetwork::rulesActive()) {
+        if (error_message) *error_message = "ipos_tm O1 takes the interposer order from the packet's VN: it needs the DeFT VN rules (vn_rules 1)";
+        return false;
+    }
+    if ((c.ipos_tm == TM_O1 || c.ipos_tm == TM_YX) && g_fast_on) {
+        if (error_message) *error_message = "ipos_tm YX / O1 is not supported by -sel DEFT_FAST";
+        return false;
+    }
+    if (g_lut_bias > 0 && (!DeftVerticalLinkLut::isLoaded() || !DeftVerticalLinkLut::hasDestinationEntries())) {
+        if (error_message) *error_message = "lut_bias needs -deft_vl_lut with entries_by_destination (the default VL is DeFT-P's choice)";
+        return false;
+    }
+    if (g_lut_bias > 0 && g_fast_on) {
+        if (error_message) *error_message = "lut_bias is not supported by -sel DEFT_FAST";
+        return false;
+    }
+    if (g_lookahead_fallback && !g_lookahead_route) {
+        if (error_message) *error_message = "lookahead_fallback requires lookahead_route 1";
         return false;
     }
     return true;
@@ -863,6 +923,10 @@ int movesMask(int tm, int x, int y, int last, int tx, int ty)
         int xm = prod & ((1 << DIRECTION_EAST) | (1 << DIRECTION_WEST));
         if (xm)
             prod = xm;
+    } else if (tm == TM_YX) {
+        int ym = prod & ((1 << DIRECTION_NORTH) | (1 << DIRECTION_SOUTH));
+        if (ym)
+            prod = ym;
     }
     int out = 0;
     for (int d = 0; d < 4; d++) {
@@ -909,6 +973,16 @@ int movesTowardsMask(int tm, int cur, int last, VlMask cand_mask, int skip_vl)
     return out;
 }
 
+// Turn model of the interposer hops of a packet in virtual network vn. With ipos_tm O1 (v24) a VN0 packet is routed XY and a
+// VN1 packet YX; the VN of a packet does not change on the interposer. Used wherever the interposer turn model is used:
+// the offered moves, reach (through movesMask), the pruning in nextMasks and, through those, the one-hop lookahead.
+int iposTm(int vn)
+{
+    if (g_config.ipos_tm != TM_O1)
+        return g_config.ipos_tm;
+    return vn == DeftVirtualNetwork::VN1 ? TM_YX : TM_XY;
+}
+
 } // namespace
 
 void legalMoves(const RouteData &rd, std::vector<int> *dirs)
@@ -942,7 +1016,7 @@ void legalMoves(const RouteData &rd, std::vector<int> *dirs)
             if (cand == bit(here))
                 return;
         }
-        m = movesTowardsMask(g_config.ipos_tm, cur, last, cand, here);
+        m = movesTowardsMask(iposTm(rd.vc_id), cur, last, cand, here);
         break;
     }
     default:
@@ -955,7 +1029,7 @@ void legalMoves(const RouteData &rd, std::vector<int> *dirs)
 
 void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
                VlMask exit_mask, VlMask entry_mask,
-               VlMask *next_exit, VlMask *next_entry)
+               VlMask *next_exit, VlMask *next_entry, int vn)
 {
     *next_exit = exit_mask;
     *next_entry = entry_mask;
@@ -968,7 +1042,7 @@ void nextMasks(int cur, int dir_in, int out_dir, int src, int dst,
     if (out_dir == DIRECTION_HUB) {
         pruned = bit(here);
     } else {
-        const int tm = ph == PH_SOURCE ? g_config.chip_tm : g_config.ipos_tm;
+        const int tm = ph == PH_SOURCE ? g_config.chip_tm : iposTm(vn);
         const int last = lastMoveFromDirIn(dir_in);
         const int x = footprintX(cur), y = footprintY(cur);
         pruned = 0;
@@ -1032,7 +1106,7 @@ double hopsAfterMove(const RouteData &rd, int out_dir)
         return 1 << 20;
     VlMask ne, nn;
     nextMasks(rd.current_id, rd.dir_in, out_dir, rd.src_id, rd.dst_id,
-              rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn);
+              rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn, rd.vc_id);
     // the move itself: a horizontal interposer hop weighs hop_weight_ipos
     const double w = isInterposer(rd.current_id) && out_dir != DIRECTION_HUB ? g_hop_weight_ipos : 1.0;
     return w + remainingHops(n, rd.src_id, rd.dst_id, ne, nn);
@@ -1046,7 +1120,7 @@ RouteData nextRouteData(const RouteData &rd, int out_dir, int out_vc)
     n.vc_id = out_vc;
     nextMasks(rd.current_id, rd.dir_in, out_dir, rd.src_id, rd.dst_id,
               rd.deft_exit_mask, rd.deft_entry_mask,
-              &n.deft_exit_mask, &n.deft_entry_mask);
+              &n.deft_exit_mask, &n.deft_entry_mask, rd.vc_id);
     return n;
 }
 
@@ -1085,8 +1159,9 @@ int pathLength(int src, int v, int e, int dst)
     const int sx = footprintX(src), sy = footprintY(src);
     const int vx = vlChipX(v), vy = vlChipY(v), ex = vlChipX(e), ey = vlChipY(e);
     const int dx = footprintX(dst), dy = footprintY(dst);
+    // ipos_tm O1: either order reaches every node from a fresh start, so XY stands for both
     if (!reach(g_config.chip_tm, sx, sy, DIR_NONE, vx, vy) ||
-        !reach(g_config.ipos_tm, vx, vy, DIR_NONE, ex, ey) ||
+        !reach(g_config.ipos_tm == TM_O1 ? (int) TM_XY : g_config.ipos_tm, vx, vy, DIR_NONE, ex, ey) ||
         !reach(g_config.chip_tm, ex, ey, DIR_NONE, dx, dy))
         return 1 << 20;
     return manhattanXY(sx, sy, vx, vy) + 1 + manhattanXY(vx, vy, ex, ey) + 1 + manhattanXY(ex, ey, dx, dy);
@@ -1374,6 +1449,9 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
                      nrd.deft_exit_mask, nrd.deft_entry_mask);
     flit->deft_exit_mask = nrd.deft_exit_mask;
     flit->deft_entry_mask = nrd.deft_entry_mask;
+    // v24 B2: the head leaves through another output than the one stored for this router
+    if (g_lookahead_fallback && flit->deft_lookahead_out >= 0 && flit->deft_lookahead_out != out_dir)
+        g_fb_taken++;
     // v23 B2: the next router's decision, from its state now, travels in the head
     flit->deft_lookahead_out = (g_lookahead_route && nrd.current_id >= 0 && nrd.current_id != rd.dst_id) ?
                                precomputeNextDecision(nrd) : -1;
@@ -1400,6 +1478,7 @@ int precomputeNextDecision(const RouteData &nrd)
         return -1;
     const unsigned long calls = g_selection_calls, adaptive = g_adaptive_decisions;
     int choice;
+    g_asking_absent = true;     // v24 B3: the head is not in the next router yet (read by outputVcBusy with busy_state 1)
     if (g_fast_on)
         choice = selectFast(next, offered, nrd);
     else if (GlobalParams::selection_strategy == "DEFT_QL")
@@ -1408,16 +1487,39 @@ int precomputeNextDecision(const RouteData &nrd)
         choice = selectHeuristic(next, offered, nrd);
     else
         choice = offered[rand() % offered.size()];
+    g_asking_absent = false;
     g_selection_calls = calls;
     g_adaptive_decisions = adaptive;
     return choice;
 }
 
-void onStoredDecisionUsed(int stored, int fresh)
+void onStoredDecisionUsed(int stored, int fresh, bool multi)
 {
     g_la_used++;
+    if (multi)
+        g_la_multi++;
     if (fresh != stored)
         g_la_mismatch++;
+}
+
+bool lookaheadFallback()
+{
+    return g_lookahead_fallback != 0;
+}
+
+bool downstreamVcFull(int router_id, int out_dir, int out_vc)
+{
+    Router *n = routerById(neighborId(router_id, out_dir));
+    return !n || n->buffer[arrivalPort(out_dir)][out_vc].IsFull();
+}
+
+void onFallbackCheck(bool blocked, bool other)
+{
+    g_fb_checks++;
+    if (blocked)
+        g_fb_blocked++;
+    if (other)
+        g_fb_requests++;
 }
 
 double hysteresis()
@@ -1479,6 +1581,15 @@ double downstreamOccupancy(Router *router, int out_dir, int out_vc)
 
 bool outputVcBusy(Router *router, const RouteData &rd, int out_dir, int out_vc)
 {
+    if (g_busy_state) {
+        // v24 B3: read from the reservation entries of the output. The VC is busy when a packet other than the asking one
+        // holds it. A reservation under the asking head's own input VC is its own only if the head is in this router (at the
+        // front of that VC); when the decision is computed ahead (lookahead routing) it belongs to the packet in front of it.
+        int holder_in, holder_vc;
+        if (!router->reservation_table.outputVcHolder(out_dir, out_vc, &holder_in, &holder_vc))
+            return false;
+        return g_asking_absent || holder_in != rd.dir_in || holder_vc != rd.vc_id;
+    }
     TReservation r;
     r.input = rd.dir_in;
     r.vc = rd.vc_id;
@@ -1501,6 +1612,52 @@ double localCost(Router *router, const RouteData &rd, int out_dir, double w, dou
     if (outputVcBusy(router, rd, out_dir, ovc))
         c += busy;
     return c;
+}
+
+// v24 B1 (-deft_lb lut_bias D): the default VL of a packet is DeFT-P's choice, the LUT's source_exit for the source router
+// (exit) and its entries_by_destination entry for the destination router (entry), whatever -deft_lut_entry says; under faults
+// the LUT's choice for the current mask. -1: no entry.
+int defaultVl(bool exit_phase, int src, int dst)
+{
+    const uint64_t mask = DeftVerticalLinkLut::currentFaultMask();
+    const int nchip = DeftTopology::ChipletCount;
+    if (g_default_exit.empty() || mask != g_default_mask) {
+        g_default_exit.assign((size_t) NCHIP_ROUTERS * nchip, -2);
+        g_default_entry.assign(NCHIP_ROUTERS, -2);
+        g_default_mask = mask;
+    }
+    if (exit_phase) {
+        int &v = g_default_exit[(size_t) src * nchip + chipletOf(dst)];
+        if (v == -2) {
+            DeftVerticalLinkLut::Entry e;
+            v = DeftVerticalLinkLut::lookup(chipletOf(src), src, chipletOf(dst), &e, 0) ? e.source_exit.selected_vl_id : -1;
+        }
+        return v;
+    }
+    int &v = g_default_entry[dst];
+    if (v == -2) {
+        DeftVerticalLinkLut::VerticalLinkSelection s;
+        v = DeftVerticalLinkLut::lookupDestinationEntry(dst, &s, 0) ? s.selected_vl_id : -1;
+    }
+    return v;
+}
+
+// +D for an offered output whose move removes the default VL of the current phase (exit in the source chiplet, entry on the
+// interposer) from the candidate mask while it is still in it. Once the default VL is gone nothing is penalised. The term
+// enters the choice among the offered outputs only: not the learner's TD target and not the one-hop lookahead term. The
+// candidate masks and their pruning are not touched.
+double lutBias(const RouteData &rd, int out_dir)
+{
+    const Phase ph = phaseOf(rd.current_id, rd.src_id, rd.dst_id);
+    if (ph != PH_SOURCE && ph != PH_IPOS)
+        return 0.0;
+    const int def = defaultVl(ph == PH_SOURCE, rd.src_id, rd.dst_id);
+    const VlMask before = ph == PH_SOURCE ? rd.deft_exit_mask : rd.deft_entry_mask;
+    if (def < 0 || !(before & bit(def)))
+        return 0.0;
+    VlMask ne, nn;
+    nextMasks(rd.current_id, rd.dir_in, out_dir, rd.src_id, rd.dst_id, rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn, rd.vc_id);
+    return ((ph == PH_SOURCE ? ne : nn) & bit(def)) ? 0.0 : g_lut_bias;
 }
 
 // One-hop lookahead term of DEFT_HEUR with heur_lookahead 1: the cheapest
@@ -1682,6 +1839,8 @@ int selectHeuristic(Router *router, const std::vector<int> &dirs,
             // using the neighbour's downstream occupancy (one more hop of information).
             c += 1.0 + bestContinuation(rd, o, g_config.heur_w);
         }
+        if (g_lut_bias > 0)
+            c += lutBias(rd, o);
         cost[k] = c;
     }
     if (g_hysteresis > 0) {
@@ -1702,8 +1861,11 @@ int selectQLearning(Router *router, const std::vector<int> &dirs,
     if (g_config.ql_eps > 0 && ((double) rand() / RAND_MAX) < g_config.ql_eps)
         return dirs[rand() % dirs.size()];
     std::vector<double> cost(dirs.size(), 0.0);
-    for (size_t k = 0; k < dirs.size(); k++)
+    for (size_t k = 0; k < dirs.size(); k++) {
         cost[k] = learnerCost(router, rd, dirs[k]);
+        if (g_lut_bias > 0)     // v24 B1: in the choice only (the TD target of onHeadAtFront does not have it)
+            cost[k] += lutBias(rd, dirs[k]);
+    }
     if (g_hysteresis > 0) {
         std::vector<double> hops(dirs.size(), 0.0);
         for (size_t k = 0; k < dirs.size(); k++)
@@ -1725,7 +1887,7 @@ double fastHops(const RouteData &rd, int out_dir)
     if (ph != PH_SOURCE && ph != PH_IPOS)
         return 1.0 + manhattan(neighborId(cur, out_dir), dst);
     VlMask ne, nn;
-    nextMasks(cur, rd.dir_in, out_dir, rd.src_id, dst, rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn);
+    nextMasks(cur, rd.dir_in, out_dir, rd.src_id, dst, rd.deft_exit_mask, rd.deft_entry_mask, &ne, &nn, rd.vc_id);
     const VlMask kept = ph == PH_SOURCE ? ne : nn;
     int slots = 0;
     for (int v = 0; v < NVL; v++)
@@ -2203,6 +2365,14 @@ void writeJson(std::ostream &out)
             << ", \"lookahead_mismatch\": " << g_la_mismatch << "," << std::endl;
     if (g_hysteresis > 0)                    // field only present with -deft_lb hysteresis D > 0 (v23)
         out << "    \"hysteresis\": " << g_hysteresis << "," << std::endl;
+    if (g_lut_bias > 0)                      // fields only present with the v24 options
+        out << "    \"lut_bias\": " << g_lut_bias << "," << std::endl;
+    if (g_busy_state)
+        out << "    \"busy_state\": 1," << std::endl;
+    if (g_lookahead_fallback)
+        out << "    \"lookahead_fallback\": 1, \"lookahead_multi\": " << g_la_multi << ", \"lookahead_fb_checks\": " << g_fb_checks
+            << ", \"lookahead_fb_blocked\": " << g_fb_blocked << ", \"lookahead_fb_requests\": " << g_fb_requests
+            << ", \"lookahead_fb_taken\": " << g_fb_taken << "," << std::endl;
     if (g_hop_stats || g_decision_delay > 0)    // fields only present with the v20 options
         out << "    \"decision_delay\": " << g_decision_delay << ", \"hops_chip\": " << g_hops[0][0] + g_hops[0][1]
             << ", \"hops_chip_multi\": " << g_hops[0][1] << ", \"hops_ipos\": " << g_hops[1][0] + g_hops[1][1]

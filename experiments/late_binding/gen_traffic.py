@@ -13,6 +13,9 @@ Patterns:
               by default), each receive 10 % of every other source's traffic, rest uniform
   chipperm    chiplet c sends only to chiplet C - 1 - c (default: diagonal pairs 0<->3, 1<->2);
               with an odd C the middle chiplet sends to itself (to its other routers)
+  chiptrans   (v24) chiplet (cx, cy) sends only to chiplet (cy, cx), uniformly over its routers; a chiplet on the diagonal
+              sends to its own other routers (as the middle chiplet of chipperm). Square chiplet grids only. Written only when
+              asked for with --patterns.
   movinghot   phases of T cycles; in phase k, 40 % of every source's traffic goes to hot chiplet
               HOT[k] (uniform over its routers), 60 % uniform; 4 phases repeat. HOT = the four
               corner chiplets 0, CX - 1, C - CX, C - 1 (default 0, 1, 2, 3)
@@ -76,6 +79,14 @@ def hotspot(src):
 
 def chipperm(src):
     tgt = C - 1 - chiplet(src)
+    ds = [d for d in range(N) if chiplet(d) == tgt and d != src]
+    return {d: 1.0 / len(ds) for d in ds}
+
+
+def chiptrans(src):
+    assert CX == CY, 'chiptrans needs a square chiplet grid'
+    c = chiplet(src)
+    tgt = (c % CX) * CX + c // CX          # chiplet (cx, cy) -> chiplet (cy, cx)
     ds = [d for d in range(N) if chiplet(d) == tgt and d != src]
     return {d: 1.0 / len(ds) for d in ds}
 

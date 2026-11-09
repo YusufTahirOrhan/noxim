@@ -171,6 +171,9 @@ SC_MODULE(Router)
     void rcDrain();
     void vcStatsCycle();
     void vcStatsWaitPass();
+    // v24 B2 (-deft_lb lookahead_fallback 1): output o is free for the head described by route_data, which holds no output:
+    // the output VC it would get there is not held by another packet and the downstream buffer of that VC is not full
+    bool outputFreeForHead(const RouteData & route_data, int o);
 
     vector<int> nextDeltaHops(RouteData rd);
   public:

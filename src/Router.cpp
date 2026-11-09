@@ -858,7 +858,27 @@ int Router::selectionFunction(const vector < int >&directions,
         {
             const int fresh = legal_directions.size() == 1 ? legal_directions[0]
                                                            : selectionStrategy->apply(this, legal_directions, route_data);
-            DeftLB::onStoredDecisionUsed(stored, fresh);
+            DeftLB::onStoredDecisionUsed(stored, fresh, legal_directions.size() > 1);
+        }
+        // v24 B2 (-deft_lb lookahead_fallback 1, off by default): every cycle, a head that holds no output yet asks for the
+        // stored output if it is free, else for the first other offered output (offer order) that is free, else for the
+        // stored one. A head that holds an output keeps it.
+        if (DeftLB::lookaheadFallback() && legal_directions.size() > 1)
+        {
+            int held_o, held_vc;
+            if (reservation_table.findReservation(route_data.dir_in, route_data.vc_id, &held_o, &held_vc))
+                return held_o;
+            int choice = stored;
+            const bool stored_free = outputFreeForHead(route_data, stored);
+            if (!stored_free)
+                for (size_t k = 0; k < legal_directions.size(); k++)
+                    if (legal_directions[k] != stored && outputFreeForHead(route_data, legal_directions[k]))
+                    {
+                        choice = legal_directions[k];
+                        break;
+                    }
+            DeftLB::onFallbackCheck(!stored_free, choice != stored);
+            return choice;
         }
         return stored;
     }
@@ -868,6 +888,35 @@ int Router::selectionFunction(const vector < int >&directions,
 	return legal_directions[0];
 
     return selectionStrategy->apply(this, legal_directions, route_data);
+}
+
+// The output VC follows the reservation phase of txProcess: DeFT's VN rules, with the round-robin's other VC when the counter's
+// VC is held (-deft_rr_fallback 1); without VN rules and with -vc_per_hop 1, any VC of the output. The downstream buffer is read as
+// the selection reads its occupancy term (DeftLB::downstreamVcFull), see results_v24_xy/DECISIONS.md B2.
+bool Router::outputFreeForHead(const RouteData & route_data, int o)
+{
+    TReservation r;
+    r.input = route_data.dir_in;
+    r.vc = route_data.vc_id;
+    bool uses_rr = false;
+    r.output_vc = DeftVirtualNetwork::selectOutputVirtualNetwork(route_data, o, &uses_rr);
+    if (GlobalParams::vc_per_hop && !(DeftVirtualNetwork::isEnabled() && DeftVirtualNetwork::rulesActive()))
+    {
+	for (int k = 0; k < GlobalParams::n_virtual_channels; k++)
+	{
+	    r.output_vc = k;
+	    if (reservation_table.checkReservation(r, o) == RT_AVAILABLE && !DeftLB::downstreamVcFull(local_id, o, k))
+		return true;
+	}
+	return false;
+    }
+    int st = reservation_table.checkReservation(r, o);
+    if (st == RT_OUTVC_BUSY && uses_rr && DeftVirtualNetwork::rrFallback())
+    {
+	r.output_vc = 1 - r.output_vc;
+	st = reservation_table.checkReservation(r, o);
+    }
+    return st == RT_AVAILABLE && !DeftLB::downstreamVcFull(local_id, o, r.output_vc);
 }
 
 void Router::configure(const int _id,

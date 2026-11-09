@@ -21,3 +21,18 @@ Method = key of `experiments_v23.methods(size)`, plus the extra arguments, plus 
 | 10 | 2x2 | CI_qlLA_G `-deft_lb ipos_tm XY` | 0 | uniform (0x0000) | 0.0160 | 8162 / 8162 | 247.8145062485 / 247.8145062485 | identical |
 
 **10 / 10 rows identical** (received packets equal and latency equal to the 10 printed decimals).
+
+## B4: probe values that need the options of this round (binary md5 2b58bee06d53c11c4dba50319a7a9530)
+
+The probe code was throw-away and may differ from this round's implementation in tie-breaking; the target is agreement within 3 %.
+
+| variant | pipe_all | scenario, rate | accepted / latency: probe | this round | deviation (accepted, latency) | within 3 % |
+|---|---|---|---|---|---|---|
+| CI_qlLA_G `ipos_tm XY lut_bias 4` | 0 | chipperm 0.0040 | 0.0326 / 70.8 | 0.0326 / 70.8 | +0.1 %, +0.0 % | yes |
+| CI_qlLA_G `ipos_tm XY hop_weight_ipos 1.0` | 0 | chipperm 0.0070 | 0.0532 / 378.9 | 0.0532 / 378.9 | -0.1 %, +0.0 % | yes |
+| CI_qlLA_G `ipos_tm XY lookahead_route 1 lookahead_fallback 1 decision_delay 1` | 2 | uniform 0.0080 | 0.0647 / 94.4 | 0.0647 / 94.4 | -0.0 %, -0.0 % | yes |
+| CI_qlLA_G `ipos_tm XY lookahead_route 1 lookahead_fallback 1 decision_delay 1` | 2 | uniform 0.0110 | 0.0831 / 467.5 | 0.0831 / 467.5 | +0.0 %, -0.0 % | yes |
+| CI_qlLA_G `ipos_tm O1` | 0 | uniform 0.0100 | 0.0793 / 253.2 | 0.0793 / 253.2 | +0.0 %, -0.0 % | yes |
+| CI_qlLA_G `ipos_tm O1` | 0 | chipperm 0.0070 | 0.0479 / 735.3 | 0.0479 / 735.3 | -0.1 %, -0.0 % | yes |
+
+**6 / 6 rows within 3 % on both values.**

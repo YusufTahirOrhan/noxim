@@ -81,6 +81,8 @@ def legal_turn(model, p, last, new):
         return False                     # no U-turns
     if model == 'XY':
         return not (last in ('N', 'S') and new in ('E', 'W'))
+    if model == 'YX':                    # v24: dimension order with Y first
+        return not (last in ('E', 'W') and new in ('N', 'S'))
     if model == 'WF':                    # west-first
         return not (new == 'W' and last in ('N', 'S'))
     if model == 'OE':                    # Chiu odd-even
@@ -108,6 +110,10 @@ def moves_to(model, p, last, t):
         ms = productive(p, t)
         ms = [m for m in ms if m in ('E', 'W')] or ms   # XY: X first
         return tuple(m for m in ms if legal_turn('XY', p, last, m) and reach('XY', step(p, m), m, t))
+    if model == 'YX':
+        ms = productive(p, t)
+        ms = [m for m in ms if m in ('N', 'S')] or ms   # YX: Y first
+        return tuple(m for m in ms if legal_turn('YX', p, last, m) and reach('YX', step(p, m), m, t))
     return tuple(m for m in productive(p, t) if legal_turn(model, p, last, m) and reach(model, step(p, m), m, t))
 
 

@@ -55,7 +55,18 @@ CONFIGS_BOUNDED = {
 CONFIGS_FIXEDOE = {
     'FIXED_OE_OE': ('OE', 'OE', 'fixed', 'fixed'),
 }
-ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED, **CONFIGS_FIXEDOE)
+# v24: late binding without path adaptivity. Interposer order XY, or O1 = the order of the packet's VN on the interposer
+# (XY in VN0, YX in VN1), as -deft_lb ipos_tm O1 in the simulator. The two YX relations cover the plain option ipos_tm YX.
+CONFIGS_V24 = {
+    'CI_XY_XY': ('XY', 'XY', 'fixed', 'late'),
+    'FULL_XY_XY': ('XY', 'XY', 'late', 'late'),
+    'CI_XY_O1': ('XY', 'O1', 'fixed', 'late'),
+    'FULL_XY_O1': ('XY', 'O1', 'late', 'late'),
+    'FIXED_XY_O1': ('XY', 'O1', 'fixed', 'fixed'),
+    'CI_XY_YX': ('XY', 'YX', 'fixed', 'late'),
+    'FIXED_XY_YX': ('XY', 'YX', 'fixed', 'fixed'),
+}
+ALL_CONFIGS = dict(CONFIGS, **CONFIGS_BOUNDED, **CONFIGS_FIXEDOE, **CONFIGS_V24)
 # Negative control (vnrr_check.py): R3 and the F1 source rule removed. Must produce a cyclic CDG.
 NO_R3 = False
 # v23 (-deft_up_keep 1, review R1): the Up channel carries the VN the packet has on the interposer and the destination
@@ -184,9 +195,11 @@ def explore(cfg, faulty, hl_faulty=frozenset(), detail=False, hl_aware=False, de
                 out.append((('D', p, None, None, 1, d), ('U', here, vn if UP_KEEP else 1)))
                 if en == frozenset([here]):
                     return out
-            for mv, nen in moves_towards(ipos_tm, p, last, en, here).items():
+            # v24: with O1 the interposer turn model is the one of the packet's VN (XY in VN0, YX in VN1)
+            itm = ipos_tm if ipos_tm != 'O1' else ('YX' if vn == 1 else 'XY')
+            for mv, nen in moves_towards(itm, p, last, en, here).items():
                 q = step(p, mv)
-                if not ok('I', p, q) or not aware('I', ipos_tm, q, mv, [VLPOS[e] for e in nen]):
+                if not ok('I', p, q) or not aware('I', itm, q, mv, [VLPOS[e] for e in nen]):
                     continue
                 out.append((('I', q, mv, (ex, nen), vn, d), ('I', p, q, vn)))
             return out
