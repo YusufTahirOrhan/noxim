@@ -409,11 +409,25 @@ python3 cea_crossval.py config && python3 cea_crossval.py sweep 4 && python3 cea
 * `-pipe_all N` adds exactly N cycles per router (`probe_pipe.md`).
 
 ### Part D (pre-registered, `PREREGISTRATION.md`; seeds 91-95, 9 loads up to 2.4 x Lsat, pipe_all 0 and 2)
-_Results are in `report/summary.md` and `FINDINGS.md` (filled in when the runs complete)._
+* D1 load points of DeFT-P per size, scenario and pipe depth (`load_points_v23.md`); D2 8,370 runs (`eval_runs.csv`); D5 180
+  lookahead runs (`look_runs.csv`); D4 384 hysteresis runs (`herd_runs.csv`); 0 missing, 0 dead ends. Report: `report/summary.md`
+  (v10-format tables per size and pipe depth, `latency_load.png`, the VC-split table), `report/primary.csv` (Holm over 18).
+* **H1** (DeFT-P against the old DeFT, pipe_all 0): supported on 2x2 (THR +17 %, LAT -52 %) and 4x4 (THR +10 %, LAT -36 %),
+  n.s. on 3x3. Per scenario DeFT-P wins on uniform (THR +5 to +10 %) and chipperm (THR +6 to +92 %) and **loses on hotspot**
+  (THR -13 to -14 % on every size; the per-destination entry funnels the hot chiplet's traffic through one VL). The gap to MTR
+  and RC is not closed: uniform LAT +13 to +21 %, THR -3.6 to -7.7 % (1.4-3.3 % against the static-VC MTR and RC of v19-v21).
+* **H2** (ideal learners against DeFT-P): P99 gains supported on 2x2 and 3x3 (-33 to -55 %), LAT supported for CI on 2x2 only;
+  on 4x4 LAT goes against (+32 to +37 %) because of chipperm (LAT +14x, THR -31 %), while uniform, hotspot and the faulty-VL
+  scenario keep gains of LAT -8 to -60 %.
+* **D5:** the lookahead model keeps none of the learners' gain at pipe_all 2 except 16 % for FULL on 4x4 (LAT +22 to +521 %
+  against the ideal learner at 1.0 x Lsat; 5-6 % of stored decisions differ at the next router).
+* **D4:** hysteresis matters only for FULL_qlLA_G beyond saturation (D = 4: +17 to +23 % accepted throughput on 4x4 uniform at
+  pipe_all 0, peak unchanged); for CI no D changes anything by more than 5 %. Next grid for FULL: D in {2, 4, 6, 8}.
 
 ### Part C: CEA's simulator
 Our 2x2 system expressed in `noxim3.5d-sop`'s format (`cea/`): the paper's per-destination-router entry cannot be expressed, so
-the comparison is with DeFT-B. On the coarse grid the saturation loads agree (CEA 0.0115 / 0.011 against ours 0.011) and the
-latency curves within about one cycle; `report/cea_crossval.md` has the 9-load comparison.
+the comparison is with DeFT-B. Saturation loads agree within 5 % (CEA 0.0115 / 0.011 against ours 0.011; L0 19.5 against 19.2
+cycles), the latency ratio CEA / ours is 0.94-1.05 up to saturation and the accepted throughput agrees to 1 % at every load
+(`report/cea_crossval.md`).
 
 Start with `results_v23_fidelity/FINDINGS.md`.

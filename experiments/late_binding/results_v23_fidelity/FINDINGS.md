@@ -1,6 +1,6 @@
 # Findings v23: DeFT fidelity, modelling fixes, cross-validation, reference measurements
 
-Status: Parts A, B, C, D1, D2 and D5 complete (8,370 + 180 runs, 0 missing, 0 dead ends); D4 running; the answer to question 5 follows.
+Status: complete. Parts A, B, C and D1-D5 done; 8,370 (D2) + 180 (D5) + 384 (D4) runs, 0 missing, 0 dead-end events; the gates passed.
 
 ## Gates (Parts A and B)
 * **Regression** (`regression.md`): 84 / 84 configurations byte-identical against the 780fa6b build, three times: the 3ac1bae
@@ -103,4 +103,14 @@ The agreement covers the shared DeFT mechanics (VN rules, round-robin, exit and 
 per-destination entry or our late-binding modes.
 
 ### 5. Which hysteresis D is worth tuning?
-(pending D4)
+Only for FULL_qlLA_G, and only beyond saturation (`report/herding.csv`, `report/summary.md` D4; 4x4, seeds 101-102, loads 1.0-2.4
+x Lsat, accepted throughput):
+* **FULL_qlLA_G, uniform, decision_delay 0, pipe_all 0:** the peak THR (at 1.2 x Lsat) is 0.068 for every D, but the overloaded
+  plateau rises with D: at 1.4 x Lsat 0.0519 (D 0), 0.0553 (D 1), 0.0584 (D 2), 0.0637 (D 4), i.e. +23 % at D = 4, and +17 %
+  at 2.4 x Lsat (0.0530 to 0.0621). D = 4 is the end of the grid, so the next round's grid for FULL is D in {2, 4, 6, 8}.
+  On hotspot D = 4 gains 1-8 % beyond 1.6 x Lsat (0.0152 to 0.0164 at 2.4 x).
+* **FULL_qlLA_G with the lookahead at pipe_all 2:** D = 2 is best on uniform (+5 % at 1.4-1.6 x Lsat), D = 4 is below D = 0;
+  on hotspot D = 1 or 4 gains 10-12 % at 2.4 x Lsat.
+* **CI_qlLA_G:** no D changes the peak THR by more than 1 %; beyond saturation the differences are at most 5 % with no
+  consistent winner (D = 1 or 2 at decision_delay 0, D = 0 with the lookahead, where D = 4 loses 5 %). Not worth tuning.
+* No D makes the accepted throughput monotone in load for either learner (every configuration drops after its peak).
