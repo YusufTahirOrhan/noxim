@@ -536,6 +536,9 @@ B4_ROWS = [
     ('CI_qlLA_G', IPO1, 0, 'uniform', 0.0100, 0.0793, 253.2),
     ('CI_qlLA_G', IPO1, 0, 'chipperm', 0.0070, 0.0479, 735.3),
 ]
+B4_NOTE = ('Note on the two fallback rows: "downstream buffer not full" is read from the input buffer of the neighbour, as the selection reads its occupancy term. '
+           'With the buffer-full signal of the router itself (one cycle older) the same two runs give 0.0647 / 95.4 and 0.0831 / 446.9 (+1.1 % and -4.4 % latency); '
+           'see `DECISIONS.md`, B2, for the A/B on the tuning seeds.')
 B5_ROWS = [
     # v23 method, extra, probe accepted, probe latency (4x4 chiptrans, pipe_all 0, rate 0.0060)
     ('DeFT_P', [], 0.0421, 514), ('MTR', [], 0.0420, 465), ('CI_qlLA_G', [], 0.0485, 66), ('CI_qlLA_G', IPX, 0.0431, 461),
@@ -628,7 +631,7 @@ if __name__ == '__main__':
     elif stage == 'reprodoc':
         reprodoc()
     elif stage == 'repro2':
-        json.dump(dict(md5=E19.md5(os.path.join(BIN, 'noxim')), rows=probe_rows('b4', B4_ROWS, nproc)), open(os.path.join(RES, 'repro_b4.json'), 'w'), indent=1)
+        json.dump(dict(md5=E19.md5(os.path.join(BIN, 'noxim')), rows=probe_rows('b4', B4_ROWS, nproc), note=B4_NOTE), open(os.path.join(RES, 'repro_b4.json'), 'w'), indent=1)
         reprodoc()
     elif stage == 'b5':
         json.dump(dict(md5=E19.md5(os.path.join(BIN, 'noxim')), rows=probe_rows('b5', B5_ROWS, nproc, fixed=(0, 'chiptrans', 0.0060))),

@@ -80,5 +80,5 @@
    "within": true
   }
  ],
- "note": "Note on the two fallback rows: \"downstream buffer not full\" is read from the neighbour's input buffer, as the selection reads its occupancy term. With the router's own buffer-full signal (one cycle older) the same two runs give 0.0647 / 95.4 and 0.0831 / 446.9 (+1.1 % and -4.4 % latency); see `DECISIONS.md`, B2, for the A/B on the tuning seeds."
+ "note": "Note on the two fallback rows: \"downstream buffer not full\" is read from the input buffer of the neighbour, as the selection reads its occupancy term. With the buffer-full signal of the router itself (one cycle older) the same two runs give 0.0647 / 95.4 and 0.0831 / 446.9 (+1.1 % and -4.4 % latency); see `DECISIONS.md`, B2, for the A/B on the tuning seeds."
 }

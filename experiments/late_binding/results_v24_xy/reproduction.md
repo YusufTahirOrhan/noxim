@@ -37,7 +37,7 @@ The probe code was throw-away and may differ from this round's implementation in
 
 **6 / 6 rows within 3 % on both values.**
 
-Note on the two fallback rows: "downstream buffer not full" is read from the neighbour's input buffer, as the selection reads its occupancy term. With the router's own buffer-full signal (one cycle older) the same two runs give 0.0647 / 95.4 and 0.0831 / 446.9 (+1.1 % and -4.4 % latency); see `DECISIONS.md`, B2, for the A/B on the tuning seeds.
+Note on the two fallback rows: "downstream buffer not full" is read from the input buffer of the neighbour, as the selection reads its occupancy term. With the buffer-full signal of the router itself (one cycle older) the same two runs give 0.0647 / 95.4 and 0.0831 / 446.9 (+1.1 % and -4.4 % latency); see `DECISIONS.md`, B2, for the A/B on the tuning seeds.
 
 ## B5: the new pattern `chiptrans` (4x4, seed 91, pipe_all 0, rate 0.0060; binary md5 2b58bee06d53c11c4dba50319a7a9530)
 
