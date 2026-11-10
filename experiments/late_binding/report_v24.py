@@ -347,6 +347,28 @@ def main():
                 L.append('| %s | %s |' % (row, ' | '.join(cells)))
             L.append('')
 
+    # the two primary rows per scenario, with intervals
+    L += ['## The primary rows per scenario: CI_qlLA_X and CI_qlLA_O with LF against the best baseline (%, 95 % CI, unadjusted p)', '',
+          '| size | scenario | row | THR | LAT @1.0 Lsat | P99 @1.0 Lsat |', '|---|---|---|---|---|---|']
+    for z in SIZES:
+        for sc in scen(z):
+            for a in PRIMARY:
+                L.append('| %s | %s | %s | %s |' % (z, sname(sc), a, ' | '.join(fmt(find(size=z, row=a, reference='best baseline', metric=n, scenarios=sname(sc))) for n in METRICS)))
+    L.append('')
+
+    # absolute values
+    L += ['## Absolute values: THR / LAT @1.0 Lsat / P99 @1.0 Lsat (mean over the seeds; THR in flits per node per cycle, latencies in cycles)', '']
+    for z in SIZES:
+        L += ['**%s**' % z, '', '| row | ' + ' | '.join(sname(sc) for sc in scen(z)) + ' |', '|---|' + '---|' * 5]
+        for row in ROWS:
+            if not row_scen(row, z):
+                continue
+            cells = []
+            for sc in scen(z):
+                cells.append('%.4f / %.0f / %.0f' % (smean(row, z, sc, 'THR'), smean(row, z, sc, 'LAT'), smean(row, z, sc, 'P99')) if sc in row_scen(row, z) else '-')
+            L.append('| %s | %s |' % (row, ' | '.join(cells)))
+        L.append('')
+
     # mechanisms
     mech = []
     L += ['## Mechanisms: LF and DLY against the ideal decision of the same candidate (five scenarios; %, unadjusted)', '',
