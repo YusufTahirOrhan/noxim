@@ -152,3 +152,12 @@ are treated as hypotheses; where a measurement of this round disagrees with one,
 * **Best baseline.** Per (size, scenario, metric) the baseline with the best arithmetic mean of the metric over the five
   seeds (highest THR, lowest LAT, lowest P99). A size effect averages, per seed, the log ratios of the five scenarios, each
   against its own best baseline. A row with fewer scenarios (MTR and RC: four; the controls: one) is averaged over those.
+
+## C2: what the tuning chose (4,560 runs, 0 dead ends; `tuning.md`, `tune_runs.csv`)
+* Heuristic: W 2, B 0, G 1 on both sizes and both relations; D 2 on 2x2, D 0 on 4x4 (and 3x3). On 4x4 with relation X the
+  largest score (0.6632) belongs to W 2, B 4, G 1, D 2; the rule takes W 2, B 0, G 1, D 0 (0.6482), the simplest of the five
+  configurations within 0.02. On 2x2 no configuration with D = 0 is within 0.02 of the best.
+* Q-learning: A 0.01 everywhere, the smallest value of the grid. The grid is not extended (the rule was fixed before the
+  runs); a smaller rate may score higher. The Q-learning scores are within 0.013 of the heuristic's on every size and relation.
+* The v10 values (G 2, no penalty) score lower on every size and relation (heuristic: 0.32 against 0.55 and 0.18 against 0.44
+  on 2x2, 0.53 against 0.65 and 0.68 against 0.76 on 4x4), mostly through the latency at 0.5 and 1.0 × Lsat.
