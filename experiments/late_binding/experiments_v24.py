@@ -8,7 +8,7 @@ Stages (python3 experiments_v24.py STAGE [nproc] [extra]; --shard i/n accepted b
   equiv     B4: Q-learning with alpha = 0 against the heuristic under lookahead + fallback + busy_state -> equivalence.md
   repro2    B4: the six probe values that need the new options -> repro_b4.json
   formal    A2: formal/xy_check.py -> formal_xy.md
-  drain     A3: drain tests (extra = v10 | tuned | b13) -> drain_summary.csv (rows of all three parts are kept)
+  drain     A3: drain tests (extra = v10 | bias | lf) -> drain_summary.csv (the rows of the three parts are kept)
   sat, points   B5: DeFT-P's chiptrans ladders (seed 101, pipe_all 2) -> load_points_v24.json
   b5        B5: the six chiptrans probe rows -> repro_b5.json
   reprodoc  reproduction.md from repro_a0.json, repro_b4.json and repro_b5.json
@@ -449,7 +449,7 @@ def points():
 # ---- A3: drain tests ----
 def drain_cfgs(part, size):
     """(variant label, arguments, pipe_all) of a drain part: v10 = the Part C variants with their v10 parameters and DeFT_P_O1, ideal decision, at pipe_all 2
-    and 0; bias = lut_bias 4; lf = lookahead with the fallback and the busy state at its residual delay. tuned = the tuned parameters (after C2)."""
+    and 0; bias = lut_bias 4; lf = lookahead with the fallback and the busy state at its residual delay."""
     out = []
     if part == 'v10':
         for pipe in (2, 0):
@@ -458,11 +458,6 @@ def drain_cfgs(part, size):
         out += [('%s_bias4-p2' % v, variant_v10(size, v, D=4.0), 2) for v in PART_C]
     elif part == 'lf':
         out += [('%s_LF-p2' % v, variant_v10(size, v) + mech('LF', sel_kind(v)), 2) for v in PART_C]
-    elif part == 'tuned':
-        import experiments_v24_eval as EV
-        for v in PART_C:
-            out.append(('%s_tuned-p2' % v, EV.tuned_variant(size, v), 2))
-            out.append(('%s_tuned_LF-p2' % v, EV.tuned_variant(size, v) + mech('LF', sel_kind(v)), 2))
     else:
         raise ValueError(part)
     return out
@@ -513,17 +508,15 @@ def drain(part, nproc):
     js = drain_jobs(part)
     print('drain jobs (%s): %d' % (part, len(js)), flush=True)
     res = run_jobs(js, raw('drain_' + part), nproc=nproc, timeout=14400)
-    part_csv = os.path.join(RES, 'drain_%s.csv' % part)
+    part_csv = os.path.join(raw('drain_' + part), 'report.csv')
     fails = E19.drain_report(res, part_csv)
-    # one summary file for all parts run so far
-    rows, head = [], None
-    for p in ('v10', 'bias', 'lf', 'tuned'):
-        f = os.path.join(RES, 'drain_%s.csv' % p)
-        if os.path.exists(f):
-            r = list(csv.reader(open(f)))
-            head = ['part'] + r[0]
-            rows += [[p] + x for x in r[1:]]
-    with open(os.path.join(RES, 'drain_summary.csv'), 'w', newline='') as fh:
+    # one summary file for all parts: the rows of this part replace its earlier rows
+    summary = os.path.join(RES, 'drain_summary.csv')
+    r = list(csv.reader(open(part_csv)))
+    head = ['part'] + r[0]
+    rows = [x for x in csv.reader(open(summary))][1:] if os.path.exists(summary) else []
+    rows = [x for x in rows if x[0] != part] + [[part] + x for x in r[1:]]
+    with open(summary, 'w', newline='') as fh:
         w = csv.writer(fh, lineterminator=NL)
         w.writerow(head)
         w.writerows(rows)
