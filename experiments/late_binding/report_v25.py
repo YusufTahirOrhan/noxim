@@ -763,7 +763,10 @@ def part_c():
                                                                                          hm, t['hops_chip'] + t['hops_ipos'], t['lookahead_mismatch'], t['lookahead_used'], t['lookahead_fb_taken']))
     write(os.path.join(OUT, 'fault_k3_check.csv'), k3)
     # delivered share
-    L += ['', '## C.5 Delivered share (received / injected packets over a run; packets in flight at the end count as not delivered; mean over masks and seeds)', '',
+    L += ['', '## C.5 Delivered share (received / injected packets in the measured window; mean over masks and seeds)', '',
+          'A packet counts as injected when its head flit leaves the source queue after the warm-up, and as received when it arrives after the warm-up. Packets in flight at the',
+          'end of a run count as not delivered; packets injected during the warm-up and delivered in the window count as received, so a share slightly above 1 is possible.',
+          'Packets that still wait in a source queue are not injected: the share shows whether packets are lost or stuck inside the network, not how far the sources are saturated.', '',
           '| size | k | row | at 0.5 x Lsat | 1.0 x | 1.4 x | 2.0 x |', '|---|---|---|---|---|---|---|']
     for z in SIZES:
         for k in (1, 2, 3):
