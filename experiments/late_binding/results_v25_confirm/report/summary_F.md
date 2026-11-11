@@ -69,6 +69,20 @@ Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not 
 | DLY, XY, one unit per router | none | 19535 / 18249 (1.137 / 1.094) | 23877 / 22501 (1.120 / 1.082) |
 | DLY, XY, one unit per router | A, M | 20206 / 19177 (1.176 / 1.150) | 24665 / 23597 (1.157 / 1.135) |
 
+### Chiplet routers (um^2: hierarchy kept / flattened; in brackets relative to DeFT)
+
+The late-binding designs of this round do not route in the chiplets: their chiplet router is DeFT's with the exit LUT of round 18 (the LB-I chiplet router of rounds 18 and 21) and, on 2x2 only, the table of the default entry VL. The entry mask and the default VL pass through as header bits.
+
+| size | design | chiplet (5 ports) | boundary (6 ports) |
+|---|---|---|---|
+| 2x2 | DeFT | 17518 / 16720 (1.000 / 1.000) | 21701 / 20532 (1.000 / 1.000) |
+| 2x2 | chiplet router of rounds 18 and 21 (exit LUT) | 17591 / 16772 (1.004 / 1.003) | 21775 / 20577 (1.003 / 1.002) |
+| 2x2 | this round on 2x2: with the default-entry table | 18596 / 17602 (1.062 / 1.053) | 22805 / 21501 (1.051 / 1.047) |
+| 3x3 | DeFT | 17770 / 17035 (1.000 / 1.000) | 21964 / 20785 (1.000 / 1.000) |
+| 3x3 | chiplet router of rounds 18 and 21 (exit LUT) | 17943 / 17206 (1.010 / 1.010) | 22175 / 21113 (1.010 / 1.016) |
+| 4x4 | DeFT | 18019 / 17228 (1.000 / 1.000) | 22213 / 21168 (1.000 / 1.000) |
+| 4x4 | chiplet router of rounds 18 and 21 (exit LUT) | 18303 / 17524 (1.016 / 1.017) | 22535 / 21364 (1.015 / 1.009) |
+
 ### System level: average router area relative to DeFT (hierarchy kept / flattened)
 
 Weights per chiplet: 12 chiplet, 4 boundary, 12 interposer, 4 interposer + VL routers. Chiplet routers of the late-binding designs: the chiplet router of round 18 with the exit LUT; on 2x2, where the default-VL penalty is used (D = 2), with the table of the default entry VL (16 (C - 1) x 2 bits) in addition. The 3x3 interposer routers are the 4x4 ones (the RTL depends on the size through the coordinate width and D only).
@@ -89,6 +103,24 @@ Weights per chiplet: 12 chiplet, 4 boundary, 12 interposer, 4 interposer + VL ro
 | DLY, XY, one unit per input port | A, M | 1.213 / 1.131 | 1.178 / 1.103 | 1.180 / 1.104 |
 | DLY, XY, one unit per router | none | 1.099 / 1.078 | 1.070 / 1.051 | 1.072 / 1.052 |
 | DLY, XY, one unit per router | A, M | 1.118 / 1.104 | 1.089 / 1.078 | 1.091 / 1.079 |
+
+All routers of a system (mm^2, hierarchy kept; 2x2 128, 3x3 288, 4x4 512 routers):
+
+| design | cuts | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|---|
+| DeFT | none | 2.352 (+0.000) | 5.332 (+0.000) | 9.543 (+0.000) |
+| LB-I heuristic of round 18, one unit per router | none | 2.734 (+0.382) | 6.183 (+0.851) | 11.080 (+1.537) |
+| LF, XY (main row) | none | 2.897 (+0.545) | 6.390 (+1.057) | 11.451 (+1.908) |
+| LF, XY (main row) | M | 2.942 (+0.590) | 6.488 (+1.155) | 11.626 (+2.083) |
+| LF, XY (main row) | A, B | 2.974 (+0.622) | 6.564 (+1.231) | 11.761 (+2.217) |
+| LF, VN-split order (second row) | none | 3.156 (+0.804) | 6.940 (+1.607) | 12.429 (+2.886) |
+| LF, VN-split order (second row) | M | 3.241 (+0.889) | 7.125 (+1.792) | 12.758 (+3.215) |
+| LF, VN-split order (second row) | A, B | 3.300 (+0.948) | 7.267 (+1.935) | 13.011 (+3.468) |
+| DLY, XY, one unit per input port | none | 2.762 (+0.410) | 6.085 (+0.753) | 10.911 (+1.367) |
+| DLY, XY, one unit per input port | M | 2.808 (+0.456) | 6.185 (+0.853) | 11.088 (+1.544) |
+| DLY, XY, one unit per input port | A, M | 2.853 (+0.501) | 6.284 (+0.951) | 11.263 (+1.720) |
+| DLY, XY, one unit per router | none | 2.584 (+0.232) | 5.705 (+0.373) | 10.235 (+0.692) |
+| DLY, XY, one unit per router | A, M | 2.630 (+0.278) | 5.806 (+0.474) | 10.414 (+0.871) |
 
 ### Where the area is (hierarchy kept, um^2 and flip-flops)
 
@@ -208,7 +240,7 @@ Stages: the head is read at the buffer front (first stage), registers after stag
 | M, B | 3 | 1.24 | 0.39 | 1.26 | no (-0.26) | yes (+0.02) | 2 |
 | A, M, B | 4 | 1.22 | 0.73, 0.39 | 1.25 | no (-0.25) | yes (+0.04) | 3 |
 
-At 1 ns: **no configuration of the three cuts fits** (all three cuts: ROUTE on ipos6 2x2 is 0.25 ns over); a further cut is needed, L_dec >= 5.
+At 1 ns: **no configuration of the three cuts fits** (with all three cuts ROUTE on ipos6 2x2 is 0.25 ns over): that stage itself would have to be cut, which this RTL does not do.
 
 At T_ref: **L_dec = 2, N_fast = 1** (cuts: M; worst margin +0.00 ns, on RM on ipos6 4x4; inside the spread of the flow, 0.13 ns); decision_delay 1.
 
@@ -227,9 +259,53 @@ Stages: the head is read at the buffer front (first stage), registers after stag
 | M, B | 3 | 1.65 | 0.39 | 1.64 | no (-0.65) | no (-0.38) | 2 |
 | A, M, B | 4 | 1.50 | 0.70, 0.39 | 1.56 | no (-0.56) | no (-0.28) | 3 |
 
-At 1 ns: **no configuration of the three cuts fits** (all three cuts: ROUTE on ipos6 2x2 is 0.56 ns over); a further cut is needed, L_dec >= 5.
+At 1 ns: **no configuration of the three cuts fits** (with all three cuts ROUTE on ipos6 2x2 is 0.56 ns over): that stage itself would have to be cut, which this RTL does not do.
 
-At T_ref: **no configuration of the three cuts fits** (all three cuts: ROUTE on ipos6 4x4 is 0.28 ns over); a further cut is needed, L_dec >= 5.
+At T_ref: **no configuration of the three cuts fits** (with all three cuts ROUTE on ipos6 4x4 is 0.28 ns over): that stage itself would have to be cut, which this RTL does not do.
+
+### Cycles through the router, measured in RTL simulation (`hw/latency_check.txt`)
+
+A two-flit packet into an idle router; cycles from the head on the input link to the head on the output link. The reference pipeline is link + buffer write, route, VC allocation, switch allocation + crossbar: 4 cycles. Both sizes, routers with and without an Up link.
+
+| design | mechanism | units | cuts (A M B) | head with one offered output | head with a choice | as the rule says |
+|---|---|---|---|---|---|---|
+| LF_X | LF | per port | 0 0 0 | 4 | 4 | yes |
+| LF_X | LF | per port | 0 0 1 | 4 | 4 | yes |
+| LF_X | LF | per port | 0 1 0 | 4 | 4 | yes |
+| LF_X | LF | per port | 0 1 1 | 4 | 5 | yes |
+| LF_X | LF | per port | 1 0 0 | 4 | 4 | yes |
+| LF_X | LF | per port | 1 0 1 | 4 | 5 | yes |
+| LF_X | LF | per port | 1 1 0 | 4 | 5 | yes |
+| LF_X | LF | per port | 1 1 1 | 4 | 6 | yes |
+| LF_O | LF | per port | 0 0 0 | 4 | 4 | yes |
+| LF_O | LF | per port | 0 0 1 | 4 | 4 | yes |
+| LF_O | LF | per port | 0 1 0 | 4 | 4 | yes |
+| LF_O | LF | per port | 0 1 1 | 4 | 5 | yes |
+| LF_O | LF | per port | 1 0 0 | 4 | 4 | yes |
+| LF_O | LF | per port | 1 0 1 | 4 | 5 | yes |
+| LF_O | LF | per port | 1 1 0 | 4 | 5 | yes |
+| LF_O | LF | per port | 1 1 1 | 4 | 6 | yes |
+| DLY_X | DLY | per port | 0 0 0 | 4 | 4 | yes |
+| DLY_X | DLY | per port | 0 0 1 | 4 | 5 | yes |
+| DLY_X | DLY | per port | 0 1 0 | 4 | 5 | yes |
+| DLY_X | DLY | per port | 0 1 1 | 4 | 6 | yes |
+| DLY_X | DLY | per port | 1 0 0 | 4 | 5 | yes |
+| DLY_X | DLY | per port | 1 0 1 | 4 | 6 | yes |
+| DLY_X | DLY | per port | 1 1 0 | 4 | 6 | yes |
+| DLY_X | DLY | per port | 1 1 1 | 4 | 7 | yes |
+| DLY_X | DLY | per router | 0 0 0 | 4 | 4 | yes |
+| DLY_X | DLY | per router | 0 0 1 | 4 | 5 | yes |
+| DLY_X | DLY | per router | 0 1 0 | 4 | 5 | yes |
+| DLY_X | DLY | per router | 0 1 1 | 4 | 6 | yes |
+| DLY_X | DLY | per router | 1 0 0 | 4 | 5 | yes |
+| DLY_X | DLY | per router | 1 0 1 | 4 | 6 | yes |
+| DLY_X | DLY | per router | 1 1 0 | 4 | 6 | yes |
+| DLY_X | DLY | per router | 1 1 1 | 4 | 7 | yes |
+| REL | LF | per port | 0 0 0 | 4 | 4 | yes |
+| REL | DLY | per port | 0 0 0 | 4 | 4 | yes |
+| REL | DLY | per router | 0 0 0 | 4 | 4 | yes |
+
+configurations 140, all as expected: **yes**
 
 ### Route of a hop with one offered output, the fallback, and the period of the whole router
 

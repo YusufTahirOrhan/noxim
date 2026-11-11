@@ -250,6 +250,26 @@ def area_tables(area, nf):
             for c in cfg[(d, f)]:
                 line(DNAME[(d, f)], d, f, c)
         L.append('')
+    L += ['### Chiplet routers (um^2: %s; in brackets relative to DeFT)' % ' / '.join(KNAME[k] for k in ks), '',
+          'The late-binding designs of this round do not route in the chiplets: their chiplet router is DeFT\'s with the exit LUT of round 18 (the LB-I chiplet router '
+          'of rounds 18 and 21) and, on 2x2 only, the table of the default entry VL. The entry mask and the default VL pass through as header bits.', '',
+          '| size | design | ' + ' | '.join(TNAME[t] for t in ('chip5', 'chip6')) + ' |', '|---|---|---|---|']
+    for z in SIZES:
+        for name, d in (('DeFT', 'DeFT'), ('chiplet router of rounds 18 and 21 (exit LUT)', 'LBI18'), ('this round on 2x2: with the default-entry table', 'CHIP25')):
+            if ar(area, d, 'chip5', z) is None:
+                continue
+            cells = []
+            for t in ('chip5', 'chip6'):
+                v = [ar(area, d, t, z, kind=k) for k in ks]
+                b = [ar(area, 'DeFT', t, z, kind=k) for k in ks]
+                cells.append(' / '.join('%.0f' % x for x in v) + ' (' + ' / '.join('%.3f' % (x / y) for x, y in zip(v, b)) + ')')
+                row = dict(size=z, rtype=t, design=d, form='S', cuts='000')
+                for k, x, y in zip(ks, v, b):
+                    row['area_%s_um2' % k] = round(x, 1)
+                    row['rel_deft_%s' % k] = round(x / y, 4)
+                rows.append(row)
+            L.append('| %s | %s | ' % (z, name) + ' | '.join(cells) + ' |')
+    L.append('')
     return L, rows, cfg
 
 
@@ -296,6 +316,22 @@ def system_table(area, cfg):
     for d, f, mech in D25:
         for c in cfg[(d, f)]:
             line(DNAME[(d, f)], d, f, c)
+    nch = {'2x2': 4, '3x3': 9, '4x4': 16}
+    L += ['', 'All routers of a system (mm^2, hierarchy kept; %s routers):' % ', '.join('%s %d' % (z, 32 * nch[z]) for z in SIZES), '',
+          '| design | cuts | ' + ' | '.join(SIZES) + ' |', '|---|---|' + '---|' * len(SIZES)]
+    items = [('DeFT', 'DeFT', 'S', '000'), (DNAME[('LBI18', 'S')], 'LBI18', 'S', '000')]
+    for d, f, mech in D25:
+        items += [(DNAME[(d, f)], d, f, c) for c in cfg[(d, f)]]
+    for name, d, f, c in items:
+        cells = []
+        for z in SIZES:
+            tot = system(area, d, f, c, z, 'hier') * 32 * nch[z] / 1e6
+            ref = system(area, 'DeFT', 'S', '000', z, 'hier') * 32 * nch[z] / 1e6
+            cells.append('%.3f (%+.3f)' % (tot, tot - ref))
+            for r in rows:
+                if r['design'] == d and r['form'] == f and r['cuts'] == c and r['size'] == z:
+                    r['system_total_mm2_hier'] = round(tot, 4)
+        L.append('| %s | %s | ' % (name, CUTNAME[c]) + ' | '.join(cells) + ' |')
     return L + [''], rows
 
 
@@ -456,7 +492,9 @@ def latency_lines():
     for r in rows:
         c = [x.strip() for x in r[1:-1]]
         name = c[0].rsplit('_', 1)[0]
-        by[(name, c[1], c[2], c[4])].add((c[6].split(',')[1].strip(), c[7].split(',')[1].strip(), c[9]))
+        rng = lambda x: x.split(',')[1].strip()  # noqa: E731
+        one = lambda x: x.split('-')[0] if len(set(x.split('-'))) == 1 else x  # noqa: E731
+        by[(name, c[1], c[2], c[4])].add((one(rng(c[6])), one(rng(c[7])), c[9]))
     L = ['### Cycles through the router, measured in RTL simulation (`hw/latency_check.txt`)', '',
          'A two-flit packet into an idle router; cycles from the head on the input link to the head on the output link. The reference pipeline is link + buffer '
          'write, route, VC allocation, switch allocation + crossbar: 4 cycles. Both sizes, routers with and without an Up link.', '',
