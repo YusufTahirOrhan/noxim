@@ -109,6 +109,14 @@ def eci(x):
     return 'n/a' if isnan(x['effect_pct']) else '%+.1f [%+.1f, %+.1f]' % (x['effect_pct'], x['ci_low'], x['ci_high'])
 
 
+def side(x):
+    """+1 when the effect is on the good side and its 95 % interval excludes zero (unadjusted p < 0.05), -1 on the bad side, 0 otherwise."""
+    if isnan(x['effect_pct']) or isnan(x['p']) or x['p'] >= 0.05:
+        return 0
+    good = x['effect_pct'] > 0 if x['metric'] == 'THR' else x['effect_pct'] < 0
+    return 1 if good else -1
+
+
 def short(x):
     return 'n/a' if isnan(x['effect_pct']) else '%+.1f' % x['effect_pct']
 
@@ -382,13 +390,33 @@ def part_b():
             L.append('| %s | %s | %s | %s |' % (row, b, lab, ' | '.join(cells)))
     L.append('')
 
+    # ---- per cell: better or worse ----
+    cells = []
+    L += ['## B.6 Per cell (one scenario on one size): where the two primary rows are better and where they are worse (descriptive)', '',
+          'A cell counts as better or worse when the 95 % interval of its effect excludes zero (ten seeds, unadjusted). The cells in which the row is worse are listed with',
+          'their effect in per cent.', '',
+          '| row | reference | metric | cells | better | worse | neither | cells where worse |', '|---|---|---|---|---|---|---|---|']
+    for row in (MAIN, SECOND):
+        for b in ['best'] + REF_ALL + ref_ff + REF_FAULT:
+            for n in METRICS:
+                ts = [(z, sc, find(z, row, b, n, [sc])) for z in SIZES for sc in row_scen(row, z) if b == 'best' or sc in row_scen(b, z)]
+                ts = [t for t in ts if not isnan(t[2]['effect_pct'])]
+                wl = ['%s %s (%+.1f)' % (sname(sc), z, x['effect_pct']) for z, sc, x in ts if side(x) < 0]
+                bl = ['%s %s (%+.1f)' % (sname(sc), z, x['effect_pct']) for z, sc, x in ts if side(x) > 0]
+                cells.append(dict(row=row, reference='best baseline' if b == 'best' else b, metric=n, cells=len(ts), better=len(bl), worse=len(wl),
+                                  neither=len(ts) - len(bl) - len(wl), cells_worse='; '.join(wl), cells_better='; '.join(bl)))
+                L.append('| %s | %s | %s | %d | %d | %d | %d | %s |' % (row, 'best baseline' if b == 'best' else b, n, len(ts), len(bl), len(wl), len(ts) - len(bl) - len(wl),
+                                                                    ', '.join(wl) if wl else '-'))
+    write(os.path.join(OUT, 'cells.csv'), cells)
+    L.append('')
+
     # ---- DLY against LF, Q-learning against the heuristic ----
-    L += ['## B.6 `CI_heurLA_X_DLY` against `CI_heurLA_X_LF` (the same row with the other mechanism; effect [95 % CI])', '',
+    L += ['## B.7 `CI_heurLA_X_DLY` against `CI_heurLA_X_LF` (the same row with the other mechanism; effect [95 % CI])', '',
           '| size | THR | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|---|']
     for z in SIZES:
         sc = scen_b(z)
         L.append('| %s | %s |' % (z, ' | '.join(eci(find(z, DLY, MAIN, n, sc)) for n in ('THR', 'LAT02', 'LAT05', 'LAT', 'P99'))))
-    L += ['', '## B.7 `CI_qlLA_X_LF` against `CI_heurLA_X_LF` per scenario (does learning help; effect [95 % CI]; 2x2 / 3x3 / 4x4)', '',
+    L += ['', '## B.8 `CI_qlLA_X_LF` against `CI_heurLA_X_LF` per scenario (does learning help; effect [95 % CI]; 2x2 / 3x3 / 4x4)', '',
           '| scenario | THR | LAT at 1.0 x Lsat | P99 | LAT at 0.2 x Lsat |', '|---|---|---|---|---|']
     for k in range(8):
         cells = [' / '.join(eci(find(z, QL, MAIN, n, [scen_b(z)[k]])) for z in SIZES) for n in ('THR', 'LAT', 'P99', 'LAT02')]
@@ -397,7 +425,7 @@ def part_b():
     L += ['| **all eight** | %s |' % ' | '.join(cells), '']
 
     # ---- low load ----
-    L += ['## B.8 Low-load latency against DeFT_P (effect [95 % CI] and the difference in cycles; eight scenarios)', '',
+    L += ['## B.9 Low-load latency against DeFT_P (effect [95 % CI] and the difference in cycles; eight scenarios)', '',
           '| size | row | LAT at 0.2 x Lsat | in cycles | LAT at 0.5 x Lsat | in cycles |', '|---|---|---|---|---|---|']
     for z in SIZES:
         sc = scen_b(z)
@@ -412,7 +440,9 @@ def part_b():
     L.append('')
 
     # ---- beyond the peak ----
-    L += ['## B.9 Accepted throughput beyond the peak (mean accepted throughput over the seeds, relative to the row\'s peak; mean and worst over the row\'s scenarios)', '',
+    L += ['## B.10 Accepted throughput beyond the peak (mean accepted throughput over the seeds, relative to the row\'s peak; mean and worst over the row\'s scenarios)', '',
+          'Where the maximum is at the top load the throughput is still rising at 2.4 x Lsat, and the value at 2.0 x Lsat is below the peak for that reason, not because of a fall;',
+          'the column "lowest point after the peak" is the measure of a fall.', '',
           '| size | row | at 2.0 x Lsat | at 2.4 x Lsat | lowest point after the peak | THR maximum at the top load | never falls by more than 1 % between loads |', '|---|---|---|---|---|---|---|']
     for z in SIZES:
         for row in rows:
@@ -426,7 +456,7 @@ def part_b():
 
     # ---- hops and the lookahead counters ----
     hops = []
-    L += ['## B.10 Decision hops, fallback and stale decisions (counters summed over the scenarios and seeds)', '',
+    L += ['## B.11 Decision hops, fallback and stale decisions (counters summed over the scenarios and seeds)', '',
           '| size | row | load | hops per packet | hops with more than one offered output: all / interposer | decision hops per packet | stored decisions that differ from a fresh one: of all / of decision hops | fallback: left through another output (of decision hops) | fallback: stored output not free (of checks) |',
           '|---|---|---|---|---|---|---|---|---|']
     for z in SIZES:
@@ -447,6 +477,19 @@ def part_b():
                     pc(t['lookahead_fb_taken'], t['lookahead_multi']) if t['lookahead_multi'] else '-',
                     pc(t['lookahead_fb_blocked'], t['lookahead_fb_checks']) if t['lookahead_fb_checks'] else '-'))
     write(os.path.join(OUT, 'hops.csv'), hops)
+    L += ['', 'Per scenario, `CI_heurLA_X_LF` at 1.0 x Lsat (2x2 / 3x3 / 4x4): hops with more than one offered output per packet, and the share of them left through another',
+          'output than the stored one.', '', '| scenario | decision hops per packet | fallback: left through another output (of decision hops) |', '|---|---|---|']
+    for k in range(8):
+        ca, cb = [], []
+        for z in SIZES:
+            t = D.hopstats(MAIN, z, (3,), [scen_b(z)[k]])
+            if not t or not t['packets_measured']:
+                ca.append('n/a')
+                cb.append('n/a')
+                continue
+            ca.append('%.2f' % ((t['hops_chip_multi'] + t['hops_ipos_multi']) / float(t['packets_measured'])))
+            cb.append(pc(t['lookahead_fb_taken'], t['lookahead_multi']) if t['lookahead_multi'] else '-')
+        L.append('| %s | %s | %s |' % (sname(scen_b('2x2')[k]), ' / '.join(ca), ' / '.join(cb)))
     L.append('')
 
     # ---- absolute values ----
@@ -465,7 +508,7 @@ def part_b():
                 rec['best_baseline_P99'] = D.best(z, sc, 'P99')
                 absr.append(rec)
     write(os.path.join(OUT, 'absolute.csv'), absr)
-    L += ['## B.11 Absolute values (mean over the seeds): THR in flits/node/cycle, LAT and P99 in cycles at 1.0 x Lsat', '']
+    L += ['## B.12 Absolute values (mean over the seeds): THR in flits/node/cycle, LAT and P99 in cycles at 1.0 x Lsat', '']
     for z in SIZES:
         L += ['### %s' % z, '', '| scenario | ' + ' | '.join(rows) + ' |', '|---|' + '---|' * len(rows)]
         for sc in scen_b(z):
@@ -514,14 +557,37 @@ def _has(D, row, z, sc, s, n):
         return False
 
 
+# Figure style. A row keeps its colour, dash and marker in every panel. Hue = family of the row (blue: the rows with relation X, orange: the row with
+# relation O, aqua: the DeFT rows; the three hues pass the colour-vision checks for all pairs), neutral gray: the references that run fault-free only.
+# Within a hue the dash and the marker tell the rows apart, so no row is identified by colour alone.
+BLUE, ORANGE, AQUA, INK2, MUTED, GRID, AXIS, INK = '#2a78d6', '#eb6834', '#1baf7a', '#52514e', '#898781', '#e1e0d9', '#c3c2b7', '#0b0b0b'
+STYLE = {
+    MAIN: dict(color=BLUE, ls='-', marker='o', lw=2.2, ms=5.5, zorder=6),
+    SECOND: dict(color=ORANGE, ls='-', marker='D', lw=2.2, ms=4.8, zorder=5),
+    DLY: dict(color=BLUE, ls='--', marker='^', lw=1.4, ms=4.5, zorder=4),
+    QL: dict(color=BLUE, ls=':', marker='s', lw=1.4, ms=4.0, zorder=4),
+    'CI_heurLA_X': dict(color=BLUE, ls='-', marker='o', lw=2.2, ms=5.5, zorder=6),
+    'DeFT_P': dict(color=AQUA, ls='-', marker='o', lw=1.4, ms=4.2, zorder=3),
+    'DeFT_B': dict(color=AQUA, ls='--', marker='^', lw=1.4, ms=4.5, zorder=3),
+    'DeFT_Dis': dict(color=AQUA, ls='-.', marker='v', lw=1.4, ms=4.5, zorder=3),
+    'DeFT_Ran': dict(color=AQUA, ls=':', marker='s', lw=1.4, ms=4.0, zorder=3),
+    'MTR': dict(color=INK2, ls='-', marker='x', lw=1.2, ms=5.0, zorder=2),
+    'RC': dict(color=INK2, ls='--', marker='+', lw=1.2, ms=6.0, zorder=2),
+    'XY_SP': dict(color=MUTED, ls=':', marker='.', lw=1.2, ms=5.0, zorder=1),
+}
+LEGEND_NAME = {MAIN: MAIN + ' (main row)', SECOND: SECOND + ' (second row)'}
+
+
 def curves(D, rows, row_scen, seeds):
     """Latency, p99 and accepted throughput against the offered load for every row: paper_data/latency_load_<size>_<scenario>.csv and the figures."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
     want = ['uniform', 'hotspot', 'chipperm', 'chiptrans', 'uniform+f']
     for z in ('4x4', '2x2'):
-        fig, axes = plt.subplots(1, len(want), figsize=(4.2 * len(want), 3.6))
+        fig, axes = plt.subplots(1, len(want), figsize=(4.2 * len(want), 4.3))
+        shown = []
         for ax, scn in zip(axes, want):
             sc = [x for x in scen_b(z) if sname(x) == scn][0]
             out = []
@@ -540,18 +606,32 @@ def curves(D, rows, row_scen, seeds):
                     out.append(rec)
                     xs.append(8 * rate)
                     ys.append(rec['latency_mean'])
-                style = dict(lw=2.0, marker='o', ms=3) if row in (MAIN, SECOND) else dict(lw=1.0, marker='.', ms=3, ls='--' if row in FROZEN else '-')
-                ax.plot(xs, ys, label=row, **style)
+                if xs:
+                    ax.plot(xs, ys, markeredgecolor='white' if STYLE[row]['marker'] in 'oD^vs' else STYLE[row]['color'], markeredgewidth=0.7, **STYLE[row])
+                    if row not in shown:
+                        shown.append(row)
             write(os.path.join(PD, 'latency_load_%s_%s.csv' % (z, scn.replace('+', '_'))), out)
             ax.set_yscale('log')
-            ax.set_title('%s %s' % (z, scn), fontsize=10)
-            ax.set_xlabel('offered load (flits/node/cycle)')
-            ax.grid(True, which='both', lw=0.3)
-        axes[0].set_ylabel('mean packet latency (cycles)')
-        axes[-1].legend(fontsize=6, loc='upper left')
-        fig.tight_layout()
+            ax.set_axisbelow(True)
+            ax.grid(True, which='major', color=GRID, lw=0.6, ls='-')
+            ax.axvline(8 * D.lad(z, sc)[3], color=AXIS, lw=0.8, ls='-', zorder=0)
+            ax.annotate('1.0 x Lsat', xy=(8 * D.lad(z, sc)[3], 1.0), xycoords=('data', 'axes fraction'), xytext=(3, -10), textcoords='offset points', fontsize=7, color=INK2)
+            ax.set_title('%s %s' % (z, scn), fontsize=10, color=INK)
+            ax.set_xlabel('offered load (flits/node/cycle)', color=INK2)
+            ax.tick_params(colors=INK2, which='both')
+            for sp in ('top', 'right'):
+                ax.spines[sp].set_visible(False)
+            for sp in ('left', 'bottom'):
+                ax.spines[sp].set_color(AXIS)
+        axes[0].set_ylabel('mean packet latency (cycles, log scale)', color=INK2)
+        order = [r for r in STYLE if r in shown]        # the legend keeps the families together
+        handles = [Line2D([], [], markeredgecolor='white' if STYLE[r]['marker'] in 'oD^vs' else STYLE[r]['color'], markeredgewidth=0.7,
+                          **{k: v for k, v in STYLE[r].items() if k != 'zorder'}) for r in order]
+        if order:
+            fig.legend(handles, [LEGEND_NAME.get(r, r) for r in order], loc='lower center', ncol=min(6, len(order)), frameon=False, fontsize=8, handlelength=3.2, labelcolor=INK)
+        fig.tight_layout(rect=(0, 0.11, 1, 1))
         for ext in ('png', 'pdf'):
-            fig.savefig(os.path.join(OUT, 'latency_load_%s.%s' % (z, ext)), dpi=130)
+            fig.savefig(os.path.join(OUT, 'latency_load_%s.%s' % (z, ext)), dpi=130, facecolor='white')
         plt.close(fig)
 
 

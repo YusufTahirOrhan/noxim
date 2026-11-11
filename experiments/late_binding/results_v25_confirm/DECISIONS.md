@@ -121,3 +121,17 @@ choice open, the choice is recorded here before the runs it affects.
   does not require an addendum. The result depends on the link cycle being available to the decision and on the clock
   period; under either condition the buildable LF has one residual cycle, a row that was not evaluated. The conservative
   choice: that row is pre-registered (`PREREGISTRATION_addendum.md`) and run on the Part B design, for the main row only.
+
+## Report
+* **The report was run on the finished sizes while 4x4 was still running.** When the 2x2 and 3x3 runs of Part B were complete
+  (12,600 of 18,900 runs), the report script and the second computation of the families (`check_v25_families.py`) were run
+  on them in a scratch folder, to test both on real output. Nothing of the design, the rows, the metrics or the tests was
+  changed afterwards, and no run was added or removed. Two things were changed in the report script as a result, both
+  descriptive: (1) the latency figures: a row now keeps its colour, dash and marker in every panel and the legend lists every
+  row (the first version listed only the rows of the last panel, and the fault-only rows took the colours of MTR and RC);
+  (2) two tables were added, in no family and with unadjusted intervals: per cell (one scenario on one size), in how many
+  cells each primary row is better or worse than each reference row (B.6), and the decision hops per scenario (in B.11).
+  They were added because the picture differs between the scenarios, which the size-level tables hide.
+* **A second computation of the two families** (`check_v25_families.py`, `report/families_check.md`): the 18 tests of Part B
+  and the 12 of Part C are computed from the per-run CSVs by a script that shares no code with the report, and compared with
+  the report's values. Not asked for by the prompt; added as a check of the statistics.
