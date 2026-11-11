@@ -70,3 +70,54 @@ choice open, the choice is recorded here before the runs it affects.
 
 ## Part E
 * The frozen selection values are used at pipe_all 0 as they are (they were tuned at pipe_all 2).
+
+## Part F
+* **What is built.** The interposer router of the three heuristic rows the prompt lists: LF with XY (`CI_heurLA_X_LF`, the
+  main row), LF with the VN-split order (`CI_heurLA_O_LF`) and DLY with XY (`CI_heurLA_X_DLY`; one decision unit per input
+  port, and one per router). The Q-learning row is not built. The core (buffers, allocators, crossbar) is the reference core
+  of round 18, unchanged; `core25.v` adds the input-VC control of LF, which asks for its output in the VC-allocation stage.
+  Chiplet routers: the chiplet router of round 18 with the exit LUT; on 2x2, where the default-VL penalty is 2, with a table
+  of the default entry VL (16 (C - 1) x 2 bits) whose entry is written into the head (`chip25_top.v`).
+* **LF without a sideband request.** Round 23 assumed that the downstream router computes on a pre-route request sent by
+  the upstream router over sideband wires. The RTL of this round does not use one: the decision unit of an input port
+  reads the head from the link, and its result is stored per input VC (two entries per VC: packets have at least two
+  flits and a buffer holds four). This needs no wire that the reference router does not have, and it is the conservative
+  choice for the timing question: the decision has two cycles (link, route) instead of the three of W = pipe_all + 1.
+  The variant with a request from the upstream router is described in `hw/FINDINGS_hw.md` and not built.
+* **Per-candidate cost.** With one dimension order per packet every entry candidate has exactly one minimal move, so the
+  RTL computes one cost per candidate (four) and takes the output of a candidate of least cost. This is the simulator's
+  `w f + 1 + bestContinuation + lutBias` per output, rearranged; the vectors check that the two agree, cost by cost.
+* **With XY the N and S input ports have no decision unit.** A head that arrives from N or S has one candidate left (a
+  chiplet has one VL per column). The vectors confirm it: no selection with more than one offered output after a move
+  north or south in any run of the XY designs.
+* **Vectors from simulator runs without a simulator option.** The prompt expects no new option. The vectors are dumped by
+  an instrumented copy of the simulator, built by a patch script from the sources of this commit (`hw/tb/patch_vecdump.py`,
+  `vecdump.inc`); `src/` is untouched and `bin/noxim` is not rebuilt. Every instrumented run is compared with the same run
+  of `bin/noxim`: the statistics files must be byte-identical. The vector runs use seed 1 (not an evaluation seed).
+* **Tie break.** The simulator draws at random among the outputs of least cost; the RTL uses a rotating priority driven by
+  a 3-bit LFSR. The check gives the unit the simulator's choice as the pointer (the unit must return it), and sweeps the
+  pointer over its five positions (the unit must return the first output of least cost at or after it). The LFSR itself is
+  not compared with the simulator's generator.
+* **Timing conventions.** Stage time = arrival + setup on the flattened netlist (1 ns - slack), as in rounds 18 and 21;
+  router positions are input straps. A stage that starts on a link gets T_CQ = 0.11 ns added (the clock-to-output delay of
+  the upstream output register; a path launched at an input port does not contain it). **T_ref** of a router type and size
+  is the longest stage of the DeFT router of that type and size, synthesised in the same run. A cut configuration fits a
+  period when every stage of the decision path does, on the four interposer routers (two types, 2x2 and 4x4); L_dec is 1 +
+  the number of cuts of the fitting configuration with the fewest cuts. The spread of the flow is measured on the chiplet
+  routers (unchanged logic): a margin below it is called marginal.
+* **Residual from the RTL, not from the formula.** LF: residual = max(0, L_dec - 2); DLY: decision_delay = L_dec - 1.
+  Both are measured in RTL simulation (`hw/latency_check.txt`: cycles of a head through an idle router for every design
+  and cut configuration).
+* **Area: hierarchy kept is the primary figure**, as in round 18. The flattened figure favours the designs of this round
+  (flattening removes the Local output port of the interposer router, which the relation never requests, from these
+  designs and not from DeFT's RTL), so a third synthesis keeps the router core as one module and flattens the rest
+  (`f_semi`); all three are reported.
+* **Correction of the area accounting of round 18.** Its parser (and the first tables of this round) counted sub-modules
+  without parameters as cells of no area: `xy_dir` inside the route units of DeFT, MTR, RC and the reference (about 190 um^2,
+  0.9 % of an interposer router) and, in this round, `lb25_single` and `lb25_fallback`. The totals of this round are checked
+  against the synthesis tool's own design area on all 344 netlists. Round 18's ratios of the late-binding routers to DeFT
+  were therefore about 1 % too high; its files are not changed.
+* **An addendum row.** At the reference period the evaluated main row is the mechanism that is built, so the pre-registration
+  does not require an addendum. The result depends on the link cycle being available to the decision and on the clock
+  period; under either condition the buildable LF has one residual cycle, a row that was not evaluated. The conservative
+  choice: that row is pre-registered (`PREREGISTRATION_addendum.md`) and run on the Part B design, for the main row only.
