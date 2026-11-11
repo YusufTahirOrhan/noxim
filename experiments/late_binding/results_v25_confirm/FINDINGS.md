@@ -22,7 +22,8 @@ build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PR
 * **Model check of the fault-sweep masks** (`formal_faults.md`): 27 masks (k = 1, 2, 3 faulty VLs in every chiplet; all nine
   masks of every size, the 4x4 ones included), relations `CI_XY_XY` and `CI_XY_O1` with the paper's Up rule: 54 of 54 pass
   (acyclic CDG, no dead-end state, no livelock; longest path at most 24 / 32 / 40 hops).
-* **Drain tests on the fault-sweep masks** (`drain_faults.csv`): pending.
+* **Drain tests on the fault-sweep masks** (`drain_faults.csv`): 162 / 162 pass (the six rows of the sweep on each of the 27 masks,
+  all-pairs burst: every packet delivered, 4,032 / 20,592 / 65,280 on 2x2 / 3x3 / 4x4, no dead-end event).
 * **Run-time rule** (`runtime_estimate.md`): 26.5 h estimated for Part B with 10 processes; nothing was dropped.
 * **Hardware checks** (`hw/FINDINGS_hw.md`, F2): 6.12 M, 6.21 M and 4.97 M vectors from simulator runs against the RTL of the
   three designs, 0 mismatches; every instrumented simulator run byte-identical to `bin/noxim`; 23 of 25 mutations caught (the
