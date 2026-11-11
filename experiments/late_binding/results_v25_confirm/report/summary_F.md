@@ -15,7 +15,7 @@ All three designs pass: **yes**.
 **21 of 24 mutations caught.**
 Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not wrap around; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.
 
-## F3: area (NanGate45 typical, Yosys + ABC at 1 GHz; um^2: hierarchy kept / flattened; in brackets relative to DeFT of the same type and size)
+## F3: area (NanGate45 typical, Yosys + ABC at 1 GHz; um^2: hierarchy kept / core kept / flattened; in brackets relative to DeFT of the same type and size)
 
 * **Hierarchy kept** (the primary figure, as in round 18): every unit is synthesised on its own. Nothing is shared between the relation units of the input VCs and the decision units, so it is an upper bound for the designs of this round.
 * **Core kept**: the router core (buffers, allocators, crossbar, input-VC state) stays one module and everything around it is flattened into the top. Logic is shared and constants are propagated within the routing and selection logic, not across the ports of the core.
@@ -25,84 +25,84 @@ Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not 
 
 | design | cuts | interposer (5 ports) | interposer + VL (6 ports) |
 |---|---|---|---|
-| DeFT | none | 17152 / 16574 (1.000 / 1.000) | 21289 / 20618 (1.000 / 1.000) |
-| LB-I heuristic of round 18, one unit per router | none | 22963 / 19607 (1.339 / 1.183) | 27453 / 24569 (1.290 / 1.192) |
-| LB-I heuristic of round 18, one unit per input port | none | 42583 / 27325 (2.483 / 1.649) | 52759 / 35227 (2.478 / 1.709) |
+| DeFT | none | 17152 / 16666 / 16574 (1.000 / 1.000 / 1.000) | 21289 / 20722 / 20618 (1.000 / 1.000 / 1.000) |
+| LB-I heuristic of round 18, one unit per router | none | 22963 / 20258 / 19607 (1.339 / 1.216 / 1.183) | 27453 / 24626 / 24569 (1.290 / 1.188 / 1.192) |
+| LB-I heuristic of round 18, one unit per input port | none | 42583 / 26964 / 27325 (2.483 / 1.618 / 1.649) | 52759 / 34829 / 35227 (2.478 / 1.681 / 1.709) |
 | fast selection of round 21, per router (its table: hierarchy kept) | its cut | 22405 (1.306) | 26655 (1.252) |
 | fast selection of round 21, per input port (its table: hierarchy kept) | its cut | 34908 (2.035) | 42506 (1.997) |
-| relation only, LF structure | none | 19509 / 15408 (1.137 / 0.930) | 24164 / 19547 (1.135 / 0.948) |
-| relation only, DLY, per port | none | 18365 / 16193 (1.071 / 0.977) | 22781 / 20541 (1.070 / 0.996) |
-| relation only, DLY, per router | none | 17632 / 16896 (1.028 / 1.019) | 21849 / 21024 (1.026 / 1.020) |
-| LF, XY (main row) | none | 23875 / 18089 (1.392 / 1.091) | 30839 / 23758 (1.449 / 1.152) |
-| LF, XY (main row) | M | 24470 / 18796 (1.427 / 1.134) | 31876 / 24839 (1.497 / 1.205) |
-| LF, XY (main row) | A, B | 24884 / 19310 (1.451 / 1.165) | 32631 / 25999 (1.533 / 1.261) |
-| LF, VN-split order (second row) | none | 27871 / 20700 (1.625 / 1.249) | 35035 / 26829 (1.646 / 1.301) |
-| LF, VN-split order (second row) | M | 29057 / 22224 (1.694 / 1.341) | 36770 / 28779 (1.727 / 1.396) |
-| LF, VN-split order (second row) | A, B | 29886 / 23503 (1.742 / 1.418) | 38029 / 30733 (1.786 / 1.491) |
-| DLY, XY, one unit per input port | none | 21916 / 18276 (1.278 / 1.103) | 28263 / 24197 (1.328 / 1.174) |
-| DLY, XY, one unit per input port | M | 22529 / 19021 (1.313 / 1.148) | 29295 / 25078 (1.376 / 1.216) |
-| DLY, XY, one unit per input port | A, M | 23128 / 19647 (1.348 / 1.185) | 30337 / 26321 (1.425 / 1.277) |
-| DLY, XY, one unit per router | none | 19635 / 18350 (1.145 / 1.107) | 24005 / 22641 (1.128 / 1.098) |
-| DLY, XY, one unit per router | A, M | 20330 / 19300 (1.185 / 1.164) | 24810 / 23524 (1.165 / 1.141) |
+| relation only, LF structure | none | 19509 / 17460 / 15408 (1.137 / 1.048 / 0.930) | 24164 / 21941 / 19547 (1.135 / 1.059 / 0.948) |
+| relation only, DLY, per port | none | 18365 / 17033 / 16193 (1.071 / 1.022 / 0.977) | 22781 / 21358 / 20541 (1.070 / 1.031 / 0.996) |
+| relation only, DLY, per router | none | 17632 / 17084 / 16896 (1.028 / 1.025 / 1.019) | 21849 / 21221 / 21024 (1.026 / 1.024 / 1.020) |
+| LF, XY (main row) | none | 23875 / 20105 / 18089 (1.392 / 1.206 / 1.091) | 30839 / 26129 / 23758 (1.449 / 1.261 / 1.152) |
+| LF, XY (main row) | M | 24470 / 20707 / 18796 (1.427 / 1.242 / 1.134) | 31876 / 27186 / 24839 (1.497 / 1.312 / 1.205) |
+| LF, XY (main row) | A, B | 24884 / 21199 / 19310 (1.451 / 1.272 / 1.165) | 32631 / 28260 / 25999 (1.533 / 1.364 / 1.261) |
+| LF, VN-split order (second row) | none | 27871 / 22025 / 20700 (1.625 / 1.322 / 1.249) | 35035 / 28743 / 26829 (1.646 / 1.387 / 1.301) |
+| LF, VN-split order (second row) | M | 29057 / 23457 / 22224 (1.694 / 1.407 / 1.341) | 36770 / 30500 / 28779 (1.727 / 1.472 / 1.396) |
+| LF, VN-split order (second row) | A, B | 29886 / 24816 / 23503 (1.742 / 1.489 / 1.418) | 38029 / 32566 / 30733 (1.786 / 1.572 / 1.491) |
+| DLY, XY, one unit per input port | none | 21916 / 19232 / 18276 (1.278 / 1.154 / 1.103) | 28263 / 24783 / 24197 (1.328 / 1.196 / 1.174) |
+| DLY, XY, one unit per input port | M | 22529 / 19812 / 19021 (1.313 / 1.189 / 1.148) | 29295 / 25956 / 25078 (1.376 / 1.253 / 1.216) |
+| DLY, XY, one unit per input port | A, M | 23128 / 20497 / 19647 (1.348 / 1.230 / 1.185) | 30337 / 27093 / 26321 (1.425 / 1.307 / 1.277) |
+| DLY, XY, one unit per router | none | 19635 / 18524 / 18350 (1.145 / 1.111 / 1.107) | 24005 / 22837 / 22641 (1.128 / 1.102 / 1.098) |
+| DLY, XY, one unit per router | A, M | 20330 / 19364 / 19300 (1.185 / 1.162 / 1.164) | 24810 / 23821 / 23524 (1.165 / 1.150 / 1.141) |
 
 ### 4x4
 
 | design | cuts | interposer (5 ports) | interposer + VL (6 ports) |
 |---|---|---|---|
-| DeFT | none | 17176 / 16680 (1.000 / 1.000) | 21318 / 20789 (1.000 / 1.000) |
-| LB-I heuristic of round 18, one unit per router | none | 22786 / 19968 (1.327 / 1.197) | 27325 / 25038 (1.282 / 1.204) |
-| LB-I heuristic of round 18, one unit per input port | none | 41900 / 28397 (2.439 / 1.702) | 52448 / 36587 (2.460 / 1.760) |
+| DeFT | none | 17176 / 16735 / 16680 (1.000 / 1.000 / 1.000) | 21318 / 20799 / 20789 (1.000 / 1.000 / 1.000) |
+| LB-I heuristic of round 18, one unit per router | none | 22786 / 20455 / 19968 (1.327 / 1.222 / 1.197) | 27325 / 24969 / 25038 (1.282 / 1.200 / 1.204) |
+| LB-I heuristic of round 18, one unit per input port | none | 41900 / 28156 / 28397 (2.439 / 1.682 / 1.702) | 52448 / 36444 / 36587 (2.460 / 1.752 / 1.760) |
 | fast selection of round 21, per router (its table: hierarchy kept) | its cut | 22375 (1.303) | 26629 (1.249) |
 | fast selection of round 21, per input port (its table: hierarchy kept) | its cut | 34738 (2.022) | 42299 (1.984) |
-| relation only, LF structure | none | 19509 / 15457 (1.136 / 0.927) | 24164 / 19576 (1.134 / 0.942) |
-| relation only, DLY, per port | none | 18365 / 16284 (1.069 / 0.976) | 22781 / 20586 (1.069 / 0.990) |
-| relation only, DLY, per router | none | 17632 / 16958 (1.027 / 1.017) | 21849 / 21069 (1.025 / 1.013) |
-| LF, XY (main row) | none | 23656 / 18031 (1.377 / 1.081) | 30517 / 23736 (1.432 / 1.142) |
-| LF, XY (main row) | M | 24236 / 18731 (1.411 / 1.123) | 31503 / 24846 (1.478 / 1.195) |
-| LF, XY (main row) | A, B | 24679 / 19240 (1.437 / 1.153) | 32280 / 25912 (1.514 / 1.246) |
-| LF, VN-split order (second row) | none | 27426 / 20662 (1.597 / 1.239) | 34483 / 26653 (1.618 / 1.282) |
-| LF, VN-split order (second row) | M | 28589 / 22001 (1.664 / 1.319) | 36138 / 28652 (1.695 / 1.378) |
-| LF, VN-split order (second row) | A, B | 29475 / 23308 (1.716 / 1.397) | 37436 / 30536 (1.756 / 1.469) |
-| DLY, XY, one unit per input port | none | 21719 / 18210 (1.264 / 1.092) | 27881 / 24000 (1.308 / 1.154) |
-| DLY, XY, one unit per input port | M | 22296 / 19230 (1.298 / 1.153) | 28914 / 24864 (1.356 / 1.196) |
-| DLY, XY, one unit per input port | A, M | 22882 / 19549 (1.332 / 1.172) | 29899 / 26098 (1.403 / 1.255) |
-| DLY, XY, one unit per router | none | 19535 / 18249 (1.137 / 1.094) | 23877 / 22501 (1.120 / 1.082) |
-| DLY, XY, one unit per router | A, M | 20206 / 19177 (1.176 / 1.150) | 24665 / 23597 (1.157 / 1.135) |
+| relation only, LF structure | none | 19509 / 17511 / 15457 (1.136 / 1.046 / 0.927) | 24164 / 22013 / 19576 (1.134 / 1.058 / 0.942) |
+| relation only, DLY, per port | none | 18365 / 17057 / 16284 (1.069 / 1.019 / 0.976) | 22781 / 21390 / 20586 (1.069 / 1.028 / 0.990) |
+| relation only, DLY, per router | none | 17632 / 17086 / 16958 (1.027 / 1.021 / 1.017) | 21849 / 21257 / 21069 (1.025 / 1.022 / 1.013) |
+| LF, XY (main row) | none | 23656 / 20039 / 18031 (1.377 / 1.197 / 1.081) | 30517 / 26079 / 23736 (1.432 / 1.254 / 1.142) |
+| LF, XY (main row) | M | 24236 / 20628 / 18731 (1.411 / 1.233 / 1.123) | 31503 / 27138 / 24846 (1.478 / 1.305 / 1.195) |
+| LF, XY (main row) | A, B | 24679 / 21159 / 19240 (1.437 / 1.264 / 1.153) | 32280 / 28165 / 25912 (1.514 / 1.354 / 1.246) |
+| LF, VN-split order (second row) | none | 27426 / 21946 / 20662 (1.597 / 1.311 / 1.239) | 34483 / 28469 / 26653 (1.618 / 1.369 / 1.282) |
+| LF, VN-split order (second row) | M | 28589 / 23404 / 22001 (1.664 / 1.399 / 1.319) | 36138 / 30286 / 28652 (1.695 / 1.456 / 1.378) |
+| LF, VN-split order (second row) | A, B | 29475 / 24648 / 23308 (1.716 / 1.473 / 1.397) | 37436 / 32296 / 30536 (1.756 / 1.553 / 1.469) |
+| DLY, XY, one unit per input port | none | 21719 / 19121 / 18210 (1.264 / 1.143 / 1.092) | 27881 / 24581 / 24000 (1.308 / 1.182 / 1.154) |
+| DLY, XY, one unit per input port | M | 22296 / 19820 / 19230 (1.298 / 1.184 / 1.153) | 28914 / 25732 / 24864 (1.356 / 1.237 / 1.196) |
+| DLY, XY, one unit per input port | A, M | 22882 / 20359 / 19549 (1.332 / 1.217 / 1.172) | 29899 / 26881 / 26098 (1.403 / 1.292 / 1.255) |
+| DLY, XY, one unit per router | none | 19535 / 18438 / 18249 (1.137 / 1.102 / 1.094) | 23877 / 22754 / 22501 (1.120 / 1.094 / 1.082) |
+| DLY, XY, one unit per router | A, M | 20206 / 19220 / 19177 (1.176 / 1.149 / 1.150) | 24665 / 23703 / 23597 (1.157 / 1.140 / 1.135) |
 
-### Chiplet routers (um^2: hierarchy kept / flattened; in brackets relative to DeFT)
+### Chiplet routers (um^2: hierarchy kept / core kept / flattened; in brackets relative to DeFT)
 
 The late-binding designs of this round do not route in the chiplets: their chiplet router is DeFT's with the exit LUT of round 18 (the LB-I chiplet router of rounds 18 and 21) and, on 2x2 only, the table of the default entry VL. The entry mask and the default VL pass through as header bits.
 
 | size | design | chiplet (5 ports) | boundary (6 ports) |
 |---|---|---|---|
-| 2x2 | DeFT | 17518 / 16720 (1.000 / 1.000) | 21701 / 20532 (1.000 / 1.000) |
-| 2x2 | chiplet router of rounds 18 and 21 (exit LUT) | 17591 / 16772 (1.004 / 1.003) | 21775 / 20577 (1.003 / 1.002) |
-| 2x2 | this round on 2x2: with the default-entry table | 18596 / 17602 (1.062 / 1.053) | 22805 / 21501 (1.051 / 1.047) |
-| 3x3 | DeFT | 17770 / 17035 (1.000 / 1.000) | 21964 / 20785 (1.000 / 1.000) |
-| 3x3 | chiplet router of rounds 18 and 21 (exit LUT) | 17943 / 17206 (1.010 / 1.010) | 22175 / 21113 (1.010 / 1.016) |
-| 4x4 | DeFT | 18019 / 17228 (1.000 / 1.000) | 22213 / 21168 (1.000 / 1.000) |
-| 4x4 | chiplet router of rounds 18 and 21 (exit LUT) | 18303 / 17524 (1.016 / 1.017) | 22535 / 21364 (1.015 / 1.009) |
+| 2x2 | DeFT | 17518 / 16942 / 16720 (1.000 / 1.000 / 1.000) | 21701 / 21134 / 20532 (1.000 / 1.000 / 1.000) |
+| 2x2 | chiplet router of rounds 18 and 21 (exit LUT) | 17591 / 17043 / 16772 (1.004 / 1.006 / 1.003) | 21775 / 21241 / 20577 (1.003 / 1.005 / 1.002) |
+| 2x2 | this round on 2x2: with the default-entry table | 18596 / 18027 / 17602 (1.062 / 1.064 / 1.053) | 22805 / 22266 / 21501 (1.051 / 1.054 / 1.047) |
+| 3x3 | DeFT | 17770 / 17222 / 17035 (1.000 / 1.000 / 1.000) | 21964 / 21413 / 20785 (1.000 / 1.000 / 1.000) |
+| 3x3 | chiplet router of rounds 18 and 21 (exit LUT) | 17943 / 17402 / 17206 (1.010 / 1.010 / 1.010) | 22175 / 21538 / 21113 (1.010 / 1.006 / 1.016) |
+| 4x4 | DeFT | 18019 / 17432 / 17228 (1.000 / 1.000 / 1.000) | 22213 / 21603 / 21168 (1.000 / 1.000 / 1.000) |
+| 4x4 | chiplet router of rounds 18 and 21 (exit LUT) | 18303 / 17739 / 17524 (1.016 / 1.018 / 1.017) | 22535 / 21877 / 21364 (1.015 / 1.013 / 1.009) |
 
-### System level: average router area relative to DeFT (hierarchy kept / flattened)
+### System level: average router area relative to DeFT (hierarchy kept / core kept / flattened)
 
 Weights per chiplet: 12 chiplet, 4 boundary, 12 interposer, 4 interposer + VL routers. Chiplet routers of the late-binding designs: the chiplet router of round 18 with the exit LUT; on 2x2, where the default-VL penalty is used (D = 2), with the table of the default entry VL (16 (C - 1) x 2 bits) in addition. The 3x3 interposer routers are the 4x4 ones (the RTL depends on the size through the coordinate width and D only).
 
 | design | cuts | 2x2 | 3x3 | 4x4 |
 |---|---|---|---|---|
-| DeFT | none | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 |
-| LB-I heuristic of round 18, one unit per router | none | 1.163 / 1.094 | 1.160 / 1.105 | 1.161 / 1.106 |
-| LB-I heuristic of round 18, one unit per input port | none | 1.735 / 1.334 | 1.707 / 1.369 | 1.714 / 1.362 |
-| LF, XY (main row) | none | 1.232 / 1.080 | 1.198 / 1.055 | 1.200 / 1.056 |
-| LF, XY (main row) | M | 1.251 / 1.103 | 1.217 / 1.077 | 1.218 / 1.079 |
-| LF, XY (main row) | A, B | 1.264 / 1.122 | 1.231 / 1.096 | 1.232 / 1.097 |
-| LF, VN-split order (second row) | none | 1.342 / 1.157 | 1.301 / 1.131 | 1.302 / 1.131 |
-| LF, VN-split order (second row) | M | 1.378 / 1.204 | 1.336 / 1.173 | 1.337 / 1.173 |
-| LF, VN-split order (second row) | A, B | 1.403 / 1.245 | 1.363 / 1.213 | 1.363 / 1.214 |
-| DLY, XY, one unit per input port | none | 1.174 / 1.087 | 1.141 / 1.061 | 1.143 / 1.062 |
-| DLY, XY, one unit per input port | M | 1.194 / 1.109 | 1.160 / 1.088 | 1.162 / 1.089 |
-| DLY, XY, one unit per input port | A, M | 1.213 / 1.131 | 1.178 / 1.103 | 1.180 / 1.104 |
-| DLY, XY, one unit per router | none | 1.099 / 1.078 | 1.070 / 1.051 | 1.072 / 1.052 |
-| DLY, XY, one unit per router | A, M | 1.118 / 1.104 | 1.089 / 1.078 | 1.091 / 1.079 |
+| DeFT | none | 1.000 / 1.000 / 1.000 | 1.000 / 1.000 / 1.000 | 1.000 / 1.000 / 1.000 |
+| LB-I heuristic of round 18, one unit per router | none | 1.163 / 1.106 / 1.094 | 1.160 / 1.112 / 1.105 | 1.161 / 1.114 / 1.106 |
+| LB-I heuristic of round 18, one unit per input port | none | 1.735 / 1.318 / 1.334 | 1.707 / 1.345 / 1.369 | 1.714 / 1.353 / 1.362 |
+| LF, XY (main row) | none | 1.232 / 1.141 / 1.080 | 1.198 / 1.110 / 1.055 | 1.200 / 1.113 / 1.056 |
+| LF, XY (main row) | M | 1.251 / 1.161 / 1.103 | 1.217 / 1.130 / 1.077 | 1.218 / 1.133 / 1.079 |
+| LF, XY (main row) | A, B | 1.264 / 1.179 / 1.122 | 1.231 / 1.148 / 1.096 | 1.232 / 1.151 / 1.097 |
+| LF, VN-split order (second row) | none | 1.342 / 1.200 / 1.157 | 1.301 / 1.166 / 1.131 | 1.302 / 1.169 / 1.131 |
+| LF, VN-split order (second row) | M | 1.378 / 1.242 / 1.204 | 1.336 / 1.209 / 1.173 | 1.337 / 1.212 / 1.173 |
+| LF, VN-split order (second row) | A, B | 1.403 / 1.285 / 1.245 | 1.363 / 1.249 / 1.213 | 1.363 / 1.251 / 1.214 |
+| DLY, XY, one unit per input port | none | 1.174 / 1.113 / 1.087 | 1.141 / 1.081 / 1.061 | 1.143 / 1.084 / 1.062 |
+| DLY, XY, one unit per input port | M | 1.194 / 1.134 / 1.109 | 1.160 / 1.103 / 1.088 | 1.162 / 1.106 / 1.089 |
+| DLY, XY, one unit per input port | A, M | 1.213 / 1.156 / 1.131 | 1.178 / 1.122 / 1.103 | 1.180 / 1.125 / 1.104 |
+| DLY, XY, one unit per router | none | 1.099 / 1.085 / 1.078 | 1.070 / 1.054 / 1.051 | 1.072 / 1.057 / 1.052 |
+| DLY, XY, one unit per router | A, M | 1.118 / 1.109 / 1.104 | 1.089 / 1.077 / 1.078 | 1.091 / 1.080 / 1.079 |
 
 All routers of a system (mm^2, hierarchy kept; 2x2 128, 3x3 288, 4x4 512 routers):
 
