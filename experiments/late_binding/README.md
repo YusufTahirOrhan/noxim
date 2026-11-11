@@ -483,7 +483,7 @@ python3 experiments_v24.py csv && python3 experiments_v24.py sanity 9 && python3
 * **Orders (ideal decision):** XY wins uniform, chipperm and the faulty scenario; the VN-split order wins chiptrans (THR +17 % and
   +28 % over XY on 3x3 and 4x4) and gives up about 3 % on uniform and faulty and 3-14 % on chipperm; odd-even wins none and loses
   chipperm (4x4: THR 0.0292 against 0.0583).
-* **Mechanisms:** LF keeps the latency of the ideal decision (the heuristic within 0.6 %, Q-learning +2-4 %) for 1-3 % of THR; DLY
+* **Mechanisms:** LF keeps the latency of the ideal decision (the heuristic within 1.5 %, Q-learning +2-4 %) for 1-3 % of THR; DLY
   keeps the THR and costs 5-12 % of latency at every load. With X and O only 11-17 % of the hops offer a choice (odd-even: 42-50 %).
 * **Information:** occupancy is nearly all of the gain over a random choice (THR +7 to +11 %); the one-hop lookahead adds 1-2 % of
   THR and 4-10 % of latency; Q-learning adds nothing.

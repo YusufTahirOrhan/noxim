@@ -134,8 +134,8 @@ O is within a point of it in latency and THR):
 | DLY, heuristic (2 cycles) | +7.6 / +5.3 / +4.8 % | +6.8 / +5.3 / +4.7 % | +5.2 / +5.0 / +5.0 % | +2.1 / +2.9 / +4.7 % | 0.0 / 0.0 / −0.1 % |
 | DLY, Q-learning (3 cycles) | +11.5 / +8.7 / +7.6 % | +10.6 / +8.8 / +7.8 % | +8.2 / +7.9 / +8.6 % | +5.5 / +5.2 / +10.8 % | −0.1 / −0.2 / −0.5 % |
 
-* **LF costs throughput, DLY costs latency.** LF keeps the latency of the ideal decision (the heuristic within 0.6 %) and
-  loses 1-3 % of THR. DLY keeps the THR and adds 5-12 % of latency at every load. DLY against LF: LAT at 0.2 × Lsat +7.4 /
+* **LF costs throughput, DLY costs latency.** LF keeps the latency of the ideal decision (the heuristic within 0.6 % with X
+  and within 1.5 % with O) and loses 1-3 % of THR. DLY keeps the THR and adds 5-12 % of latency at every load. DLY against LF: LAT at 0.2 × Lsat +7.4 /
   +5.3 / +4.7 %, LAT at 1.0 × Lsat +3 to +7 %, THR +0.6 to +3.7 %.
 * **Is the lookahead needed?** For the gain over the baselines, no: with DLY the candidates still beat the best baseline
   (`CI_heurLA_X` DLY: THR +5.7 / +12.8 / +10.4 %, LAT −17.1 / −15.3 / −19.8 %, P99 −40 / −44 / −46 %). For the low-load latency,
