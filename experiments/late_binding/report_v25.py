@@ -953,6 +953,10 @@ def part_a():
              len(des) - len(missing), len(des), len(missing), dead),
          'does when its decision takes three cycles (a link wire that leaves no time in the link cycle, or a 1 ns clock). The Part B design; the reference rows and the',
          'best baseline are those of Part B. Effects as in Part B.', '']
+    da = os.path.join(RES, 'drain_summary_addendum.csv')
+    if os.path.exists(da):
+        dr = list(csv.DictReader(open(da)))
+        L += ['Drain tests of the row (`drain_summary_addendum.csv`, the A4 protocol): %d of %d pass.' % (sum(1 for r in dr if r['result'] == 'PASS'), len(dr)), '']
     fam = [D.test(ADD, 'best', z, scen_b(z), n) for z in SIZES for n in METRICS]
     for x, q in zip(fam, holm([1.0 if isnan(x['p']) else x['p'] for x in fam])):
         x['p_holm'] = q
