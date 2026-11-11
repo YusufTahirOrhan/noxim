@@ -1,0 +1,84 @@
+{
+ "LF_X_P": {
+  "1ns": {
+   "fits": true,
+   "cuts": "101",
+   "L_dec": 3,
+   "N_fast": 2,
+   "worst_margin_ns": 0.0672,
+   "limiting": "RA on ipos6 4x4",
+   "marginal": true,
+   "residual": 1
+  },
+  "ref": {
+   "fits": true,
+   "cuts": "010",
+   "L_dec": 2,
+   "N_fast": 1,
+   "worst_margin_ns": 0.2303,
+   "limiting": "DMEM on ipos6 2x2",
+   "marginal": false,
+   "residual": 0
+  }
+ },
+ "LF_O_P": {
+  "1ns": {
+   "fits": true,
+   "cuts": "101",
+   "L_dec": 3,
+   "N_fast": 2,
+   "worst_margin_ns": 0.0477,
+   "limiting": "RA on ipos6 4x4",
+   "marginal": true,
+   "residual": 1
+  },
+  "ref": {
+   "fits": true,
+   "cuts": "010",
+   "L_dec": 2,
+   "N_fast": 1,
+   "worst_margin_ns": 0.181,
+   "limiting": "RM on ipos6 4x4",
+   "marginal": false,
+   "residual": 0
+  }
+ },
+ "DLY_X_P": {
+  "1ns": {
+   "fits": false,
+   "cuts": null,
+   "limiting": "ROUTE on ipos6 2x2",
+   "over_ns": 0.2545,
+   "note": "no configuration of the three cuts fits; one more cut is needed",
+   "L_dec_at_least": 5
+  },
+  "ref": {
+   "fits": true,
+   "cuts": "010",
+   "L_dec": 2,
+   "N_fast": 1,
+   "worst_margin_ns": 0.0016,
+   "limiting": "RM on ipos6 4x4",
+   "marginal": true,
+   "decision_delay": 1
+  }
+ },
+ "DLY_X_S": {
+  "1ns": {
+   "fits": false,
+   "cuts": null,
+   "limiting": "ROUTE on ipos6 2x2",
+   "over_ns": 0.5596,
+   "note": "no configuration of the three cuts fits; one more cut is needed",
+   "L_dec_at_least": 5
+  },
+  "ref": {
+   "fits": false,
+   "cuts": null,
+   "limiting": "ROUTE on ipos6 4x4",
+   "over_ns": 0.2844,
+   "note": "no configuration of the three cuts fits; one more cut is needed",
+   "L_dec_at_least": 5
+  }
+ }
+}
