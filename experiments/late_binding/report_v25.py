@@ -2,7 +2,8 @@
 
 Usage: python3 report_v25.py [b] [a] [c] [d] [e]     (default: every part whose per-run CSV exists)
   a  addendum_runs.csv (with eval_runs.csv) -> report/addendum.csv, summary_A.md, paper_data/addendum_effects.csv
-  b  eval_runs.csv   -> report/primary.csv, secondary.csv, saturation.csv, hops.csv, absolute.csv, summary_B.md, figures, paper_data/
+  b  eval_runs.csv   -> report/primary.csv, secondary.csv, saturation.csv, hops.csv, absolute.csv, summary_B.md, figures,
+     paper_data/ (effects per size and per scenario, absolute values, latency against load)
   c  fault_runs.csv  -> report/fault_family.csv, fault_secondary.csv, summary_C.md, paper_data/fault_sweep.csv
   d  app_runs.csv, pair_runs.csv -> report/apps.csv, summary_D.md, paper_data/apps.csv
   e  pipe0_runs.csv  -> report/pipe0.csv, summary_E.md
@@ -500,6 +501,7 @@ def part_b():
         ps_out.append(y)
     write(os.path.join(PD, 'effects_per_size.csv'), ps_out)
     write(os.path.join(PD, 'effects_per_scenario.csv'), per_scen)
+    write(os.path.join(PD, 'absolute_values.csv'), absr)
     curves(D, rows, row_scen, seeds)
     return L
 
