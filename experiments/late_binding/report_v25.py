@@ -4,7 +4,7 @@ Usage: python3 report_v25.py [b] [a] [c] [d] [e]     (default: every part whose 
   a  addendum_runs.csv (with eval_runs.csv) -> report/addendum.csv, summary_A.md, paper_data/addendum_effects.csv
   b  eval_runs.csv   -> report/primary.csv, secondary.csv, saturation.csv, hops.csv, absolute.csv, summary_B.md, figures, paper_data/
   c  fault_runs.csv  -> report/fault_family.csv, fault_secondary.csv, summary_C.md, paper_data/fault_sweep.csv
-  d  app_runs.csv, pair_runs.csv -> report/apps.csv, summary_D.md
+  d  app_runs.csv, pair_runs.csv -> report/apps.csv, summary_D.md, paper_data/apps.csv
   e  pipe0_runs.csv  -> report/pipe0.csv, summary_E.md
 report/summary.md is the concatenation of the parts that exist (the hardware tables come from report_v25_hw.py).
 
@@ -754,6 +754,10 @@ def part_d():
         bad = [r for r in A if r['finished'] != 'True' or r['injected'] != r['delivered']]
         L += ['## D.1 One application (the v13 protocol: nine PARSEC traces, the first 700,000 cycles of region 2)', '',
               'Runs: %d; runs that did not deliver their whole window: %d. Values are relative to DeFT_P of the same trace, mask and seed (geometric mean over the seeds).' % (len(A), len(bad)), '']
+        if bad:
+            L += ['Excluded (window not delivered): ' + '; '.join('%s %s %s seed %s' % (r['benchmark'], r['method'], r['mask'], r['seed']) for r in bad) + '.', '']
+            for r in bad:
+                K.pop((r['benchmark'], r['method'], r['mask'], int(r['seed'])), None)
         for mask in ('0x0000', '0x1111'):
             rs = [r for r in rows if not (r in ('MTR', 'RC') and mask != '0x0000')]
             L += ['### %s' % ('fault-free' if mask == '0x0000' else 'one faulty VL per chiplet (0x1111)'), '',
@@ -790,6 +794,10 @@ def part_d():
         bad = [r for r in A if r['finished'] != 'True' or r['injected'] != r['delivered']]
         L += ['## D.2 Two applications at once (the v15 protocol: the six pairs of the four heaviest traces, compression 1 and 2)', '',
               'Runs: %d; runs that did not deliver both windows: %d. Values relative to DeFT_P of the same pair, mask, compression and seed.' % (len(A), len(bad)), '']
+        if bad:
+            L += ['Excluded (windows not delivered): ' + '; '.join('%s %s %s compression %s seed %s' % (r['pair'], r['method'], r['mask'], r['s'], r['seed']) for r in bad) + '.', '']
+            for r in bad:
+                K.pop((r['pair'], r['method'], r['mask'], int(r['s']), int(r['seed'])), None)
         for mask in ('0x0000', '0x1111'):
             rs = [r for r in rows if not (r in ('MTR', 'RC') and mask != '0x0000')]
             for sv in (1, 2):
@@ -818,6 +826,8 @@ def part_d():
                 for r in rs:
                     out.append(dict(protocol='pair', workload='geometric mean', mask=mask, s=sv, row=r, latency_rel_DeFT_P=round(gmean(gl[r]), 5), completion_rel_DeFT_P=round(gmean(gc[r]), 5)))
     write(os.path.join(OUT, 'apps.csv'), out)
+    os.makedirs(PD, exist_ok=True)
+    write(os.path.join(PD, 'apps.csv'), out)
     wmd('summary_D.md', L)
     return L
 
