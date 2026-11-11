@@ -161,3 +161,18 @@ are treated as hypotheses; where a measurement of this round disagrees with one,
   runs); a smaller rate may score higher. The Q-learning scores are within 0.013 of the heuristic's on every size and relation.
 * The v10 values (G 2, no penalty) score lower on every size and relation (heuristic: 0.32 against 0.55 and 0.18 against 0.44
   on 2x2, 0.53 against 0.65 and 0.68 against 0.76 on 4x4), mostly through the latency at 0.5 and 1.0 × Lsat.
+
+## Part D: how it ran, and what was added to the report afterwards
+* The timing runs took 4,085 s; the estimate for the 14,850 runs was 17.0 h, below the 30 h limit, so nothing was dropped
+  (`runtime_estimate.md`). The design ran in full: 14,850 of 14,850 outputs, 0 missing, 0 dead-end events
+  (`experiments_v24.py check`), and the raw outputs were deleted after `eval_runs.csv` was written.
+* Added to `report_v24.py` while the runs were in progress, before any result was read: the table of the two primary rows per
+  scenario with intervals and the table of absolute values.
+* **Added after the results were read (descriptive only):** the column "lowest point after the peak" of the
+  beyond-saturation table. The pre-registered ratios (accepted throughput at 2.0 and 2.4 × Lsat over the row's peak) are kept
+  next to it. Reason: on chiptrans the chiplets on the diagonal send inside their own chiplet, the accepted throughput of every
+  row still grows at the top load, and the ratio at 2.0 × Lsat is below 1 there (0.87-0.93) without any loss of throughput.
+* **Reading of THR on chiptrans.** For the same reason the THR of every row on chiptrans is its accepted throughput at
+  2.4 × Lsat, not a saturation plateau. `FINDINGS.md` says so where it uses those numbers.
+* No analysis decision was changed after the results: the primary family, the best-baseline rule and the metrics are those of
+  `PREREGISTRATION.md`.

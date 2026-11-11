@@ -431,3 +431,65 @@ cycles), the latency ratio CEA / ours is 0.94-1.05 up to saturation and the acce
 (`report/cea_crossval.md`).
 
 Start with `results_v23_fidelity/FINDINGS.md`.
+
+## Round 24 (results_v24_xy/): late binding without path adaptivity (XY and a VN-split order on the interposer)
+Follows a review of round 23: the chipperm loss of the late-binding variants comes from the odd-even turn model on the interposer,
+not from the VL choice. New simulator options, all off by default; with the defaults, and with every option given explicitly off,
+the 84-configuration regression set is byte-identical to the 8d84634 build (`results_v24_xy/regression.md`).
+* `-deft_lb ipos_tm YX | O1`: `YX` = dimension order with Y first; `O1` = the order of the packet's VN on the interposer, XY in
+  VN0 and YX in VN1 (the VN does not change on the interposer, so each VN's interposer channels carry one order; cf. O1TURN, ReD).
+* `-deft_lb lut_bias D`: +D in the selection cost of an output whose move drops DeFT-P's VL (the LUT's exit, the per-destination
+  entry) from the candidate mask. Candidate masks and pruning are untouched.
+* `-deft_lb lookahead_fallback 1`: with lookahead routing, a head that holds no output asks for the stored output if it is free,
+  else for the first other offered output that is free, else for the stored one.
+* `-deft_lb busy_state 1`: the busy term read from the reservation entries of the output (the v23 lookahead lost it when the
+  packet ahead in the same input VC still held an output).
+* `gen_traffic.py --patterns chiptrans`: chiplet (cx, cy) sends to chiplet (cy, cx).
+* **Names.** Relation **X** = `chip_tm XY ipos_tm XY`, **O** = `chip_tm XY ipos_tm O1`, **G** = the v23 odd-even variants.
+  Mechanisms of a candidate: ideal (decision_delay 0), **LF** (lookahead + fallback + busy state at the residual delay), **DLY**
+  (no lookahead, decision_delay N_fast).
+```
+python3 experiments_v24.py repro 10 && python3 experiments_v24.py regress 6 BIN_8D84634 && python3 experiments_v24.py busy 6 && python3 experiments_v24.py equiv 6
+python3 experiments_v24.py repro2 6 && python3 experiments_v24.py formal 6 && python3 experiments_v24.py sat 12 && python3 experiments_v24.py points
+python3 experiments_v24.py drain 12 v10 && python3 experiments_v24.py drain 12 bias && python3 experiments_v24.py drain 12 lf && python3 experiments_v24.py b5 6
+python3 experiments_v24.py tunerule && python3 experiments_v24.py tune1 12 && python3 experiments_v24.py choose1 && python3 experiments_v24.py tune2 12 && python3 experiments_v24.py choose2
+python3 experiments_v24.py cut 4 && python3 experiments_v24.py timing 12 && python3 experiments_v24.py eval 12 && python3 experiments_v24.py check
+python3 experiments_v24.py csv && python3 experiments_v24.py sanity 9 && python3 report_v24.py
+```
+
+### Gates and tuning
+* **Reproduction** (`reproduction.md`): the review's 22 probe rows reproduce (10 with existing options to the last digit, 12 with
+  the options of this round to the printed digits).
+* **Model check** (`formal_xy.md`): late binding with XY and with O1, fixed pair with O1: all 897 masks of 2x2 and the sampled
+  masks of 3x3 and 4x4, acyclic CDG, no dead end, no livelock. **Drain tests** (`drain_summary.csv`): 1,254 / 1,254 pass.
+* **Centre cut** (`centre_cut.md`): with fixed VLs odd-even is already saturated at 0.8 x Lsat on 4x4 chipperm (0.0204 of 0.0320
+  accepted): the turn rules put the vertical crossings on the odd columns (0.25-0.42 against 0.01-0.11 flits/cycle).
+* **Tuning** (`tuning.md`, seeds 101-102, 4,560 runs): heur_w 2, heur_busy 0, hop_weight_ipos 1 on every size and relation;
+  lut_bias 2 on 2x2 and 0 on 3x3 and 4x4; ql_alpha 0.01. The hop weight 2 of rounds 8-23 is not kept.
+
+### Part D (pre-registered, `PREREGISTRATION.md`; pipe_all 2, seeds 111-115, 14,850 runs, 0 missing, 0 dead ends)
+* **Primary family (Holm over 18): 17 supported, 1 against.** `CI_qlLA_X` and `CI_qlLA_O` in mechanism LF against the best of
+  DeFT-P, DeFT-B, MTR and RC per scenario, over five scenarios (uniform, hotspot, chipperm, chiptrans, one faulty VL per chiplet):
+
+  | size | row | THR | LAT at 1.0 x Lsat | P99 |
+  |---|---|---|---|---|
+  | 2x2 | X | +3.7 % | -18.9 % | -40.1 % |
+  | 2x2 | O | -0.5 % (against) | -12.9 % | -35.5 % |
+  | 3x3 | X | +9.7 % | -17.8 % | -45.3 % |
+  | 3x3 | O | +9.8 % | -19.0 % | -50.1 % |
+  | 4x4 | X | +9.1 % | -22.5 % | -48.0 % |
+  | 4x4 | O | +10.8 % | -26.8 % | -56.8 % |
+
+* **Orders (ideal decision):** XY wins uniform, chipperm and the faulty scenario; the VN-split order wins chiptrans (THR +17 % and
+  +28 % over XY on 3x3 and 4x4) and gives up about 3 % on uniform and faulty and 3-14 % on chipperm; odd-even wins none and loses
+  chipperm (4x4: THR 0.0292 against 0.0583).
+* **Mechanisms:** LF keeps the latency of the ideal decision (the heuristic within 0.6 %, Q-learning +2-4 %) for 1-3 % of THR; DLY
+  keeps the THR and costs 5-12 % of latency at every load. With X and O only 11-17 % of the hops offer a choice (odd-even: 42-50 %).
+* **Information:** occupancy is nearly all of the gain over a random choice (THR +7 to +11 %); the one-hop lookahead adds 1-2 % of
+  THR and 4-10 % of latency; Q-learning adds nothing.
+* **Low load:** no cost against DeFT-P for the ideal decision and for LF with the heuristic (2-3 % faster at 0.2 x Lsat).
+* **Beyond saturation:** the candidates keep 98.6-100 % of their peak on average, like the baselines.
+* **Recommended main configuration for the confirmatory round:** `CI_heurLA_X` in mechanism LF, with `CI_heurLA_O` in LF as the
+  second configuration (it removes XY's weakness on transpose-like traffic and is ahead on 4x4).
+
+Start with `results_v24_xy/FINDINGS.md`.
