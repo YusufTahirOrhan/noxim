@@ -49,6 +49,7 @@ MUTATIONS = [
     ('fb_free: the fallback never leaves the stored output', 'lb25_units.v', 'wire stored_free = |(st1 & free);', "wire stored_free = 1'b1;", 'front', 0, 'LF_X', '4x4'),
     ('fb_none: with no free output the first alternative is asked, not the stored output', 'lb25_units.v', 'assign req = (stored_free || !(|alt)) ? stored : first;', 'assign req = stored_free ? stored : first;', 'front', 0, 'LF_X', '4x4'),
     ('fb_order: the fallback tries N before the Up link', 'lb25_units.v', "alt[4] ? 3'd4 : alt[0] ? 3'd0 :", "alt[0] ? 3'd0 : alt[4] ? 3'd4 :", 'front', 0, 'LF_X', '4x4'),
+    ('fb_order2: the fallback tries W, S, E before N', 'lb25_units.v', "alt[0] ? 3'd0 : alt[1] ? 3'd1 : alt[2] ? 3'd2 : 3'd3;", "alt[3] ? 3'd3 : alt[2] ? 3'd2 : alt[1] ? 3'd1 : 3'd0;", 'front', 0, 'LF_X', '4x4'),
     ('fb_offered: the fallback may ask for an output that is not offered', 'lb25_units.v', 'wire [4:0] alt = offered & free & ~st1;', 'wire [4:0] alt = free & ~st1;', 'front', 0, 'LF_X', '4x4'),
 ]
 
@@ -167,12 +168,14 @@ GROUPS = [
     ('RA', '*.ra.g.r* *.va.g.r*'),                   # decision, after stage A (relation and static terms)
     ('RM', '*.rm.g.r* *.vm.g.r*'),                   # decision, after stage M (occupancies of the candidates)
     ('RB', '*.rb.g.r* *.vb.g.r*'),                   # decision, after stage B (candidate costs)
-    ('DMEM', '*dec.dmem* *dec.dval*'),               # LF: the stored decision (end of the decision)
+    ('DMEM', '*dec.dmem*'),                          # LF: the stored decision (end of the decision)
+    ('DVAL', '*dec.dval* *dec.wsel* *dec.rsel*'),    # LF: valid bits and entry pointers of the stored decisions (set by the decision, cleared when the head leaves)
     ('OFFR', '*.off_r*'),                            # LF: route stage at the buffer front (the relation)
     ('ROUTE', '*ctl.out_port* *ctl.hdr* *ctl.out_vc* *core.hdr_v*'),      # route registers (DLY and the references: end of the route stage; LF: written in the VA stage)
     ('INFL', '*.infl*'),                             # DLY: decision in flight
     ('VASTATE', '*ctl.st* busy* *va.busy_r* *va.ovc*arb.ptr*'),           # VC allocation: input-VC state, output-VC state, arbiter pointers
     ('SA', '*sa.inp*arb.ptr* *sa.outp*arb.ptr* occ_report* *cc.c*n* out_flit* out_vc* out_valid* *xb.op*r*'),      # switch allocation, credit counters, crossbar registers
+    ('MISC', 'rnd* *regs.d*k.r*'),                   # tie-break LFSR, the neighbours' reports registered on arrival
 ]
 ALLGROUPS = [g for g, _ in GROUPS] + ['OTHER', 'FROMLINK']
 
@@ -231,13 +234,20 @@ def run_one(arg):
     n = d['tag']
     odir = os.path.join(RAW, 'flat' if flat else 'hier')
     os.makedirs(odir, exist_ok=True)
-    if os.path.exists(os.path.join(odir, n + ('.sta.txt' if flat else '.stat.json'))):
+    net = os.path.join(odir, n + '.net.v')
+    resta = flat and os.environ.get('V25_RESTA') == '1'          # run the timing analysis again (new groups) from the kept netlist
+    if os.path.exists(os.path.join(odir, n + ('.sta.txt' if flat else '.stat.json'))) and not resta:
         return n, True
-    ys = os.path.join(odir, n + '.ys')
-    open(ys, 'w').write(yosys_script(d, flat, odir))
-    r = subprocess.run([S.YOSYS, '-q', '-l', os.path.join(odir, n + '.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if r.returncode != 0:
-        return n, False
+    if resta and os.path.exists(net + '.gz') and os.path.exists(os.path.join(odir, n + '.stat.json')):
+        subprocess.run(['gunzip', '-k', '-f', net + '.gz'], check=True)
+    else:
+        ys = os.path.join(odir, n + '.ys')
+        open(ys, 'w').write(yosys_script(d, flat, odir))
+        r = subprocess.run([S.YOSYS, '-q', '-l', os.path.join(odir, n + '.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if r.returncode != 0:
+            return n, False
+        if flat:
+            subprocess.run(['gzip', '-k', '-f', net], check=True)      # the flat netlist is kept compressed
     if flat:
         reps = NL.join('rep %s {%s}' % g for g in GROUPS)
         tcl = os.path.join(odir, n + '.tcl')

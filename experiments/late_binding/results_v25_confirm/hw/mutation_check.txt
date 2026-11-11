@@ -1,0 +1,35 @@
+# v25 F2: can the vector checks fail? (experiments_v25.py f_mut)
+
+Each mutation changes one piece of text in a copy of the RTL; the checker is built from the copy and run on the vectors kept from one simulator run
+(uniform fault-free at 1.0 x Lsat) of the named design and size, without pipeline cuts. A mutation is caught when the checker reports mismatches.
+
+| mutation | file | vectors | applied | mismatches | caught |
+|---|---|---|---|---|---|
+| xy_order: a Y move before the X moves are done | lb25_units.v | LF_X 4x4 (selection) | 253834 | 82551 | yes |
+| xy_turn: an X move after a Y move | lb25_units.v | LF_X 4x4 (selection) | 253834 | 0 | **no** |
+| prune: the mask is not pruned by the move | lb25_units.v | LF_X 4x4 (selection) | 253834 | 236133 | yes |
+| hub_prune: the Up link keeps every candidate | lb25_units.v | LF_X 4x4 (selection) | 253834 | 4194 | yes |
+| t_up_hop: the Up link is not counted in the path total | lb25_units.v | LF_X 4x4 (selection) | 253834 | 72648 | yes |
+| t_rloc: wrong coordinate in the distance VL -> destination | lb25_units.v | LF_X 4x4 (selection) | 253834 | 72648 | yes |
+| z_turn: the neighbour turns before its X moves are done | lb25_units.v | LF_X 4x4 (selection) | 253834 | 3016 | yes |
+| zh: the boundary router moves in Y before X | lb25_units.v | LF_X 4x4 (selection) | 253834 | 196 | yes |
+| occ_vc: the neighbour report is read on VC0 only | lb25_units.v | LF_X 4x4 (selection) | 253834 | 36144 | yes |
+| up_vc1: behind the Up link VC0 is read | lb25_units.v | LF_X 4x4 (selection) | 253834 | 3882 | yes |
+| own_occ: the own occupancy is read on VC0 only | lb25_units.v | LF_X 4x4 (selection) | 253834 | 36144 | yes |
+| weight: w = 1 instead of 2 | lb25_units.v | LF_X 4x4 (selection) | 253834 | 36433 | yes |
+| bias: no default-VL penalty | lb25_units.v | LF_X 2x2 (selection) | 57084 | 24238 | yes |
+| bias_def: the penalty also when the default VL is not a candidate | lb25_units.v | LF_X 2x2 (selection) | 57084 | 1930 | yes |
+| tie_lt: strict comparison of the candidate costs | lb25_units.v | LF_X 4x4 (selection) | 253834 | 57508 | yes |
+| tie_drop: candidate 3 is left out of the outputs of least cost | lb25_units.v | LF_X 4x4 (selection) | 253834 | 47201 | yes |
+| rot: the tie break ignores its pointer | lb25_units.v | LF_X 4x4 (selection) | 253834 | 8268 | yes |
+| rot_wrap: the tie break does not wrap around | lb25_units.v | LF_X 4x4 (selection) | 253834 | 0 | **no** |
+| yx_order (VN-split order): an X move before the Y moves are done in VN1 | lb25_units.v | LF_O 4x4 (selection) | 254565 | 41532 | yes |
+| vn_order (VN-split order): the two VNs swap their orders | lb25_units.v | LF_O 4x4 (selection) | 254565 | 154306 | yes |
+| fb_free: the fallback never leaves the stored output | lb25_units.v | LF_X 4x4 (front) | 516926 | 3023 | yes |
+| fb_none: with no free output the first alternative is asked, not the stored output | lb25_units.v | LF_X 4x4 (front) | 516926 | 1660 | yes |
+| fb_order: the fallback tries N before the Up link | lb25_units.v | LF_X 4x4 (front) | 516926 | 0 | **no** |
+| fb_offered: the fallback may ask for an output that is not offered | lb25_units.v | LF_X 4x4 (front) | 516926 | 5231 | yes |
+
+**21 of 24 mutations caught.**
+
+Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not wrap around; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.

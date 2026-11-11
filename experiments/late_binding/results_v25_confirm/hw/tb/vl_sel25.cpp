@@ -3,7 +3,9 @@
 // Usage: Vvl_sel25 VECFILE ORDER_O DBIAS CUT_A CUT_M CUT_B      (the five values must be those the model was built with)
 // Per vector: offered outputs, pruned mask of every offered output, cost of every offered output (when the simulator
 // evaluated the selection), and the choice. The simulator breaks ties at random; the vector's choice is given to the unit
-// as the start of its rotating priority, so the unit returns it if and only if it is an output of least cost.
+// as the start of its rotating priority, so the unit returns it if and only if it is an output of least cost. Then the
+// pointer is swept over its five positions: the unit must return the first output of least cost at or after the pointer,
+// wrapping, where the outputs of least cost are taken from the simulator's costs (or the only offered output).
 #include "Vvl_sel25.h"
 #include "verilated.h"
 #include <cstdio>
@@ -17,7 +19,7 @@ int main(int argc, char **argv)
     const int order_o = atoi(argv[2]), dbias = atoi(argv[3]), cut_a = atoi(argv[4]), cut_m = atoi(argv[5]), cut_b = atoi(argv[6]);
     const int ncut = cut_a + cut_m + cut_b;
     Vvl_sel25 *t = new Vvl_sel25;
-    long n = 0, bad = 0, multi = 0, nodef = 0, ml[5] = {0, 0, 0, 0, 0};
+    long n = 0, bad = 0, multi = 0, nodef = 0, sweeps = 0, ml[5] = {0, 0, 0, 0, 0};
     unsigned v[53];
     for (;;) {
         int r = 0;
@@ -69,6 +71,28 @@ int main(int argc, char **argv)
                     if (hascost && ((t->cmin >> (8 * o)) & 255) != c[o]) ok = false;
                 }
             if (t->dec != choice) ok = false;
+            // pointer sweep (the tie break reads the pointer in the last stage, so no clock is needed)
+            unsigned tieset = 0, cmin = 0xffffffffu;
+            if (hascost) {
+                for (int o = 0; o < 5; o++)
+                    if (((off >> o) & 1) && c[o] < cmin) cmin = c[o];
+                for (int o = 0; o < 5; o++)
+                    if (((off >> o) & 1) && c[o] == cmin) tieset |= 1u << o;
+            } else if (cnt == 1) {
+                tieset = off;
+            }
+            if (tieset)
+                for (unsigned r = 0; r < 5; r++) {
+                    unsigned expd = 7;
+                    for (unsigned k = 0; k < 5 && expd == 7; k++)
+                        if ((tieset >> ((r + k) % 5)) & 1) expd = (r + k) % 5;
+                    t->rnd = r;
+                    t->eval();
+                    if (t->dec != expd) ok = false;
+                    sweeps++;
+                }
+            t->rnd = choice;
+            t->eval();
         }
         if (!ok) {
             bad++;
@@ -80,8 +104,8 @@ int main(int argc, char **argv)
             }
         }
     }
-    printf("RESULT sel order_o=%d dbias=%d cuts=%d%d%d vectors=%ld mismatches=%ld multi=%ld multi_by_last=%ld,%ld,%ld,%ld,%ld no_default=%ld\n",
-           order_o, dbias, cut_a, cut_m, cut_b, n, bad, multi, ml[0], ml[1], ml[2], ml[3], ml[4], nodef);
+    printf("RESULT sel order_o=%d dbias=%d cuts=%d%d%d vectors=%ld mismatches=%ld multi=%ld multi_by_last=%ld,%ld,%ld,%ld,%ld no_default=%ld pointer_checks=%ld\n",
+           order_o, dbias, cut_a, cut_m, cut_b, n, bad, multi, ml[0], ml[1], ml[2], ml[3], ml[4], nodef, sweeps);
     t->final();
     delete t;
     return 0;

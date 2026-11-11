@@ -1,0 +1,59 @@
+{
+ "summary": {
+  "LF_X": {
+   "sel": 1870613,
+   "sel_applied": 14964904,
+   "front": 4250603,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 564929,
+   "fb": 289389,
+   "fb_other": 23435,
+   "multi_last": [
+    0,
+    249903,
+    0,
+    255498,
+    59528
+   ]
+  },
+  "LF_O": {
+   "sel": 1861048,
+   "sel_applied": 14888384,
+   "front": 4346446,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 563170,
+   "fb": 291963,
+   "fb_other": 23352,
+   "multi_last": [
+    126387,
+    124182,
+    126416,
+    127573,
+    58612
+   ]
+  },
+  "DLY_X": {
+   "sel": 761561,
+   "sel_applied": 6092488,
+   "front": 4205674,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 761561,
+   "fb": 0,
+   "fb_other": 0,
+   "multi_last": [
+    0,
+    321740,
+    0,
+    339797,
+    100024
+   ]
+  }
+ },
+ "ok": true
+}
