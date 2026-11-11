@@ -186,7 +186,11 @@ def functional():
     for d, s in j['summary'].items():
         L.append('| %s | %d (%d) | %d | %d | %d | %d | %d / %d | **%d** | **%d** |' % (d, s['runs'], s['identical'], s['sel'], s['sel_applied'], s['multi'], s['front'],
                                                                                  s['fb'], s['fb_other'], s['sel'] + s['front'], s['mism']))
-    ptr = j.get('pointer_checks')
+    ptr = 0
+    ft = os.path.join(HW, 'functional_check.txt')
+    if os.path.exists(ft):
+        import re
+        ptr = sum(int(x) for x in re.findall(r'pointer_checks=([0-9]+)', open(ft).read()))
     if ptr:
         L += ['', 'Tie break: for every selection vector the pointer of the rotating priority was swept over its five positions and the unit had to return the first '
               'output of least cost at or after it, wrapping (%d checks, in the mismatch counts above).' % ptr]

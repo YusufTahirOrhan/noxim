@@ -19,17 +19,18 @@ Each mutation changes one piece of text in a copy of the RTL; the checker is bui
 | weight: w = 1 instead of 2 | lb25_units.v | LF_X 4x4 (selection) | 253834 | 36433 | yes |
 | bias: no default-VL penalty | lb25_units.v | LF_X 2x2 (selection) | 57084 | 24238 | yes |
 | bias_def: the penalty also when the default VL is not a candidate | lb25_units.v | LF_X 2x2 (selection) | 57084 | 1930 | yes |
-| tie_lt: strict comparison of the candidate costs | lb25_units.v | LF_X 4x4 (selection) | 253834 | 57508 | yes |
-| tie_drop: candidate 3 is left out of the outputs of least cost | lb25_units.v | LF_X 4x4 (selection) | 253834 | 47201 | yes |
-| rot: the tie break ignores its pointer | lb25_units.v | LF_X 4x4 (selection) | 253834 | 8268 | yes |
-| rot_wrap: the tie break does not wrap around | lb25_units.v | LF_X 4x4 (selection) | 253834 | 0 | **no** |
+| tie_lt: strict comparison of the candidate costs | lb25_units.v | LF_X 4x4 (selection) | 253834 | 57942 | yes |
+| tie_drop: candidate 3 is left out of the outputs of least cost | lb25_units.v | LF_X 4x4 (selection) | 253834 | 50758 | yes |
+| rot: the tie break ignores its pointer | lb25_units.v | LF_X 4x4 (selection) | 253834 | 16553 | yes |
+| rot_wrap: the tie break does not wrap around | lb25_units.v | LF_X 4x4 (selection) | 253834 | 232707 | yes |
 | yx_order (VN-split order): an X move before the Y moves are done in VN1 | lb25_units.v | LF_O 4x4 (selection) | 254565 | 41532 | yes |
 | vn_order (VN-split order): the two VNs swap their orders | lb25_units.v | LF_O 4x4 (selection) | 254565 | 154306 | yes |
 | fb_free: the fallback never leaves the stored output | lb25_units.v | LF_X 4x4 (front) | 516926 | 3023 | yes |
 | fb_none: with no free output the first alternative is asked, not the stored output | lb25_units.v | LF_X 4x4 (front) | 516926 | 1660 | yes |
 | fb_order: the fallback tries N before the Up link | lb25_units.v | LF_X 4x4 (front) | 516926 | 0 | **no** |
+| fb_order2: the fallback tries W, S, E before N | lb25_units.v | LF_X 4x4 (front) | 516926 | 107 | yes |
 | fb_offered: the fallback may ask for an output that is not offered | lb25_units.v | LF_X 4x4 (front) | 516926 | 5231 | yes |
 
-**21 of 24 mutations caught.**
+**23 of 25 mutations caught.**
 
-Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not wrap around; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.
+Not caught: xy_turn: an X move after a Y move; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.

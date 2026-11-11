@@ -10,10 +10,12 @@ Vectors dumped from simulator runs (an instrumented copy of the simulator whose 
 | LF_O | 12 (12) | 1861048 | 14888384 | 563170 | 4346446 | 291963 / 23352 | **6207494** | **0** |
 | DLY_X | 12 (12) | 761561 | 6092488 | 761561 | 4205674 | 0 / 0 | **4967235** | **0** |
 
+Tie break: for every selection vector the pointer of the rotating priority was swept over its five positions and the unit had to return the first output of least cost at or after it, wrapping (597335920 checks, in the mismatch counts above).
+
 All three designs pass: **yes**.
 
-**21 of 24 mutations caught.**
-Not caught: xy_turn: an X move after a Y move; rot_wrap: the tie break does not wrap around; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.
+**23 of 25 mutations caught.**
+Not caught: xy_turn: an X move after a Y move; fb_order: the fallback tries N before the Up link. See `hw/FINDINGS_hw.md` for whether each is redundant logic on reachable inputs.
 
 ## F3: area (NanGate45 typical, Yosys + ABC at 1 GHz; um^2: hierarchy kept / core kept / flattened; in brackets relative to DeFT of the same type and size)
 
