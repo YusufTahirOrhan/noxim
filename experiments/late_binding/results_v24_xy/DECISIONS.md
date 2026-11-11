@@ -26,7 +26,8 @@ are treated as hypotheses; where a measurement of this round disagrees with one,
   - the bounded-entry path length (`pathLength`) treats O1 as XY: from a fresh start either order reaches every node.
 * `O1` needs the DeFT VN rules (`vn_rules 1`; rejected otherwise). `YX` and `O1` are rejected with `-sel DEFT_FAST` (its
   ROM is not built for them; the prompt does not ask for it).
-* **Related work.** O1TURN (Seo, Jayasimha, Chien, ISCA 2005) lets a packet take XY or YX and gives each dimension order
+* **Related work.** O1TURN (Daeho Seo, Akif Ali, Won-Taek Lim, Nauman Rafique, Mithuna Thottethodi, ISCA 2005; the authors were
+  given wrongly in the first version of this file and were corrected in round 25) lets a packet take XY or YX and gives each dimension order
   its own virtual channel class, which keeps the union deadlock-free and balances the load of the two orders. ReD (Taheri et
   al., IEEE TCAD 2024) uses a different turn model in each virtual network of a 2.5D system. `O1` is the same construction
   on DeFT's two interposer VNs: the VN that DeFT's boundary round-robin assigns for deadlock freedom also selects the
