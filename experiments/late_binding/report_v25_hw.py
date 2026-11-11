@@ -488,7 +488,7 @@ def main():
     os.makedirs(PD, exist_ok=True)
     area, tim, brk = load()
     nf = n_fast(tim)
-    json.dump(nf, open(os.path.join(HW, 'n_fast.json'), 'w'), indent=1)
+    json.dump(nf, open(os.path.join(HW, 'n_fast.json'), 'w', newline=NL), indent=1)
     L = ['# Part F: hardware of the final design (interposer router; NanGate45, Yosys + ABC, OpenSTA)', '']
     L += functional()
     a_l, a_rows, cfg = area_tables(area, nf)
