@@ -224,6 +224,7 @@ def saturation(row, z):
         own = max((MULTS[i] for i in range(9) if ok[i] and all(ok[:i + 1])), default=0.0)
         out.append(dict(size=z, row=row, scenario=sname(sc), flagged_at_1_0=not ok[3], own_sat_load=own, thr_max_at=MULTS[arg], thr_at_top=arg == 8,
                         acc_2_0_over_peak=round(means[7] / peak, 4), acc_2_4_over_peak=round(means[8] / peak, 4),
+                        lowest_after_peak=round(min(means[i] for i in valid if i >= arg) / peak, 4),
                         monotone=all(means[i + 1] >= means[i] * 0.99 for i in range(8)), peak=round(peak, 5)))
     return out
 
@@ -508,15 +509,19 @@ def main():
             L.append('| %s | %s | %s |' % (z, nm, ' | '.join(c1 + c2 + c3)))
 
     # beyond saturation
-    L += ['', '## Beyond saturation: accepted throughput at 2.0 and 2.4 x Lsat relative to the row\'s peak (mean accepted over the seeds, per scenario; mean and minimum over the scenarios)', '',
-          '| size | row | at 2.0 x: mean (min) | at 2.4 x: mean (min) | scenarios where the accepted throughput never falls by more than 1 % from one load to the next |', '|---|---|---|---|---|']
+    L += ['', '## Beyond saturation: accepted throughput relative to the peak of the row (mean accepted over the seeds, per scenario; mean and minimum over the scenarios)', '',
+          'On chiptrans the chiplets on the diagonal send inside their own chiplet, so the accepted throughput of every row still grows at the top load: there the value at',
+          '2.0 x Lsat is below the peak (which sits at 2.4 x) without any loss. The column "lowest point after the peak" is the loss beyond saturation proper.', '',
+          '| size | row | at 2.0 x: mean (min) | at 2.4 x: mean (min) | lowest point after the peak: mean (min) | scenarios where the accepted throughput never falls by more than 1 % from one load to the next |',
+          '|---|---|---|---|---|---|']
     for z in SIZES:
         for row in ROWS:
             sv = [x for x in sat if x['size'] == z and x['row'] == row]
             if not sv:
                 continue
-            a20, a24 = [x['acc_2_0_over_peak'] for x in sv], [x['acc_2_4_over_peak'] for x in sv]
-            L.append('| %s | %s | %.3f (%.3f) | %.3f (%.3f) | %d of %d |' % (z, row, mean(a20), min(a20), mean(a24), min(a24), sum(1 for x in sv if x['monotone']), len(sv)))
+            a20, a24, alo = [x['acc_2_0_over_peak'] for x in sv], [x['acc_2_4_over_peak'] for x in sv], [x['lowest_after_peak'] for x in sv]
+            L.append('| %s | %s | %.3f (%.3f) | %.3f (%.3f) | %.3f (%.3f) | %d of %d |' % (z, row, mean(a20), min(a20), mean(a24), min(a24), mean(alo), min(alo),
+                                                                                  sum(1 for x in sv if x['monotone']), len(sv)))
     if missing:
         L += ['', '## Missing runs (%d)' % len(missing), ''] + ['- %s' % (m,) for m in missing[:100]]
     L += ['', 'Figures: `latency_load_4x4.png` / `.pdf` (mean latency against load) and `accepted_load_4x4.png` / `.pdf` (accepted against offered throughput), 4x4, four scenarios;',

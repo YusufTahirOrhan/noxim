@@ -1,0 +1,19 @@
+size,row,reference,metric,scenarios,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,CI_qlLA_X_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,3.69,3.28,4.11,1.449e-05,0.0001593,supported
+2x2,CI_qlLA_X_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-18.89,-20.15,-17.62,3.088e-06,4.324e-05,supported
+2x2,CI_qlLA_X_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-40.08,-50.64,-27.26,0.001839,0.005516,supported
+2x2,CI_qlLA_O_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,-0.54,-0.84,-0.23,0.007995,0.007995,against
+2x2,CI_qlLA_O_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-12.94,-14.3,-11.56,1.639e-05,0.0001639,supported
+2x2,CI_qlLA_O_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-35.48,-46.97,-21.49,0.003441,0.006882,supported
+3x3,CI_qlLA_X_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,9.74,9.3,10.19,3.656e-07,6.214e-06,supported
+3x3,CI_qlLA_X_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-17.81,-21.3,-14.16,0.0002331,0.001519,supported
+3x3,CI_qlLA_X_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-45.26,-52.86,-36.45,0.0003615,0.001519,supported
+3x3,CI_qlLA_O_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,9.82,9.36,10.3,4.383e-07,6.574e-06,supported
+3x3,CI_qlLA_O_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-19.01,-22.92,-14.9,0.0002917,0.001519,supported
+3x3,CI_qlLA_O_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-50.09,-57.09,-41.94,0.000217,0.001519,supported
+4x4,CI_qlLA_X_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,9.12,8.7,9.54,3.885e-07,6.216e-06,supported
+4x4,CI_qlLA_X_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-22.49,-24.47,-20.45,1.074e-05,0.0001288,supported
+4x4,CI_qlLA_X_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-48.05,-52.64,-43.02,3.951e-05,0.0003161,supported
+4x4,CI_qlLA_O_LF,best baseline,THR,uniform+hotspot+chipperm+chiptrans+faulty,5,10.83,10.43,11.24,1.542e-07,2.775e-06,supported
+4x4,CI_qlLA_O_LF,best baseline,LAT,uniform+hotspot+chipperm+chiptrans+faulty,5,-26.78,-28.99,-24.49,9.42e-06,0.0001225,supported
+4x4,CI_qlLA_O_LF,best baseline,P99,uniform+hotspot+chipperm+chiptrans+faulty,5,-56.81,-61.26,-51.83,2.824e-05,0.0002542,supported

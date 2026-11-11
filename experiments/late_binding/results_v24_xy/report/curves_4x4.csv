@@ -1,0 +1,613 @@
+figure,scenario,row,load_x_lsat,offered_flits_per_node_cycle,value,n_seeds
+latency,uniform,DeFT_P,0.2,0.012,62.36594,5
+latency,uniform,DeFT_P,0.5,0.032,69.13961,5
+latency,uniform,DeFT_P,0.8,0.052,86.04668,5
+latency,uniform,DeFT_P,1.0,0.064,131.04134,5
+latency,uniform,DeFT_P,1.2,0.076,543.7029,5
+latency,uniform,DeFT_P,1.4,0.088,1103.01008,5
+latency,uniform,DeFT_P,1.6,0.104,1743.65013,5
+latency,uniform,DeFT_P,2.0,0.128,2466.55632,5
+latency,uniform,DeFT_P,2.4,0.152,3042.38463,5
+latency,uniform,DeFT_B,0.2,0.012,64.7843,5
+latency,uniform,DeFT_B,0.5,0.032,71.61152,5
+latency,uniform,DeFT_B,0.8,0.052,89.93683,5
+latency,uniform,DeFT_B,1.0,0.064,200.69475,5
+latency,uniform,DeFT_B,1.2,0.076,575.96387,5
+latency,uniform,DeFT_B,1.4,0.088,1062.56552,5
+latency,uniform,DeFT_B,1.6,0.104,1672.31489,5
+latency,uniform,DeFT_B,2.0,0.128,2453.08261,5
+latency,uniform,DeFT_B,2.4,0.152,3011.34592,5
+latency,uniform,MTR,0.2,0.012,63.67777,5
+latency,uniform,MTR,0.5,0.032,69.21825,5
+latency,uniform,MTR,0.8,0.052,82.3317,5
+latency,uniform,MTR,1.0,0.064,105.42043,5
+latency,uniform,MTR,1.2,0.076,361.20542,5
+latency,uniform,MTR,1.4,0.088,905.9529,5
+latency,uniform,MTR,1.6,0.104,1441.51571,5
+latency,uniform,MTR,2.0,0.128,2162.62721,5
+latency,uniform,MTR,2.4,0.152,2755.1081,5
+latency,uniform,RC,0.2,0.012,62.74942,5
+latency,uniform,RC,0.5,0.032,68.09233,5
+latency,uniform,RC,0.8,0.052,80.68613,5
+latency,uniform,RC,1.0,0.064,102.3612,5
+latency,uniform,RC,1.2,0.076,365.73754,5
+latency,uniform,RC,1.4,0.088,938.9487,5
+latency,uniform,RC,1.6,0.104,1598.82305,5
+latency,uniform,RC,2.0,0.128,2384.3711,5
+latency,uniform,RC,2.4,0.152,3000.76599,5
+latency,uniform,CI_qlLA_X,0.2,0.012,60.62664,5
+latency,uniform,CI_qlLA_X,0.5,0.032,67.016,5
+latency,uniform,CI_qlLA_X,0.8,0.052,78.62961,5
+latency,uniform,CI_qlLA_X,1.0,0.064,91.79691,5
+latency,uniform,CI_qlLA_X,1.2,0.076,123.10722,5
+latency,uniform,CI_qlLA_X,1.4,0.088,410.29615,5
+latency,uniform,CI_qlLA_X,1.6,0.104,1057.88269,5
+latency,uniform,CI_qlLA_X,2.0,0.128,1853.22907,5
+latency,uniform,CI_qlLA_X,2.4,0.152,2496.53979,5
+latency,uniform,CI_qlLA_X_LF,0.2,0.012,62.58453,5
+latency,uniform,CI_qlLA_X_LF,0.5,0.032,69.27392,5
+latency,uniform,CI_qlLA_X_LF,0.8,0.052,81.16319,5
+latency,uniform,CI_qlLA_X_LF,1.0,0.064,94.45089,5
+latency,uniform,CI_qlLA_X_LF,1.2,0.076,130.18718,5
+latency,uniform,CI_qlLA_X_LF,1.4,0.088,464.10128,5
+latency,uniform,CI_qlLA_X_LF,1.6,0.104,1122.18186,5
+latency,uniform,CI_qlLA_X_LF,2.0,0.128,1930.40636,5
+latency,uniform,CI_qlLA_X_LF,2.4,0.152,2550.32533,5
+latency,uniform,CI_qlLA_G,0.2,0.012,61.29761,5
+latency,uniform,CI_qlLA_G,0.5,0.032,69.00453,5
+latency,uniform,CI_qlLA_G,0.8,0.052,83.43228,5
+latency,uniform,CI_qlLA_G,1.0,0.064,101.77789,5
+latency,uniform,CI_qlLA_G,1.2,0.076,587.69982,5
+latency,uniform,CI_qlLA_G,1.4,0.088,1344.88026,5
+latency,uniform,CI_qlLA_G,1.6,0.104,2009.09173,5
+latency,uniform,CI_qlLA_G,2.0,0.128,2799.60843,5
+latency,uniform,CI_qlLA_G,2.4,0.152,3281.58841,5
+latency,uniform,CI_qlLA_O,0.2,0.012,60.69432,5
+latency,uniform,CI_qlLA_O,0.5,0.032,67.29356,5
+latency,uniform,CI_qlLA_O,0.8,0.052,79.69355,5
+latency,uniform,CI_qlLA_O,1.0,0.064,92.83939,5
+latency,uniform,CI_qlLA_O,1.2,0.076,125.38576,5
+latency,uniform,CI_qlLA_O,1.4,0.088,535.31779,5
+latency,uniform,CI_qlLA_O,1.6,0.104,1229.86366,5
+latency,uniform,CI_qlLA_O,2.0,0.128,2064.90418,5
+latency,uniform,CI_qlLA_O,2.4,0.152,2674.73548,5
+latency,uniform,CI_qlLA_O_LF,0.2,0.012,62.61958,5
+latency,uniform,CI_qlLA_O_LF,0.5,0.032,69.52938,5
+latency,uniform,CI_qlLA_O_LF,0.8,0.052,81.97422,5
+latency,uniform,CI_qlLA_O_LF,1.0,0.064,95.68949,5
+latency,uniform,CI_qlLA_O_LF,1.2,0.076,131.43895,5
+latency,uniform,CI_qlLA_O_LF,1.4,0.088,645.2281,5
+latency,uniform,CI_qlLA_O_LF,1.6,0.104,1322.33468,5
+latency,uniform,CI_qlLA_O_LF,2.0,0.128,2149.67752,5
+latency,uniform,CI_qlLA_O_LF,2.4,0.152,2761.68529,5
+latency,chipperm,DeFT_P,0.2,0.008,84.5477,5
+latency,chipperm,DeFT_P,0.5,0.024,92.22384,5
+latency,chipperm,DeFT_P,0.8,0.04,116.83313,5
+latency,chipperm,DeFT_P,1.0,0.048,182.78112,5
+latency,chipperm,DeFT_P,1.2,0.056,613.3564,5
+latency,chipperm,DeFT_P,1.4,0.068,1380.86233,5
+latency,chipperm,DeFT_P,1.6,0.076,1811.95085,5
+latency,chipperm,DeFT_P,2.0,0.096,2629.28902,5
+latency,chipperm,DeFT_P,2.4,0.116,3236.24267,5
+latency,chipperm,DeFT_B,0.2,0.008,89.19615,5
+latency,chipperm,DeFT_B,0.5,0.024,124.39737,5
+latency,chipperm,DeFT_B,0.8,0.04,1097.68072,5
+latency,chipperm,DeFT_B,1.0,0.048,1482.86043,5
+latency,chipperm,DeFT_B,1.2,0.056,1828.63071,5
+latency,chipperm,DeFT_B,1.4,0.068,2354.95821,5
+latency,chipperm,DeFT_B,1.6,0.076,2705.24515,5
+latency,chipperm,DeFT_B,2.0,0.096,3300.43311,5
+latency,chipperm,DeFT_B,2.4,0.116,3760.13481,5
+latency,chipperm,MTR,0.2,0.008,86.1921,5
+latency,chipperm,MTR,0.5,0.024,93.04351,5
+latency,chipperm,MTR,0.8,0.04,114.4806,5
+latency,chipperm,MTR,1.0,0.048,178.0949,5
+latency,chipperm,MTR,1.2,0.056,585.59612,5
+latency,chipperm,MTR,1.4,0.068,1262.13509,5
+latency,chipperm,MTR,1.6,0.076,1580.09504,5
+latency,chipperm,MTR,2.0,0.096,2367.42525,5
+latency,chipperm,MTR,2.4,0.116,2915.4465,5
+latency,chipperm,RC,0.2,0.008,85.2593,5
+latency,chipperm,RC,0.5,0.024,92.02166,5
+latency,chipperm,RC,0.8,0.04,113.59346,5
+latency,chipperm,RC,1.0,0.048,168.03696,5
+latency,chipperm,RC,1.2,0.056,605.00153,5
+latency,chipperm,RC,1.4,0.068,1476.37333,5
+latency,chipperm,RC,1.6,0.076,1972.30672,5
+latency,chipperm,RC,2.0,0.096,2789.74677,5
+latency,chipperm,RC,2.4,0.116,3344.9117,5
+latency,chipperm,CI_qlLA_X,0.2,0.008,83.21845,5
+latency,chipperm,CI_qlLA_X,0.5,0.024,91.6405,5
+latency,chipperm,CI_qlLA_X,0.8,0.04,110.2677,5
+latency,chipperm,CI_qlLA_X,1.0,0.048,136.78224,5
+latency,chipperm,CI_qlLA_X,1.2,0.056,266.07436,5
+latency,chipperm,CI_qlLA_X,1.4,0.068,940.53031,5
+latency,chipperm,CI_qlLA_X,1.6,0.076,1378.47908,5
+latency,chipperm,CI_qlLA_X,2.0,0.096,2216.92854,5
+latency,chipperm,CI_qlLA_X,2.4,0.116,2859.70241,5
+latency,chipperm,CI_qlLA_X_LF,0.2,0.008,85.29754,5
+latency,chipperm,CI_qlLA_X_LF,0.5,0.024,94.0941,5
+latency,chipperm,CI_qlLA_X_LF,0.8,0.04,112.75461,5
+latency,chipperm,CI_qlLA_X_LF,1.0,0.048,139.42317,5
+latency,chipperm,CI_qlLA_X_LF,1.2,0.056,305.96859,5
+latency,chipperm,CI_qlLA_X_LF,1.4,0.068,1028.56686,5
+latency,chipperm,CI_qlLA_X_LF,1.6,0.076,1479.77478,5
+latency,chipperm,CI_qlLA_X_LF,2.0,0.096,2318.32289,5
+latency,chipperm,CI_qlLA_X_LF,2.4,0.116,2942.83308,5
+latency,chipperm,CI_qlLA_G,0.2,0.008,86.17128,5
+latency,chipperm,CI_qlLA_G,0.5,0.024,103.59304,5
+latency,chipperm,CI_qlLA_G,0.8,0.04,1345.13734,5
+latency,chipperm,CI_qlLA_G,1.0,0.048,2106.8583,5
+latency,chipperm,CI_qlLA_G,1.2,0.056,2427.86663,5
+latency,chipperm,CI_qlLA_G,1.4,0.068,2926.80544,5
+latency,chipperm,CI_qlLA_G,1.6,0.076,3221.09837,5
+latency,chipperm,CI_qlLA_G,2.0,0.096,3689.50653,5
+latency,chipperm,CI_qlLA_G,2.4,0.116,4065.56244,5
+latency,chipperm,CI_qlLA_O,0.2,0.008,83.47816,5
+latency,chipperm,CI_qlLA_O,0.5,0.024,92.3255,5
+latency,chipperm,CI_qlLA_O,0.8,0.04,110.6813,5
+latency,chipperm,CI_qlLA_O,1.0,0.048,134.51598,5
+latency,chipperm,CI_qlLA_O,1.2,0.056,370.61873,5
+latency,chipperm,CI_qlLA_O,1.4,0.068,1220.94904,5
+latency,chipperm,CI_qlLA_O,1.6,0.076,1694.39948,5
+latency,chipperm,CI_qlLA_O,2.0,0.096,2564.66719,5
+latency,chipperm,CI_qlLA_O,2.4,0.116,3160.3047,5
+latency,chipperm,CI_qlLA_O_LF,0.2,0.008,85.55817,5
+latency,chipperm,CI_qlLA_O_LF,0.5,0.024,94.77421,5
+latency,chipperm,CI_qlLA_O_LF,0.8,0.04,113.56831,5
+latency,chipperm,CI_qlLA_O_LF,1.0,0.048,136.99758,5
+latency,chipperm,CI_qlLA_O_LF,1.2,0.056,474.0178,5
+latency,chipperm,CI_qlLA_O_LF,1.4,0.068,1363.7029,5
+latency,chipperm,CI_qlLA_O_LF,1.6,0.076,1827.87043,5
+latency,chipperm,CI_qlLA_O_LF,2.0,0.096,2679.19666,5
+latency,chipperm,CI_qlLA_O_LF,2.4,0.116,3255.77839,5
+latency,chiptrans,DeFT_P,0.2,0.0072,59.38828,5
+latency,chiptrans,DeFT_P,0.5,0.0176,63.62261,5
+latency,chiptrans,DeFT_P,0.8,0.0272,76.64535,5
+latency,chiptrans,DeFT_P,1.0,0.0344,208.3866,5
+latency,chiptrans,DeFT_P,1.2,0.0416,406.12629,5
+latency,chiptrans,DeFT_P,1.4,0.048,533.72617,5
+latency,chiptrans,DeFT_P,1.6,0.0552,746.35385,5
+latency,chiptrans,DeFT_P,2.0,0.0688,1063.18845,5
+latency,chiptrans,DeFT_P,2.4,0.0824,1255.51976,5
+latency,chiptrans,DeFT_B,0.2,0.0072,62.08294,5
+latency,chiptrans,DeFT_B,0.5,0.0176,75.59652,5
+latency,chiptrans,DeFT_B,0.8,0.0272,401.5061,5
+latency,chiptrans,DeFT_B,1.0,0.0344,744.01402,5
+latency,chiptrans,DeFT_B,1.2,0.0416,1106.56132,5
+latency,chiptrans,DeFT_B,1.4,0.048,1265.28188,5
+latency,chiptrans,DeFT_B,1.6,0.0552,1444.11187,5
+latency,chiptrans,DeFT_B,2.0,0.0688,1597.52203,5
+latency,chiptrans,DeFT_B,2.4,0.0824,1679.50588,5
+latency,chiptrans,MTR,0.2,0.0072,60.63417,5
+latency,chiptrans,MTR,0.5,0.0176,64.33037,5
+latency,chiptrans,MTR,0.8,0.0272,76.318,5
+latency,chiptrans,MTR,1.0,0.0344,170.12831,5
+latency,chiptrans,MTR,1.2,0.0416,350.98425,5
+latency,chiptrans,MTR,1.4,0.048,488.25305,5
+latency,chiptrans,MTR,1.6,0.0552,650.7112,5
+latency,chiptrans,MTR,2.0,0.0688,923.47706,5
+latency,chiptrans,MTR,2.4,0.0824,1073.64345,5
+latency,chiptrans,RC,0.2,0.0072,59.89266,5
+latency,chiptrans,RC,0.5,0.0176,63.50832,5
+latency,chiptrans,RC,0.8,0.0272,75.48262,5
+latency,chiptrans,RC,1.0,0.0344,190.60586,5
+latency,chiptrans,RC,1.2,0.0416,393.92626,5
+latency,chiptrans,RC,1.4,0.048,526.95721,5
+latency,chiptrans,RC,1.6,0.0552,730.95323,5
+latency,chiptrans,RC,2.0,0.0688,1044.99234,5
+latency,chiptrans,RC,2.4,0.0824,1252.03997,5
+latency,chiptrans,CI_qlLA_X,0.2,0.0072,58.31573,5
+latency,chiptrans,CI_qlLA_X,0.5,0.0176,62.66057,5
+latency,chiptrans,CI_qlLA_X,0.8,0.0272,70.90493,5
+latency,chiptrans,CI_qlLA_X,1.0,0.0344,93.04391,5
+latency,chiptrans,CI_qlLA_X,1.2,0.0416,248.92719,5
+latency,chiptrans,CI_qlLA_X,1.4,0.048,406.96767,5
+latency,chiptrans,CI_qlLA_X,1.6,0.0552,529.73969,5
+latency,chiptrans,CI_qlLA_X,2.0,0.0688,866.51944,5
+latency,chiptrans,CI_qlLA_X,2.4,0.0824,1116.01028,5
+latency,chiptrans,CI_qlLA_X_LF,0.2,0.0072,60.04771,5
+latency,chiptrans,CI_qlLA_X_LF,0.5,0.0176,64.57585,5
+latency,chiptrans,CI_qlLA_X_LF,0.8,0.0272,72.94918,5
+latency,chiptrans,CI_qlLA_X_LF,1.0,0.0344,92.71054,5
+latency,chiptrans,CI_qlLA_X_LF,1.2,0.0416,249.4332,5
+latency,chiptrans,CI_qlLA_X_LF,1.4,0.048,411.67813,5
+latency,chiptrans,CI_qlLA_X_LF,1.6,0.0552,529.12367,5
+latency,chiptrans,CI_qlLA_X_LF,2.0,0.0688,875.53312,5
+latency,chiptrans,CI_qlLA_X_LF,2.4,0.0824,1129.77921,5
+latency,chiptrans,CI_qlLA_G,0.2,0.0072,58.49427,5
+latency,chiptrans,CI_qlLA_G,0.5,0.0176,62.1964,5
+latency,chiptrans,CI_qlLA_G,0.8,0.0272,66.25309,5
+latency,chiptrans,CI_qlLA_G,1.0,0.0344,69.84812,5
+latency,chiptrans,CI_qlLA_G,1.2,0.0416,74.01713,5
+latency,chiptrans,CI_qlLA_G,1.4,0.048,81.72972,5
+latency,chiptrans,CI_qlLA_G,1.6,0.0552,100.30406,5
+latency,chiptrans,CI_qlLA_G,2.0,0.0688,276.80854,5
+latency,chiptrans,CI_qlLA_G,2.4,0.0824,648.16031,5
+latency,chiptrans,CI_qlLA_O,0.2,0.0072,57.69116,5
+latency,chiptrans,CI_qlLA_O,0.5,0.0176,59.99513,5
+latency,chiptrans,CI_qlLA_O,0.8,0.0272,62.64319,5
+latency,chiptrans,CI_qlLA_O,1.0,0.0344,65.50265,5
+latency,chiptrans,CI_qlLA_O,1.2,0.0416,68.58675,5
+latency,chiptrans,CI_qlLA_O,1.4,0.048,72.85489,5
+latency,chiptrans,CI_qlLA_O,1.6,0.0552,79.69509,5
+latency,chiptrans,CI_qlLA_O,2.0,0.0688,117.77839,5
+latency,chiptrans,CI_qlLA_O,2.4,0.0824,424.28967,5
+latency,chiptrans,CI_qlLA_O_LF,0.2,0.0072,59.41072,5
+latency,chiptrans,CI_qlLA_O_LF,0.5,0.0176,62.00702,5
+latency,chiptrans,CI_qlLA_O_LF,0.8,0.0272,64.93649,5
+latency,chiptrans,CI_qlLA_O_LF,1.0,0.0344,67.94076,5
+latency,chiptrans,CI_qlLA_O_LF,1.2,0.0416,71.32176,5
+latency,chiptrans,CI_qlLA_O_LF,1.4,0.048,76.0355,5
+latency,chiptrans,CI_qlLA_O_LF,1.6,0.0552,83.78087,5
+latency,chiptrans,CI_qlLA_O_LF,2.0,0.0688,128.53131,5
+latency,chiptrans,CI_qlLA_O_LF,2.4,0.0824,465.52291,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,0.2,0.008,65.64775,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,0.5,0.024,72.21595,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,0.8,0.04,93.59252,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,1.0,0.048,144.05533,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,1.2,0.056,542.81072,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,1.4,0.068,1142.22886,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,1.6,0.076,1557.32716,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,2.0,0.096,2354.12149,5
+latency,"uniform, one faulty VL per chiplet",DeFT_P,2.4,0.116,2925.45778,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,0.2,0.008,66.67489,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,0.5,0.024,73.01217,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,0.8,0.04,91.80847,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,1.0,0.048,140.88967,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,1.2,0.056,410.18062,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,1.4,0.068,1010.73631,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,1.6,0.076,1354.86767,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,2.0,0.096,2140.48707,5
+latency,"uniform, one faulty VL per chiplet",DeFT_B,2.4,0.116,2720.37723,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.2,0.008,63.44098,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.5,0.024,69.38979,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.8,0.04,82.30613,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.0,0.048,94.49931,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.2,0.056,131.60268,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.4,0.068,485.4378,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.6,0.076,873.25456,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,2.0,0.096,1730.88426,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X,2.4,0.116,2337.00762,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.2,0.008,64.91539,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.5,0.024,71.17646,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.8,0.04,84.28337,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.0,0.048,96.60231,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.2,0.056,134.0076,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.4,0.068,538.64905,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.6,0.076,917.8516,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,2.0,0.096,1758.67722,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,2.4,0.116,2368.32296,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.2,0.008,64.06082,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.5,0.024,70.1982,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.8,0.04,81.9897,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.0,0.048,90.86548,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.2,0.056,110.28097,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.4,0.068,692.38708,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.6,0.076,1126.19486,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,2.0,0.096,2001.61749,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_G,2.4,0.116,2684.40626,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.2,0.008,63.61145,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.5,0.024,69.88128,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.8,0.04,83.72964,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.0,0.048,96.46094,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.2,0.056,132.53554,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.4,0.068,612.63305,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.6,0.076,1021.03239,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,2.0,0.096,1884.28117,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O,2.4,0.116,2522.01459,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.2,0.008,65.14732,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.5,0.024,71.7488,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.8,0.04,85.62159,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.0,0.048,99.18562,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.2,0.056,137.43158,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.4,0.068,703.78648,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.6,0.076,1134.00954,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,2.0,0.096,1949.29345,5
+latency,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,2.4,0.116,2590.06781,5
+accepted,uniform,DeFT_P,0.2,0.012,0.01198,5
+accepted,uniform,DeFT_P,0.5,0.032,0.03194,5
+accepted,uniform,DeFT_P,0.8,0.052,0.05217,5
+accepted,uniform,DeFT_P,1.0,0.064,0.06423,5
+accepted,uniform,DeFT_P,1.2,0.076,0.06939,5
+accepted,uniform,DeFT_P,1.4,0.088,0.06991,5
+accepted,uniform,DeFT_P,1.6,0.104,0.06989,5
+accepted,uniform,DeFT_P,2.0,0.128,0.06923,5
+accepted,uniform,DeFT_P,2.4,0.152,0.06975,5
+accepted,uniform,DeFT_B,0.2,0.012,0.01198,5
+accepted,uniform,DeFT_B,0.5,0.032,0.03195,5
+accepted,uniform,DeFT_B,0.8,0.052,0.05217,5
+accepted,uniform,DeFT_B,1.0,0.064,0.06337,5
+accepted,uniform,DeFT_B,1.2,0.076,0.06809,5
+accepted,uniform,DeFT_B,1.4,0.088,0.06823,5
+accepted,uniform,DeFT_B,1.6,0.104,0.06784,5
+accepted,uniform,DeFT_B,2.0,0.128,0.06889,5
+accepted,uniform,DeFT_B,2.4,0.152,0.06853,5
+accepted,uniform,MTR,0.2,0.012,0.01198,5
+accepted,uniform,MTR,0.5,0.032,0.03194,5
+accepted,uniform,MTR,0.8,0.052,0.05218,5
+accepted,uniform,MTR,1.0,0.064,0.06433,5
+accepted,uniform,MTR,1.2,0.076,0.07219,5
+accepted,uniform,MTR,1.4,0.088,0.07197,5
+accepted,uniform,MTR,1.6,0.104,0.07311,5
+accepted,uniform,MTR,2.0,0.128,0.07216,5
+accepted,uniform,MTR,2.4,0.152,0.07203,5
+accepted,uniform,RC,0.2,0.012,0.01198,5
+accepted,uniform,RC,0.5,0.032,0.03194,5
+accepted,uniform,RC,0.8,0.052,0.05216,5
+accepted,uniform,RC,1.0,0.064,0.06432,5
+accepted,uniform,RC,1.2,0.076,0.0721,5
+accepted,uniform,RC,1.4,0.088,0.07253,5
+accepted,uniform,RC,1.6,0.104,0.07293,5
+accepted,uniform,RC,2.0,0.128,0.07189,5
+accepted,uniform,RC,2.4,0.152,0.07217,5
+accepted,uniform,CI_qlLA_X,0.2,0.012,0.01198,5
+accepted,uniform,CI_qlLA_X,0.5,0.032,0.03194,5
+accepted,uniform,CI_qlLA_X,0.8,0.052,0.05217,5
+accepted,uniform,CI_qlLA_X,1.0,0.064,0.06431,5
+accepted,uniform,CI_qlLA_X,1.2,0.076,0.07621,5
+accepted,uniform,CI_qlLA_X,1.4,0.088,0.08383,5
+accepted,uniform,CI_qlLA_X,1.6,0.104,0.08339,5
+accepted,uniform,CI_qlLA_X,2.0,0.128,0.0837,5
+accepted,uniform,CI_qlLA_X,2.4,0.152,0.08403,5
+accepted,uniform,CI_qlLA_X_LF,0.2,0.012,0.01198,5
+accepted,uniform,CI_qlLA_X_LF,0.5,0.032,0.03195,5
+accepted,uniform,CI_qlLA_X_LF,0.8,0.052,0.05216,5
+accepted,uniform,CI_qlLA_X_LF,1.0,0.064,0.0643,5
+accepted,uniform,CI_qlLA_X_LF,1.2,0.076,0.07622,5
+accepted,uniform,CI_qlLA_X_LF,1.4,0.088,0.08228,5
+accepted,uniform,CI_qlLA_X_LF,1.6,0.104,0.08252,5
+accepted,uniform,CI_qlLA_X_LF,2.0,0.128,0.08237,5
+accepted,uniform,CI_qlLA_X_LF,2.4,0.152,0.08244,5
+accepted,uniform,CI_qlLA_G,0.2,0.012,0.01198,5
+accepted,uniform,CI_qlLA_G,0.5,0.032,0.03195,5
+accepted,uniform,CI_qlLA_G,0.8,0.052,0.05219,5
+accepted,uniform,CI_qlLA_G,1.0,0.064,0.06432,5
+accepted,uniform,CI_qlLA_G,1.2,0.076,0.06929,5
+accepted,uniform,CI_qlLA_G,1.4,0.088,0.06649,5
+accepted,uniform,CI_qlLA_G,1.6,0.104,0.06608,5
+accepted,uniform,CI_qlLA_G,2.0,0.128,0.06532,5
+accepted,uniform,CI_qlLA_G,2.4,0.152,0.06592,5
+accepted,uniform,CI_qlLA_O,0.2,0.012,0.01198,5
+accepted,uniform,CI_qlLA_O,0.5,0.032,0.03194,5
+accepted,uniform,CI_qlLA_O,0.8,0.052,0.05216,5
+accepted,uniform,CI_qlLA_O,1.0,0.064,0.06432,5
+accepted,uniform,CI_qlLA_O,1.2,0.076,0.07627,5
+accepted,uniform,CI_qlLA_O,1.4,0.088,0.08143,5
+accepted,uniform,CI_qlLA_O,1.6,0.104,0.08091,5
+accepted,uniform,CI_qlLA_O,2.0,0.128,0.0806,5
+accepted,uniform,CI_qlLA_O,2.4,0.152,0.08088,5
+accepted,uniform,CI_qlLA_O_LF,0.2,0.012,0.01198,5
+accepted,uniform,CI_qlLA_O_LF,0.5,0.032,0.03195,5
+accepted,uniform,CI_qlLA_O_LF,0.8,0.052,0.05217,5
+accepted,uniform,CI_qlLA_O_LF,1.0,0.064,0.06432,5
+accepted,uniform,CI_qlLA_O_LF,1.2,0.076,0.07624,5
+accepted,uniform,CI_qlLA_O_LF,1.4,0.088,0.07909,5
+accepted,uniform,CI_qlLA_O_LF,1.6,0.104,0.07889,5
+accepted,uniform,CI_qlLA_O_LF,2.0,0.128,0.07886,5
+accepted,uniform,CI_qlLA_O_LF,2.4,0.152,0.07876,5
+accepted,chipperm,DeFT_P,0.2,0.008,0.00803,5
+accepted,chipperm,DeFT_P,0.5,0.024,0.02398,5
+accepted,chipperm,DeFT_P,0.8,0.04,0.04008,5
+accepted,chipperm,DeFT_P,1.0,0.048,0.04805,5
+accepted,chipperm,DeFT_P,1.2,0.056,0.05164,5
+accepted,chipperm,DeFT_P,1.4,0.068,0.05182,5
+accepted,chipperm,DeFT_P,1.6,0.076,0.05194,5
+accepted,chipperm,DeFT_P,2.0,0.096,0.05164,5
+accepted,chipperm,DeFT_P,2.4,0.116,0.05195,5
+accepted,chipperm,DeFT_B,0.2,0.008,0.00803,5
+accepted,chipperm,DeFT_B,0.5,0.024,0.02401,5
+accepted,chipperm,DeFT_B,0.8,0.04,0.02644,5
+accepted,chipperm,DeFT_B,1.0,0.048,0.02644,5
+accepted,chipperm,DeFT_B,1.2,0.056,0.0261,5
+accepted,chipperm,DeFT_B,1.4,0.068,0.02633,5
+accepted,chipperm,DeFT_B,1.6,0.076,0.02634,5
+accepted,chipperm,DeFT_B,2.0,0.096,0.02644,5
+accepted,chipperm,DeFT_B,2.4,0.116,0.02627,5
+accepted,chipperm,MTR,0.2,0.008,0.00803,5
+accepted,chipperm,MTR,0.5,0.024,0.02398,5
+accepted,chipperm,MTR,0.8,0.04,0.04006,5
+accepted,chipperm,MTR,1.0,0.048,0.04818,5
+accepted,chipperm,MTR,1.2,0.056,0.05111,5
+accepted,chipperm,MTR,1.4,0.068,0.05008,5
+accepted,chipperm,MTR,1.6,0.076,0.05034,5
+accepted,chipperm,MTR,2.0,0.096,0.04969,5
+accepted,chipperm,MTR,2.4,0.116,0.05047,5
+accepted,chipperm,RC,0.2,0.008,0.00803,5
+accepted,chipperm,RC,0.5,0.024,0.02398,5
+accepted,chipperm,RC,0.8,0.04,0.04007,5
+accepted,chipperm,RC,1.0,0.048,0.0481,5
+accepted,chipperm,RC,1.2,0.056,0.05136,5
+accepted,chipperm,RC,1.4,0.068,0.05014,5
+accepted,chipperm,RC,1.6,0.076,0.05023,5
+accepted,chipperm,RC,2.0,0.096,0.05011,5
+accepted,chipperm,RC,2.4,0.116,0.05008,5
+accepted,chipperm,CI_qlLA_X,0.2,0.008,0.00803,5
+accepted,chipperm,CI_qlLA_X,0.5,0.024,0.02398,5
+accepted,chipperm,CI_qlLA_X,0.8,0.04,0.0401,5
+accepted,chipperm,CI_qlLA_X,1.0,0.048,0.04816,5
+accepted,chipperm,CI_qlLA_X,1.2,0.056,0.05561,5
+accepted,chipperm,CI_qlLA_X,1.4,0.068,0.05818,5
+accepted,chipperm,CI_qlLA_X,1.6,0.076,0.0582,5
+accepted,chipperm,CI_qlLA_X,2.0,0.096,0.0582,5
+accepted,chipperm,CI_qlLA_X,2.4,0.116,0.05825,5
+accepted,chipperm,CI_qlLA_X_LF,0.2,0.008,0.00803,5
+accepted,chipperm,CI_qlLA_X_LF,0.5,0.024,0.02398,5
+accepted,chipperm,CI_qlLA_X_LF,0.8,0.04,0.0401,5
+accepted,chipperm,CI_qlLA_X_LF,1.0,0.048,0.04813,5
+accepted,chipperm,CI_qlLA_X_LF,1.2,0.056,0.0552,5
+accepted,chipperm,CI_qlLA_X_LF,1.4,0.068,0.05683,5
+accepted,chipperm,CI_qlLA_X_LF,1.6,0.076,0.05669,5
+accepted,chipperm,CI_qlLA_X_LF,2.0,0.096,0.05669,5
+accepted,chipperm,CI_qlLA_X_LF,2.4,0.116,0.05688,5
+accepted,chipperm,CI_qlLA_G,0.2,0.008,0.00802,5
+accepted,chipperm,CI_qlLA_G,0.5,0.024,0.02399,5
+accepted,chipperm,CI_qlLA_G,0.8,0.04,0.02895,5
+accepted,chipperm,CI_qlLA_G,1.0,0.048,0.02655,5
+accepted,chipperm,CI_qlLA_G,1.2,0.056,0.02654,5
+accepted,chipperm,CI_qlLA_G,1.4,0.068,0.02659,5
+accepted,chipperm,CI_qlLA_G,1.6,0.076,0.02642,5
+accepted,chipperm,CI_qlLA_G,2.0,0.096,0.02645,5
+accepted,chipperm,CI_qlLA_G,2.4,0.116,0.0255,5
+accepted,chipperm,CI_qlLA_O,0.2,0.008,0.00803,5
+accepted,chipperm,CI_qlLA_O,0.5,0.024,0.02399,5
+accepted,chipperm,CI_qlLA_O,0.8,0.04,0.04011,5
+accepted,chipperm,CI_qlLA_O,1.0,0.048,0.04813,5
+accepted,chipperm,CI_qlLA_O,1.2,0.056,0.05418,5
+accepted,chipperm,CI_qlLA_O,1.4,0.068,0.05462,5
+accepted,chipperm,CI_qlLA_O,1.6,0.076,0.0547,5
+accepted,chipperm,CI_qlLA_O,2.0,0.096,0.05461,5
+accepted,chipperm,CI_qlLA_O,2.4,0.116,0.05462,5
+accepted,chipperm,CI_qlLA_O_LF,0.2,0.008,0.00803,5
+accepted,chipperm,CI_qlLA_O_LF,0.5,0.024,0.02399,5
+accepted,chipperm,CI_qlLA_O_LF,0.8,0.04,0.0401,5
+accepted,chipperm,CI_qlLA_O_LF,1.0,0.048,0.04813,5
+accepted,chipperm,CI_qlLA_O_LF,1.2,0.056,0.05266,5
+accepted,chipperm,CI_qlLA_O_LF,1.4,0.068,0.05248,5
+accepted,chipperm,CI_qlLA_O_LF,1.6,0.076,0.05251,5
+accepted,chipperm,CI_qlLA_O_LF,2.0,0.096,0.05252,5
+accepted,chipperm,CI_qlLA_O_LF,2.4,0.116,0.05248,5
+accepted,chiptrans,DeFT_P,0.2,0.0072,0.00722,5
+accepted,chiptrans,DeFT_P,0.5,0.0176,0.01751,5
+accepted,chiptrans,DeFT_P,0.8,0.0272,0.02717,5
+accepted,chiptrans,DeFT_P,1.0,0.0344,0.03362,5
+accepted,chiptrans,DeFT_P,1.2,0.0416,0.03862,5
+accepted,chiptrans,DeFT_P,1.4,0.048,0.04259,5
+accepted,chiptrans,DeFT_P,1.6,0.0552,0.04535,5
+accepted,chiptrans,DeFT_P,2.0,0.0688,0.05057,5
+accepted,chiptrans,DeFT_P,2.4,0.0824,0.05575,5
+accepted,chiptrans,DeFT_B,0.2,0.0072,0.00722,5
+accepted,chiptrans,DeFT_B,0.5,0.0176,0.01751,5
+accepted,chiptrans,DeFT_B,0.8,0.0272,0.02482,5
+accepted,chiptrans,DeFT_B,1.0,0.0344,0.02744,5
+accepted,chiptrans,DeFT_B,1.2,0.0416,0.02881,5
+accepted,chiptrans,DeFT_B,1.4,0.048,0.03012,5
+accepted,chiptrans,DeFT_B,1.6,0.0552,0.03172,5
+accepted,chiptrans,DeFT_B,2.0,0.0688,0.03504,5
+accepted,chiptrans,DeFT_B,2.4,0.0824,0.03835,5
+accepted,chiptrans,MTR,0.2,0.0072,0.00722,5
+accepted,chiptrans,MTR,0.5,0.0176,0.01751,5
+accepted,chiptrans,MTR,0.8,0.0272,0.02717,5
+accepted,chiptrans,MTR,1.0,0.0344,0.03379,5
+accepted,chiptrans,MTR,1.2,0.0416,0.03871,5
+accepted,chiptrans,MTR,1.4,0.048,0.04263,5
+accepted,chiptrans,MTR,1.6,0.0552,0.04573,5
+accepted,chiptrans,MTR,2.0,0.0688,0.05095,5
+accepted,chiptrans,MTR,2.4,0.0824,0.05608,5
+accepted,chiptrans,RC,0.2,0.0072,0.00722,5
+accepted,chiptrans,RC,0.5,0.0176,0.01751,5
+accepted,chiptrans,RC,0.8,0.0272,0.02717,5
+accepted,chiptrans,RC,1.0,0.0344,0.03372,5
+accepted,chiptrans,RC,1.2,0.0416,0.03876,5
+accepted,chiptrans,RC,1.4,0.048,0.04266,5
+accepted,chiptrans,RC,1.6,0.0552,0.04575,5
+accepted,chiptrans,RC,2.0,0.0688,0.05101,5
+accepted,chiptrans,RC,2.4,0.0824,0.05603,5
+accepted,chiptrans,CI_qlLA_X,0.2,0.0072,0.00722,5
+accepted,chiptrans,CI_qlLA_X,0.5,0.0176,0.01752,5
+accepted,chiptrans,CI_qlLA_X,0.8,0.0272,0.02715,5
+accepted,chiptrans,CI_qlLA_X,1.0,0.0344,0.03433,5
+accepted,chiptrans,CI_qlLA_X,1.2,0.0416,0.04052,5
+accepted,chiptrans,CI_qlLA_X,1.4,0.048,0.04451,5
+accepted,chiptrans,CI_qlLA_X,1.6,0.0552,0.04875,5
+accepted,chiptrans,CI_qlLA_X,2.0,0.0688,0.05461,5
+accepted,chiptrans,CI_qlLA_X,2.4,0.0824,0.05966,5
+accepted,chiptrans,CI_qlLA_X_LF,0.2,0.0072,0.00722,5
+accepted,chiptrans,CI_qlLA_X_LF,0.5,0.0176,0.01751,5
+accepted,chiptrans,CI_qlLA_X_LF,0.8,0.0272,0.02715,5
+accepted,chiptrans,CI_qlLA_X_LF,1.0,0.0344,0.03433,5
+accepted,chiptrans,CI_qlLA_X_LF,1.2,0.0416,0.04056,5
+accepted,chiptrans,CI_qlLA_X_LF,1.4,0.048,0.04454,5
+accepted,chiptrans,CI_qlLA_X_LF,1.6,0.0552,0.04884,5
+accepted,chiptrans,CI_qlLA_X_LF,2.0,0.0688,0.0546,5
+accepted,chiptrans,CI_qlLA_X_LF,2.4,0.0824,0.05966,5
+accepted,chiptrans,CI_qlLA_G,0.2,0.0072,0.00722,5
+accepted,chiptrans,CI_qlLA_G,0.5,0.0176,0.01751,5
+accepted,chiptrans,CI_qlLA_G,0.8,0.0272,0.02714,5
+accepted,chiptrans,CI_qlLA_G,1.0,0.0344,0.0344,5
+accepted,chiptrans,CI_qlLA_G,1.2,0.0416,0.0417,5
+accepted,chiptrans,CI_qlLA_G,1.4,0.048,0.04814,5
+accepted,chiptrans,CI_qlLA_G,1.6,0.0552,0.05552,5
+accepted,chiptrans,CI_qlLA_G,2.0,0.0688,0.06728,5
+accepted,chiptrans,CI_qlLA_G,2.4,0.0824,0.07206,5
+accepted,chiptrans,CI_qlLA_O,0.2,0.0072,0.00722,5
+accepted,chiptrans,CI_qlLA_O,0.5,0.0176,0.01751,5
+accepted,chiptrans,CI_qlLA_O,0.8,0.0272,0.02713,5
+accepted,chiptrans,CI_qlLA_O,1.0,0.0344,0.03439,5
+accepted,chiptrans,CI_qlLA_O,1.2,0.0416,0.0417,5
+accepted,chiptrans,CI_qlLA_O,1.4,0.048,0.04812,5
+accepted,chiptrans,CI_qlLA_O,1.6,0.0552,0.05542,5
+accepted,chiptrans,CI_qlLA_O,2.0,0.0688,0.06891,5
+accepted,chiptrans,CI_qlLA_O,2.4,0.0824,0.07672,5
+accepted,chiptrans,CI_qlLA_O_LF,0.2,0.0072,0.00723,5
+accepted,chiptrans,CI_qlLA_O_LF,0.5,0.0176,0.01751,5
+accepted,chiptrans,CI_qlLA_O_LF,0.8,0.0272,0.02714,5
+accepted,chiptrans,CI_qlLA_O_LF,1.0,0.0344,0.0344,5
+accepted,chiptrans,CI_qlLA_O_LF,1.2,0.0416,0.0417,5
+accepted,chiptrans,CI_qlLA_O_LF,1.4,0.048,0.04812,5
+accepted,chiptrans,CI_qlLA_O_LF,1.6,0.0552,0.05543,5
+accepted,chiptrans,CI_qlLA_O_LF,2.0,0.0688,0.06887,5
+accepted,chiptrans,CI_qlLA_O_LF,2.4,0.0824,0.07601,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,0.5,0.024,0.02397,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,0.8,0.04,0.04011,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,1.0,0.048,0.04822,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,1.2,0.056,0.05089,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,1.4,0.068,0.05155,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,1.6,0.076,0.05042,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,2.0,0.096,0.0507,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_P,2.4,0.116,0.05058,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,0.5,0.024,0.02396,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,0.8,0.04,0.04009,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,1.0,0.048,0.04808,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,1.2,0.056,0.05289,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,1.4,0.068,0.05386,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,1.6,0.076,0.05406,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,2.0,0.096,0.05309,5
+accepted,"uniform, one faulty VL per chiplet",DeFT_B,2.4,0.116,0.05399,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.5,0.024,0.02397,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,0.8,0.04,0.04008,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.0,0.048,0.04816,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.2,0.056,0.05622,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.4,0.068,0.06291,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,1.6,0.076,0.06292,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,2.0,0.096,0.06222,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X,2.4,0.116,0.06251,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.5,0.024,0.02397,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,0.8,0.04,0.04008,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.0,0.048,0.04815,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.2,0.056,0.05621,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.4,0.068,0.06227,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,1.6,0.076,0.06227,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,2.0,0.096,0.06169,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_X_LF,2.4,0.116,0.06204,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.5,0.024,0.02396,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,0.8,0.04,0.04007,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.0,0.048,0.04816,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.2,0.056,0.05627,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.4,0.068,0.0597,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,1.6,0.076,0.05853,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,2.0,0.096,0.05786,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_G,2.4,0.116,0.05749,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.5,0.024,0.02397,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,0.8,0.04,0.04008,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.0,0.048,0.04817,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.2,0.056,0.05626,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.4,0.068,0.06085,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,1.6,0.076,0.06073,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,2.0,0.096,0.06034,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O,2.4,0.116,0.06059,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.2,0.008,0.00802,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.5,0.024,0.02397,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,0.8,0.04,0.04008,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.0,0.048,0.04817,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.2,0.056,0.05625,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.4,0.068,0.05955,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,1.6,0.076,0.05908,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,2.0,0.096,0.0591,5
+accepted,"uniform, one faulty VL per chiplet",CI_qlLA_O_LF,2.4,0.116,0.05914,5
