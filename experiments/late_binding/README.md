@@ -493,3 +493,73 @@ python3 experiments_v24.py csv && python3 experiments_v24.py sanity 9 && python3
   second configuration (it removes XY's weakness on transpose-like traffic and is ahead on 4x4).
 
 Start with `results_v24_xy/FINDINGS.md`.
+
+## Round 25 (results_v25_confirm/): the frozen configuration confirmed on fresh seeds, and its hardware
+Nothing is tuned and no simulator option is added. The configuration is the one round 24 chose
+(`results_v24_xy/tuning_choice.json`), the simulator is the ce6ab6a build (`results_v25_confirm/regression.md`: the
+84-configuration set byte-identical), and the tests are fixed in `results_v25_confirm/PREREGISTRATION.md` before any evaluation
+run.
+* **Frozen rows.** `CI_heurLA_X_LF` (**main**: late entry, XY on both layers, the lookahead heuristic with W 2, B 0, G 1 and D 2
+  on 2x2 / D 0 on 3x3 and 4x4; lookahead routing with the fallback and the busy state, no residual delay), `CI_heurLA_O_LF`
+  (**second**: the same with the VN-split order), `CI_heurLA_X_DLY` (the main row's selection at the buffer front,
+  decision_delay 2), `CI_qlLA_X_LF` (Q-learning with alpha 0.01, one residual cycle). References: DeFT_P, DeFT_B on every
+  scenario, MTR, RC and XY_SP on the fault-free ones, DeFT_Dis and DeFT_Ran on those with faults.
+* **Scenarios** (the same eight on every size): uniform, localized, hotspot, chipperm, chiptrans, movinghot fault-free, and
+  uniform and hotspot with one faulty VL per chiplet. The tuning of round 24 did not see localized, movinghot and hotspot with
+  faults.
+* **Drivers.** `experiments_v25.py` (Part A) dispatches to `experiments_v25_eval.py` (B), `_faults.py` (C, stages `c_*`),
+  `_apps.py` (D, `d_*`), `_pipe0.py` (E, `e_*`), `_hw.py` and `_hw2.py` (F, `f_*`); `experiments_v25_add.py` runs the addendum
+  row. `chain_v25.sh` and `chain_v25_add.sh` run the steps after Part B's runs unattended and stop at the first failed check.
+  `report_v25.py` and `report_v25_hw.py` write `report/` and `paper_data/`. `build_ref.sh COMMIT` makes the reference build.
+```
+bash build_ref.sh ce6ab6a && python3 experiments_v25.py regress 12 && python3 experiments_v25.py reuse 12
+python3 experiments_v25.py sat 12 && python3 experiments_v25.py points && python3 experiments_v25.py drain 12
+python3 experiments_v25.py timing 10 && python3 experiments_v25.py eval 10 && python3 experiments_v25.py check && python3 experiments_v25.py csv && python3 experiments_v25.py sanity 12
+python3 experiments_v25.py c_formal 2 && python3 experiments_v25.py c_drain 2 && python3 experiments_v25.py c_sat 2 && python3 experiments_v25.py c_points
+python3 experiments_v25.py c_eval 12 && python3 experiments_v25.py c_check && python3 experiments_v25.py c_csv
+python3 experiments_v25.py d_eval 12 && python3 experiments_v25.py d_check && python3 experiments_v25.py d_csv
+python3 experiments_v25.py e_eval 12 && python3 experiments_v25.py e_check && python3 experiments_v25.py e_csv
+python3 experiments_v25.py f_build && python3 experiments_v25.py f_smoke && python3 experiments_v25.py f_vec && python3 experiments_v25.py f_mut && python3 experiments_v25.py f_lat
+python3 experiments_v25.py f_synth && python3 experiments_v25.py f_semi && python3 experiments_v25.py f_csv && python3 report_v25_hw.py
+python3 experiments_v25_add.py drain 12 && python3 experiments_v25_add.py eval 12 && python3 experiments_v25_add.py check && python3 experiments_v25_add.py csv
+python3 report_v25.py
+```
+
+### Gates
+* **Regression** (`regression.md`): 84 / 84 byte-identical to a fresh build of ce6ab6a (the 8d84634 build, the options absent,
+  every option of rounds 23-24 explicitly off). **Reuse** (`reuse_check.md`): 24 / 24 runs of round 24 reproduced with this
+  round's row definitions.
+* **Ladders** (`load_points_v25.md`): the ladders of the three scenarios the tuning did not see, made again by the D1 rule, equal
+  round 23's. **Drain tests** (`drain_summary.csv`): 336 / 336 pass (the four frozen rows at pipe_all 2, the two late-binding
+  rows of Part E at pipe_all 0).
+* **Fault-sweep masks:** model check of `CI_XY_XY` and `CI_XY_O1` on all 27 masks, 54 / 54 pass (`formal_faults.md`); all-pairs
+  drain tests of every row on every mask (`drain_faults.csv`).
+
+### Parts B-E and the addendum row
+Running (Part B: 18,900 runs, seeds 121-130; Part C: 3,240 runs, seeds 131-135; Part D: 630 trace runs; Part E: 2,970 runs,
+seeds 141-145; addendum: 2,160 runs). The results are added here and in `FINDINGS.md` when the runs are complete.
+
+### Part F: hardware of the final design (`hw/FINDINGS_hw.md`, `report/summary_F.md`)
+RTL of the interposer router of the three heuristic rows (`hw/rtl/`: LF with XY, LF with the VN-split order, DLY with XY) around
+the reference core of round 18; flow of rounds 18 and 21 (Yosys + ABC, NanGate45, OpenSTA, pre-layout).
+* **Check against the simulator:** 6.12 M, 6.21 M and 4.97 M vectors from simulator runs (offered outputs, pruned masks, costs,
+  the stored decision, the output requested through the fallback), 0 mismatches; every instrumented run byte-identical to
+  `bin/noxim`; 23 of 25 mutations caught (the other two change logic no reachable input exercises); 140 / 140 router
+  configurations pass the router-level test.
+* **The lookahead needs no header bit and no sideband wire:** the decision unit of an input port reads the head on the link and
+  the result is stored in the router. Header: 2 bits more than DeFT (the 4-bit entry mask), 4 on 2x2 (the default entry VL).
+* **Area** relative to DeFT (hierarchy kept / router core kept / flattened): interposer router of the main row 1.41-1.50 /
+  1.23-1.31 / 1.12-1.21; chiplet router 1.01-1.02 (2x2: 1.05-1.06); all routers of a system 1.22-1.25 / 1.13-1.16 /
+  1.08-1.10. The VN-split order: 1.34-1.38 / 1.21-1.24 / 1.17-1.20 per system. Round 18's area parser counted sub-modules
+  without parameters as zero area (its ratios to DeFT were about 1 % too high); this round's totals are checked against the
+  tool's design area.
+* **Timing:** the reference pipeline reaches 1.27-1.32 ns in this flow (T_ref). The main row's decision takes two cycles at
+  T_ref (margin +0.23 ns) and three at 1 ns; a hop with one offered output keeps the reference's four cycles; the router's
+  longest stage is 0.90-0.96 x T_ref.
+* **F5:** LF with residual delay 0 can be built at the reference period, so the evaluated main row is the mechanism that is
+  built. Two conditions: the first decision stage reads the head on the link (0.28-0.42 ns of the link cycle left for the wire,
+  DeFT 0.82-0.90 ns) and the clock is the reference's. If either fails the same RTL has one residual cycle; that row
+  (`CI_heurLA_X_LF1`) is the pre-registered addendum (`PREREGISTRATION_addendum.md`). DLY fits only with one unit per input port
+  and without margin.
+
+Start with `results_v25_confirm/FINDINGS.md`.
