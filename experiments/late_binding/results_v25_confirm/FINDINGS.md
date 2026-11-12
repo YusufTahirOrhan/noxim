@@ -1,12 +1,36 @@
 # Findings v25: confirmatory round for late binding with XY, and the hardware of the final design
 
-Status: **in progress.** Done: Part A (gates), the pre-registration, Part F (hardware; `hw/FINDINGS_hw.md`), the model check
-of the fault-sweep masks. Running: Part B (18,900 runs), the drain tests and ladders of Part C. To follow, unattended and in
-the pre-registered order (`chain_v25.sh`, `chain_v25_add.sh`): the fault sweep, the application traces, the one-cycle router
-model, the addendum row. No evaluation result has been read yet; the answers below that need one say so.
+Status: **in progress.** Done: Part A (gates), the pre-registration, Part B (18,900 runs, 0 missing, 0 dead-end events;
+`report/summary_B.md`, `eval_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the
+pre-registered order (`chain_v25.sh`, `chain_v25_add.sh`): the fault sweep, the application traces, the one-cycle router
+model, the addendum row. The answers below that need one of them say so.
 
 Nothing is tuned in this round: the configuration is the one round 24 chose on seeds 101-102, the simulator is the ce6ab6a
 build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PREREGISTRATION_addendum.md`.
+
+**Primary result (pre-registered, Holm over 18): 17 supported, 1 against, 0 not significant.** On seeds no earlier round
+used and on eight scenarios, the frozen main row (XY on the interposer, lookahead with fallback) beats the best baseline on
+every size in throughput, mean latency and tail latency. The second row (VN-split order) does the same on 3x3 and 4x4 and
+loses 2.7 % of throughput on 2x2; the pre-registration had named that test as the one not expected to be supported.
+
+| size | row | THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat |
+|---|---|---|---|---|
+| 2x2 | `CI_heurLA_X_LF` (main) | +1.5 % [+1.2, +1.8] | -13.1 % [-15.0, -11.1] | -27.8 % [-31.8, -23.5] |
+| 2x2 | `CI_heurLA_O_LF` (second) | **-2.7 % [-3.0, -2.4] (against)** | -6.2 % [-8.4, -3.9] | -21.3 % [-26.1, -16.3] |
+| 3x3 | `CI_heurLA_X_LF` (main) | +6.7 % [+6.4, +7.0] | -10.5 % [-11.7, -9.3] | -27.9 % [-30.8, -24.9] |
+| 3x3 | `CI_heurLA_O_LF` (second) | +5.9 % [+5.4, +6.3] | -8.7 % [-10.2, -7.1] | -29.6 % [-32.9, -26.1] |
+| 4x4 | `CI_heurLA_X_LF` (main) | +6.6 % [+6.3, +7.0] | -15.0 % [-16.6, -13.5] | -34.2 % [-36.6, -31.8] |
+| 4x4 | `CI_heurLA_O_LF` (second) | +7.3 % [+7.0, +7.7] | -16.1 % [-17.7, -14.4] | -40.9 % [-43.3, -38.5] |
+
+Effects are against the best reference row per scenario and metric (DeFT_P, DeFT_B, MTR, RC, XY_SP without faults; DeFT_P,
+DeFT_B, DeFT_Dis, DeFT_Ran with faults), averaged over the eight scenarios; 95 % intervals over seeds 121-130; every
+Holm-adjusted p <= 0.0003. Everything else in Part B is descriptive (unadjusted).
+
+**The average hides a split** (question 2). On the five scenarios the tuning saw, the effects of round 24 come again on the
+new seeds (main row: THR +4.1 / +10.5 / +9.1 %, LAT -20.1 / -16.4 / -23.6 %). On the three it did not see, the main row is
+level with the best baseline on average (THR -2.7 / +0.7 / +2.5 %, LAT 0.0 / +0.3 / +1.4 %): it gains on hotspot with
+faults, and it is behind RC on 2x2 localized and behind MTR and RC on the moving hotspot. Against DeFT_B it is ahead in
+throughput and mean latency in all 24 cells (a cell is one scenario on one size), against DeFT_P in 23 and behind in none.
 
 ## Gates
 * **Regression** (`regression.md`): the 84-configuration set is byte-identical to a fresh build of ce6ab6a in all three
@@ -32,22 +56,133 @@ build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PR
 ## The ten questions
 
 ### 1. Primary family of Part B: how many supported, which against?
-Pending (Part B is running).
+**17 of 18 supported, 1 against, none not significant** (`report/summary_B.md`, B.1; the table at the top). 18,900 runs,
+none missing, no dead-end event.
+* **Main row `CI_heurLA_X_LF`: 9 of 9 supported.** Against the best baseline over the eight scenarios (2x2 / 3x3 / 4x4):
+  THR +1.5 / +6.7 / +6.6 %, LAT at 1.0 x Lsat -13.1 / -10.5 / -15.0 %, P99 -27.8 / -27.9 / -34.2 %.
+* **Second row `CI_heurLA_O_LF`: 8 of 9 supported; THR on 2x2 is against** (-2.7 % [-3.0, -2.4], Holm p 4e-08). The
+  pre-registration had said in advance that this test was not expected to be supported (round 24: -0.6 %). Its other
+  effects: THR +5.9 / +7.3 % on 3x3 / 4x4, LAT -6.2 / -8.7 / -16.1 %, P99 -21.3 / -29.6 / -40.9 %.
+* The effects are smaller than in round 24's family (heuristic with XY and LF there: THR +4.1 / +10.2 / +9.3 %, LAT
+  -20.7 / -19.2 / -24.0 %) because the family now has eight scenarios instead of five and the three added ones show no
+  gain on average (question 2).
+* The family was computed a second time by a script that shares no code with the report (`check_v25_families.py`,
+  `report/families_check.md`): all 18 tests agree in effect, interval, adjusted p and verdict.
 
 ### 2. Per scenario: where are the gains and the losses? The three scenarios not seen in tuning against the five that were?
-Pending.
+`report/summary_B.md`, B.3 (per scenario), B.4 (seen against not seen), B.6 (per cell). Main row against the best baseline,
+2x2 / 3x3 / 4x4; "(=)" marks an effect whose 95 % interval includes zero.
+
+| scenario | tuning saw it | best baseline for THR | THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat |
+|---|---|---|---|---|---|
+| uniform | yes | RC, RC, MTR | -1.4 / +10.0 / +13.2 % | +0.8 (=) / -16.7 / -11.2 % | -7.5 (=) / -42.5 / -30.4 % |
+| hotspot | yes | DeFT_B | +2.9 / +2.5 / +2.4 % | -13.9 / -5.2 / -4.8 % | -20.0 / -3.7 / -2.1 (=) % |
+| chipperm | yes | MTR, DeFT_B, DeFT_P | +7.8 / +25.4 / +8.7 % | -29.4 / -26.0 / -14.3 % | -52.8 / -59.8 / -29.4 % |
+| chiptrans | yes | MTR, MTR, RC | +2.7 / +5.4 / +6.4 % | -25.6 / -12.4 / -45.6 % | -49.3 / -33.3 / -74.8 % |
+| uniform+f | yes | DeFT_B | +9.0 / +10.4 / +15.5 % | -28.5 / -20.0 / -33.9 % | -51.7 / -45.3 / -68.8 % |
+| localized | no | RC | -7.6 / +0.7 (=) / +5.5 % | +8.4 / -4.4 / -4.7 % | +2.7 (=) / -28.0 / -22.6 % |
+| movinghot | no | MTR | -3.5 / -1.8 / +0.2 (=) % | +0.2 (=) / +11.1 / +14.1 % | +2.9 (=) / +38.2 / +29.7 % |
+| hotspot+f | no | DeFT_B | +3.3 / +3.2 / +1.9 % | -8.0 / -5.2 / -4.1 % | -18.3 / -9.4 / -7.6 % |
+
+* **Gains.** Of the 24 cells (one scenario on one size) the main row is better than the best baseline in 18 in throughput,
+  19 in mean latency and 18 in tail latency. The largest gains are on chipperm, on uniform with faults, on chiptrans and on
+  uniform on 3x3 and 4x4. On hotspot with and without faults the gains are small and on every size (THR +2 to +3 %, LAT -4
+  to -14 %).
+* **Losses.** It is worse in 4 cells in throughput, 3 in mean latency and 2 in tail latency, all of them on 2x2 or on the
+  moving hotspot:
+  * 2x2 uniform: THR -1.4 % against RC, latency level. The pre-registration had named this cell as a risk.
+  * 2x2 localized: THR -7.6 % and LAT +8.4 % against RC.
+  * moving hotspot: THR -3.5 / -1.8 % on 2x2 / 3x3 against MTR, and LAT +11.1 / +14.1 %, P99 +38.2 / +29.7 % on 3x3 / 4x4
+    against MTR and RC.
+
+  In each of these cells the best baseline is MTR or RC, which do not use VNs. Against DeFT_P the main row is ahead in the
+  same cells or level with it (moving hotspot: THR on 3x3, LAT on 4x4), except in the tail latency of the moving hotspot on
+  4x4 (+11.8 %; question 3).
+* **Seen against not seen** (effect against the best baseline, 2x2 / 3x3 / 4x4):
+
+  | row | metric | five scenarios the tuning saw | three it did not see |
+  |---|---|---|---|
+  | main | THR | +4.1 / +10.5 / +9.1 % | -2.7 / +0.7 / +2.5 % |
+  | main | LAT | -20.1 / -16.4 / -23.6 % | -0.0 (=) / +0.3 (=) / +1.4 (=) % |
+  | main | P99 | -38.8 / -39.5 / -48.1 % | -4.8 (=) / -3.4 (=) / -2.5 (=) % |
+  | second | THR | -0.7 / +10.1 / +11.5 % | -5.9 / -0.9 / +0.7 % |
+  | second | LAT | -14.2 / -17.6 / -27.9 % | +8.9 / +8.3 / +8.1 % |
+  | second | P99 | -34.2 / -44.0 / -57.1 % | +6.0 (=) / +2.9 (=) / +0.6 (=) % |
+
+  On the five scenarios of the tuning the effects of round 24 come again on seeds that round never used (round 24, main
+  row: THR +4.1 / +10.2 / +9.3 %, LAT -20.7 / -19.2 / -24.0 %, P99 -40.5 / -45.6 / -48.5 %; second row on 4x4: THR +11.6 %,
+  LAT -28.4 %). So those gains are not an effect of the seeds. On the three scenarios the tuning did not see, the main row
+  is level with the best baseline in mean and tail latency and within 3 % of it in throughput (behind on 2x2, ahead on 3x3
+  and 4x4); the second row is behind it in mean latency by 8-9 % on every size.
+* **The three new scenarios differ among themselves.** Hotspot with faults behaves as hotspot does (gain on every size).
+  Localized gains on 3x3 and 4x4 in latency and loses on 2x2. The moving hotspot loses. The second row is hit harder by the
+  moving hotspot than the main row (LAT +22.7 / +36.1 / +35.5 % against the best baseline).
+* **Tuning or scenario?** This design cannot separate the two; every late-binding row was tuned on the same five scenarios.
+  Two things can be said. On localized a packet meets fewer hops with a choice (1.2 per packet against 1.6-1.8 on uniform;
+  B.11), so there is less to gain. On the moving hotspot it meets as many as on uniform (1.6-1.8), yet the gain over DeFT_P
+  is small (THR +3.1 % / level / +2.7 %, against +6.0 / +15.4 / +18.4 % on uniform) while MTR and RC keep their lead over
+  DeFT_P; so the cause there is not a lack of decisions. What the selection does with them on that pattern was not analysed
+  in this round.
 
 ### 3. Against each reference row separately
-Pending.
+`report/summary_B.md`, B.5 and B.6. Main row; effect over the scenarios both rows ran on, 2x2 / 3x3 / 4x4; cells in which
+the main row is better / worse (95 % interval excludes zero).
+
+| reference | scenarios | THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat | cells better / worse: THR, LAT |
+|---|---|---|---|---|---|
+| DeFT_P | all eight | +10.6 / +16.5 / +14.8 % | -32.0 / -37.3 / -39.9 % | -52.3 / -67.0 / -70.9 % | 23 / 0 of 24, 23 / 0 |
+| DeFT_B | all eight | +16.3 / +13.9 / +26.1 % | -57.1 / -47.0 / -57.6 % | -69.9 / -68.2 / -74.1 % | 24 / 0 of 24, 24 / 0 |
+| MTR | six fault-free | +2.5 / +9.6 / +9.0 % | -16.8 / -17.4 / -21.4 % | -36.5 / -44.8 / -49.6 % | 13 / 4 of 18, 14 / 2 |
+| RC | six fault-free | +2.2 / +9.5 / +8.8 % | -12.2 / -16.3 / -20.4 % | -28.4 / -44.2 / -47.9 % | 12 / 2 of 18, 13 / 2 |
+| XY_SP | six fault-free | +72.6 / +65.3 / +72.8 % | -93.2 / -87.7 / -85.3 % | -95.6 / -93.0 / -90.6 % | 18 / 0 of 18, 18 / 0 |
+| DeFT_Dis | two with faults | +29.2 / +31.4 / +30.6 % | -60.1 / -65.6 / -71.3 % | -82.6 / -90.9 / -93.1 % | 6 / 0 of 6, 6 / 0 |
+| DeFT_Ran | two with faults | +33.8 / +24.5 / +18.8 % | -69.3 / -42.9 / -36.1 % | -76.5 / -59.8 / -54.0 % | 6 / 0 of 6, 6 / 0 |
+
+* **DeFT_P, DeFT_B, XY_SP, DeFT_Dis, DeFT_Ran: in throughput and mean latency the main row is behind in no cell.** Against
+  DeFT_P the two cells that are not ahead are level (THR of the moving hotspot on 3x3, LAT of the moving hotspot on 4x4). In
+  tail latency one cell is behind DeFT_P: the moving hotspot on 4x4 (+11.8 %).
+* **MTR and RC are the references that set the best baseline where the main row loses.** Against MTR it is behind in
+  throughput on 2x2 uniform (-0.7 %), 2x2 localized (-4.8 %) and the moving hotspot on 2x2 and 3x3 (-3.5, -1.8 %), and in
+  mean latency on the moving hotspot on 3x3 and 4x4 (+11.1, +13.8 %). Against RC it is behind in throughput on 2x2 uniform
+  (-1.4 %) and 2x2 localized (-7.6 %), and in mean latency on 2x2 localized (+8.4 %) and the moving hotspot on 4x4
+  (+14.1 %). On 3x3 and 4x4 it is ahead of both by about 9 % in throughput over the six fault-free scenarios.
+* **Second row** (B.5): against DeFT_P THR +6.0 / +15.6 / +15.6 %, LAT -26.6 / -36.0 / -40.7 %; against MTR THR -2.1 /
+  +9.3 / +10.7 %; against RC THR -2.4 / +9.3 / +10.5 %. On 2x2 it is behind MTR and RC in throughput over the six scenarios;
+  on 3x3 and 4x4 it is ahead of every reference row.
 
 ### 4. Fault sweep: the family of Part C, the trend over k, and the k = 3 check
 Pending.
 
 ### 5. Q-learning against the heuristic on all eight scenarios
-Pending.
+**Q-learning adds nothing, as in round 24** (`report/summary_B.md`, B.8). `CI_qlLA_X_LF` against `CI_heurLA_X_LF`, same
+relation and mechanism, over the eight scenarios (2x2 / 3x3 / 4x4):
+
+| THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat | LAT at 0.2 x Lsat |
+|---|---|---|---|
+| -0.2 / -0.2 / -0.2 (=) % | +3.0 / +1.9 / +2.1 % | +2.3 / +1.3 / +2.4 % | +4.7 / +2.7 / +2.3 % |
+
+* Per scenario the mean latency at 1.0 x Lsat is higher with Q-learning in 22 of the 24 cells and lower in none; the
+  throughput is higher in two cells (moving hotspot on 3x3, +1.7 % [+0.1, +3.4]; chipperm on 4x4, +0.2 %) and lower in
+  eight (by at most 1.0 %).
+* The extra latency at low load comes with the decision delay of one cycle that round 24 chose for this row (1.4-1.5 hops
+  with a choice per packet).
+* Against the best baseline it is still ahead on every size (THR +1.3 / +6.5 / +6.4 %, LAT -10.4 / -8.8 / -13.2 %), by less
+  than the heuristic.
 
 ### 6. DLY against LF
-Pending.
+**DLY buys 1-2 % of throughput with 3-7 % more latency, as in round 24** (`report/summary_B.md`, B.7). `CI_heurLA_X_DLY`
+against `CI_heurLA_X_LF` over the eight scenarios:
+
+| size | THR | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat |
+|---|---|---|---|---|---|
+| 2x2 | +1.6 % | +7.2 % | +6.6 % | +3.3 % | -1.4 (=) % |
+| 3x3 | +1.8 % | +5.2 % | +5.0 % | +4.1 % | +0.6 (=) % |
+| 4x4 | +1.0 % | +4.6 % | +4.6 % | +4.3 % | +2.7 % |
+
+* Round 24 on five scenarios: THR +0.6 to +3.7 %, LAT at 0.2 x Lsat +7.4 / +5.3 / +4.7 %, at 1.0 x Lsat +3 to +7 %.
+* Against the best baseline DLY has THR +3.1 / +8.6 / +7.7 %, LAT -10.2 / -6.8 / -11.4 %, P99 -28.8 / -27.4 / -32.5 %.
+* Against DeFT_P at low load DLY is slower by its two cycles at a hop with a choice (question 10), where LF is faster than
+  DeFT_P. The hardware gives the same order: LF fits the reference period with margin, DLY only without (question 9).
 
 ### 7. Application traces
 Pending.
@@ -96,7 +231,35 @@ pre-layout); DeFT's router and round 18's late-binding router are synthesised ag
   evaluated ones and is run as a pre-registered addendum.
 * **DLY** fits the reference period only with one unit per input port and without margin (+0.00 ns with one register,
   +0.06 ns with the two of the evaluated row); with one unit per router it does not fit (0.28 ns over).
-* **What the evaluated rows of the mechanism achieve:** pending (Part B for residual 0, the addendum for residual 1).
+* **What the evaluated row of the mechanism achieves** (residual 0, the main row of Part B; 2x2 / 3x3 / 4x4): against the
+  best baseline THR +1.5 / +6.7 / +6.6 %, LAT -13.1 / -10.5 / -15.0 %, P99 -27.8 / -27.9 / -34.2 %, all nine tests
+  supported; against DeFT_P, whose router it extends, THR +10.6 / +16.5 / +14.8 %, LAT -32.0 / -37.3 / -39.9 %, P99
+  -52.3 / -67.0 / -70.9 %, and 0.8-1.6 cycles less latency at low load. The price is 1.25 / 1.22 / 1.22 times the router
+  area of a DeFT system (hierarchy kept; 1.10 / 1.08 / 1.08 flattened) and two header bits (four on 2x2). The row with one
+  residual cycle (`CI_heurLA_X_LF1`): pending (the addendum).
 
 ### 10. Low-load latency and the accepted throughput beyond the peak: as in v24?
-Pending.
+**Yes, both** (`report/summary_B.md`, B.9-B.11; eight scenarios here, five in round 24).
+* **Low-load latency against DeFT_P** (2x2 / 3x3 / 4x4; round 24 in brackets):
+
+  | row | LAT at 0.2 x Lsat | in cycles | LAT at 0.5 x Lsat |
+  |---|---|---|---|
+  | `CI_heurLA_X_LF` (main) | -2.1 / -3.1 / -2.5 % (-1.8 / -3.1 / -2.6) | -0.8 / -1.6 / -1.6 (-0.7 / -1.6 / -1.7) | -2.4 / -2.8 / -2.2 % (-2.4 / -2.9 / -2.2) |
+  | `CI_heurLA_O_LF` (second) | -2.0 / -3.1 / -2.6 % | -0.8 / -1.6 / -1.6 | -1.7 / -2.8 / -2.5 % |
+  | `CI_heurLA_X_DLY` | +5.0 / +2.0 / +2.0 % (+5.5 / +1.9 / +1.9) | +2.0 / +1.0 / +1.3 (+2.2 / +1.0 / +1.3) | +4.1 / +2.1 / +2.3 % |
+  | `CI_qlLA_X_LF` | +2.5 / -0.5 / -0.2 % (+2.8 / -0.5 / -0.3) | +1.0 / -0.3 / -0.1 | +1.9 / -0.6 / -0.3 % |
+  | MTR (six fault-free) | +2.8 / +2.4 / +2.1 % (+2.8 / +2.3 / +1.9) | +1.1 / +1.2 / +1.3 | +0.6 / +0.7 / +0.5 % |
+  | RC (six fault-free) | +0.9 / +0.8 / +0.8 % (+1.0 / +0.9 / +0.8) | +0.4 / +0.4 / +0.5 | -1.5 / -1.0 / -0.7 % |
+
+  The two LF rows of the heuristic are the only rows faster than DeFT_P at 0.2 x Lsat on every size; every interval
+  excludes zero. The gain is one to two cycles per packet.
+* **Beyond the peak** (mean accepted throughput relative to the row's peak, at the lowest point after the peak; mean over
+  the scenarios, worst scenario in brackets): main row 0.992 (0.979) / 0.995 (0.971) / 0.997 (0.987), the worst always on
+  localized; DeFT_P 0.991 (0.962) / 0.998 (0.989) / 0.996 (0.988); MTR 0.998 / 0.996 / 0.993; RC 0.995 / 0.999 / 0.993.
+  The main row never falls by more than 1 % from one load to the next in 7 / 7 / 8 of the 8 scenarios. Round 24: the
+  late-binding rows kept 98.6-100 % on average. DeFT_Ran loses the most of all rows (0.940 / 0.925 / 0.962 on average, 0.909
+  in its worst scenario).
+* **Decision hops** (main row at 1.0 x Lsat): 17.1 / 13.0 / 11.1 % of all hops and 27.0 / 18.8 / 14.9 % of the interposer
+  hops offer more than one output (round 24: 17 / 13 / 11-12 % and 26 / 18-19 / 14-15 %), 1.5 / 1.5 / 1.6 per packet over
+  the eight scenarios and 1.6 / 1.7 / 1.8 on uniform (round 24: 1.6-1.8). The fallback is taken at 6.8 / 7.5 / 8.8 % of
+  those hops (round 24: 6.6-9.4 %); 1.8 / 2.3 / 1.9 % of the stored decisions differ from a fresh one (round 24: 1.4-2.3 %).
