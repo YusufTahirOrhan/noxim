@@ -3,9 +3,9 @@
 Status: **in progress.** Done: Part A (gates), the pre-registration, Part B (18,900 runs, 0 missing, 0 dead-end events;
 `report/summary_B.md`, `eval_runs.csv`), Part C (3,240 runs, 0 missing, 0 dead-end events; `report/summary_C.md`,
 `fault_runs.csv`), Part D (630 trace runs, none excluded, 0 dead-end events; `report/summary_D.md`, `app_runs.csv`,
-`pair_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the pre-registered order
-(`chain_v25.sh`, `chain_v25_add.sh`): the one-cycle router model, the addendum row. The answers below that need one of
-them say so.
+`pair_runs.csv`), Part E (2,970 runs with the one-cycle router model, 0 missing, 0 dead-end events;
+`report/summary_E.md`, `pipe0_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended
+(`chain_v25_add.sh`): the addendum row. The answer that needs it (question 9, last item) says so.
 
 Nothing is tuned in this round: the configuration is the one round 24 chose on seeds 101-102, the simulator is the ce6ab6a
 build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PREREGISTRATION_addendum.md`.
@@ -291,7 +291,77 @@ Per trace, main row relative to DeFT_P:
   and no trace on which late binding costs time.
 
 ### 8. One-cycle router model (Part E): what changes?
-Pending.
+**No conclusion changes; two sizes do. The throughput gain is the same in both router models. The latency gain at
+1.0 x Lsat is half to three quarters as large with the one-cycle router, because that load lies earlier on the curve
+there: at 1.2 x Lsat the gain is 42-51 %, against 49-63 % in the four-cycle model. A decision delay of two cycles costs
+the same three cycles per packet in both models, which is twice the share of a latency that is half as long**
+(`report/summary_E.md`; the
+comparison with the four-cycle model and the values in cycles: `report/extra_E.md`; `pipe0_runs.csv`). `-pipe_all 0`
+(Noxim's one-cycle router: two cycles per hop instead of four), the pipe_all 0 ladders of round 23, seeds 141-145;
+uniform, hotspot and chipperm without faults and uniform with one faulty VL per chiplet; DeFT_P, DeFT_B, MTR, RC,
+`CI_heurLA_X` with an ideal decision (the main row's selection, no delay, no lookahead routing) and `CI_heurLA_X_DLY`.
+2,970 runs, none missing, no dead-end event. Descriptive, no test. The four-cycle rows below are the Part B runs
+restricted to the same four scenarios and the same four reference rows (E.4). The ideal decision has no row in the
+four-cycle model (LF is its buildable form); DLY ran in both.
+
+Against the best baseline of each scenario, over the four scenarios (2x2 / 3x3 / 4x4; every interval excludes zero):
+
+| router model | row | THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat | LAT at 0.2 x Lsat against DeFT_P |
+|---|---|---|---|---|---|
+| one cycle | `CI_heurLA_X`, ideal decision | +6.0 / +13.5 / +10.8 % | -9.4 / -12.8 / -9.9 % | -24.3 / -28.8 / -23.8 % | -2.7 / -3.5 / -2.8 % (-0.6 / -0.9 / -0.9 cycles) |
+| one cycle | `CI_heurLA_X_DLY` | +6.4 / +14.6 / +11.2 % | -6.4 / -9.6 / -6.9 % | -25.3 / -30.1 / -24.2 % | +11.2 / +6.2 / +5.7 % (+2.5 / +1.8 / +2.1 cycles) |
+| four cycles | `CI_heurLA_X_LF` (main) | +4.5 / +11.8 / +9.8 % | -18.6 / -17.3 / -16.8 % | -35.9 / -40.9 / -37.8 % | -2.1 / -3.4 / -2.9 % (-0.9 / -1.8 / -1.9 cycles) |
+| four cycles | `CI_heurLA_X_DLY` | +6.2 / +15.2 / +11.0 % | -14.7 / -13.6 / -12.9 % | -35.3 / -39.3 / -36.4 % | +5.3 / +1.7 / +1.6 % (+2.3 / +1.0 / +1.2 cycles) |
+
+* **Throughput: the same.** DLY, the mechanism that ran in both models, has +6.4 / +14.6 / +11.2 % with the one-cycle
+  router and +6.2 / +15.2 / +11.0 % with the four-cycle one. The ideal decision has 1-2 points more than LF. Against
+  DeFT_P: +13.9 / +23.0 / +18.1 % (ideal, one cycle) and +12.2 / +22.5 / +18.0 % (LF, four cycles).
+* **Latency at 1.0 x Lsat: half to three quarters of the gain, two thirds of the tail gain.** In cycles the late-binding
+  row is 5.5 / 8.3 / 7.6 below the best baseline instead of 19.1 / 17.2 / 21.8. The comparison point moves: Lsat is the
+  last load before DeFT_P's latency exceeds three times its zero-load latency, that latency is half as long with the
+  one-cycle router, and so Lsat is 0-17 % lower while DeFT_P's peak throughput is within 3 % of its four-cycle value in
+  10 of the 12 cells. 1.0 x Lsat is 0.83 / 0.80 / 0.83 of DeFT_P's peak throughput in the one-cycle model and 0.91 /
+  0.88 / 0.89 in the four-cycle model. Along the ladder the gain in mean latency against the best baseline of each load is
+
+  | router model | row | 0.8 x Lsat | 1.0 x | 1.2 x | 1.4 x |
+  |---|---|---|---|---|---|
+  | one cycle | ideal | -1.9 / -4.5 / -3.5 % | -9.4 / -12.8 / -9.9 % | -45.8 / -50.5 / -42.0 % | -41.5 / -70.8 / -56.0 % |
+  | four cycles | LF | -3.0 / -4.8 / -4.3 % | -18.6 / -17.3 / -16.8 % | -48.6 / -62.5 / -51.6 % | -18.0 / -55.2 / -34.9 % |
+
+  so the gain is not lost with the shorter pipeline; it appears one step later on a ladder that starts lower
+  (`report/extra_E.md`, X.9 and X.12).
+* **Low load: the same in per cent, half in cycles.** The ideal decision is 2.7 / 3.5 / 2.8 % faster than DeFT_P (LF with
+  four cycles: 2.1 / 3.4 / 2.9 %), which is 0.6 / 0.9 / 0.9 cycles instead of 0.9 / 1.8 / 1.9: the gain comes from
+  shorter paths (round 24) and a hop takes half as long.
+* **The decision delay costs twice as much in relative terms.** Against the row that decides at once, DLY adds 3.1 /
+  2.7 / 3.0 cycles per packet at low load with the one-cycle router and 3.2 / 2.8 / 3.1 with the four-cycle one (1.6-1.8
+  hops with a choice per packet at 1.0 x Lsat in both, two cycles each). That is +14.2 / +10.0 / +8.7 % of the latency against +7.6 /
+  +5.3 / +4.6 %, and DLY ends 6-11 % slower than DeFT_P at low load instead of 2-5 %. At 1.0 x Lsat it adds 3.4 / 3.8 /
+  3.3 % (four cycles: 4.9 / 4.6 / 4.7 %), and it buys less throughput: +0.4 / +1.0 / +0.4 (=) % against +1.6 / +3.0 /
+  +1.1 %.
+* **Per scenario** (ideal decision with one cycle; LF with four cycles from B.3):
+
+  | scenario | one cycle: THR | LAT at 1.0 x Lsat | four cycles: THR | LAT at 1.0 x Lsat |
+  |---|---|---|---|---|
+  | uniform | +1.0 (=) / +10.9 / +13.9 % | +4.3 / -2.1 (=) / -6.9 % | -1.4 / +10.0 / +13.2 % | +0.8 (=) / -16.7 / -11.2 % |
+  | hotspot | +4.5 / +1.4 (=) / +2.1 (=) % | -6.7 / -5.8 / -3.8 % | +2.9 / +2.5 / +2.4 % | -13.9 / -5.2 / -4.8 % |
+  | chipperm | +9.4 / +33.2 / +10.6 % | -11.2 / -23.9 / -3.9 (=) % | +7.8 / +25.4 / +8.7 % | -29.4 / -26.0 / -14.3 % |
+  | uniform with faults | +9.5 / +10.8 / +17.0 % | -22.1 / -17.7 / -23.3 % | +9.0 / +10.4 / +15.5 % | -28.5 / -20.0 / -33.9 % |
+
+  Of the 12 cells the ideal decision is better than the best baseline in 9 / 9 / 8 (THR / LAT / P99) and worse in one:
+  mean latency on 2x2 uniform, +4.3 % against RC. LF with four cycles: better in 11 / 11 / 10, worse in one, the
+  throughput on 2x2 uniform (-1.4 % against RC). 2x2 uniform is the cell in which RC is level with late binding in
+  both models. DLY with the one-cycle router is better in 11 / 6 / 8 and worse in mean latency in three (2x2 uniform
+  +8.1 % against RC; hotspot on 3x3 and 4x4, +0.8 % and +2.5 % against DeFT_B).
+* **The reference rows keep their order.** MTR and RC are 4-7 % ahead of DeFT_P in throughput and 11-24 % in mean
+  latency with the one-cycle router (four cycles: 2-6 % and 15-29 %). The best baseline is DeFT_B for the throughput in
+  7 of the 12 cells and RC for the mean latency in 6, in both models.
+* **Beyond the peak: one cell differs.** On 4x4 chipperm with the one-cycle router every row except DeFT_B has its peak
+  at 1.4 x Lsat and loses throughput above it: DeFT_P keeps 0.892 of its peak, MTR 0.872, RC 0.886, the two late-binding
+  rows 0.833. Above 1.0 x Lsat the late-binding rows accept more than every reference row at every load of that cell
+  (0.0444 flits/node/cycle at 2.4 x Lsat against 0.0418-0.0426), but their margin over RC falls from +10.6 % at the
+  peak, which is what THR measures, to +4 % at the highest load. No row loses more than 5 % in any other cell of either
+  model (`report/extra_E.md`, X.10). The cause was not examined in this round.
 
 ### 9. Hardware: area, timing, header bits; which mechanism can be built, and what the evaluated row of that mechanism achieves
 Details and tables: `hw/FINDINGS_hw.md`, `report/summary_F.md`. Flow of rounds 18 and 21 (Yosys + ABC, NanGate45, OpenSTA,

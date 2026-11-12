@@ -133,8 +133,9 @@ def cells(D, row, scen, name):
 
 def part_e():
     P = json.load(open(os.path.join(R.RES, 'load_points_v25.json')))
-    D0 = R.Design(R.load_runs(os.path.join(R.RES, 'pipe0_runs.csv')), P, 0, list(range(141, 146)), R.scen_e, row_scen_e, refs_e, R.IDX9)
-    D2 = R.Design(R.load_runs(os.path.join(R.RES, 'eval_runs.csv')), P, 2, list(range(121, 131)), R.scen_e, row_scen_e, refs_e, R.IDX9)
+    idx = dict(R.IDX9, LAT08=(2, 'latency'), LAT12=(4, 'latency'))
+    D0 = R.Design(R.load_runs(os.path.join(R.RES, 'pipe0_runs.csv')), P, 0, list(range(141, 146)), R.scen_e, row_scen_e, refs_e, idx)
+    D2 = R.Design(R.load_runs(os.path.join(R.RES, 'eval_runs.csv')), P, 2, list(range(121, 131)), R.scen_e, row_scen_e, refs_e, idx)
     D = {0: D0, 2: D2}
     lb = {0: [IDEAL, R.DLY], 2: [R.MAIN, R.DLY]}
     S = R.SIZES
@@ -263,7 +264,18 @@ def part_e():
         dc = [R.mean(D[pipe].smean(R.DLY, z, sc, 'LAT02') - D[pipe].smean(a, z, sc, 'LAT02') for sc in R.scen_e(z)) for z in S]
         t = {n: ' / '.join(R.eci(D[pipe].test(R.DLY, a, z, R.scen_e(z), n)) for z in S) for n in ('THR', 'LAT02', 'LAT', 'P99')}
         L.append('| %d | %s | %s | %s | %s | %s | %s |' % (pipe, a, t['THR'], t['LAT02'], ' / '.join('%+.2f' % x for x in dc), t['LAT'], t['P99']))
-    L.append('')
+
+    L += ['', '## X.12 Mean latency against the best baseline along the ladder (the best baseline of each load; effect [95 % CI]; four scenarios)', '',
+          '| pipe_all | row | 0.5 x Lsat | 0.8 x | 1.0 x | 1.2 x | 1.4 x |', '|---|---|---|---|---|---|---|']
+    names = ('LAT05', 'LAT08', 'LAT', 'LAT12', 'LAT14')
+    for pipe in (0, 2):
+        for row in lb[pipe]:
+            L.append('| %d | %s | %s |' % (pipe, row, ' | '.join(' / '.join(R.eci(D[pipe].test(row, 'best', z, R.scen_e(z), n)) for z in S) for n in names)))
+    L += ['', 'Offered load at 1.0 x Lsat relative to the peak accepted throughput of DeFT_P (mean over the four scenarios): ' + '; '.join(
+        'pipe_all %d %s' % (pipe, ' / '.join('%.2f' % R.mean(8 * D[pipe].lad(z, sc)[3] / D[pipe].smean('DeFT_P', z, sc, 'THR') for sc in R.scen_e(z)) for z in S)) for pipe in (0, 2)) + '.', '']
+    pk = [(z, R.sname(sc), D0.smean('DeFT_P', z, sc, 'THR') / D2.smean('DeFT_P', z, sc, 'THR')) for z in S for sc in R.scen_e(z)]
+    L += ['Peak accepted throughput of DeFT_P at pipe_all 0 relative to pipe_all 2, per cell: ' + ', '.join('%s %s %.3f' % x for x in pk) +
+          ' (within 3 %% in %d of %d cells).' % (sum(1 for x in pk if abs(x[2] - 1) <= 0.03), len(pk)), '']
     out('extra_E.md', L)
 
 
