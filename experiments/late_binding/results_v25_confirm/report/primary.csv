@@ -1,0 +1,19 @@
+size,row,reference,metric,scenarios,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,CI_heurLA_X_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,1.49,1.18,1.8,1.77e-06,5.31e-06,supported
+2x2,CI_heurLA_X_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-13.08,-14.98,-11.13,1.68e-07,1.008e-06,supported
+2x2,CI_heurLA_X_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-27.79,-31.82,-23.53,4.314e-07,2.157e-06,supported
+2x2,CI_heurLA_O_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-2.7,-2.97,-2.43,3.216e-09,3.859e-08,against
+2x2,CI_heurLA_O_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-6.16,-8.38,-3.87,0.0002078,0.0002078,supported
+2x2,CI_heurLA_O_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-21.32,-26.06,-16.27,1.101e-05,2.202e-05,supported
+3x3,CI_heurLA_X_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,6.7,6.37,7.02,3.953e-12,7.115e-11,supported
+3x3,CI_heurLA_X_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-10.48,-11.69,-9.26,1.867e-08,1.681e-07,supported
+3x3,CI_heurLA_X_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-27.87,-30.75,-24.86,2.184e-08,1.747e-07,supported
+3x3,CI_heurLA_O_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,5.87,5.42,6.32,2.193e-10,3.289e-09,supported
+3x3,CI_heurLA_O_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-8.7,-10.24,-7.14,6.858e-07,2.743e-06,supported
+3x3,CI_heurLA_O_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-29.62,-32.93,-26.14,5.019e-08,3.514e-07,supported
+4x4,CI_heurLA_X_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,6.61,6.28,6.95,5.658e-12,9.608e-11,supported
+4x4,CI_heurLA_X_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-15.04,-16.55,-13.5,7.128e-09,7.841e-08,supported
+4x4,CI_heurLA_X_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-34.21,-36.58,-31.76,9.247e-10,1.202e-08,supported
+4x4,CI_heurLA_O_LF,best baseline,THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,7.34,6.97,7.72,5.652e-12,9.608e-11,supported
+4x4,CI_heurLA_O_LF,best baseline,LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-16.07,-17.74,-14.37,1.008e-08,1.008e-07,supported
+4x4,CI_heurLA_O_LF,best baseline,P99,uniform+localized+hotspot+chipperm+chiptrans+movinghot+uniform+f+hotspot+f,10,-40.93,-43.26,-38.5,2.782e-10,3.895e-09,supported
