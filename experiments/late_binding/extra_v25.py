@@ -222,6 +222,48 @@ def part_e():
             L.append('| %s | %s |' % (R.sname(sc), ' | '.join(
                 '%.4f / %.0f / %.0f' % tuple(D0.smean(row, z, sc, n) for n in R.METRICS) if sc in row_scen_e(row, z) else '-' for row in rows)))
         L.append('')
+
+    L += ['## X.9 How far into saturation a row is at 1.0 x Lsat of DeFT_P: its latency there over its own latency at 0.2 x Lsat (mean over the row\'s scenarios)', '',
+          '| pipe_all | row | LAT at 1.0 x Lsat / LAT at 0.2 x Lsat | LAT at 1.0 x Lsat minus the best baseline\'s (cycles) |', '|---|---|---|---|']
+    for pipe in (0, 2):
+        for row in ['DeFT_P', 'DeFT_B', 'MTR', 'RC'] + lb[pipe]:
+            rat = [R.mean(D[pipe].smean(row, z, sc, 'LAT') / D[pipe].smean(row, z, sc, 'LAT02') for sc in row_scen_e(row, z)) for z in S]
+            dc = [R.mean(D[pipe].smean(row, z, sc, 'LAT') - D[pipe].smean(D[pipe].best(z, sc, 'LAT'), z, sc, 'LAT') for sc in row_scen_e(row, z)) for z in S]
+            L.append('| %d | %s | %s | %s |' % (pipe, row, ' / '.join('%.2f' % x for x in rat), ' / '.join('%+.1f' % x for x in dc)))
+
+    L += ['', '## X.10 Cells in which a row loses more than 5 % of its peak beyond the peak: accepted throughput (flits/node/cycle, mean over the seeds) against the load', '']
+    found = False
+    for pipe in (0, 2):
+        allrows = ['DeFT_P', 'DeFT_B', 'MTR', 'RC'] + lb[pipe]
+        for z in S:
+            for sc in R.scen_e(z):
+                low = {}
+                for row in allrows:
+                    if sc not in row_scen_e(row, z):
+                        continue
+                    ld = D[pipe].lad(z, sc)
+                    m = [R.mean(D[pipe].R[k]['accepted'] for k in [(row, '%s-%s' % (z, sc[0]), sc[1], ld[i], s) for s in D[pipe].seeds] if k in D[pipe].R) for i in range(len(ld))]
+                    arg = max(range(len(m)), key=lambda i: m[i])
+                    low[row] = (m, min(m[arg:]) / m[arg])
+                if any(v[1] < 0.95 for v in low.values()):
+                    found = True
+                    L += ['pipe_all %d, %s %s:' % (pipe, z, R.sname(sc)), '', '| row | %s | lowest after the peak / peak |' % ' | '.join('%g x' % x for x in R.MULTS),
+                          '|---|' + '---|' * (len(R.MULTS) + 1)]
+                    for row in allrows:
+                        if row in low:
+                            L.append('| %s | %s | %.3f |' % (row, ' | '.join('%.4f' % x for x in low[row][0]), low[row][1]))
+                    L.append('')
+    if not found:
+        L += ['None.', '']
+
+    L += ['## X.11 The decision delay of two cycles in both models: `CI_heurLA_X_DLY` against the row that decides at once (pipe_all 0: the ideal decision; pipe_all 2: LF), four scenarios', '',
+          '| pipe_all | against | THR | LAT at 0.2 x Lsat | in cycles | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|---|---|']
+    for pipe in (0, 2):
+        a = lb[pipe][0]
+        dc = [R.mean(D[pipe].smean(R.DLY, z, sc, 'LAT02') - D[pipe].smean(a, z, sc, 'LAT02') for sc in R.scen_e(z)) for z in S]
+        t = {n: ' / '.join(R.eci(D[pipe].test(R.DLY, a, z, R.scen_e(z), n)) for z in S) for n in ('THR', 'LAT02', 'LAT', 'P99')}
+        L.append('| %d | %s | %s | %s | %s | %s | %s |' % (pipe, a, t['THR'], t['LAT02'], ' / '.join('%+.2f' % x for x in dc), t['LAT'], t['P99']))
+    L.append('')
     out('extra_E.md', L)
 
 
