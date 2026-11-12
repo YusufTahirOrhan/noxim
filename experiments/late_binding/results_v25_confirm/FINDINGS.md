@@ -1,9 +1,10 @@
 # Findings v25: confirmatory round for late binding with XY, and the hardware of the final design
 
 Status: **in progress.** Done: Part A (gates), the pre-registration, Part B (18,900 runs, 0 missing, 0 dead-end events;
-`report/summary_B.md`, `eval_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the
-pre-registered order (`chain_v25.sh`, `chain_v25_add.sh`): the fault sweep, the application traces, the one-cycle router
-model, the addendum row. The answers below that need one of them say so.
+`report/summary_B.md`, `eval_runs.csv`), Part C (3,240 runs, 0 missing, 0 dead-end events; `report/summary_C.md`,
+`fault_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the pre-registered order
+(`chain_v25.sh`, `chain_v25_add.sh`): the application traces, the one-cycle router model, the addendum row. The answers
+below that need one of them say so.
 
 Nothing is tuned in this round: the configuration is the one round 24 chose on seeds 101-102, the simulator is the ce6ab6a
 build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PREREGISTRATION_addendum.md`.
@@ -151,7 +152,38 @@ the main row is better / worse (95 % interval excludes zero).
   on 3x3 and 4x4 it is ahead of every reference row.
 
 ### 4. Fault sweep: the family of Part C, the trend over k, and the k = 3 check
-Pending.
+`report/summary_C.md`. Uniform traffic, k faulty VLs in every chiplet, three masks per size and k, four loads per mask,
+seeds 131-135: 3,240 runs, none missing, no dead-end event.
+* **Family (Holm over 12): 12 of 12 supported.** Main row against the best reference row of each mask (DeFT_P, DeFT_B,
+  DeFT_Dis, DeFT_Ran); every Holm-adjusted p <= 0.003.
+
+  | size | k = 1: THR | LAT at 1.0 x Lsat | k = 2: THR | LAT at 1.0 x Lsat |
+  |---|---|---|---|---|
+  | 2x2 | +7.8 % [+6.8, +8.9] | -19.3 % [-25.2, -12.9] | +3.8 % [+2.9, +4.7] | -28.5 % [-32.7, -23.9] |
+  | 3x3 | +13.5 % [+12.8, +14.1] | -37.2 % [-43.3, -30.5] | +8.8 % [+7.5, +10.1] | -22.4 % [-28.6, -15.7] |
+  | 4x4 | +22.1 % [+20.3, +24.1] | -26.8 % [-31.2, -22.1] | +13.9 % [+12.0, +15.8] | -35.4 % [-41.8, -28.3] |
+
+  The second computation of the family (`report/families_check.md`) agrees on all 12 tests.
+* **Trend over k.** The throughput gain falls as VLs fail and grows with the size: +7.8 -> +3.8 -> 0 % on 2x2, +13.5 ->
+  +8.8 -> 0 % on 3x3, +22.1 -> +13.9 -> 0 % on 4x4 for k = 1 -> 2 -> 3. So does the gain at low load (LAT at 0.5 x Lsat:
+  -2.3 -> -1.7 -> 0 %, -3.0 -> -2.0 -> 0 %, -2.6 -> -1.9 -> 0 %). The latency gain at 1.0 x Lsat stays between -19 and
+  -37 % for k = 1 and 2 without an order in k (P99: -35 to -70 %). With fewer functional VLs there is less to choose
+  from, and with one there is nothing.
+* **k = 3 check: passed.** With one functional VL per chiplet the main row is identical to DeFT_P in all 180 run pairs (nine
+  masks, four loads, five seeds: accepted throughput, latency, p99 and received packets), and none of its 0.35-1.8 million
+  hops per mask offers more than one output. The four reference rows coincide there as well. The second
+  row is not identical, because its interposer order differs from DeFT's: THR +1.3 / +3.2 / +0.3 (=) %, LAT -8.9 (=) /
+  -15.1 (=) / -23.2 %.
+* **Against each reference row** (C.3; THR, 2x2 / 3x3 / 4x4): DeFT_P +11.2 / +17.5 / +23.7 % at k = 1 and +6.0 / +8.8 /
+  +13.9 % at k = 2; DeFT_B +7.8 / +13.5 / +22.3 % and +3.8 / +18.9 / +29.3 %; DeFT_Dis +23.8 / +31.1 / +37.2 % and +13.3 /
+  +20.0 / +27.4 %; DeFT_Ran +40.1 / +35.0 / +36.9 % and +28.2 / +27.1 / +25.1 %. The best reference row is DeFT_B on most
+  masks with k = 1 and DeFT_P on most with k = 2.
+* **Second row**: THR +5.3 / +14.3 / +21.4 % at k = 1 and +3.9 / +7.0 / +16.6 % at k = 2; LAT -18.0 / -37.9 / -27.4 % and
+  -30.3 / -26.1 / -40.4 %: effects of the size of the main row's.
+* **Nothing is lost.** Received over injected packets is at least 0.986 for every row at every load (C.5; packets in flight
+  at the end of a run count as not delivered), and the drain tests on the 27 masks pass 162 of 162.
+* The cell of Part B with one faulty VL per chiplet (uniform+f: one mask, ten seeds) and k = 1 here (three masks, five
+  seeds) agree in sign and size: THR +9.0 / +10.4 / +15.5 % there, +7.8 / +13.5 / +22.1 % here.
 
 ### 5. Q-learning against the heuristic on all eight scenarios
 **Q-learning adds nothing, as in round 24** (`report/summary_B.md`, B.8). `CI_qlLA_X_LF` against `CI_heurLA_X_LF`, same
