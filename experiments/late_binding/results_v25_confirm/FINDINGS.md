@@ -2,9 +2,10 @@
 
 Status: **in progress.** Done: Part A (gates), the pre-registration, Part B (18,900 runs, 0 missing, 0 dead-end events;
 `report/summary_B.md`, `eval_runs.csv`), Part C (3,240 runs, 0 missing, 0 dead-end events; `report/summary_C.md`,
-`fault_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the pre-registered order
-(`chain_v25.sh`, `chain_v25_add.sh`): the application traces, the one-cycle router model, the addendum row. The answers
-below that need one of them say so.
+`fault_runs.csv`), Part D (630 trace runs, none excluded, 0 dead-end events; `report/summary_D.md`, `app_runs.csv`,
+`pair_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended and in the pre-registered order
+(`chain_v25.sh`, `chain_v25_add.sh`): the one-cycle router model, the addendum row. The answers below that need one of
+them say so.
 
 Nothing is tuned in this round: the configuration is the one round 24 chose on seeds 101-102, the simulator is the ce6ab6a
 build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PREREGISTRATION_addendum.md`.
@@ -217,7 +218,76 @@ against `CI_heurLA_X_LF` over the eight scenarios:
   DeFT_P. The hardware gives the same order: LF fits the reference period with margin, DLY only without (question 9).
 
 ### 7. Application traces
-Pending.
+**The main row's mean latency is 2-4 % below DeFT_P's on every trace and every pair (one exception: bodytrack with
+faulty VLs, where the rows are identical), and it never completes later. The traces load the network to a few percent of
+its saturation load, so they show the low-load gain of Part B and say nothing about its throughput gain**
+(`report/summary_D.md`; `app_runs.csv`, `pair_runs.csv`). 2x2, pipe_all 2, seeds
+41-43, without faults and with one faulty VL per chiplet (0x1111): nine PARSEC traces alone (protocol of round 13: the
+first 700,000 cycles of region 2, dependency mode) and the six pairs of the four heaviest at compression 1 and 2
+(protocol of round 15). 630 runs; every run delivered its whole window, none is excluded, no dead-end event.
+Descriptive, no test.
+
+Geometric mean over the traces or pairs, relative to DeFT_P of the same trace, mask and seed (MTR and RC run only
+without faults):
+
+| runs | mean latency: DeFT_B | MTR | RC | main | second | completion time: DeFT_B | MTR | RC | main | second |
+|---|---|---|---|---|---|---|---|---|---|---|
+| one application, fault-free | 0.993 | 1.004 | 1.008 | 0.973 | 0.974 | 0.9979 | 0.9975 | 1.0017 | 0.9970 | 0.9970 |
+| one application, 0x1111 | 1.015 | | | 0.975 | 0.974 | 1.0038 | | | 0.9974 | 0.9974 |
+| two, compression 1, fault-free | 0.995 | 0.981 | 0.995 | 0.973 | 0.974 | 0.9914 | 0.9915 | 1.0074 | 0.9890 | 0.9896 |
+| two, compression 1, 0x1111 | 1.019 | | | 0.971 | 0.973 | 1.0087 | | | 0.9899 | 0.9906 |
+| two, compression 2, fault-free | 0.999 | 0.977 | 0.992 | 0.974 | 0.976 | 0.9889 | 0.9938 | 1.0118 | 0.9796 | 0.9804 |
+| two, compression 2, 0x1111 | 1.018 | | | 0.969 | 0.970 | 1.0149 | | | 0.9838 | 0.9852 |
+
+Per trace, main row relative to DeFT_P:
+
+| trace | offered load (flits/node/cycle) | DeFT_P latency (cycles) | fault-free: latency | completion time | 0x1111: latency | completion time |
+|---|---|---|---|---|---|---|
+| blackscholes | 0.0028 | 52.1 | 0.977 | 0.9832 | 0.972 | 0.9832 |
+| bodytrack | 0.0001 | 20.9 | 0.967 | 1.0000 | 1.000 | 1.0000 |
+| canneal | 0.0015 | 65.2 | 0.976 | 1.0000 | 0.972 | 1.0000 |
+| dedup | 0.0004 | 41.3 | 0.969 | 1.0000 | 0.974 | 1.0000 |
+| ferret | 0.0013 | 40.5 | 0.967 | 0.9963 | 0.977 | 0.9975 |
+| fluidanimate | 0.0005 | 44.7 | 0.974 | 1.0000 | 0.966 | 1.0000 |
+| swaptions | 0.0019 | 41.6 | 0.965 | 0.9990 | 0.971 | 0.9992 |
+| vips | 0.0027 | 54.9 | 0.977 | 0.9966 | 0.967 | 0.9976 |
+| x264 | 0.0035 | 45.9 | 0.980 | 0.9978 | 0.979 | 0.9988 |
+
+* **Mean latency against DeFT_P.** The main row is lower in each of the 27 (trace, seed) cases without faults and in each
+  of the 72 (pair, mask, compression, seed) cases: 0.965-0.980 per trace (0.7 to 1.6 cycles per packet) and 0.963-0.978
+  per pair. With the faulty VLs it is lower in 24 of the 27 single cases (0.966-0.979; 0.9 to 2.1 cycles); the three
+  others are bodytrack (412 packets in the window), on which the four rows have the same latency. The second row is
+  within 1.1 % of the main row on every trace and pair.
+* **Against the other reference rows.** On average DeFT_B is level with DeFT_P without faults (0.993-0.999) and
+  1.5-1.9 % above it with them; RC is level with DeFT_P (0.992-1.008). MTR is the reference row that comes closest: over
+  the pairs it is at 0.981 and 0.977, and it has the lowest mean latency of all rows on blackscholes alone (by 0.13
+  cycles), on two of the six pairs at compression 1 and on three at compression 2, each time within 0.6 % of the main
+  row; over the nine single traces it is level with DeFT_P (1.004; +7.8 % on bodytrack). A late-binding row has the
+  lowest mean latency on 7 of the 9 traces (DeFT_B on swaptions, by 0.02 cycles), on 4 and 3 of the 6 pairs without
+  faults, and on every trace and pair with the faulty VLs (bodytrack: a tie).
+* **Completion time.** One application without faults: every row is within 0.4 % of DeFT_P on eight of the nine traces
+  and equal to it to four digits on four of them; on blackscholes the main row needs 1.7 % fewer cycles (MTR 1.9 %,
+  DeFT_B 1.4 % fewer, RC 0.9 % more). Two applications: the main row needs 1.0-1.1 % fewer cycles than DeFT_P at compression 1 and
+  1.6-2.0 % fewer at compression 2, and fewer in every pair (0.980-0.999 and 0.976-0.987). It has the shortest completion
+  time of the rows in each of the four groups of pairs, and a late-binding row has it in 23 of the 24 (pair, mask,
+  compression) cells. DeFT_B needs 0.9-1.1 % fewer cycles than DeFT_P without faults and 0.9-1.5 % more with them, MTR
+  0.6-0.9 % fewer, RC 0.7-1.2 % more.
+* **Why the completion time moves at all.** In dependency mode a packet is injected when the packets it depends on have
+  arrived, so a lower latency moves a chain forward. blackscholes needs 774,000 cycles for its 700,000-cycle window with
+  DeFT_P and is the trace on which the rows differ; the other eight need 695,000-720,000. Compression 2 shortens only the
+  pairs without blackscholes (582,000-640,000 cycles instead of 713,000-722,000; the three with blackscholes need
+  788,000-801,000 at either compression) and raises the offered load only for them (to 0.0056-0.0069 flits/node/cycle).
+* **Load.** The traces offer 0.0001-0.0035 flits/node/cycle alone and 0.0043-0.0069 in pairs. Uniform traffic with
+  8-flit packets saturates DeFT_P on 2x2 at 0.104 flits/node/cycle (0.080 with the faulty VLs), so the traces reach at
+  most 3.4 % of that alone and 6.6 % in pairs (4.4 % and 8.6 % with the faulty VLs): below the lowest load of Part B
+  (0.2 x Lsat). There the main row has
+  -2.1 % (-0.8 cycles) against DeFT_P on 2x2 (question 10); the traces give -2.7 % (-0.7 to -1.6 cycles). The gains in
+  throughput and in latency near saturation (questions 1-4) cannot appear at this load: the traces neither confirm nor
+  contradict them.
+* **Earlier rounds.** Rounds 13 and 15 ran the same traces with the one-cycle router model and the late-binding rows of
+  that time: 4-7 % lower mean latency than DeFT, completion times within 0.2 % (one application and pairs at compression
+  1). With the four-cycle model and the frozen rows the result has the same form: a small latency gain on every trace
+  and no trace on which late binding costs time.
 
 ### 8. One-cycle router model (Part E): what changes?
 Pending.
