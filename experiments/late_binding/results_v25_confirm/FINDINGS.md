@@ -221,7 +221,8 @@ against `CI_heurLA_X_LF` over the eight scenarios:
 **The main row's mean latency is 2-4 % below DeFT_P's on every trace and every pair (one exception: bodytrack with
 faulty VLs, where the rows are identical), and it never completes later. The traces load the network to a few percent of
 its saturation load, so they show the low-load gain of Part B and say nothing about its throughput gain**
-(`report/summary_D.md`; `app_runs.csv`, `pair_runs.csv`). 2x2, pipe_all 2, seeds
+(`report/summary_D.md`; the counts of cases and the per-trace details: `report/extra_D.md`; `app_runs.csv`,
+`pair_runs.csv`). 2x2, pipe_all 2, seeds
 41-43, without faults and with one faulty VL per chiplet (0x1111): nine PARSEC traces alone (protocol of round 13: the
 first 700,000 cycles of region 2, dependency mode) and the six pairs of the four heaviest at compression 1 and 2
 (protocol of round 15). 630 runs; every run delivered its whole window, none is excluded, no dead-end event.
