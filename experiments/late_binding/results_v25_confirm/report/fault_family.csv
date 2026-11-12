@@ -1,0 +1,13 @@
+size,k,row,reference,metric,masks,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,1,CI_heurLA_X_LF,best reference row,THR,3,5,7.84,6.84,8.86,2.349e-05,0.0002349,supported
+2x2,1,CI_heurLA_X_LF,best reference row,LAT,3,5,-19.27,-25.2,-12.87,0.001464,0.00214,supported
+2x2,2,CI_heurLA_X_LF,best reference row,THR,3,5,3.8,2.89,4.72,0.0002993,0.001197,supported
+2x2,2,CI_heurLA_X_LF,best reference row,LAT,3,5,-28.46,-32.72,-23.94,0.0001104,0.0007729,supported
+3x3,1,CI_heurLA_X_LF,best reference row,THR,3,5,13.47,12.84,14.09,3.639e-07,4.366e-06,supported
+3x3,1,CI_heurLA_X_LF,best reference row,LAT,3,5,-37.23,-43.28,-30.54,0.0002168,0.001084,supported
+3x3,2,CI_heurLA_X_LF,best reference row,THR,3,5,8.79,7.51,10.09,3.886e-05,0.0003108,supported
+3x3,2,CI_heurLA_X_LF,best reference row,LAT,3,5,-22.43,-28.63,-15.69,0.00107,0.00214,supported
+4x4,1,CI_heurLA_X_LF,best reference row,THR,3,5,22.15,20.27,24.07,3.674e-06,4.041e-05,supported
+4x4,1,CI_heurLA_X_LF,best reference row,LAT,3,5,-26.8,-31.22,-22.1,0.000155,0.00093,supported
+4x4,2,CI_heurLA_X_LF,best reference row,THR,3,5,13.89,12.01,15.8,2.648e-05,0.0002383,supported
+4x4,2,CI_heurLA_X_LF,best reference row,LAT,3,5,-35.38,-41.8,-28.26,0.000316,0.001197,supported

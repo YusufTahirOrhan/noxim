@@ -4,6 +4,7 @@ The tests of `PREREGISTRATION.md` computed from the per-run CSVs by a script tha
 
 * Part B: 18900 runs, 3 sizes, 8 scenarios, seeds 121-130.
 * **Primary family of Part B: 18 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0049 percentage points (the report rounds to 0.01); verdicts: 17 supported, 1 against, 0 n.s..
-* fault_runs.csv or report/fault_family.csv not there yet: not checked.
+* Part C: 3240 runs, masks per (size, k): 2x2 k=1: 3, 2x2 k=2: 3, 2x2 k=3: 3, 3x3 k=1: 3, 3x3 k=2: 3, 3x3 k=3: 3, 4x4 k=1: 3, 4x4 k=2: 3, 4x4 k=3: 3, seeds 131-135.
+* **Family of Part C: 12 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0048 percentage points (the report rounds to 0.01); verdicts: 12 supported, 0 against, 0 n.s..
 
 **All compared tests agree: yes.**
