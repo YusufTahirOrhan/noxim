@@ -3,7 +3,7 @@
   a3_control  the comparison must be able to fail: 2x2 hops replayed through deliberately wrong models -> conformance_controls.md
   a3_run      per (row, size, mask, seed): the uniform and the hotspot run at 1.0 x Lsat with bin/noxim and with the instrumented copy
               (statistics file byte-identical?), and every recorded hop of a head flit replayed through the model
-              -> ~/lbraw/v26/a3/<job>.json. extra = SEEDS[:SIZES], e.g. "1" (default) or "2,3:2x2"
+              -> ~/lbraw/v26/a3/<job>.json. extra = SEEDS[:SIZES[:base]], e.g. "1" (default), "2,3:2x2", "1::base" (the two masks with ladders of round 25)
   a3_report   conformance.csv, conformance.md; prints the (row, size) with fewer than 1,000,000 compared hops
 The replay does not re-implement the routing rules. For every destination it lets formal/impl_relation_check.explore() build the
 model's state graph (the function the model check uses, unchanged) and looks every recorded hop up in that graph:
@@ -65,8 +65,9 @@ def rate_of(size, pattern, mask):
     return json.load(open(os.path.join(RES, 'load_points_v26.json')))['%s__%s__%s' % (size, pattern, mask)]['eval'][1]
 
 
-def jobs(seeds, sizes):
-    return [(row, size, label, mask, seed) for size in sizes for row in ROWS for label, mask in a3_masks(size) for seed in seeds]
+def jobs(seeds, sizes, base=False):
+    """base: the fault-free and the same-VL mask only (their ladders are those of round 25, so they can run before the ladders of Part B)."""
+    return [(row, size, label, mask, seed) for size in sizes for row in ROWS for label, mask in (a3_masks(size)[:2] if base else a3_masks(size)) for seed in seeds]
 
 
 def jname(row, size, mask, seed):
@@ -335,14 +336,15 @@ def control():
 
 def run(nproc, extra):
     from multiprocessing import Pool
-    extra = extra or '1'
-    seeds = [int(x) for x in extra.split(':')[0].split(',')]
-    sizes = extra.split(':')[1].split(',') if ':' in extra else X.SIZES
+    f = (extra or '1').split(':')
+    seeds = [int(x) for x in f[0].split(',')]
+    sizes = f[1].split(',') if len(f) > 1 and f[1] else X.SIZES
+    base = len(f) > 2 and f[2] == 'base'
     os.makedirs(X.raw('a3'), exist_ok=True)
-    js = jobs(seeds, sizes)
+    js = jobs(seeds, sizes, base)
     for size in sizes:
         for p in PATTERNS:
-            E5.gen_tables(size, p, sorted({rate_of(size, p, m) for _, m in a3_masks(size)}))
+            E5.gen_tables(size, p, sorted({rate_of(size, p, j[3]) for j in js if j[1] == size}))
     print('A3 jobs: %d (seeds %s, sizes %s)' % (len(js), seeds, sizes), flush=True)
     t, ok = time.time(), True
     with Pool(nproc) as pool:
