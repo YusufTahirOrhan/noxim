@@ -50,6 +50,11 @@ Choices the prompt left open. Where there was a choice, the option that does not
   code before every stage.
 * **The time rule of A2 with set 4 already done.** The 24 checks of the sample are spread over the whole list as
   pre-registered; those of set 4 are then read from the finished checks, with the time they took.
+* **A3 and the timing runs.** The conformance runs on the masks of Part B need the ladders (their load is 1.0 x Lsat of the
+  mask). They are started after the timing runs have finished, not during them: the timing runs must have the machine to
+  themselves, or the estimate would come out too high and the 40 h rule could drop cells without need. While A3 runs, the
+  evaluation leaves it two of the twelve threads. The fault-free and the same-VL mask use the ladders of round 25 and were run
+  earlier, next to the model checks.
 * **Number of processes.** The model checks of 3x3 and 4x4 use 6 processes (7 GB of memory). The stages of Part B run in
   segments and take the rest of the machine from a small file the chains write (`experiments_v26.width`). The number of
   processes changes nothing in a run: every run is fully determined by its arguments.
@@ -69,3 +74,11 @@ Choices the prompt left open. Where there was a choice, the option that does not
 * **B5.** The masks of the rates 1/16, 2/16 and 4/16 are drawn exactly as `reach_v10.py` draws them, so that its numbers must
   come again (a check of the script); the masks of 8/16 come from a stream of their own, so that adding the rate does not change
   the others.
+
+## Report
+* **Descriptors for question 6, fixed before the evaluation.** "What do these patterns have in common" needs properties of a
+  mask to look at. They were chosen and the script (`extra_v26.py`) was committed while the drain tests were still running,
+  before any ladder or evaluation run existed, so they cannot have been picked to fit the result: the share of faulty VLs;
+  the number of chiplets with one functional VL; the largest number of faults in one chiplet; of the three chiplets that hold
+  a hotspot router (0, 1 and CX), those with one functional VL; Lsat of DeFT_P on the mask relative to the fault-free Lsat of
+  round 25. The script was tested on synthetic data only. Its tables are descriptive.
