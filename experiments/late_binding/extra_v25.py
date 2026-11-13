@@ -330,6 +330,28 @@ def part_a():
         worst = [min(s, key=lambda x: x['lowest_after_peak']) for s in sat]
         L.append('| %s | %s | %s |' % (row, ' / '.join('%.3f' % R.mean(x['lowest_after_peak'] for x in s) for s in sat),
                                       ' / '.join('%.3f (%s)' % (w['lowest_after_peak'], w['scenario']) for w in worst)))
+    L += ['', '## Y.6 Q-learning against the heuristic at equal residual delay: `CI_qlLA_X_LF` against `CI_heurLA_X_LF1` (effect [95 % CI]; eight scenarios)', '',
+          'Both rows have relation X, mechanism LF and one residual cycle; they differ in the selection only. Not a comparison of `PREREGISTRATION_addendum.md`:',
+          'descriptive. The comparison of Part B (B.8) has the heuristic without the cycle.', '',
+          '| size | THR | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|---|']
+    for z in S:
+        L.append('| %s | %s |' % (z, ' | '.join(R.eci(D.test(R.QL, ADD, z, R.scen_b(z), n)) for n in ('THR', 'LAT02', 'LAT05', 'LAT', 'P99'))))
+    L += ['', 'In cycles at 0.2 x Lsat (mean over the scenarios of the difference of the seed means): ' + ' / '.join(
+        '%+.2f' % R.mean(D.smean(R.QL, z, sc, 'LAT02') - D.smean(ADD, z, sc, 'LAT02') for sc in R.scen_b(z)) for z in S) + '.', '']
+    L += ['## Y.7 The cost of the residual cycle per hop with a choice, at 0.2 x Lsat', '',
+          'Per scenario: the latency of `CI_heurLA_X_LF1` minus that of `CI_heurLA_X_LF` in cycles (difference of the seed means), divided by the hops with more than one',
+          'offered output per packet of `CI_heurLA_X_LF1`. Mean and range over the eight scenarios.', '',
+          '| size | extra cycles per packet | hops with a choice per packet | extra cycles per hop with a choice |', '|---|---|---|---|']
+    for z in S:
+        ex, hp, ra = [], [], []
+        for sc in R.scen_b(z):
+            d = D.smean(ADD, z, sc, 'LAT02') - D.smean(R.MAIN, z, sc, 'LAT02')
+            t = D.hopstats(ADD, z, (0,), [sc])
+            h = (t['hops_chip_multi'] + t['hops_ipos_multi']) / float(t['packets_measured'])
+            ex.append(d)
+            hp.append(h)
+            ra.append(d / h)
+        L.append('| %s | %.2f (%.2f-%.2f) | %.2f (%.2f-%.2f) | %.2f (%.2f-%.2f) |' % (z, R.mean(ex), min(ex), max(ex), R.mean(hp), min(hp), max(hp), R.mean(ra), min(ra), max(ra)))
     L.append('')
     out('extra_A.md', L)
 

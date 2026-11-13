@@ -54,3 +54,27 @@ The Part B design (eight scenarios, seeds 121-130). Values are 2x2 / 3x3 / 4x4. 
 | CI_heurLA_X_LF | 0.992 / 0.995 / 0.997 | 0.979 (localized) / 0.971 (localized) / 0.987 (localized) |
 | CI_heurLA_X_DLY | 0.995 / 0.996 / 0.997 | 0.989 (hotspot+f) / 0.980 (localized) / 0.990 (uniform+f) |
 
+## Y.6 Q-learning against the heuristic at equal residual delay: `CI_qlLA_X_LF` against `CI_heurLA_X_LF1` (effect [95 % CI]; eight scenarios)
+
+Both rows have relation X, mechanism LF and one residual cycle; they differ in the selection only. Not a comparison of `PREREGISTRATION_addendum.md`:
+descriptive. The comparison of Part B (B.8) has the heuristic without the cycle.
+
+| size | THR | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat | LAT at 1.0 x Lsat | P99 |
+|---|---|---|---|---|---|
+| 2x2 | -0.2 [-0.4, +0.0] | +1.0 [+0.9, +1.0] | +0.9 [+0.8, +1.0] | +0.8 [+0.1, +1.4] | +1.8 [-0.3, +3.9] |
+| 3x3 | -0.2 [-0.4, +0.0] | -0.0 [-0.1, +0.0] | -0.5 [-0.6, -0.4] | -0.4 [-0.6, -0.1] | +0.4 [-0.4, +1.3] |
+| 4x4 | -0.1 [-0.4, +0.2] | -0.1 [-0.1, -0.1] | -0.4 [-0.5, -0.4] | -0.1 [-0.4, +0.2] | +1.1 [-0.1, +2.4] |
+
+In cycles at 0.2 x Lsat (mean over the scenarios of the difference of the seed means): +0.39 / -0.01 / -0.05.
+
+## Y.7 The cost of the residual cycle per hop with a choice, at 0.2 x Lsat
+
+Per scenario: the latency of `CI_heurLA_X_LF1` minus that of `CI_heurLA_X_LF` in cycles (difference of the seed means), divided by the hops with more than one
+offered output per packet of `CI_heurLA_X_LF1`. Mean and range over the eight scenarios.
+
+| size | extra cycles per packet | hops with a choice per packet | extra cycles per hop with a choice |
+|---|---|---|---|
+| 2x2 | 1.41 (1.02-2.16) | 1.41 (1.08-2.15) | 1.00 (0.95-1.03) |
+| 3x3 | 1.35 (1.06-1.58) | 1.32 (1.01-1.52) | 1.02 (0.98-1.05) |
+| 4x4 | 1.49 (1.08-1.91) | 1.43 (1.02-1.79) | 1.04 (1.00-1.07) |
+
