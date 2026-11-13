@@ -442,9 +442,10 @@ pre-layout); DeFT's router and round 18's late-binding router are synthesised ag
   `PREREGISTRATION_addendum.md`, `report/summary_A.md`, `report/extra_A.md`; the Part B design, 2,160 runs): **9 of 9
   tests supported** (Holm over the nine). Against the best baseline THR +1.5 / +6.7 / +6.5 %, LAT -11.1 / -8.5 / -13.2 %,
   P99 -27.4 / -27.3 / -33.3 %; against DeFT_P THR +10.6 / +16.5 / +14.7 %, LAT -30.5 / -35.9 / -38.6 %, P99 -52.1 /
-  -66.7 / -70.6 %. The hardware is the main row's RTL with at most one more register in the decision unit: 1.26 / 1.23 /
-  1.23 times the router area of a DeFT system with two registers (hierarchy kept; 1.12 / 1.10 / 1.10 flattened), the
-  same header bits.
+  -66.7 / -70.6 %. The hardware is the main row's RTL with one more register stage on the decision path. The synthesised
+  configuration with two registers in the decision unit (what a 1 ns clock needs) takes 1.26 / 1.23 / 1.23 times the
+  router area of a DeFT system (hierarchy kept; 1.12 / 1.10 / 1.10 flattened); the header bits are the same. The case
+  of a decision that starts one cycle later because the link cycle is not available was not synthesised on its own.
   * *The cycle costs latency and no throughput.* Against the main row: THR -0.0 (=) / -0.0 (=) / -0.1 (=) %; LAT +3.7 /
     +2.7 / +2.4 % at 0.2 x Lsat (+1.41 / +1.35 / +1.49 cycles) and +2.2 / +2.3 / +2.2 % at 1.0 x Lsat (+1.38 / +1.75 /
     +2.36 cycles); P99 +0.5 (=) / +0.8 (=) / +1.3 %. At low load it is one cycle per hop with a choice (1.00 / 1.02 /

@@ -134,4 +134,28 @@ choice open, the choice is recorded here before the runs it affects.
   They were added because the picture differs between the scenarios, which the size-level tables hide.
 * **A second computation of the two families** (`check_v25_families.py`, `report/families_check.md`): the 18 tests of Part B
   and the 12 of Part C are computed from the per-run CSVs by a script that shares no code with the report, and compared with
-  the report's values. Not asked for by the prompt; added as a check of the statistics.
+  the report's values. Not asked for by the prompt; added as a check of the statistics. The nine tests of the addendum were
+  added to it before the addendum's 4x4 runs were finished.
+* **Extra descriptive tables** (`extra_v25.py` -> `report/extra_D.md`, `extra_E.md`, `extra_A.md`). Numbers that `FINDINGS.md`
+  quotes and the tables of `report_v25.py` do not hold (counts of cells, differences in cycles, the ladder of Part E above
+  1.0 x Lsat, the reference rows among themselves). Read only, no test, unadjusted intervals; written after the results of
+  the part were seen, and labelled descriptive wherever they are quoted.
+* **Part E against the four-cycle model.** The comparison uses the Part B runs of the same four scenarios (seeds 121-130)
+  next to the Part E runs (seeds 141-145). The seeds and the row differ (Part E has the ideal decision, Part B the LF
+  mechanism), so the differences between the two models are read as sizes, not tested.
+* **The addendum report was run on the finished sizes while 4x4 was still running** (2x2, then 2x2 and 3x3, in a scratch
+  folder), as for Part B. Nothing of the row, the design or the nine tests was changed afterwards. Three things were changed
+  in the report script as a result, all descriptive: the per-scenario cost of the residual cycle at 0.2 and 0.5 x Lsat and
+  the share of stored decisions that differ from a fresh one were added, so that every descriptive item of
+  `PREREGISTRATION_addendum.md` has a table; the row's latency against the offered load is written to its own file
+  (`paper_data/addendum_latency_load.csv`) instead of into the figures of Part B, which show the frozen rows only; and the
+  row against each reference row is written to the CSVs.
+* **The addendum family stays apart.** Its nine tests have their own Holm correction and are reported next to the primary
+  family; the count of the primary family is 17 of 18 with or without them.
+* **Q-learning against the heuristic at equal residual delay** (`report/extra_A.md`, Y.6). No pre-registration names this
+  comparison; it was made after the addendum results were seen, because the addendum row is the heuristic with the cycle the
+  Q-learning row has. It is unadjusted and descriptive. The answer of record to question 5 is the frozen comparison of
+  Part B (Q-learning adds nothing); Y.6 only says where its latency difference comes from.
+* **Area of the design with one residual cycle.** `FINDINGS.md` quotes the synthesised configuration with two registers in
+  the decision unit (what a 1 ns clock would need). The other case, a decision that starts one cycle later because the link
+  cycle is not available to it, was not synthesised as a configuration of its own.
