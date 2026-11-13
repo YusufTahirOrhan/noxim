@@ -1092,6 +1092,9 @@ def part_a():
             t = [D.test(row, 'DeFT_P', z, scen_b(z), n) for n in ('LAT02', 'LAT05')]
             rec += t if row == ADD else []
             L.append('| %s | %s | %s | %s |' % (z, row, eci(t[0]), eci(t[1])))
+    for z in SIZES:        # against each reference row, for the CSVs (the table is Y.2 of report/extra_A.md, written by extra_v25.py)
+        for ref in REF_ALL + ref_ff + REF_FAULT:
+            rec += [D.test(ADD, ref, z, row_scen(ref, z), n) for n in METRICS]
     L += ['', '## A.5 Lookahead counters (summed over the scenarios and seeds; the columns of B.11)', '',
           '| size | row | load | decision hops per packet | stored decisions that differ from a fresh one: of all / of decision hops | fallback: left through another output (of decision hops) | fallback: stored output not free (of checks) |',
           '|---|---|---|---|---|---|---|']

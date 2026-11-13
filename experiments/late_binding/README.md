@@ -510,7 +510,10 @@ run.
 * **Drivers.** `experiments_v25.py` (Part A) dispatches to `experiments_v25_eval.py` (B), `_faults.py` (C, stages `c_*`),
   `_apps.py` (D, `d_*`), `_pipe0.py` (E, `e_*`), `_hw.py` and `_hw2.py` (F, `f_*`); `experiments_v25_add.py` runs the addendum
   row. `chain_v25.sh` and `chain_v25_add.sh` run the steps after Part B's runs unattended and stop at the first failed check.
-  `report_v25.py` and `report_v25_hw.py` write `report/` and `paper_data/`. `build_ref.sh COMMIT` makes the reference build.
+  `report_v25.py` and `report_v25_hw.py` write `report/` and `paper_data/`; `extra_v25.py` writes the descriptive tables
+  `report/extra_D.md`, `extra_E.md` and `extra_A.md` that `FINDINGS.md` quotes; `check_v25_families.py` computes the three
+  pre-registered families (Part B, Part C, the addendum) a second time without the report's code
+  (`report/families_check.md`). `build_ref.sh COMMIT` makes the reference build.
 ```
 bash build_ref.sh ce6ab6a && python3 experiments_v25.py regress 12 && python3 experiments_v25.py reuse 12
 python3 experiments_v25.py sat 12 && python3 experiments_v25.py points && python3 experiments_v25.py drain 12
@@ -522,7 +525,7 @@ python3 experiments_v25.py e_eval 12 && python3 experiments_v25.py e_check && py
 python3 experiments_v25.py f_build && python3 experiments_v25.py f_smoke && python3 experiments_v25.py f_vec && python3 experiments_v25.py f_mut && python3 experiments_v25.py f_lat
 python3 experiments_v25.py f_synth && python3 experiments_v25.py f_semi && python3 experiments_v25.py f_csv && python3 report_v25_hw.py
 python3 experiments_v25_add.py drain 12 && python3 experiments_v25_add.py eval 12 && python3 experiments_v25_add.py check && python3 experiments_v25_add.py csv
-python3 report_v25.py
+python3 report_v25.py && python3 extra_v25.py && python3 check_v25_families.py
 ```
 
 ### Gates
@@ -533,11 +536,47 @@ python3 report_v25.py
   round 23's. **Drain tests** (`drain_summary.csv`): 336 / 336 pass (the four frozen rows at pipe_all 2, the two late-binding
   rows of Part E at pipe_all 0).
 * **Fault-sweep masks:** model check of `CI_XY_XY` and `CI_XY_O1` on all 27 masks, 54 / 54 pass (`formal_faults.md`); all-pairs
-  drain tests of every row on every mask (`drain_faults.csv`).
+  drain tests of every row of the sweep on every mask, 162 / 162 pass (`drain_faults.csv`).
 
-### Parts B-E and the addendum row
-Running (Part B: 18,900 runs, seeds 121-130; Part C: 3,240 runs, seeds 131-135; Part D: 630 trace runs; Part E: 2,970 runs,
-seeds 141-145; addendum: 2,160 runs). The results are added here and in `FINDINGS.md` when the runs are complete.
+### Part B: the frozen rows on eight scenarios (`report/summary_B.md`; 18,900 runs, seeds 121-130, no dead-end event)
+* **Primary family (Holm over 18): 17 supported, 1 against.** Against the best baseline over the eight scenarios (2x2 / 3x3 /
+  4x4): the main row THR +1.5 / +6.7 / +6.6 %, LAT at 1.0 x Lsat -13.1 / -10.5 / -15.0 %, P99 -27.8 / -27.9 / -34.2 % (9 of 9
+  supported); the second row THR -2.7 / +5.9 / +7.3 %, LAT -6.2 / -8.7 / -16.1 %, P99 -21.3 / -29.6 / -40.9 % (THR on 2x2 is
+  against; the pre-registration had named that test as the one not expected to be supported).
+* **Seen against not seen.** On the five scenarios of the tuning the effects of round 24 come again on the new seeds (main row:
+  THR +4.1 / +10.5 / +9.1 %, LAT -20.1 / -16.4 / -23.6 %). On the three it did not see the main row is level with the best
+  baseline (THR -2.7 / +0.7 / +2.5 %, LAT 0.0 / +0.3 / +1.4 %): it gains on hotspot with faults, and it is behind RC on 2x2
+  localized and behind MTR and RC on the moving hotspot.
+* **Per reference row.** Ahead of DeFT_B in THR and LAT in 24 of 24 cells (a cell is one scenario on one size), of DeFT_P in 23
+  and behind in none, of XY_SP, DeFT_Dis and DeFT_Ran in all; against MTR better in 13 and worse in 4 of 18 cells in THR,
+  against RC in 12 and 2.
+* **Q-learning** adds nothing to the heuristic (THR -0.2 %, LAT +2 to +3 %). **DLY** buys 1-2 % of THR with 3-7 % more latency.
+* **Low load and beyond the peak** as in round 24: LAT at 0.2 x Lsat against DeFT_P -2.1 / -3.1 / -2.5 % (one to two cycles);
+  the accepted throughput beyond the peak stays at 0.992-0.997 of the peak on average.
+
+### Part C: fault sweep (`report/summary_C.md`; 3,240 runs, seeds 131-135, no dead-end event)
+* **Family (Holm over 12): 12 of 12 supported.** Main row against the best reference row of each mask, uniform traffic: THR
+  +7.8 / +13.5 / +22.1 % with one faulty VL in every chiplet and +3.8 / +8.8 / +13.9 % with two; LAT at 1.0 x Lsat -19 to -37 %.
+* **k = 3 check passed:** with one functional VL per chiplet the main row is identical to DeFT_P in all 180 run pairs.
+
+### Part D: application traces (`report/summary_D.md`; 630 runs, none excluded, no dead-end event)
+* The main row's mean latency is 2-4 % below DeFT_P's on every trace and pair (geometric mean 0.973 for one application,
+  0.973-0.974 for two; 0.969-0.975 with one faulty VL per chiplet); its completion time is equal for one application (0.997)
+  and 1-2 % shorter for two. The traces offer at most 3-9 % of the saturation load: they show the low-load gain of Part B and
+  say nothing about its throughput gain.
+
+### Part E: one-cycle router model (`report/summary_E.md`, `report/extra_E.md`; 2,970 runs, seeds 141-145, no dead-end event)
+* Descriptive, no test: `-pipe_all 0`, uniform, hotspot, chipperm and uniform with one faulty VL per chiplet; `CI_heurLA_X`
+  with an ideal decision and `CI_heurLA_X_DLY` against DeFT_P, DeFT_B, MTR and RC. Against the best baseline (2x2 / 3x3 / 4x4):
+  the ideal decision THR +6.0 / +13.5 / +10.8 %, LAT at 1.0 x Lsat -9.4 / -12.8 / -9.9 %, P99 -24.3 / -28.8 / -23.8 %; DLY THR
+  +6.4 / +14.6 / +11.2 %, LAT -6.4 / -9.6 / -6.9 %.
+* **Against the four-cycle model on the same four scenarios** (Part B runs: LF THR +4.5 / +11.8 / +9.8 %, LAT -18.6 / -17.3 /
+  -16.8 %; DLY THR +6.2 / +15.2 / +11.0 %): the throughput gain is the same; the latency gain at 1.0 x Lsat is half to three
+  quarters as large, because Lsat lies earlier on the curve with the shorter pipeline (at 1.2 x Lsat the gain is 42-51 %
+  against 49-63 %); the low-load gain against DeFT_P is the same in per cent (-2.7 / -3.5 / -2.8 %) and half in cycles; the
+  decision delay of DLY costs the same three cycles per packet, which is 9-14 % of the low-load latency instead of 5-8 %.
+* One cell differs beyond the peak: on 4x4 chipperm every row except DeFT_B loses 11-17 % of its peak throughput above
+  1.4 x Lsat (the late-binding rows 17 %; they still accept more than every reference row at every load above 1.0 x Lsat).
 
 ### Part F: hardware of the final design (`hw/FINDINGS_hw.md`, `report/summary_F.md`)
 RTL of the interposer router of the three heuristic rows (`hw/rtl/`: LF with XY, LF with the VN-split order, DLY with XY) around
@@ -562,4 +601,17 @@ the reference core of round 18; flow of rounds 18 and 21 (Yosys + ABC, NanGate45
   (`CI_heurLA_X_LF1`) is the pre-registered addendum (`PREREGISTRATION_addendum.md`). DLY fits only with one unit per input port
   and without margin.
 
-Start with `results_v25_confirm/FINDINGS.md`.
+### Addendum: the main row with one residual cycle (`report/summary_A.md`, `report/extra_A.md`; 2,160 runs, seeds 121-130, no dead-end event)
+* `CI_heurLA_X_LF1` is the main row with `decision_delay 1`: what the RTL of Part F does if either condition of F5 fails.
+  Defined in `PREREGISTRATION_addendum.md` before any of its runs; the Part B design; drain tests 56 / 56
+  (`drain_summary_addendum.csv`).
+* **A family of its own (Holm over 9), reported next to the primary family: 9 of 9 supported.** Against the best baseline
+  THR +1.5 / +6.7 / +6.5 %, LAT at 1.0 x Lsat -11.1 / -8.5 / -13.2 %, P99 -27.4 / -27.3 / -33.3 %.
+* **The cycle costs latency and no throughput.** Against the main row: THR -0.0 / -0.0 / -0.1 %, LAT +3.7 / +2.7 / +2.4 % at
+  0.2 x Lsat and +2.2 / +2.3 / +2.2 % at 1.0 x Lsat: one cycle per hop with a choice, 1.4-2.4 cycles per packet. The main
+  row's latency advantage over DeFT_P at low load is gone (+1.5 / -0.5 / -0.1 % instead of -2.1 / -3.1 / -2.5 %).
+* With the same residual cycle, Q-learning and the heuristic are within 1 % of each other in every metric
+  (`report/extra_A.md`, Y.6; descriptive).
+
+Start with `results_v25_confirm/FINDINGS.md`. The tables for the paper are in `results_v25_confirm/paper_data/` (one CSV per
+table or figure; `paper_data/README.md` lists them).
