@@ -1,11 +1,11 @@
 # Findings v25: confirmatory round for late binding with XY, and the hardware of the final design
 
-Status: **in progress.** Done: Part A (gates), the pre-registration, Part B (18,900 runs, 0 missing, 0 dead-end events;
-`report/summary_B.md`, `eval_runs.csv`), Part C (3,240 runs, 0 missing, 0 dead-end events; `report/summary_C.md`,
-`fault_runs.csv`), Part D (630 trace runs, none excluded, 0 dead-end events; `report/summary_D.md`, `app_runs.csv`,
-`pair_runs.csv`), Part E (2,970 runs with the one-cycle router model, 0 missing, 0 dead-end events;
-`report/summary_E.md`, `pipe0_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`). Running, unattended
-(`chain_v25_add.sh`): the addendum row. The answer that needs it (question 9, last item) says so.
+Status: **complete.** Part A (gates), the pre-registration, Part B (18,900 runs; `report/summary_B.md`,
+`eval_runs.csv`), Part C (3,240 runs; `report/summary_C.md`, `fault_runs.csv`), Part D (630 trace runs, none excluded;
+`report/summary_D.md`, `app_runs.csv`, `pair_runs.csv`), Part E (2,970 runs with the one-cycle router model;
+`report/summary_E.md`, `pipe0_runs.csv`), Part F (hardware; `hw/FINDINGS_hw.md`) and the addendum row (2,160 runs;
+`report/summary_A.md`, `addendum_runs.csv`). Of the 27,900 evaluation runs none is missing and none has a dead-end
+event. The whole report is `report/summary.md`; the tables for the paper are in `paper_data/`.
 
 Nothing is tuned in this round: the configuration is the one round 24 chose on seeds 101-102, the simulator is the ce6ab6a
 build, and the analysis is fixed in `PREREGISTRATION.md` (Parts B and C) and `PREREGISTRATION_addendum.md`.
@@ -27,6 +27,19 @@ loses 2.7 % of throughput on 2x2; the pre-registration had named that test as th
 Effects are against the best reference row per scenario and metric (DeFT_P, DeFT_B, MTR, RC, XY_SP without faults; DeFT_P,
 DeFT_B, DeFT_Dis, DeFT_Ran with faults), averaged over the eight scenarios; 95 % intervals over seeds 121-130; every
 Holm-adjusted p <= 0.0003. Everything else in Part B is descriptive (unadjusted).
+
+**Addendum (pre-registered before any of its runs; a family of its own, Holm over 9): 9 supported, 0 against, 0 not
+significant.** `CI_heurLA_X_LF1` is the main row with one residual cycle at every hop with a choice. It is what the router
+of Part F does if its decision cannot start while the head is on the link, or if the clock is 1 ns (question 9). The cycle
+costs no throughput and 2.2-3.7 % of mean latency (1.4-2.4 cycles per packet). All nine tests against the best baseline
+are supported, as for the main row. What the row loses is the main row's latency advantage over DeFT_P at low load (LAT at
+0.2 x Lsat +1.5 / -0.5 / -0.1 % instead of -2.1 / -3.1 / -2.5 %).
+
+| size | row | THR | LAT at 1.0 x Lsat | P99 at 1.0 x Lsat |
+|---|---|---|---|---|
+| 2x2 | `CI_heurLA_X_LF1` (addendum) | +1.5 % [+1.2, +1.7] | -11.1 % [-13.2, -9.0] | -27.4 % [-31.0, -23.7] |
+| 3x3 | `CI_heurLA_X_LF1` (addendum) | +6.7 % [+6.3, +7.0] | -8.5 % [-9.8, -7.2] | -27.3 % [-30.2, -24.2] |
+| 4x4 | `CI_heurLA_X_LF1` (addendum) | +6.5 % [+6.0, +7.1] | -13.2 % [-14.7, -11.6] | -33.3 % [-35.6, -31.0] |
 
 **The average hides a split** (question 2). On the five scenarios the tuning saw, the effects of round 24 come again on the
 new seeds (main row: THR +4.1 / +10.5 / +9.1 %, LAT -20.1 / -16.4 / -23.6 %). On the three it did not see, the main row is
@@ -50,6 +63,8 @@ throughput and mean latency in all 24 cells (a cell is one scenario on one size)
   (acyclic CDG, no dead-end state, no livelock; longest path at most 24 / 32 / 40 hops).
 * **Drain tests on the fault-sweep masks** (`drain_faults.csv`): 162 / 162 pass (the six rows of the sweep on each of the 27 masks,
   all-pairs burst: every packet delivered, 4,032 / 20,592 / 65,280 on 2x2 / 3x3 / 4x4, no dead-end event).
+* **Drain tests of the addendum row** (`drain_summary_addendum.csv`): 56 of 56 pass, 0 dead-end events (the protocol of the
+  frozen rows at pipe_all 2), run before the first evaluation run of the row.
 * **Run-time rule** (`runtime_estimate.md`): 26.5 h estimated for Part B with 10 processes; nothing was dropped.
 * **Hardware checks** (`hw/FINDINGS_hw.md`, F2): 6.12 M, 6.21 M and 4.97 M vectors from simulator runs against the RTL of the
   three designs, 0 mismatches; every instrumented simulator run byte-identical to `bin/noxim`; 23 of 25 mutations caught (the
@@ -70,6 +85,11 @@ none missing, no dead-end event.
   gain on average (question 2).
 * The family was computed a second time by a script that shares no code with the report (`check_v25_families.py`,
   `report/families_check.md`): all 18 tests agree in effect, interval, adjusted p and verdict.
+* **Reported next to it and not merged with it: the family of the addendum (Holm over its own 9 tests), 9 of 9
+  supported** (`report/summary_A.md`, A.1). The main row with one residual cycle, `CI_heurLA_X_LF1`, against the best
+  baseline: THR +1.5 / +6.7 / +6.5 %, LAT -11.1 / -8.5 / -13.2 %, P99 -27.4 / -27.3 / -33.3 %; every Holm-adjusted p <=
+  1.1e-06; 2,160 runs, none missing, no dead-end event. The second computation agrees on these nine tests as well. Why
+  the row was run and what the cycle costs: question 9.
 
 ### 2. Per scenario: where are the gains and the losses? The three scenarios not seen in tuning against the five that were?
 `report/summary_B.md`, B.3 (per scenario), B.4 (seen against not seen), B.6 (per cell). Main row against the best baseline,
@@ -197,8 +217,12 @@ relation and mechanism, over the eight scenarios (2x2 / 3x3 / 4x4):
 * Per scenario the mean latency at 1.0 x Lsat is higher with Q-learning in 22 of the 24 cells and lower in none; the
   throughput is higher in two cells (moving hotspot on 3x3, +1.7 % [+0.1, +3.4]; chipperm on 4x4, +0.2 %) and lower in
   eight (by at most 1.0 %).
-* The extra latency at low load comes with the decision delay of one cycle that round 24 chose for this row (1.4-1.5 hops
-  with a choice per packet).
+* The extra latency is the residual cycle that round 24 chose for this row (1.4-1.5 hops with a choice per packet), not
+  the learning. Against the heuristic with the same cycle (`CI_heurLA_X_LF1`, the addendum; `report/extra_A.md`, Y.6; a
+  descriptive comparison that no pre-registration names) the Q-learning row has THR -0.2 (=) / -0.2 (=) / -0.1 (=) %,
+  LAT at 0.2 x Lsat +1.0 / 0.0 (=) / -0.1 %, LAT at 1.0 x Lsat +0.8 / -0.4 / -0.1 (=) % and P99 +1.8 (=) / +0.4 (=) /
+  +1.1 (=) %. At equal delay the two selections are within 1 % of each other in every metric: Q-learning is that much
+  slower on 2x2 and level or up to 0.5 % faster on 3x3 and 4x4.
 * Against the best baseline it is still ahead on every size (THR +1.3 / +6.5 / +6.4 %, LAT -10.4 / -8.8 / -13.2 %), by less
   than the heuristic.
 
@@ -216,6 +240,11 @@ against `CI_heurLA_X_LF` over the eight scenarios:
 * Against the best baseline DLY has THR +3.1 / +8.6 / +7.7 %, LAT -10.2 / -6.8 / -11.4 %, P99 -28.8 / -27.4 / -32.5 %.
 * Against DeFT_P at low load DLY is slower by its two cycles at a hop with a choice (question 10), where LF is faster than
   DeFT_P. The hardware gives the same order: LF fits the reference period with margin, DLY only without (question 9).
+* LF with one residual cycle (`CI_heurLA_X_LF1`, the addendum; `report/summary_A.md`, A.2) lies between the two in
+  latency and has LF's throughput. Against DLY: THR -1.6 / -1.8 / -1.0 %, LAT at 0.2 x Lsat -3.3 / -2.4 / -2.1 %, at
+  1.0 x Lsat -1.0 / -1.8 / -2.0 %, P99 +1.9 (=) / +0.2 (=) / -1.3 %. A cycle of waiting added to the lookahead buys no
+  throughput (THR against the main row -0.0 (=) / -0.0 (=) / -0.1 (=) %). Which part of DLY gives its 1-2 %, the
+  decision at the buffer front or the two cycles it waits there, was not separated in this round.
 
 ### 7. Application traces
 **The main row's mean latency is 2-4 % below DeFT_P's on every trace and every pair (one exception: bodytrack with
@@ -401,15 +430,40 @@ pre-layout); DeFT's router and round 18's late-binding router are synthesised ag
   `CI_heurLA_O_LF` likewise. Two conditions: the first decision stage reads the head on the link and leaves 0.28-0.42 ns of
   the link cycle to the wire (DeFT's router leaves 0.82-0.90 ns), and the clock is the reference's, not 1 ns. If either
   fails, the same RTL has one residual cycle for heads with a choice. That row (`CI_heurLA_X_LF1`) was not among the
-  evaluated ones and is run as a pre-registered addendum.
+  frozen ones and was run as a pre-registered addendum (the last item below).
 * **DLY** fits the reference period only with one unit per input port and without margin (+0.00 ns with one register,
   +0.06 ns with the two of the evaluated row); with one unit per router it does not fit (0.28 ns over).
 * **What the evaluated row of the mechanism achieves** (residual 0, the main row of Part B; 2x2 / 3x3 / 4x4): against the
   best baseline THR +1.5 / +6.7 / +6.6 %, LAT -13.1 / -10.5 / -15.0 %, P99 -27.8 / -27.9 / -34.2 %, all nine tests
   supported; against DeFT_P, whose router it extends, THR +10.6 / +16.5 / +14.8 %, LAT -32.0 / -37.3 / -39.9 %, P99
   -52.3 / -67.0 / -70.9 %, and 0.8-1.6 cycles less latency at low load. The price is 1.25 / 1.22 / 1.22 times the router
-  area of a DeFT system (hierarchy kept; 1.10 / 1.08 / 1.08 flattened) and two header bits (four on 2x2). The row with one
-  residual cycle (`CI_heurLA_X_LF1`): pending (the addendum).
+  area of a DeFT system (hierarchy kept; 1.10 / 1.08 / 1.08 flattened) and two header bits (four on 2x2).
+* **What the row achieves if either condition fails** (one residual cycle, `CI_heurLA_X_LF1`; the addendum:
+  `PREREGISTRATION_addendum.md`, `report/summary_A.md`, `report/extra_A.md`; the Part B design, 2,160 runs): **9 of 9
+  tests supported** (Holm over the nine). Against the best baseline THR +1.5 / +6.7 / +6.5 %, LAT -11.1 / -8.5 / -13.2 %,
+  P99 -27.4 / -27.3 / -33.3 %; against DeFT_P THR +10.6 / +16.5 / +14.7 %, LAT -30.5 / -35.9 / -38.6 %, P99 -52.1 /
+  -66.7 / -70.6 %. The hardware is the main row's RTL with at most one more register in the decision unit: 1.26 / 1.23 /
+  1.23 times the router area of a DeFT system with two registers (hierarchy kept; 1.12 / 1.10 / 1.10 flattened), the
+  same header bits.
+  * *The cycle costs latency and no throughput.* Against the main row: THR -0.0 (=) / -0.0 (=) / -0.1 (=) %; LAT +3.7 /
+    +2.7 / +2.4 % at 0.2 x Lsat (+1.41 / +1.35 / +1.49 cycles) and +2.2 / +2.3 / +2.2 % at 1.0 x Lsat (+1.38 / +1.75 /
+    +2.36 cycles); P99 +0.5 (=) / +0.8 (=) / +1.3 %. At low load it is one cycle per hop with a choice (1.00 / 1.02 /
+    1.04 cycles; a packet has 1.3-1.4 such hops on average; `report/extra_A.md`, Y.7). The addendum had stated in
+    advance: 2-4 % at low load, 2-3 % at 1.0 x Lsat, THR within 1 %.
+  * *The latency advantage over DeFT_P at low load is gone.* LAT at 0.2 x Lsat against DeFT_P: +1.5 / -0.5 / -0.1 %
+    (+0.60 / -0.25 / -0.08 cycles); the main row has -2.1 / -3.1 / -2.5 %, DLY +5.0 / +2.0 / +2.0 %.
+  * *Per cell* it is better than the best baseline in 18 / 19 / 18 of the 24 cells in THR / LAT / P99, the counts of the
+    main row. One loss is added, the mean latency on 2x2 uniform (+3.3 % [+0.8, +5.9] against RC), and one of the main
+    row's is inside the interval here (THR on the 3x3 moving hotspot, -1.0 % [-2.4, +0.3]). On the three scenarios the
+    tuning did not see, its mean latency is 1.7 (=) / 2.3 / 3.4 % above the best baseline's (main row: 0.0 (=) / +0.3 (=)
+    / +1.4 (=) %); on the five it saw, THR +4.0 / +10.5 / +9.1 % and LAT -18.1 / -14.3 / -21.8 %.
+  * *The stored decision is used one cycle later.* At 1.0 x Lsat 2.1 / 2.6 / 2.2 % of the stored decisions differ from a
+    fresh one (main row 1.8 / 2.3 / 1.9 %) and the fallback is taken at 6.9 / 7.8 / 9.3 % of the hops with a choice
+    (6.8 / 7.5 / 8.8 %). Beyond the peak the row keeps 0.992 / 0.995 / 0.998 of its peak throughput on average.
+  * So the result of the round does not rest on the two conditions. With the residual cycle the design keeps its
+    throughput and most of its latency gain against the best baseline (-11.1 / -8.5 / -13.2 % of -13.1 / -10.5 /
+    -15.0 %). At low load it is within 0.5 % of DeFT_P on 3x3 and 4x4 and 0.6 cycles slower on 2x2, where the main row
+    is one to two cycles faster.
 
 ### 10. Low-load latency and the accepted throughput beyond the peak: as in v24?
 **Yes, both** (`report/summary_B.md`, B.9-B.11; eight scenarios here, five in round 24).
@@ -421,14 +475,18 @@ pre-layout); DeFT's router and round 18's late-binding router are synthesised ag
   | `CI_heurLA_O_LF` (second) | -2.0 / -3.1 / -2.6 % | -0.8 / -1.6 / -1.6 | -1.7 / -2.8 / -2.5 % |
   | `CI_heurLA_X_DLY` | +5.0 / +2.0 / +2.0 % (+5.5 / +1.9 / +1.9) | +2.0 / +1.0 / +1.3 (+2.2 / +1.0 / +1.3) | +4.1 / +2.1 / +2.3 % |
   | `CI_qlLA_X_LF` | +2.5 / -0.5 / -0.2 % (+2.8 / -0.5 / -0.3) | +1.0 / -0.3 / -0.1 | +1.9 / -0.6 / -0.3 % |
+  | `CI_heurLA_X_LF1` (addendum; not in round 24) | +1.5 / -0.5 / -0.1 % | +0.60 / -0.25 / -0.08 | +1.0 / -0.1 (=) / +0.1 (=) % |
   | MTR (six fault-free) | +2.8 / +2.4 / +2.1 % (+2.8 / +2.3 / +1.9) | +1.1 / +1.2 / +1.3 | +0.6 / +0.7 / +0.5 % |
   | RC (six fault-free) | +0.9 / +0.8 / +0.8 % (+1.0 / +0.9 / +0.8) | +0.4 / +0.4 / +0.5 | -1.5 / -1.0 / -0.7 % |
 
-  The two LF rows of the heuristic are the only rows faster than DeFT_P at 0.2 x Lsat on every size; every interval
-  excludes zero. The gain is one to two cycles per packet.
+  The two frozen LF rows of the heuristic, which have no residual cycle, are the only rows faster than DeFT_P at
+  0.2 x Lsat on every size; every interval excludes zero. The gain is one to two cycles per packet. One residual cycle
+  takes it away: the addendum row and the Q-learning row, which both have one, are 1.5-2.5 % slower than DeFT_P on 2x2
+  and within 0.5 % of it on 3x3 and 4x4.
 * **Beyond the peak** (mean accepted throughput relative to the row's peak, at the lowest point after the peak; mean over
   the scenarios, worst scenario in brackets): main row 0.992 (0.979) / 0.995 (0.971) / 0.997 (0.987), the worst always on
-  localized; DeFT_P 0.991 (0.962) / 0.998 (0.989) / 0.996 (0.988); MTR 0.998 / 0.996 / 0.993; RC 0.995 / 0.999 / 0.993.
+  localized; the addendum row 0.992 (0.980) / 0.995 (0.975) / 0.998 (0.991), also on localized; DeFT_P 0.991 (0.962) /
+  0.998 (0.989) / 0.996 (0.988); MTR 0.998 / 0.996 / 0.993; RC 0.995 / 0.999 / 0.993.
   The main row never falls by more than 1 % from one load to the next in 7 / 7 / 8 of the 8 scenarios. Round 24: the
   late-binding rows kept 98.6-100 % on average. DeFT_Ran loses the most of all rows (0.940 / 0.925 / 0.962 on average, 0.909
   in its worst scenario).

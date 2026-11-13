@@ -26,7 +26,9 @@ Decisions: `../DECISIONS.md`, Part F.
   takes the four cycles of the reference pipeline (measured in RTL simulation). The evaluated main row is the mechanism that is
   built. Two conditions: the first stage of the decision reads the head on the link (0.28-0.42 ns of the link cycle are left
   for the wire, against 0.82-0.90 ns in DeFT's router), and the clock is the reference's, not 1 ns. If either fails the same
-  RTL has one residual cycle; that row is run as an addendum (`../PREREGISTRATION_addendum.md`).
+  RTL has one residual cycle; that row was run as an addendum (`../PREREGISTRATION_addendum.md`, `../report/summary_A.md`):
+  all nine of its tests against the best baseline are supported, and the cycle costs no throughput and 2.2-3.7 % of mean
+  latency (`../FINDINGS.md`, question 9).
 
 ---
 
@@ -268,8 +270,11 @@ needs the same.
 * **Two conditions.** (1) The first stage reads the head on the link and leaves 0.28-0.42 ns of that cycle to the wire
   (DeFT: 0.82-0.90 ns). An interposer link that needs more forces the decision to start from a register: one cycle later.
   (2) At a 1 ns clock the decision needs three cycles (and the reference router itself does not reach 1 ns). In both cases
-  **the same RTL has one residual cycle** for heads with a choice: LF with residual 1, which was not an evaluated row. It is
-  pre-registered and run on the Part B design (`CI_heurLA_X_LF1`, `../PREREGISTRATION_addendum.md`).
+  **the same RTL has one residual cycle** for heads with a choice: LF with residual 1, which was not one of the frozen rows.
+  It was pre-registered and run on the Part B design (`CI_heurLA_X_LF1`, `../PREREGISTRATION_addendum.md`). Result
+  (`../report/summary_A.md`): 9 of 9 tests against the best baseline supported (THR +1.5 / +6.7 / +6.5 %, LAT -11.1 / -8.5 /
+  -13.2 %, P99 -27.4 / -27.3 / -33.3 % on 2x2 / 3x3 / 4x4); against the main row THR unchanged and LAT +2.2 to +3.7 %,
+  one cycle per hop with a choice.
 * **A request from the upstream router** would give the third cycle back: 15 bits (destination, mask, default VL, VN) and a
   valid bit per link, sent when the upstream VC allocation has granted the output, and registered at this router. The
   decision would then start from a register one cycle before the head is on the link, and residual 0 would not depend on the
