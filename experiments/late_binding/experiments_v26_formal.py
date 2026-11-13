@@ -251,14 +251,22 @@ def _a2_job(j):
     return r
 
 
-def a2(nproc, size):
-    """The four sets of one size. 4x4: the time rule of the pre-registration (24 checks spread evenly first)."""
+def a2(nproc, size, only=None):
+    """The four sets of one size. 4x4: the time rule of the pre-registration (24 checks spread evenly first).
+    only='4': set 4 alone (the masks of Part B, checked before the frozen rows run on them); its results are kept and used by the full call."""
     from multiprocessing import Pool
     os.makedirs(X.raw('a2'), exist_ok=True)
     ff_edges(size)
     jobs = a2_jobs(size)
     note = ''
     t = time.time()
+    if only:
+        jobs = [j for j in jobs if j[1].split()[0] == only]
+        with Pool(nproc, initializer=_init, initargs=(size,)) as pool:
+            res = pool.map(_a2_job, jobs, chunksize=1)
+        ok = all(r['pass'] for r in res)
+        print('%s set %s: %d checks, all pass: %s; wall %.0f s; CPU %.0f s' % (size, only, len(res), ok, time.time() - t, sum(r['seconds'] for r in res)), flush=True)
+        return ok
     with Pool(nproc, initializer=_init, initargs=(size,)) as pool:
         if size == '4x4':
             rule = os.path.join(X.raw('a2'), 'time_rule_4x4.json')
@@ -405,8 +413,10 @@ def run_stage(stage, nproc, extra):
     elif stage == 'aneg':
         sys.exit(0 if aneg() else 1)
     elif stage == 'a2':
-        ok = a2(nproc, extra)
-        a2md()
+        size, only = (extra.split(':') + [None])[:2]
+        ok = a2(nproc, size, only)
+        if not only:
+            a2md()
         sys.exit(0 if ok else 1)
     elif stage == 'a2md':
         a2md()

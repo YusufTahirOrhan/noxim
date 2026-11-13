@@ -53,6 +53,18 @@ def raw(stage):
     return os.path.join(RAW, stage)
 
 
+WIDTH_FILE = os.path.join(RAW, 'width.txt')
+
+
+def width(default):
+    """The number of processes of the next batch of runs: the number in ~/lbraw/v26/width.txt if that file exists, else the stage's
+    argument. The unattended chains write the file so that the model checks and the simulations share the machine."""
+    try:
+        return max(1, int(open(WIDTH_FILE).read().split()[0]))
+    except Exception:
+        return default
+
+
 def nchip(size):
     cx, cy = E5.SIZES[size]
     return cx * cy

@@ -37,6 +37,16 @@ LIMIT_H = 40.0
 BATCH = 8
 
 
+def run_seg(js, out, nproc, timeout, seg=384):
+    """run_jobs in segments, each with the number of processes the width file gives at that moment (experiments_v26.width)."""
+    res = {}
+    for k in range(0, len(js), seg):
+        w = X.width(nproc)
+        print("%s runs %d-%d of %d with %d processes" % (time.strftime("%H:%M:%S"), k + 1, min(k + seg, len(js)), len(js), w), flush=True)
+        res.update(run_jobs(js[k:k + seg], out, nproc=w, timeout=timeout))
+    return res
+
+
 def rtag(e):
     return 'r%s' % e['rate'].split('/')[0]
 
@@ -57,7 +67,7 @@ def drain(nproc):
     js = drain_jobs()
     print('drain jobs: %d' % len(js), flush=True)
     t = time.time()
-    res = run_jobs(js, X.raw('bdrain'), nproc=nproc, timeout=14400)
+    res = run_seg(js, X.raw('bdrain'), nproc, 14400, seg=96)
     fails = E19.drain_report(res, os.path.join(RES, 'drain_v26.csv'))
     print('drain tests: %d, failures %d, wall %.0f s' % (len(js), fails, time.time() - t), flush=True)
     if not fails:
@@ -115,21 +125,21 @@ def sat(nproc):
     for z in SIZES:
         for p in PATTERNS:
             E5.gen_tables(z, p, E5.SAT_RATES + [E5.L0_RATE])
-    run_jobs([sat_job(z, p, m, E5.L0_RATE) for z, p, m in cs], X.raw('bsat'), nproc=nproc, timeout=7200)
+    run_seg([sat_job(z, p, m, E5.L0_RATE) for z, p, m in cs], X.raw('bsat'), nproc, 7200)
     for b in range(0, len(E5.SAT_RATES), BATCH):
         todo = [c for c in cs if not coarse(*c)[2]]
         if not todo:
             break
         js = [sat_job(z, p, m, r) for z, p, m in todo for r in E5.SAT_RATES[b:b + BATCH]]
         print('%s coarse batch %d: %d ladders, %d jobs' % (time.strftime('%H:%M:%S'), b // BATCH, len(todo), len(js)), flush=True)
-        run_jobs(js, X.raw('bsat'), nproc=nproc, timeout=7200)
+        run_seg(js, X.raw('bsat'), nproc, 7200)
     js = []
     for z, p, m in cs:
         fr = fine_rates(z, p, m)
         E5.gen_tables(z, p, fr)
         js += [sat_job(z, p, m, r) for r in fr]
     print('%s fine jobs: %d' % (time.strftime('%H:%M:%S'), len(js)), flush=True)
-    res = run_jobs(js, X.raw('bsat'), nproc=nproc, timeout=7200)
+    res = run_seg(js, X.raw('bsat'), nproc, 7200)
     print('fine runs %d, missing %d; wall of this call %.0f s' % (len(js), sum(1 for v in res.values() if v is None), time.time() - t), flush=True)
 
 
@@ -232,6 +242,7 @@ def timing(nproc):
     ensure_tables()
     js = eval_jobs(seeds=(151,), loads=(0, 3), entries=[e for e in X.part_b() if e['index'] <= 4], drops=[])
     full = eval_jobs(drops=[])
+    nproc = X.width(nproc)
     t = time.time()
     res = run_jobs(js, X.raw('beval'), nproc=nproc, timeout=14400)
     el = time.time() - t
@@ -280,7 +291,7 @@ def run_stage(stage, nproc, extra):
         js = eval_jobs()
         print('evaluation jobs: %d' % len(js), flush=True)
         t = time.time()
-        res = run_jobs(js, X.raw('beval'), nproc=nproc, timeout=14400)
+        res = run_seg(js, X.raw('beval'), nproc, 14400)
         print('done in %.0f s; missing outputs: %d' % (time.time() - t, sum(1 for v in res.values() if v is None)), flush=True)
     elif stage == 'b_check':
         sys.exit(0 if E19.check_raw(X.raw('beval'), eval_jobs(), 'eval') else 1)
