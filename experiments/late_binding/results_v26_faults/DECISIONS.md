@@ -39,9 +39,26 @@ Choices the prompt left open. Where there was a choice, the option that does not
 * **A3, what counts as a hop.** Only hops for which the model has a transition count towards the 1,000,000 per row and size.
   The arrival at the destination router (the model has no transition there) is compared as well and counted separately.
 
+## Order of the runs
+* **Two unattended chains share the machine** (6 cores, 12 threads): `chain_v26_formal.sh` (Part A) and `chain_v26_b.sh`
+  (Part B). The prompt's order is A1, A2, B2, ladders, timing, B3. The drain tests and the ladders are started while A1 and A2
+  still run, so that the machine is never idle; they do not depend on the model check. What the order protects is kept: **no
+  evaluation run of a frozen row on a mask before that mask has passed the model check and its drain tests.** For this, set 4
+  of A2 (the masks of Part B) is checked first on 3x3 and 4x4, before sets 1 to 3; the timing runs and the evaluation wait
+  for A1 (all 2x2 masks), for set 4 and for the drain tests. The ladders run DeFT_P only.
+* **A failed model check stops both chains**: the formal chain ends with a non-zero code and the chain of Part B checks that
+  code before every stage.
+* **The time rule of A2 with set 4 already done.** The 24 checks of the sample are spread over the whole list as
+  pre-registered; those of set 4 are then read from the finished checks, with the time they took.
+* **Number of processes.** The model checks of 3x3 and 4x4 use 6 processes (7 GB of memory). The stages of Part B run in
+  segments and take the rest of the machine from a small file the chains write (`experiments_v26.width`). The number of
+  processes changes nothing in a run: every run is fully determined by its arguments.
+
 ## Part B
 * **Drain tests of all six rows.** The prompt asks for the two frozen rows. B5 reports the delivered share of DeFT as well, and
-  round 25 drained every row of its sweep, so the four reference rows are drained on every mask too.
+  round 25 drained every row of its sweep, so the four reference rows are drained on every mask too. This costs more than I had
+  told the user before the start (about 20 CPU-hours, two hours of the machine, not half an hour); it is kept because it is
+  pre-registered.
 * **Timing runs.** Seed 151, the 1st and 4th load, masks 1 to 4 of every (size, rate), every row and both traffic patterns:
   1,152 runs of the design with the mix of the whole design. The lowest and the highest load are taken so that their mean
   (1.25 x Lsat) is close to the mean of the four loads (1.225 x Lsat).
