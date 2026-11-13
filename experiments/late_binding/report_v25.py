@@ -1,7 +1,7 @@
 """v25 report, following results_v25_confirm/PREREGISTRATION.md.
 
 Usage: python3 report_v25.py [b] [a] [c] [d] [e]     (default: every part whose per-run CSV exists)
-  a  addendum_runs.csv (with eval_runs.csv) -> report/addendum.csv, summary_A.md, paper_data/addendum_effects.csv
+  a  addendum_runs.csv (with eval_runs.csv) -> report/addendum.csv, summary_A.md, paper_data/addendum_effects.csv, addendum_latency_load.csv
   b  eval_runs.csv   -> report/primary.csv, secondary.csv, saturation.csv, hops.csv, absolute.csv, summary_B.md, figures,
      paper_data/ (effects per size and per scenario, absolute values, latency against load)
   c  fault_runs.csv  -> report/fault_family.csv, fault_secondary.csv, summary_C.md, paper_data/fault_sweep.csv
@@ -578,6 +578,21 @@ STYLE = {
 LEGEND_NAME = {MAIN: MAIN + ' (main row)', SECOND: SECOND + ' (second row)'}
 
 
+def curve_points(D, row, z, sc, seeds):
+    """One record per load of the ladder of (size, scenario): mean and 95 % interval over the seeds of the mean latency, the p99 and the accepted throughput."""
+    out = []
+    for i, rate in enumerate(D.lad(z, sc)):
+        runs = [D.R[k] for k in [(row, '%s-%s' % (z, sc[0]), sc[1], rate, s) for s in seeds] if k in D.R]
+        if not runs:
+            continue
+        rec = dict(size=z, scenario=sname(sc), row=row, load_x_lsat=MULTS[i], rate=rate, offered_flits_per_node_cycle=round(8 * rate, 6), n_seeds=len(runs))
+        for name, key in (('latency', 'latency'), ('p99', 'p99'), ('accepted', 'accepted')):
+            m, lo, hi = mci([r[key] for r in runs])
+            rec[name + '_mean'], rec[name + '_ci_low'], rec[name + '_ci_high'] = round(m, 5), round(lo, 5) if not isnan(lo) else '', round(hi, 5) if not isnan(hi) else ''
+        out.append(rec)
+    return out
+
+
 def curves(D, rows, row_scen, seeds):
     """Latency, p99 and accepted throughput against the offered load for every row: paper_data/latency_load_<size>_<scenario>.csv and the figures."""
     import matplotlib
@@ -594,18 +609,9 @@ def curves(D, rows, row_scen, seeds):
             for row in rows:
                 if sc not in row_scen(row, z):
                     continue
-                xs, ys = [], []
-                for i, rate in enumerate(D.lad(z, sc)):
-                    runs = [D.R[k] for k in [(row, '%s-%s' % (z, sc[0]), sc[1], rate, s) for s in seeds] if k in D.R]
-                    if not runs:
-                        continue
-                    rec = dict(size=z, scenario=scn, row=row, load_x_lsat=MULTS[i], rate=rate, offered_flits_per_node_cycle=round(8 * rate, 6), n_seeds=len(runs))
-                    for name, key in (('latency', 'latency'), ('p99', 'p99'), ('accepted', 'accepted')):
-                        m, lo, hi = mci([r[key] for r in runs])
-                        rec[name + '_mean'], rec[name + '_ci_low'], rec[name + '_ci_high'] = round(m, 5), round(lo, 5) if not isnan(lo) else '', round(hi, 5) if not isnan(hi) else ''
-                    out.append(rec)
-                    xs.append(8 * rate)
-                    ys.append(rec['latency_mean'])
+                pts = curve_points(D, row, z, sc, seeds)
+                out += pts
+                xs, ys = [8 * p['rate'] for p in pts], [p['latency_mean'] for p in pts]
                 if xs:
                     ax.plot(xs, ys, markeredgecolor='white' if STYLE[row]['marker'] in 'oD^vs' else STYLE[row]['color'], markeredgewidth=0.7, **STYLE[row])
                     if row not in shown:
@@ -1092,6 +1098,8 @@ def part_a():
     wmd('summary_A.md', L)
     os.makedirs(PD, exist_ok=True)
     write(os.path.join(PD, 'addendum_effects.csv'), rec)
+    # the curves of the row, in the columns of the latency_load_<size>_<scenario>.csv files of Part B (all sizes and scenarios in one file)
+    write(os.path.join(PD, 'addendum_latency_load.csv'), [p for z in SIZES for sc in scen_b(z) for p in curve_points(D, ADD, z, sc, seeds)])
     return L
 
 
