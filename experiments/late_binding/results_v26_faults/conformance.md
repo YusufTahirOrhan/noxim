@@ -11,21 +11,21 @@ reports (VL positions, functional VLs, directions, turn models, VN options) are 
 
 | row | relation | size | seeds | runs | statistics byte-identical to bin/noxim | hops compared | of them with more than one offered output | arrivals at the destination compared | distinct records | topology differences | mismatches |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| DeFT_P | A_fixed_XY | 2x2 | 1 | 4 | 4 | 188489 | 0 | 22726 | 102806 | 0 | **0** |
-| CI_heurLA_X_LF | CI_XY_XY | 2x2 | 1 | 4 | 4 | 193680 | 31864 | 22770 | 127611 | 0 | **0** |
-| CI_heurLA_O_LF | CI_XY_O1 | 2x2 | 1 | 4 | 4 | 194227 | 32241 | 22769 | 127423 | 0 | **0** |
-| DeFT_P | A_fixed_XY | 3x3 | 1 | 4 | 4 | 370564 | 0 | 32052 | 316023 | 0 | **0** |
-| CI_heurLA_X_LF | CI_XY_XY | 3x3 | 1 | 4 | 4 | 378367 | 49193 | 32269 | 347232 | 0 | **0** |
-| CI_heurLA_O_LF | CI_XY_O1 | 3x3 | 1 | 4 | 4 | 379741 | 49939 | 32261 | 349723 | 0 | **0** |
+| DeFT_P | A_fixed_XY | 2x2 | 1, 2 | 8 | 8 | 382842 | 0 | 46088 | 207039 | 0 | **0** |
+| CI_heurLA_X_LF | CI_XY_XY | 2x2 | 1, 2 | 8 | 8 | 393744 | 64918 | 46178 | 257567 | 0 | **0** |
+| CI_heurLA_O_LF | CI_XY_O1 | 2x2 | 1, 2 | 8 | 8 | 394968 | 65513 | 46170 | 258542 | 0 | **0** |
+| DeFT_P | A_fixed_XY | 3x3 | 1, 2 | 8 | 8 | 744323 | 0 | 64548 | 633771 | 0 | **0** |
+| CI_heurLA_X_LF | CI_XY_XY | 3x3 | 1, 2 | 8 | 8 | 759959 | 98733 | 64950 | 697177 | 0 | **0** |
+| CI_heurLA_O_LF | CI_XY_O1 | 3x3 | 1, 2 | 8 | 8 | 762484 | 100244 | 64944 | 701840 | 0 | **0** |
 | DeFT_P | A_fixed_XY | 4x4 | 1 | 4 | 4 | 618167 | 0 | 42845 | 593708 | 0 | **0** |
 | CI_heurLA_X_LF | CI_XY_XY | 4x4 | 1 | 4 | 4 | 629846 | 68922 | 43039 | 624191 | 0 | **0** |
 | CI_heurLA_O_LF | CI_XY_O1 | 4x4 | 1 | 4 | 4 | 630529 | 69695 | 43023 | 625492 | 0 | **0** |
 
-**Total: 3583610 hops and 293754 arrivals compared in 36 runs; mismatches: 0; topology differences: 0; runs with statistics byte-identical to `bin/noxim`: 36 of 36.**
+**Total: 5316862 hops and 461785 arrivals compared in 60 runs; mismatches: 0; topology differences: 0; runs with statistics byte-identical to `bin/noxim`: 60 of 60.**
 
-Hops by phase of the model (all rows and sizes): intra-chiplet 124911, source chiplet 507039, interposer 2583432, destination chiplet 661982. Dead-end events in these runs: 0.
+Hops by phase of the model (all rows and sizes): intra-chiplet 222887, source chiplet 782428, interposer 3758997, destination chiplet 1014335. Dead-end events in these runs: 0.
 Per (row, size, mask, seed): `conformance.csv`.
 
-Fewer than 1000000 compared hops so far: DeFT_P 2x2 (188489); CI_heurLA_X_LF 2x2 (193680); CI_heurLA_O_LF 2x2 (194227); DeFT_P 3x3 (370564); CI_heurLA_X_LF 3x3 (378367); CI_heurLA_O_LF 3x3 (379741); DeFT_P 4x4 (618167); CI_heurLA_X_LF 4x4 (629846); CI_heurLA_O_LF 4x4 (630529).
+Fewer than 1000000 compared hops so far: DeFT_P 2x2 (382842); CI_heurLA_X_LF 2x2 (393744); CI_heurLA_O_LF 2x2 (394968); DeFT_P 3x3 (744323); CI_heurLA_X_LF 3x3 (759959); CI_heurLA_O_LF 3x3 (762484); DeFT_P 4x4 (618167); CI_heurLA_X_LF 4x4 (629846); CI_heurLA_O_LF 4x4 (630529).
 
 **0 mismatches, as required: yes.**
