@@ -1077,22 +1077,37 @@ def part_a():
                 rec += ts
                 cells.append(' / '.join(eci(t) for t in ts))
         L.append('| %s | %s |' % (sname(scen_b('2x2')[k]), ' | '.join(cells)))
+    L += ['', 'Per scenario at low load, against the main row (effect [95 % CI]; 2x2 / 3x3 / 4x4):', '',
+          '| scenario | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat |', '|---|---|---|']
+    for k in range(8):
+        cells = []
+        for n in ('LAT02', 'LAT05'):
+            ts = [D.test(ADD, MAIN, z, [scen_b(z)[k]], n) for z in SIZES]
+            rec += ts
+            cells.append(' / '.join(eci(t) for t in ts))
+        L.append('| %s | %s |' % (sname(scen_b('2x2')[k]), ' | '.join(cells)))
     L += ['', '## A.4 Low-load latency against DeFT_P (effect [95 % CI]; eight scenarios)', '', '| size | row | LAT at 0.2 x Lsat | LAT at 0.5 x Lsat |', '|---|---|---|---|']
     for z in SIZES:
         for row in (ADD, MAIN, DLY):
             t = [D.test(row, 'DeFT_P', z, scen_b(z), n) for n in ('LAT02', 'LAT05')]
             rec += t if row == ADD else []
             L.append('| %s | %s | %s | %s |' % (z, row, eci(t[0]), eci(t[1])))
-    L += ['', '## A.5 Lookahead counters at 1.0 x Lsat (summed over the scenarios and seeds)', '',
-          '| size | row | decision hops per packet | fallback: left through another output (of decision hops) | fallback: stored output not free (of checks) |', '|---|---|---|---|---|']
+    L += ['', '## A.5 Lookahead counters (summed over the scenarios and seeds; the columns of B.11)', '',
+          '| size | row | load | decision hops per packet | stored decisions that differ from a fresh one: of all / of decision hops | fallback: left through another output (of decision hops) | fallback: stored output not free (of checks) |',
+          '|---|---|---|---|---|---|---|']
     for z in SIZES:
         for row in (ADD, MAIN):
-            t = D.hopstats(row, z, (3,))
-            if t:
+            for i in (0, 3):
+                t = D.hopstats(row, z, (i,))
+                if not t:
+                    continue
                 hm = t['hops_chip_multi'] + t['hops_ipos_multi']
-                L.append('| %s | %s | %.2f | %s | %s |' % (z, row, hm / float(t['packets_measured']) if t['packets_measured'] else NAN,
-                                                         pc(t['lookahead_fb_taken'], t['lookahead_multi']) if t['lookahead_multi'] else '-',
-                                                         pc(t['lookahead_fb_blocked'], t['lookahead_fb_checks']) if t['lookahead_fb_checks'] else '-'))
+                la = t['lookahead_used']
+                L.append('| %s | %s | %.1f x | %.2f | %s | %s | %s |' % (
+                    z, row, MULTS[i], hm / float(t['packets_measured']) if t['packets_measured'] else NAN,
+                    ('%s / %s' % (pc(t['lookahead_mismatch'], la), pc(t['lookahead_mismatch'], t['lookahead_multi']))) if la else '-',
+                    pc(t['lookahead_fb_taken'], t['lookahead_multi']) if t['lookahead_multi'] else '-',
+                    pc(t['lookahead_fb_blocked'], t['lookahead_fb_checks']) if t['lookahead_fb_checks'] else '-'))
     L.append('')
     write(os.path.join(OUT, 'addendum.csv'), rec)
     wmd('summary_A.md', L)
