@@ -1132,13 +1132,26 @@ def main():
             print(NL.join(L[:60]))
         else:
             print('part %s: %s not there yet' % (p, have[p]))
+    H = ['# v25 report: all tables (generated; the answers in words are in `../FINDINGS.md`)', '',
+         'Where the ten questions of the round are answered:', '',
+         '| question | tables |', '|---|---|',
+         '| 1. Primary family of Part B | B.1 (18 tests); next to it the family of the addendum, A.1 (9 tests); both computed a second time in `families_check.md` |',
+         '| 2. Per scenario; the scenarios the tuning saw against those it did not | B.3, B.4, B.6 |',
+         '| 3. Against each reference row | B.2, B.5, B.6 |',
+         '| 4. Fault sweep: the family, the trend over k, the k = 3 check | C.1, C.2, C.3, C.4 |',
+         '| 5. Q-learning against the heuristic | B.8; at equal residual delay `extra_A.md`, Y.6 |',
+         '| 6. DLY against LF | B.7; LF with one residual cycle against both, A.2 |',
+         '| 7. Application traces | D.1, D.2; `extra_D.md` |',
+         '| 8. One-cycle router model | E.1-E.4; `extra_E.md` |',
+         '| 9. Hardware; which mechanism can be built and what its row achieves | F2, F3, F4; B.1 (the main row, residual 0); A.1-A.5 and `extra_A.md` (one residual cycle) |',
+         '| 10. Low-load latency and the accepted throughput beyond the peak | B.9, B.10, B.11 |', '', '---', '']
     S = []
     for name in ('summary_B.md', 'summary_A.md', 'summary_C.md', 'summary_D.md', 'summary_E.md', 'summary_F.md'):
         f = os.path.join(OUT, name)
         if os.path.exists(f):
             S += [open(f, encoding='utf-8').read().rstrip(), '', '---', '']
     if S:
-        open(os.path.join(OUT, 'summary.md'), 'w', encoding='utf-8', newline=NL).write(NL.join(S[:-2]) + NL)
+        open(os.path.join(OUT, 'summary.md'), 'w', encoding='utf-8', newline=NL).write(NL.join(H + S[:-2]) + NL)
 
 
 if __name__ == '__main__':
