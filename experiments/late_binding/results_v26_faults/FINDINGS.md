@@ -1,9 +1,13 @@
 # Findings v26: fault coverage
 
-Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the exhaustive model check on 2x2
-(A1), the reachability of MTR and RC (B5), and the first third of the conformance runs (A3: the fault-free and the same-VL
-mask). Running, unattended: the model check on 3x3 and 4x4 (A2), the drain tests on the 192 masks (B2), then the ladders, the
-timing runs and the 18,432 evaluation runs (B3). Every answer below says whether it is final.
+Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the model check on every mask of 2x2
+(A1) and on the four sets of 3x3 and 4x4 (A2), the reachability of MTR and RC (B5), and the first third of the conformance
+runs (A3: the fault-free and the same-VL mask). Running, unattended: the drain tests on the 192 masks (B2), then the ladders,
+the timing runs and the 18,432 evaluation runs (B3). Every answer below says whether it is final.
+
+**Part A so far: 102,730 model checks, all pass.** Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every
+pattern of a single chiplet plus 388 masks from the whole space, for both relations of the round: no cycle in the channel
+dependencies, no dead end, no livelock, and no dependency that the fault-free pattern does not have.
 
 Nothing is tuned and no row is changed: the configuration is the frozen one of round 25, the simulator is the ee0e247 build
 (the sources of ce6ab6a), and the analysis is fixed in `PREREGISTRATION.md`, committed with `masks_v26.json` before any run of
@@ -38,7 +42,55 @@ longest path is 24 hops** (`formal_all_2x2.md`, `formal_all_2x2.csv`).
 * Cost: 66,533 CPU-seconds, 0.66 s per check on the loaded machine (the prompt expected 0.3-0.5 s on a free one).
 
 ### 2. A2: the four sets on 3x3 and 4x4; does the argument for set 2 hold in the data?
-*Pending (A2 is running).*
+**Final. 1,480 checks on 3x3 and 4x4, every check passes on every mask; both halves of the argument hold in every case
+the data can test** (`formal_a2.md`, `formal_a2.csv`, `formal_subset_2x2.md`).
+
+| size | set | masks | checks | pass | longest path (hops) | faulty VLs |
+|---|---|---|---|---|---|---|
+| 3x3 | 1: fault-free | 1 | 2 | 2 | 32 | 0 |
+| 3x3 | 2: every pattern of one chiplet, the others fault-free | 126 | 252 | 252 | 32 | 1-3 |
+| 3x3 | 3: random, from the whole space | 200 | 400 | 400 | 27-32 | 10-24 |
+| 3x3 | 4: the masks of Part B | 64 | 128 | 128 | 29-32 | 2-18 |
+| 4x4 | 1: fault-free | 1 | 2 | 2 | 40 | 0 |
+| 4x4 | 2: every pattern of one chiplet, the others fault-free | 224 | 448 | 448 | 40 | 1-3 |
+| 4x4 | 3: random, from the whole space | 60 | 120 | 120 | 35-40 | 21-38 |
+| 4x4 | 4: the masks of Part B | 64 | 128 | 128 | 34-40 | 4-32 |
+
+* Both relations on every mask: CDG acyclic, no dead-end state, state graph acyclic, no CDG edge outside the fault-free
+  CDG (1,920 nodes / 3,632 edges on 3x3, 3,520 / 6,848 on 4x4). One mask of Part B on 3x3 has both of its faults in one
+  chiplet and is therefore also in set 2: 390 different masks on 3x3, 349 on 4x4.
+* The 4 h rule was not reached: the 24 sampled 4x4 checks took 32 CPU-seconds on average, 1.04 h for all of them with six
+  processes, so set 3 on 4x4 keeps its 60 masks. Before this round 31 masks had been checked on 3x3 and 11 on 4x4.
+
+**The argument for set 2.** 3x3 has 15^9 and 4x4 15^16 fault patterns; they cannot be enumerated. The claim is that the
+fault-free mask and set 2 decide all of them. It rests on one property of the model: the fault pattern enters
+`impl_relation_check.explore()` in two lines only, where the initial states are built. A packet starts with one functional
+VL of its source chiplet as its exit (every functional one is explored) and with the functional VLs of its destination
+chiplet as its entry candidates. After that the successor of a state depends on the state alone. A fault in a third
+chiplet never appears, and an intra-chiplet packet uses no VL.
+* *First half: a fault only removes behaviour.* With fewer candidates a packet is offered a subset of the moves it is
+  offered with more, and its pruned candidate set stays a subset. So every channel dependency of a mask is a dependency of
+  the fault-free mask, and since the fault-free CDG is acyclic (check 1 on set 1), the CDG of every mask is acyclic. This
+  is check 4. **It holds on all 50,625 masks of 2x2 and on all 739 masks checked on 3x3 and 4x4**, the 260 random masks of
+  set 3 with 10 to 38 faulty VLs included.
+* *Second half: the packets to one chiplet see only that chiplet's faults.* Under a mask M, the packets with a destination
+  in chiplet c have the entry candidates they have under M restricted to c (the faults M has in c, all other chiplets
+  fault-free), and fewer exits. So their reachable states are a subset of those under the restricted mask, with the same
+  successors. The restricted mask is a mask of set 2, or the fault-free mask if c has no fault. If it has no dead end and
+  no cycle for the packets to c, M has none for them either, and their longest path under M is not longer. Every packet
+  has a destination chiplet, so checks 2 and 3 on sets 1 and 2 give checks 2 and 3 for every mask. **Tested directly on
+  2x2: for 1,000 masks with faults in at least two chiplets, both relations and each of the four chiplets, the states
+  under the mask are a subset of the states under the restricted mask in all 8,000 comparisons** (6,700 states against
+  11,630 on average; never the same set, because the restricted mask explores more exits).
+* *Do the data agree?* Yes, wherever they can speak. Check 4 fails on no mask. The second-half test fails in no
+  comparison. On 2x2 the conclusion itself is checked without the argument, on every mask. On 3x3 and 4x4 the 388 masks of
+  sets 3 and 4, which the argument says must pass, pass, and none has a longer path than set 2 (32 and 40 hops; they have
+  27-32 and 34-40).
+* *What this is and is not.* For 2x2 the result is exhaustive. For 3x3 and 4x4 it is exhaustive over the patterns of a
+  single chiplet (all 14 patterns of each of the 9 and 16 chiplets) and extends to every combination by the argument,
+  which is a property of the model's code and is confirmed on every mask tried; it is not an enumeration. The hop bounds
+  are 24, 32 and 40 hops on 2x2, 3x3 and 4x4, for every fault pattern.
+* All of this is about the model. Question 3 is what ties the model to the simulator.
 
 ### 3. A3: how many hops compared per row and size, how many mismatches?
 *Interim: 3,583,610 hops and 293,754 arrivals compared in 36 runs (the fault-free and the same-VL mask, three rows, three
