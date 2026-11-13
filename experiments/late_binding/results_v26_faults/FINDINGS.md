@@ -1,9 +1,10 @@
 # Findings v26: fault coverage
 
 Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the model check on every mask of 2x2
-(A1) and on the four sets of 3x3 and 4x4 (A2), the reachability of MTR and RC (B5), and the first third of the conformance
-runs (A3: the fault-free and the same-VL mask). Running, unattended: the drain tests on the 192 masks (B2), then the ladders,
-the timing runs and the 18,432 evaluation runs (B3). Every answer below says whether it is final.
+(A1) and on the four sets of 3x3 and 4x4 (A2), the drain tests on the 192 masks (B2), the reachability analysis (B5), and
+the conformance runs on the fault-free and the same-VL mask (A3). Running, unattended: the ladders, then the timing runs and
+the 18,432 evaluation runs (B3); the conformance runs on the masks of Part B follow the timing runs. Every answer below says
+whether it is final.
 
 **Part A so far: 102,730 model checks, all pass.** Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every
 pattern of a single chiplet plus 388 masks from the whole space, for both relations of the round: no cycle in the channel
@@ -24,6 +25,9 @@ Parts A and B.
   that are deliberately not the one of the run (the other interposer order, the Up rule of rounds 1-22, the entry fixed at
   injection, another fault mask) give 9,770 to 54,171 mismatches out of 95,596 to 119,541 records; replayed through the right
   model they give none.
+* **Drain tests** (`drain_v26.csv`): 1,152 of 1,152 pass. Every one of the six rows of Part B on every one of the 192 masks:
+  one burst with every source-destination pair is delivered in full (4,032, 20,592 and 65,280 packets on 2x2, 3x3 and 4x4),
+  the network empties, no dead-end event.
 
 ## The ten questions
 
@@ -116,9 +120,9 @@ size and the further seeds follow.*
 *Pending.*
 
 ### 10. Reachability of MTR and RC at the four rates
-**Final for MTR and RC; the drain-test table of DeFT and the late-binding rows is pending.**
-MTR and RC lose exactly the share of the VLs that is faulty, on every mask (`reachability_v26.md`, static analysis of
-`reach_v10.py`, unchanged, with the rate 8/16 added).
+**Final. MTR and RC lose exactly the share of the VLs that is faulty, on every mask; DeFT and the two late-binding rows
+deliver every pair on every mask** (`reachability_v26.md`; MTR and RC by the static analysis of `reach_v10.py`, unchanged,
+with the rate 8/16 added; the other rows by the drain tests).
 
 | rate | 2x2 | 3x3 | 4x4 |
 |---|---|---|---|
@@ -137,3 +141,10 @@ MTR and RC lose exactly the share of the VLs that is faulty, on every mask (`rea
   destinations (MTR) of its chiplet from every other chiplet, whatever the other faults are, and the delivered share is the
   functional share of the VLs. (3x3 has 36 VLs, so its first two rates are 2 and 4 of 36.)
 * The 18 rows of the three old rates equal those of round 10 (`results_v10/report/reachability.csv`).
+* **The rows of Part B deliver 100 % at every rate.** DeFT_P, DeFT_B, DeFT_Dis, DeFT_Ran, `CI_heurLA_X_LF` and
+  `CI_heurLA_O_LF` were each given one burst with every source-destination pair on each of the 192 masks of Part B (48 masks
+  per rate, 1,152 drain tests): 1,438,464 packets injected and 1,438,464 delivered per row and rate, no dead-end event
+  (`drain_v26.csv`). This is a measurement on 192 masks, not an analysis of all masks; the model check of Part A is what
+  covers the patterns that were not simulated, for the two late-binding rows.
+* So with half of the VLs faulty MTR and RC serve half of the inter-chiplet pairs, and the rows compared in Part B serve all
+  of them. MTR and RC are not run with faults for this reason; Part B has no performance number for them.

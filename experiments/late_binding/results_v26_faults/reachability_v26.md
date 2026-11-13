@@ -37,3 +37,36 @@ Check: the 18 rows of the three old rates equal `results_v10/report/reachability
 | 4x4 | 4/16 | 16 | RC | 1000 | 75.00 % (75.00 %) | 0 | 75.00 % (75.00 %) | 0 of 16 |
 | 4x4 | 8/16 | 32 | MTR | 1000 | 50.00 % (50.00 %) | 0 | 50.00 % (50.00 %) | 0 of 16 |
 | 4x4 | 8/16 | 32 | RC | 1000 | 50.00 % (50.00 %) | 0 | 50.00 % (50.00 %) | 0 of 16 |
+
+## DeFT and the late-binding rows: the all-pairs drain tests on the 192 masks of Part B (`drain_v26.csv`)
+
+One burst with every source-destination pair, simulated until the network is empty. Delivered share = received / injected packets, over all masks of the rate.
+
+| row | rate | drain tests | pass | packets injected | delivered | delivered share | dead-end events |
+|---|---|---|---|---|---|---|---|
+| DeFT_P | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_P | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_P | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_P | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_B | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_B | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_B | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_B | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Dis | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Dis | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Dis | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Dis | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Ran | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Ran | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Ran | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| DeFT_Ran | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_X_LF | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_X_LF | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_X_LF | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_X_LF | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_O_LF | 1/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_O_LF | 2/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_O_LF | 4/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+| CI_heurLA_O_LF | 8/16 | 48 | 48 | 1438464 | 1438464 | 100.0000 % | 0 |
+
+All 1152 drain tests pass: yes. With a functional VL in every chiplet these rows deliver every pair on every mask; MTR and RC lose pairs as soon as a VL fails.

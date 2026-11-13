@@ -61,9 +61,11 @@ Choices the prompt left open. Where there was a choice, the option that does not
 
 ## Part B
 * **Drain tests of all six rows.** The prompt asks for the two frozen rows. B5 reports the delivered share of DeFT as well, and
-  round 25 drained every row of its sweep, so the four reference rows are drained on every mask too. This costs more than I had
-  told the user before the start (about 20 CPU-hours, two hours of the machine, not half an hour); it is kept because it is
-  pre-registered.
+  round 25 drained every row of its sweep, so the four reference rows are drained on every mask too. This cost far more than I
+  had told the user before the start (half an hour) and more than the estimate first written here (20 CPU-hours). Measured:
+  about 68 process-hours and 8.1 hours of the machine (13:29 to 21:35; the first 3.6 h next to the model checks with 2 and
+  then 6 processes, the last 4.4 h with 12). A 4x4 test sends 65,280 packets and takes 8 to 13 minutes of one of twelve
+  processes, longer the more VLs are faulty. It was kept because it is pre-registered.
 * **Timing runs.** Seed 151, the 1st and 4th load, masks 1 to 4 of every (size, rate), every row and both traffic patterns:
   1,152 runs of the design with the mix of the whole design. The lowest and the highest load are taken so that their mean
   (1.25 x Lsat) is close to the mean of the four loads (1.225 x Lsat).
