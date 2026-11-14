@@ -106,3 +106,11 @@ Choices the prompt left open. Where there was a choice, the option that does not
   the number of chiplets with one functional VL; the largest number of faults in one chiplet; of the three chiplets that hold
   a hotspot router (0, 1 and CX), those with one functional VL; Lsat of DeFT_P on the mask relative to the fault-free Lsat of
   round 25. The script was tested on synthetic data only. Its tables are descriptive.
+* **A smoke test of the report scripts on real outputs, without reading a result.** While the evaluation ran, the outputs
+  finished so far were converted into a scratch folder, and `report_v26.py`, `check_v26_family.py` and `extra_v26.py` were
+  run on it, to find a crash before the end of a 21-hour run and not after it. Shown were only exit codes, error output,
+  the names and lengths of the files written, and on how many tests the two computations of the primary family differ. No
+  effect, no p value and no verdict was printed or read, and the scratch folder was deleted. Result: the three scripts run
+  on the real format; on the six tests whose masks were complete, the two computations give the same effect, interval, p
+  and number of masks. No script was changed. Before it, every line of the converted CSV was checked to be a run of the
+  design (the keys the report looks up), again without reading a value.
