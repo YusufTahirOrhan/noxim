@@ -1,0 +1,10 @@
+{
+ "dropped": [],
+ "nproc": 12,
+ "timing_runs": 1152,
+ "timing_seconds": 4789.354241132736,
+ "estimate_hours_full": 21.28601884947883,
+ "estimate_hours_after_drops": 21.28601884947883,
+ "runs_full": 18432,
+ "runs_after_drops": 18432
+}

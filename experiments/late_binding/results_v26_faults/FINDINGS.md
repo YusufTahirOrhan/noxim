@@ -2,9 +2,9 @@
 
 Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the model check on every mask of 2x2
 (A1) and on the four sets of 3x3 and 4x4 (A2), the drain tests on the 192 masks (B2), the reachability analysis (B5), the
-ladders of the 192 masks, and the conformance runs on the fault-free and the same-VL mask (A3). Running, unattended: the
-timing runs, then the evaluation runs (B3); the conformance runs on the masks of Part B follow the timing runs. Every answer
-below says whether it is final.
+ladders of the 192 masks, the timing runs, and the conformance runs on the fault-free and the same-VL mask (A3). Running,
+unattended: the evaluation runs (B3; all 18,432, the time rule drops nothing) and, next to them, the conformance runs on the
+masks of Part B. Every answer below says whether it is final.
 
 **Part A so far: 102,730 model checks, all pass.** Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every
 pattern of a single chiplet plus 388 masks from the whole space, for both relations of the round: no cycle in the channel
@@ -31,6 +31,9 @@ Parts A and B.
 * **Ladders** (`load_points_v26.md`): one per mask and traffic pattern, 384 ladders from 10,503 sweep runs of DeFT_P (seed
   101, the D1 rule as Part C of round 25 ran it), no dead-end event. No ladder has Lsat below 0.001 (the lowest is 0.0012),
   so the rate at which L0 is measured (0.0002) is at most a sixth of Lsat everywhere.
+* **Time rule** (`runtime_estimate.md`, `drops.json`): the 1,152 timing runs took 4,789 s with 12 processes, which puts the
+  full design of 18,432 runs at 21.3 h, below the limit of 40 h. Nothing is dropped: the design keeps all four rates on all
+  three sizes and all 16 masks per cell.
 
 ## The ten questions
 
