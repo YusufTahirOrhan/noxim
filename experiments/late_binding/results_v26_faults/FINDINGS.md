@@ -2,13 +2,15 @@
 
 Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the model check on every mask of 2x2
 (A1) and on the four sets of 3x3 and 4x4 (A2), the drain tests on the 192 masks (B2), the reachability analysis (B5), the
-ladders of the 192 masks, the timing runs, and the conformance runs on the fault-free and the same-VL mask (A3). Running,
-unattended: the evaluation runs (B3; all 18,432, the time rule drops nothing) and, next to them, the conformance runs on the
-masks of Part B. Every answer below says whether it is final.
+ladders of the 192 masks, the timing runs, and the conformance of the model with the simulator (A3). Part A is complete.
+Running, unattended: the evaluation runs (B3; all 18,432, the time rule drops nothing). Every answer below says whether it
+is final.
 
-**Part A so far: 102,730 model checks, all pass.** Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every
-pattern of a single chiplet plus 388 masks from the whole space, for both relations of the round: no cycle in the channel
-dependencies, no dead end, no livelock, and no dependency that the fault-free pattern does not have.
+**Part A: 102,730 model checks, all pass, and 12.0 million simulator hops replayed through the model without a mismatch.**
+Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every pattern of a single chiplet plus 388 masks from the
+whole space, for both relations of the round: no cycle in the channel dependencies, no dead end, no livelock, and no
+dependency that the fault-free pattern does not have. In 156 simulator runs under 18 masks, every hop of a head flit is a
+transition of the model and every set of outputs the router offers is the set the model offers.
 
 Nothing is tuned and no row is changed: the configuration is the frozen one of round 25, the simulator is the ee0e247 build
 (the sources of ce6ab6a), and the analysis is fixed in `PREREGISTRATION.md`, committed with `masks_v26.json` before any run of
@@ -103,9 +105,41 @@ chiplet never appears, and an intra-chiplet packet uses no VL.
 * All of this is about the model. Question 3 is what ties the model to the simulator.
 
 ### 3. A3: how many hops compared per row and size, how many mismatches?
-*Interim: 3,583,610 hops and 293,754 arrivals compared in 36 runs (the fault-free and the same-VL mask, three rows, three
-sizes), 0 mismatches, every statistics file byte-identical to `bin/noxim` (`conformance.md`). The four masks of Part B per
-size and the further seeds follow.*
+**Final. 11,999,425 hops compared in 156 simulator runs, more than 1,000,000 for every row and size; 0 mismatches**
+(`conformance.md`, `conformance.csv`).
+
+| row | relation of the model | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|---|
+| DeFT_P | `A_fixed_XY` | 1,019,444 | 1,405,704 | 1,531,555 |
+| `CI_heurLA_X_LF` (main) | `CI_XY_XY` | 1,042,044 | 1,430,288 | 1,545,058 |
+| `CI_heurLA_O_LF` (second) | `CI_XY_O1` | 1,044,590 | 1,433,461 | 1,547,281 |
+
+* **What is compared.** An instrumented copy of the simulator writes one record per hop of a head flit: the router, the
+  input port, the VN and the candidate masks before the hop, the destination, the outputs the routing function and the VN
+  rule offer, the output taken, the VN and the masks after. The record is looked up in the state graph that the model check
+  builds for that destination (`impl_relation_check.explore()`, the function Part A uses, unchanged): the state before the
+  hop must be a node of the graph, the offered outputs must be exactly the moves that leave the node, and the hop taken
+  must be one of its edges. The arrival at the destination router is compared too: 1,036,902 arrivals, at each of which
+  the model must have delivered.
+* **Result.** No mismatch in any of the three comparisons on any record, no difference between the topology the simulator
+  reports and the model's instance, no dead-end event. All 156 instrumented runs give a statistics file byte-identical to
+  that of `bin/noxim`, so the records are those of the simulator that the evaluation runs.
+* **Runs.** Six masks per size: fault-free, the same VL faulty in every chiplet, and mask 1 of each of the four rates of
+  Part B, so up to half of the VLs faulty; uniform and hotspot traffic at 1.0 x Lsat of DeFT_P on the mask; seed 1. With
+  seed 1 2x2 had 503,018 to 514,811 hops per row, so seed 2 was added on its six masks. 4x4 needed seed 1 only. On 3x3
+  seed 2 ran on the first two masks before the ladders of Part B existed; with all six masks seed 1 alone has 1.03 to 1.05
+  million hops there, so those runs were not needed by the rule. They are kept (`DECISIONS.md`).
+* **Where the comparison has most to say.** The late-binding rows offer more than one output on 15 %, 12 % and 10 % of
+  their hops on 2x2, 3x3 and 4x4 (152,460 to 176,233 hops per row and size); there the whole offered set is compared, not
+  only the hop taken. DeFT_P never offers more than one: its two VLs are fixed at injection. Of the 13.0 million records
+  (hops and arrivals), 0.52 million are in the intra-chiplet phase of the model, 1.84 million in the source chiplet, 8.39
+  million on the interposer and 2.29 million in the destination chiplet.
+* **The comparison can fail** (`conformance_controls.md`): replayed through four models that are not the one of the run,
+  2x2 runs give 9,770 to 54,171 mismatches out of 95,596 to 119,541 records.
+* **What this is and is not.** It is a test on runs. On every hop the simulator made in them, the router offered exactly
+  what the model offers and moved along a transition of the model. It does not prove that the two agree in states the runs
+  did not visit. Together with questions 1 and 2: the model has no deadlock, no dead end and no livelock on the fault
+  patterns checked, and on 12 million hops under 18 masks the simulated router did nothing that the model does not do.
 
 ### 4. Primary family of Part B: how many of 24 supported, which against?
 *Pending.*

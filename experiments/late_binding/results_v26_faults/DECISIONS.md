@@ -38,6 +38,15 @@ Choices the prompt left open. Where there was a choice, the option that does not
   the two: it is corrected, recorded here, and the comparison is run again in full. Said to the user before the round started.
 * **A3, what counts as a hop.** Only hops for which the model has a transition count towards the 1,000,000 per row and size.
   The arrival at the destination router (the model has no transition there) is compared as well and counted separately.
+* **A3, the seeds that ran.** Seed 1 on the six masks of every size. With seed 1, 2x2 had 503,018 to 514,811 hops per row,
+  so seed 2 was added on its six masks (1.02 to 1.04 million); 4x4 had 1.53 to 1.55 million and got no further seed. On 3x3
+  seed 2 ran on the fault-free and the same-VL mask at a time when only these two masks could run (the masks of Part B need
+  their ladders) and the size was below 1,000,000 hops. Once the four masks of Part B had run, seed 1 alone had 1.03 to 1.05
+  million on 3x3, so those four runs per row were not needed by the rule. They are kept and reported: they are more
+  comparisons, with no mismatch, and leaving them out would change no conclusion.
+* **A3, wording of the report.** The four phase counts of `conformance.md` and `conformance.csv` include the arrivals (they
+  add up to hops plus arrivals). The first version called them "hops by phase"; the line and the four column names now say
+  records. No number changed.
 
 ## Order of the runs
 * **Two unattended chains share the machine** (6 cores, 12 threads): `chain_v26_formal.sh` (Part A) and `chain_v26_b.sh`

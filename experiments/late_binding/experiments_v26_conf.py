@@ -364,8 +364,8 @@ def report():
         raise SystemExit('no A3 results')
     order = {(z, r): i for i, (z, r) in enumerate((z, r) for z in X.SIZES for r in ROWS)}
     rs.sort(key=lambda r: (order[(r['size'], r['row'])], [m for _, m in a3_masks(r['size'])].index(r['mask']), r['seed']))
-    cols = ['row', 'relation', 'size', 'mask', 'mask_kind', 'seed', 'hops_compared', 'ejections_compared', 'distinct_records', 'hops_with_a_choice', 'hops_intra', 'hops_source_chiplet',
-            'hops_interposer', 'hops_destination_chiplet', 'mismatches', 'topology_differences', 'runs', 'runs_with_identical_statistics', 'dead_end_events']
+    cols = ['row', 'relation', 'size', 'mask', 'mask_kind', 'seed', 'hops_compared', 'ejections_compared', 'distinct_records', 'hops_with_a_choice', 'records_intra', 'records_source_chiplet',
+            'records_interposer', 'records_destination_chiplet', 'mismatches', 'topology_differences', 'runs', 'runs_with_identical_statistics', 'dead_end_events']
     with open(os.path.join(RES, 'conformance.csv'), 'w', newline='') as fh:
         w = csv.writer(fh, lineterminator=NL)
         w.writerow(cols)
@@ -399,12 +399,30 @@ def report():
             if h < NEED:
                 need.append((row, size, h))
     clean = tot['mis'] == 0 and tot['topo'] == 0 and tot['ident'] == tot['runs']
+    seeds_txt = []
+    for size in X.SIZES:
+        by = {}
+        for r in rs:
+            if r['size'] == size:
+                by.setdefault(r['label'], set()).add(r['seed'])
+        gr = {}
+        for label, _ in a3_masks(size):
+            if label in by:
+                gr.setdefault(tuple(sorted(by[label])), []).append(label)
+        if not gr:
+            continue
+        parts = ['seed%s %s on %s' % ('s' if len(k) > 1 else '', ', '.join(str(s) for s in k), 'all %d masks' % len(v) if len(gr) == 1 else 'the masks "%s"' % '", "'.join(v))
+                 for k, v in sorted(gr.items(), key=lambda kv: -len(kv[0]))]
+        one = [sum(r['hops'] for r in rs if r['size'] == size and r['row'] == row and r['seed'] == 1) for row in ROWS]
+        seeds_txt.append('%s: %s (seed 1 alone: %d to %d hops per row)' % (size, '; '.join(parts), min(one), max(one)))
     L += ['', '**Total: %d hops and %d arrivals compared in %d runs; mismatches: %d; topology differences: %d; runs with statistics byte-identical to `bin/noxim`: %d of %d.**' % (
         tot['hops'], tot['ej'], tot['runs'], tot['mis'], tot['topo'], tot['ident'], tot['runs']), '',
-          'Hops by phase of the model (all rows and sizes): intra-chiplet %d, source chiplet %d, interposer %d, destination chiplet %d. Dead-end events in these runs: %d.' % (
+          'Seeds: seed 1 on every mask; seeds 2, 3, ... are added for a row and size that has fewer than %d compared hops. %s.' % (NEED, '. '.join(seeds_txt)), '',
+          'Records (hops and arrivals) by phase of the model, all rows and sizes: intra-chiplet %d, source chiplet %d, interposer %d, destination chiplet %d. Dead-end events in these '
+          'runs: %d.' % (
               sum(r['by_phase']['X'] for r in rs), sum(r['by_phase']['S'] for r in rs), sum(r['by_phase']['I'] for r in rs), sum(r['by_phase']['D'] for r in rs),
               sum(x['dead_end_events'] for r in rs for x in r['runs'])),
-          'Per (row, size, mask, seed): `conformance.csv`.', '']
+          'Per (row, size, mask, seed): `conformance.csv` (its four `records_` columns are these phases).', '']
     if need:
         L += ['Fewer than %d compared hops so far: %s.' % (NEED, '; '.join('%s %s (%d)' % x for x in need)), '']
     bad = [r for r in rs if r['mismatches'] or r['topology_differences']]

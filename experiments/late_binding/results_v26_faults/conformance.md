@@ -11,21 +11,21 @@ reports (VL positions, functional VLs, directions, turn models, VN options) are 
 
 | row | relation | size | seeds | runs | statistics byte-identical to bin/noxim | hops compared | of them with more than one offered output | arrivals at the destination compared | distinct records | topology differences | mismatches |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| DeFT_P | A_fixed_XY | 2x2 | 1, 2 | 8 | 8 | 382842 | 0 | 46088 | 207039 | 0 | **0** |
-| CI_heurLA_X_LF | CI_XY_XY | 2x2 | 1, 2 | 8 | 8 | 393744 | 64918 | 46178 | 257567 | 0 | **0** |
-| CI_heurLA_O_LF | CI_XY_O1 | 2x2 | 1, 2 | 8 | 8 | 394968 | 65513 | 46170 | 258542 | 0 | **0** |
-| DeFT_P | A_fixed_XY | 3x3 | 1, 2 | 8 | 8 | 744323 | 0 | 64548 | 633771 | 0 | **0** |
-| CI_heurLA_X_LF | CI_XY_XY | 3x3 | 1, 2 | 8 | 8 | 759959 | 98733 | 64950 | 697177 | 0 | **0** |
-| CI_heurLA_O_LF | CI_XY_O1 | 3x3 | 1, 2 | 8 | 8 | 762484 | 100244 | 64944 | 701840 | 0 | **0** |
-| DeFT_P | A_fixed_XY | 4x4 | 1 | 4 | 4 | 618167 | 0 | 42845 | 593708 | 0 | **0** |
-| CI_heurLA_X_LF | CI_XY_XY | 4x4 | 1 | 4 | 4 | 629846 | 68922 | 43039 | 624191 | 0 | **0** |
-| CI_heurLA_O_LF | CI_XY_O1 | 4x4 | 1 | 4 | 4 | 630529 | 69695 | 43023 | 625492 | 0 | **0** |
+| DeFT_P | A_fixed_XY | 2x2 | 1, 2 | 24 | 24 | 1019444 | 0 | 120746 | 581928 | 0 | **0** |
+| CI_heurLA_X_LF | CI_XY_XY | 2x2 | 1, 2 | 24 | 24 | 1042044 | 159670 | 120991 | 697515 | 0 | **0** |
+| CI_heurLA_O_LF | CI_XY_O1 | 2x2 | 1, 2 | 24 | 24 | 1044590 | 160308 | 120961 | 700688 | 0 | **0** |
+| DeFT_P | A_fixed_XY | 3x3 | 1, 2 | 16 | 16 | 1405704 | 0 | 119757 | 1205253 | 0 | **0** |
+| CI_heurLA_X_LF | CI_XY_XY | 3x3 | 1, 2 | 16 | 16 | 1430288 | 174044 | 120637 | 1311072 | 0 | **0** |
+| CI_heurLA_O_LF | CI_XY_O1 | 3x3 | 1, 2 | 16 | 16 | 1433461 | 176233 | 120620 | 1315773 | 0 | **0** |
+| DeFT_P | A_fixed_XY | 4x4 | 1 | 12 | 12 | 1531555 | 0 | 103991 | 1483238 | 0 | **0** |
+| CI_heurLA_X_LF | CI_XY_XY | 4x4 | 1 | 12 | 12 | 1545058 | 152460 | 104603 | 1534708 | 0 | **0** |
+| CI_heurLA_O_LF | CI_XY_O1 | 4x4 | 1 | 12 | 12 | 1547281 | 153300 | 104596 | 1538168 | 0 | **0** |
 
-**Total: 5316862 hops and 461785 arrivals compared in 60 runs; mismatches: 0; topology differences: 0; runs with statistics byte-identical to `bin/noxim`: 60 of 60.**
+**Total: 11999425 hops and 1036902 arrivals compared in 156 runs; mismatches: 0; topology differences: 0; runs with statistics byte-identical to `bin/noxim`: 156 of 156.**
 
-Hops by phase of the model (all rows and sizes): intra-chiplet 222887, source chiplet 782428, interposer 3758997, destination chiplet 1014335. Dead-end events in these runs: 0.
-Per (row, size, mask, seed): `conformance.csv`.
+Seeds: seed 1 on every mask; seeds 2, 3, ... are added for a row and size that has fewer than 1000000 compared hops. 2x2: seeds 1, 2 on all 6 masks (seed 1 alone: 503018 to 514811 hops per row). 3x3: seeds 1, 2 on the masks "fault-free", "same VL in every chiplet"; seed 1 on the masks "rate 1/16, mask 1", "rate 2/16, mask 1", "rate 4/16, mask 1", "rate 8/16, mask 1" (seed 1 alone: 1031945 to 1050718 hops per row). 4x4: seed 1 on all 6 masks (seed 1 alone: 1531555 to 1547281 hops per row).
 
-Fewer than 1000000 compared hops so far: DeFT_P 2x2 (382842); CI_heurLA_X_LF 2x2 (393744); CI_heurLA_O_LF 2x2 (394968); DeFT_P 3x3 (744323); CI_heurLA_X_LF 3x3 (759959); CI_heurLA_O_LF 3x3 (762484); DeFT_P 4x4 (618167); CI_heurLA_X_LF 4x4 (629846); CI_heurLA_O_LF 4x4 (630529).
+Records (hops and arrivals) by phase of the model, all rows and sizes: intra-chiplet 518405, source chiplet 1842950, interposer 8388635, destination chiplet 2286337. Dead-end events in these runs: 0.
+Per (row, size, mask, seed): `conformance.csv` (its four `records_` columns are these phases).
 
 **0 mismatches, as required: yes.**
