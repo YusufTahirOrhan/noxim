@@ -3,8 +3,9 @@
 Status: **in progress.** Done: the regression (A0), the masks and the pre-registration, the model check on every mask of 2x2
 (A1) and on the four sets of 3x3 and 4x4 (A2), the drain tests on the 192 masks (B2), the reachability analysis (B5), the
 ladders of the 192 masks, the timing runs, and the conformance of the model with the simulator (A3). Part A is complete.
-Running, unattended: the evaluation runs (B3; all 18,432, the time rule drops nothing). Every answer below says whether it
-is final.
+Not finished: the evaluation runs (B3; all 18,432, the time rule drops nothing). They were paused at the user's request on
+14 November at 21:46 with 10,541 runs finished and no dead-end event; the chain resumes from the finished runs
+(`DECISIONS.md`). Every answer below says whether it is final.
 
 **Part A: 102,730 model checks, all pass, and 12.0 million simulator hops replayed through the model without a mismatch.**
 Every fault pattern of 2x2 (50,625 masks), and on 3x3 and 4x4 every pattern of a single chiplet plus 388 masks from the

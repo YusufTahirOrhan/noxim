@@ -77,6 +77,13 @@ Choices the prompt left open. Where there was a choice, the option that does not
     byte-identical. `bin/noxim` has the md5 of the reference builds; the 192 LUTs, the scripts and the files of the round
     have no empty file and no NUL byte; the repository is intact.
   * The chain was started again with the same command (finished stages are skipped).
+* **The evaluation was paused at the user's request.** At 21:46 on 14 November, 5.5 hours into the evaluation, the user
+  asked to stop it and to go on later. The chain was stopped by ending its session; 10,541 of the 18,432 runs were finished
+  (all of 2x2, the rates 1/16 and 2/16 of 3x3 and a part of 4/16; of the other cells only the timing runs). The twelve runs
+  in flight are lost and are run again. After the stop every finished output was read: none is unreadable, none has a
+  dead-end event, and no interrupted run left an output file. A pause changes no result: every run is fully determined by
+  its arguments, and a run whose output exists is never run again. The time rule is not touched either: it was applied to
+  the estimate from the timing runs before the evaluation started. The chain is restarted with the same command.
 * **Number of processes.** The model checks of 3x3 and 4x4 use 6 processes (7 GB of memory). The stages of Part B run in
   segments and take the rest of the machine from a small file the chains write (`experiments_v26.width`). The number of
   processes changes nothing in a run: every run is fully determined by its arguments.
