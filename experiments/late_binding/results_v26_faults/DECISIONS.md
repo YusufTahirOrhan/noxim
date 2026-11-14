@@ -55,6 +55,19 @@ Choices the prompt left open. Where there was a choice, the option that does not
   themselves, or the estimate would come out too high and the 40 h rule could drop cells without need. While A3 runs, the
   evaluation leaves it two of the twelve threads. The fault-free and the same-VL mask use the ladders of round 25 and were run
   earlier, next to the model checks.
+* **The machine went down during the timing runs.** At 09:42 on 14 November, 18 minutes into the timing runs, the machine
+  stopped without a shutdown (Windows events 41 and 6008: power lost or a hard stop; no crash dump, no hardware-error
+  event) and stayed off until 14:46. Everything finished before that was on disk and committed (the ladders at 09:25). What
+  was done before the restart:
+  * *The timing runs were run again in full.* 606 of the 1,152 had finished. The timing stage measures the wall time of
+    one call and skips finished runs, so a restart would have timed only the other 546 and estimated about half of the true
+    time; the 40 h rule would then have been applied to a wrong number. The 606 outputs were deleted (the runs are
+    deterministic, so the second time gives the same files).
+  * *The inputs were checked.* The stage that writes traffic tables writes only those that are missing, so a table damaged
+    by the power loss would have been used silently: the 234 tables of the design were generated again and are
+    byte-identical. `bin/noxim` has the md5 of the reference builds; the 192 LUTs, the scripts and the files of the round
+    have no empty file and no NUL byte; the repository is intact.
+  * The chain was started again with the same command (finished stages are skipped).
 * **Number of processes.** The model checks of 3x3 and 4x4 use 6 processes (7 GB of memory). The stages of Part B run in
   segments and take the rest of the machine from a small file the chains write (`experiments_v26.width`). The number of
   processes changes nothing in a run: every run is fully determined by its arguments.
