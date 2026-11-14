@@ -83,7 +83,9 @@ Choices the prompt left open. Where there was a choice, the option that does not
   in flight are lost and are run again. After the stop every finished output was read: none is unreadable, none has a
   dead-end event, and no interrupted run left an output file. A pause changes no result: every run is fully determined by
   its arguments, and a run whose output exists is never run again. The time rule is not touched either: it was applied to
-  the estimate from the timing runs before the evaluation started. The chain is restarted with the same command.
+  the estimate from the timing runs before the evaluation started. The chain was restarted with the same command at 00:10
+  on 15 November, when the user asked to go on: the machine had not been shut down in between, the 10,541 outputs were
+  read again (none unreadable) and `bin/noxim` still has the md5 of the reference build.
 * **Number of processes.** The model checks of 3x3 and 4x4 use 6 processes (7 GB of memory). The stages of Part B run in
   segments and take the rest of the machine from a small file the chains write (`experiments_v26.width`). The number of
   processes changes nothing in a run: every run is fully determined by its arguments.
