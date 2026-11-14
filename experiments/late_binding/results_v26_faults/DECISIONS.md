@@ -113,4 +113,8 @@ Choices the prompt left open. Where there was a choice, the option that does not
   effect, no p value and no verdict was printed or read, and the scratch folder was deleted. Result: the three scripts run
   on the real format; on the six tests whose masks were complete, the two computations give the same effect, interval, p
   and number of masks. No script was changed. Before it, every line of the converted CSV was checked to be a run of the
-  design (the keys the report looks up), again without reading a value.
+  design (the keys the report looks up), again without reading a value. The test was repeated in the same way once the
+  2x2 runs and a part of the 3x3 runs were in (92 complete masks): the twelve tests that could be compared agree, on two
+  sizes. The round-25 half of the random-against-even table (B.11) was computed alone, from round 25's files only: it
+  gives the numbers of round 25 (THR +7.8 / +13.5 / +22.2 % at one faulty VL per chiplet, +3.8 / +8.8 / +13.9 % at two),
+  so the keys of that older CSV are found.
