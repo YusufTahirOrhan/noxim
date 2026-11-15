@@ -615,3 +615,103 @@ the reference core of round 18; flow of rounds 18 and 21 (Yosys + ABC, NanGate45
 
 Start with `results_v25_confirm/FINDINGS.md`. The tables for the paper are in `results_v25_confirm/paper_data/` (one CSV per
 table or figure; `paper_data/README.md` lists them).
+
+## Round 26 (results_v26_faults/): fault coverage. The model check on all fault patterns, and random VL faults at four rates
+Nothing is tuned, no row is changed and no simulator option is added. The configuration is the frozen one of round 25, the
+simulator is the ee0e247 build (`results_v26_faults/regression.md`: the 84-configuration set byte-identical; no simulator source
+changed in this round), and the masks and the tests are fixed in `results_v26_faults/PREREGISTRATION.md` and `masks_v26.json`
+before any run of Parts A and B.
+* **Frozen rows.** `CI_heurLA_X_LF` (**main**) and `CI_heurLA_O_LF` (**second**), as defined in round 25. References under
+  faults: DeFT_P, DeFT_B, DeFT_Dis, DeFT_Ran. MTR and RC are not run with faults: they cannot deliver every pair (B5).
+* **Masks.** A mask is a set of faulty VLs that leaves every chiplet a functional VL. Part A: every mask of 2x2 (15^4 = 50,625)
+  and four sets on 3x3 and 4x4. Part B: 16 random masks per size and fault rate (1/16, 2/16, 4/16, 8/16 of the VLs), 192 in all
+  (`masks_v26.md`), each with a LUT of its own.
+* **Drivers.** `experiments_v26.py` (A0, the masks, the LUTs) dispatches to `experiments_v26_formal.py` (the model check: `aneg`,
+  `a1`, `a1csv`, `a2`, `a2sub`), `experiments_v26_conf.py` (conformance of the model with the simulator: `a3_*`) and
+  `experiments_v26_eval.py` (Part B: `b_*`). `chain_v26_formal.sh` and `chain_v26_b.sh` run Part A and Part B unattended, share
+  the machine through a width file and stop at the first failed check. `reach_v26.py` is B5. `report_v26.py` writes `report/`
+  and `paper_data/`; `extra_v26.py` writes the descriptive tables `report/extra_B.md` that `FINDINGS.md` quotes;
+  `check_v26_family.py` computes the primary family a second time without the report's code (`report/families_check.md`).
+```
+bash build_ref.sh ee0e247 && python3 experiments_v26.py regress 12 && python3 experiments_v26.py masks && python3 experiments_v26.py luts 12
+python3 experiments_v26.py aneg && python3 experiments_v26.py a1 10 && python3 experiments_v26.py a1csv
+python3 experiments_v26.py a2 6 3x3 && python3 experiments_v26.py a2 6 4x4 && python3 experiments_v26.py a2sub 6
+python3 experiments_v26.py a3_build && python3 experiments_v26.py a3_control && python3 experiments_v26.py a3_run 2 1
+python3 experiments_v26.py a3_run 2 2:2x2 && python3 experiments_v26.py a3_run 2 2:3x3:base && python3 experiments_v26.py a3_report
+python3 experiments_v26.py b_drain 12 && python3 experiments_v26.py b_sat 12 && python3 experiments_v26.py b_points
+python3 experiments_v26.py b_timing 12 && python3 experiments_v26.py b_eval 12 && python3 experiments_v26.py b_check && python3 experiments_v26.py b_csv
+python3 reach_v26.py && python3 report_v26.py && python3 extra_v26.py && python3 check_v26_family.py
+```
+(`a3_run NPROC SEEDS[:SIZES[:base]]`: seed 1 on the six masks of every size, then further seeds for a row and size with fewer
+than 1,000,000 compared hops; `a3_report` lists those. The raw outputs stay under `~/lbraw/v26` until the stage that writes
+the CSV.)
+
+### Gates
+* **Regression** (`regression.md`): 84 / 84 byte-identical to a fresh build of ee0e247 (the ce6ab6a build, the options absent,
+  every option explicitly off).
+* **Controls** (`formal_controls.md`, `conformance_controls.md`): the model check finds the cycle when R3 and the F1 source rule
+  are removed, the subset check fails between two different relations, and the conformance replay reports 9,770 to 54,171
+  mismatches when it is given a model that is not the one of the run. The checks can fail.
+* **Drain tests** (`drain_v26.csv`): the six rows of Part B on the 192 masks, 1,152 / 1,152 pass, no dead-end event.
+
+### Part A: the model check on all fault patterns (`formal_all_2x2.md`, `formal_a2.md`, `formal_subset_2x2.md`, `conformance.md`)
+Four checks per mask and relation (`CI_XY_XY` for the main row, `CI_XY_O1` for the second): the CDG is acyclic, no reachable
+state is a dead end, the state graph is acyclic (its longest path is the hop bound), and the CDG is a subset of the fault-free
+CDG of the relation. The model (`formal/impl_relation_check.py` with the settings of `formal/xy_check.py`) is not changed.
+* **A1, 2x2, exhaustive: 50,625 masks, 101,250 checks, all pass.** The subset check holds on every mask; the longest path is
+  24 hops (16-24 over the masks). The 2x2 result no longer rests on a sample (round 24: 897 masks).
+* **A2, 3x3 and 4x4: 1,480 checks on 739 masks, all pass**: the fault-free mask, every fault pattern of a single chiplet
+  (126 and 224 masks), 200 and 60 random masks from the whole space, and the 64 masks of Part B per size. Longest path 32 and
+  40 hops.
+* **The argument for the patterns not enumerated** (15^9 and 15^16): the fault mask enters the model only where the initial
+  states are built, so (1) a fault only removes channel dependencies (check 4, on every mask checked) and (2) the packets to
+  one chiplet see only that chiplet's faults (tested directly on 2x2: 8,000 comparisons, the subset holds in all). With the
+  fault-free mask and all single-chiplet patterns passing, every combination passes. For 3x3 and 4x4 this is an argument
+  confirmed on every mask tried, not an enumeration.
+* **A3, the model against the simulator:** every head-flit hop of simulator runs is looked up in the model's state graph (the
+  state must be a node, the offered outputs must equal the moves of the node, the hop taken must be an edge).
+  **11,999,425 hops in 156 runs, 0 mismatches**: DeFT_P and the two frozen rows, more than 1,000,000 hops for every row on
+  every size, six masks per size (fault-free, the same VL in every chiplet, mask 1 of each rate of Part B), uniform and
+  hotspot at 1.0 x Lsat. Every instrumented run has a statistics file byte-identical to `bin/noxim`. This is a test on
+  runs, not a proof that the two agree in states the runs did not visit.
+
+### Part B: random VL faults at four rates (`report/summary_B.md`, `report/extra_B.md`; 18,432 runs, seeds 151, 152, no dead-end event)
+Uniform and hotspot traffic; one ladder per mask and traffic pattern (DeFT_P, the D1 rule, `load_points_v26.md`); loads 0.5,
+1.0, 1.4 and 2.0 x Lsat; six rows. The unit of every test is the mask (16 per size and rate).
+The 40 h rule dropped nothing (`runtime_estimate.md`).
+* **Primary family (Holm over 24: three sizes, four rates, THR and LAT at 1.0 x Lsat; the main row against the best of the
+  four DeFT variants): 22 of 24 supported, none against.** Not significant: 2x2 at 8/16, both metrics. Computed a second
+  time by `check_v26_family.py`: all 24 tests agree.
+
+  | size | THR at 1/16, 2/16, 4/16, 8/16 | LAT at 1/16, 2/16, 4/16, 8/16 |
+  |---|---|---|
+  | 2x2 | +3.3, +3.0, +2.6, +0.6 % | -18.9, -17.3, -16.9, -6.0 % |
+  | 3x3 | +5.5, +4.6, +3.2, +1.4 % | -18.4, -16.6, -16.0, -7.1 % |
+  | 4x4 | +8.9, +6.8, +4.9, +2.0 % | -19.6, -19.6, -18.0, -13.2 % |
+* **The gain shrinks as the rate grows**, most under uniform traffic (4x4: THR +14.4 % at 1/16, +2.7 % at 8/16). Under
+  hotspot traffic it is +2 to +4 % up to 4/16 and nearly flat.
+* **What costs the gain is a chiplet that is left one functional VL**, not the number of faults as such. Within one rate
+  the masks without such a chiplet keep the gain and those with one lose most of the throughput gain: 4x4 at 4/16 +7.9 %
+  against +3.1 %, 3x3 at 4/16 +4.3 % against +1.5 %, 2x2 at 8/16 +3.7 % against -0.5 %. The main row is behind the best
+  reference in 15 of the 192 masks in THR (by at most 2.0 %) and in 6 in LAT; 15 of the 17 masks concerned have such a
+  chiplet. It is behind DeFT_P in 2 masks in THR and in 1 in LAT.
+* **Against each reference row** the main row is ahead in THR, LAT and P99 in all 12 cells. Against DeFT_P: THR +12 to
+  +21 % and LAT -44 to -52 % up to 4/16, +3.6 to +7.0 % and -20 to -33 % at 8/16. DeFT_B is the strongest reference.
+* **The second row** has 1.6 to 2.7 % less throughput than the main row in 11 of the 12 cells and an equal or higher latency
+  at 1.0 x Lsat. Against the best reference it is ahead in LAT in every cell, in THR only on 3x3 and 4x4 at the lower rates.
+* **Random against even patterns** (round 25, uniform traffic). At the same share of faulty VLs a random pattern gives about
+  three tenths of the even pattern's THR gain at 4/16 (+2.1 / +4.0 / +6.8 % against +7.8 / +13.5 / +22.2 %) and less than a
+  fifth at 8/16 (+0.7 / +0.6 / +2.7 % against +3.8 / +8.8 / +13.9 %). The random masks of 2x2 that happen to be even give
+  round 25's numbers: the fault numbers of round 25 are those of the most favourable placement of the faults.
+* THR is the largest accepted throughput over loads up to 2.0 x Lsat; in about half of the cells it is reached at the last
+  load and is then a lower bound, for every row alike. Everything outside the primary family is descriptive.
+
+### B5: reachability (`reachability_v26.md`)
+* **MTR and RC lose exactly the faulty share of the VLs**: 93.75 / 87.5 / 75 / 50 % of the inter-chiplet pairs can be delivered
+  at the rates 1/16, 2/16, 4/16, 8/16 (94.44 / 88.89 % at the first two on 3x3), on every mask, the same for both methods: a
+  faulty VL cuts a quarter of the sources (RC) or of the destinations (MTR) of its chiplet off from every other chiplet. The
+  rows of the three old rates equal round 10's.
+* **DeFT and the two late-binding rows deliver every pair on all 192 masks** (the drain tests).
+
+Start with `results_v26_faults/FINDINGS.md`. The tables for the paper are in `results_v26_faults/paper_data/` (one CSV per
+table or figure; `paper_data/README.md` lists them).
