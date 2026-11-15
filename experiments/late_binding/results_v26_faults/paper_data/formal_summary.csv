@@ -1,0 +1,11 @@
+size,set,masks,relations,checks,passes,cyclic_cdg,with_dead_ends,cyclic_state_graph,outside_fault_free_cdg,longest_path_hops
+2x2,"all 50,625 masks",50625,2,101250,101250,0,0,0,0,24
+3x3,1 fault-free,1,2,2,2,0,0,0,0,32
+3x3,2 one chiplet,126,2,252,252,0,0,0,0,32
+3x3,3 random,200,2,400,400,0,0,0,0,32
+3x3,4 Part B,64,2,128,128,0,0,0,0,32
+4x4,1 fault-free,1,2,2,2,0,0,0,0,40
+4x4,2 one chiplet,224,2,448,448,0,0,0,0,40
+4x4,3 random,60,2,120,120,0,0,0,0,40
+4x4,4 Part B,64,2,128,128,0,0,0,0,40
+2x2,second-half test (states of the packets to a chiplet),1000,2,8000,8000,,,,,

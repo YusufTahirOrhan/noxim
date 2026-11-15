@@ -127,3 +127,9 @@ Choices the prompt left open. Where there was a choice, the option that does not
   sizes. The round-25 half of the random-against-even table (B.11) was computed alone, from round 25's files only: it
   gives the numbers of round 25 (THR +7.8 / +13.5 / +22.2 % at one faulty VL per chiplet, +3.8 / +8.8 / +13.9 % at two),
   so the keys of that older CSV are found.
+* **A display fix in the primary table, after the results.** Table B.1 printed its effects and interval ends from the
+  values already rounded to two decimals (the ones `report/primary.csv` holds); every other table prints from the unrounded
+  values. Rounding twice changed the last digit of three entries (3x3 at 2/16, THR: +4.5 for +4.6; 4x4 at 8/16, THR: +1.9
+  for +2.0, and the upper end of its LAT interval: -9.3 for -9.4), so the same number read differently in B.1 and in B.2
+  and B.4. B.1 now prints from the unrounded values. Every CSV of `report/` and `paper_data/` is byte-identical before
+  and after the change, and `families_check.md` too; no p value and no verdict is involved.

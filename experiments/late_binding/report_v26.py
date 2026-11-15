@@ -221,7 +221,7 @@ def part_b():
         for n in ('THR', 'LAT'):
             m, lo, hi, p, k = D.group(MAIN, 'best', cellm(z, rate), n)
             prim.append(dict(size=z, rate=rate, row=MAIN, reference='best reference', metric=n, n_masks=k, effect_pct=round(pct(m), 2), ci_low=round(pct(lo), 2), ci_high=round(pct(hi), 2),
-                             p=float('%.4g' % p), _m=m))
+                             p=float('%.4g' % p), _m=m, _t=(m, lo, hi, p, k)))
     for x, q in zip(prim, holm([1.0 if isnan(x['p']) else x['p'] for x in prim])):
         x['p_holm'] = float('%.4g' % q)
         x['verdict'] = 'n.s.' if q >= 0.05 else ('supported' if (x['_m'] > 0) == HIGHER[x['metric']] else 'against')
@@ -232,9 +232,9 @@ def part_b():
     for z, rate in cells:
         a = [x for x in prim if x['size'] == z and x['rate'] == rate and x['metric'] == 'THR'][0]
         b = [x for x in prim if x['size'] == z and x['rate'] == rate and x['metric'] == 'LAT'][0]
-        L.append('| %s | %s | %d | %d | %+.1f [%+.1f, %+.1f] | %s | **%s** | %+.1f [%+.1f, %+.1f] | %s | **%s** |' % (
-            z, rate, cellm(z, rate)[0]['n_faulty'], a['n_masks'], a['effect_pct'], a['ci_low'], a['ci_high'], pv(a['p_holm']), a['verdict'],
-            b['effect_pct'], b['ci_low'], b['ci_high'], pv(b['p_holm']), b['verdict']))
+        # printed from the unrounded values, as every other table (the CSV keeps two decimals)
+        L.append('| %s | %s | %d | %d | %s | %s | **%s** | %s | %s | **%s** |' % (
+            z, rate, cellm(z, rate)[0]['n_faulty'], a['n_masks'], eff(a['_t']), pv(a['p_holm']), a['verdict'], eff(b['_t']), pv(b['p_holm']), b['verdict']))
     L += ['', '**Supported %d of %d; against %d; not significant %d.**' % (cnt('supported'), len(prim), cnt('against'), cnt('n.s.')), '']
 
     # ---- secondary: every row and reference, per (size, rate) ----
