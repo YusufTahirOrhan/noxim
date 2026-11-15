@@ -278,8 +278,8 @@ Masks and (mask, traffic) cells in which `CI_heurLA_X_LF` is on the wrong side (
   in LAT (B.7). For scale, the cells in which the row is ahead average +3.1, +4.1 and +6.1 % in THR and -16.2, -15.3
   and -17.8 % in LAT on 2x2, 3x3 and 4x4 (X.5).
 * **What they have in common: a chiplet with one functional VL.** A packet to such a chiplet has no entry to choose, so
-  for it late binding has nothing to bind; and under uniform traffic that single VL carries everything the chiplet
-  sends and receives, so it sets the capacity for every row alike. The clearest case is 2x2 at 8/16 (X.3):
+  for it late binding has nothing to bind; and that single VL carries everything the chiplet sends to and receives
+  from the other chiplets, which limits every row alike. The clearest case is 2x2 at 8/16 (X.3):
 
   | chiplets with one functional VL | masks | THR against the best reference | LAT | THR against DeFT_P | LAT against DeFT_P |
   |---|---|---|---|---|---|
@@ -310,7 +310,7 @@ Masks and (mask, traffic) cells in which `CI_heurLA_X_LF` is on the wrong side (
   4x4; in the cells in which it is ahead, DeFT_B is the best reference in 90 of 106, 99 of 118 and 82 of 119. Where the
   six rows are within a few per cent of each other (2x2 at 8/16: mean THR 0.0408 to 0.0448), the best of four is ahead
   of each single one partly by chance.
-* **Behind DeFT_P:** 2 masks in THR (2x2 at 8/16, by 0.0 and 0.8 %) and 1 mask in LAT (2x2 at 8/16, +3.7 %); 11 cells
+* **Behind DeFT_P:** 2 masks in THR (2x2 at 8/16, by less than 0.05 % and by 0.8 %) and 1 mask in LAT (2x2 at 8/16, +3.7 %); 11 cells
   in THR (-0.7 to -0.8 % on average) and 7 in LAT (+4.1 to +4.8 %) of 384. All three masks have one or two chiplets
   with one functional VL.
 * **Not DeFT_P's runs** (X.8). With one functional VL in every chiplet the main row is DeFT_P (round 25). Here no run
