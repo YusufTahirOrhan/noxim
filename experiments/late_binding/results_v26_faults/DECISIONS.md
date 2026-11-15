@@ -133,3 +133,11 @@ Choices the prompt left open. Where there was a choice, the option that does not
   for +2.0, and the upper end of its LAT interval: -9.3 for -9.4), so the same number read differently in B.1 and in B.2
   and B.4. B.1 now prints from the unrounded values. Every CSV of `report/` and `paper_data/` is byte-identical before
   and after the change, and `families_check.md` too; no p value and no verdict is involved.
+* **Two tables added to `report/extra_B.md` after the results were seen** (X.9, X.10). X.9 lists the masks that table B.6
+  counts as behind, with the descriptors fixed in advance. X.10 separates the random masks of 2x2 that happen to be even
+  patterns (two at 4/16, four at 8/16) from the others, because question 9 compares random with even patterns and round
+  25 has even ones only. Both are descriptive, are marked as added afterwards in the file and in `FINDINGS.md`, and enter
+  no test. One entry of X.10 (2x2 at 4/16, the even masks, LAT with uniform traffic: -25.5 [-32.3, -18.0]) prints the
+  same three numbers as an entry of B.11 that comes from other data (round 25, one faulty VL per chiplet, LAT against
+  DeFT_P). This was checked: the per-mask values differ (two masks with log ratios -0.286 and -0.301 against three masks
+  with -0.337, -0.263 and -0.282); that the three printed numbers agree is a coincidence.

@@ -192,6 +192,38 @@ def main():
             mall += k > 0 and j == k
         L.append('| %s | %s | %d | %d | %d |' % (z, rate, tot, same, mall))
     L.append('')
+
+    # ---- X.9 the masks behind (added after the results were seen: a listing of what table B.6 counts) ----
+    L += ['## X.9 The masks in which `CI_heurLA_X_LF` is behind in at least one of the four comparisons (the value of the mask on the wrong side of 0 is in bold)', '',
+          'Added after the results were seen: a listing of the masks that table B.6 of `summary_B.md` counts, with the descriptors above. No test.', '',
+          '| size | rate | # | mask | faults per chiplet | chiplets with one functional VL | Lsat relative to fault-free | THR against the best reference | LAT against the best reference | '
+          'THR against DeFT_P | LAT against DeFT_P |', '|---|---|---|---|---|---|---|---|---|---|---|']
+    nb = [0, 0, 0, 0]
+    for e in E:
+        v = [D.vm(MAIN, ref, e, n) for ref, n in COMP]
+        w = [D.wrong(x, n) for x, (_, n) in zip(v, COMP)]
+        if not any(w):
+            continue
+        nb = [a + b for a, b in zip(nb, w)]
+        L.append('| %s | %s | %d | %s | %s | %d | %.2f | %s |' % (e['size'], e['rate'], e['index'], e['mask'], ' '.join(str(x) for x in e['faults_per_chiplet']), e['chiplets_with_one_functional_vl'],
+                                                                  e['lsat_rel'], ' | '.join(('**%+.1f %%**' if b else '%+.1f %%') % RP.pct(x) for x, b in zip(v, w))))
+    L += ['', 'Masks behind: %d (THR against the best reference), %d (LAT against the best reference), %d (THR against DeFT_P), %d (LAT against DeFT_P), of %d.' % (tuple(nb) + (len(E),)), '']
+
+    # ---- X.10 even patterns among the random masks (added after the results were seen) ----
+    L += ['## X.10 The random masks that happen to be even patterns (the same number of faulty VLs in every chiplet), next to the other masks of their cell', '',
+          'Added after the results were seen, for the comparison with round 25 (table B.11 of `summary_B.md`), whose masks are all even. `CI_heurLA_X_LF` against the best',
+          'reference, effect [95 % CI] over the masks of the group. No test.', '',
+          '| size | rate | pattern | masks | THR, uniform | LAT, uniform | THR, both traffic patterns | LAT, both traffic patterns |', '|---|---|---|---|---|---|---|---|']
+    for z, rate in cells:
+        es = cellm(z, rate)
+        ev = [e for e in es if len(set(e['faults_per_chiplet'])) == 1]
+        if not ev:
+            continue
+        for name, g in (('even, %d per chiplet' % ev[0]['faults_per_chiplet'][0], ev), ('not even', [e for e in es if e not in ev])):
+            if g:
+                L.append('| %s | %s | %s | %d | %s | %s | %s | %s |' % (z, rate, name, len(g), RP.eff(D.group(MAIN, 'best', g, 'THR', ['uniform'])), RP.eff(D.group(MAIN, 'best', g, 'LAT', ['uniform'])),
+                                                                        RP.eff(D.group(MAIN, 'best', g, 'THR')), RP.eff(D.group(MAIN, 'best', g, 'LAT'))))
+    L += ['', 'Cells without an even mask are left out (3x3 and 4x4: a random draw is practically never even).', '']
     os.makedirs(OUT, exist_ok=True)
     RP.wmd('extra_B.md', L)
     print(NL.join(L))

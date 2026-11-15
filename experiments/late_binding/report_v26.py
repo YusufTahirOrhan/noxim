@@ -546,12 +546,12 @@ def main():
          '| 3. A3: conformance of the model with the simulator | A.2; `../conformance.md`, `../conformance_controls.md` |',
          '| 4. Primary family of Part B | B.1; computed a second time in `families_check.md` |',
          '| 5. The trend over the fault rate, per size and traffic pattern | B.2, B.3; `extra_B.md` X.2 |',
-         '| 6. Where the main row is behind | B.5, B.6, B.7, B.8; `extra_B.md` X.1, X.3, X.4, X.5, X.8 |',
+         '| 6. Where the main row is behind | B.5, B.6, B.7, B.8; `extra_B.md` X.1, X.3, X.4, X.5, X.8, X.9 |',
          '| 7. `CI_heurLA_O_LF` against the main row | B.10, B.2; `extra_B.md` X.7 |',
          '| 8. Against each reference row | B.4; `extra_B.md` X.6 |',
-         '| 9. Random against even patterns | B.11; `extra_B.md` X.3 |',
+         '| 9. Random against even patterns | B.11; `extra_B.md` X.3, X.10 |',
          '| 10. Reachability of MTR and RC | `../reachability_v26.md` |', '',
-         '`extra_B.md` (written by `extra_v26.py`) holds descriptive tables beyond the pre-registered ones.', '', '---', '']
+         '`extra_B.md` (written by `extra_v26.py`) holds descriptive tables beyond the pre-registered ones; X.9 and X.10 were added after the results were seen.', '', '---', '']
     S = []
     for name in ('summary_A.md', 'summary_B.md'):
         f = os.path.join(OUT, name)

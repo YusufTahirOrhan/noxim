@@ -159,3 +159,43 @@ no packet meets a choice.
 | 4x4 | 4/16 | 256 | 0 | 0 |
 | 4x4 | 8/16 | 256 | 0 | 0 |
 
+## X.9 The masks in which `CI_heurLA_X_LF` is behind in at least one of the four comparisons (the value of the mask on the wrong side of 0 is in bold)
+
+Added after the results were seen: a listing of the masks that table B.6 of `summary_B.md` counts, with the descriptors above. No test.
+
+| size | rate | # | mask | faults per chiplet | chiplets with one functional VL | Lsat relative to fault-free | THR against the best reference | LAT against the best reference | THR against DeFT_P | LAT against DeFT_P |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2x2 | 2/16 | 9 | 0x0408 | 1 0 1 0 | 0 | 0.84 | **-0.3 %** | -19.8 % | +15.7 % | -53.4 % |
+| 2x2 | 4/16 | 15 | 0x3201 | 1 0 1 2 | 0 | 0.76 | **-0.2 %** | -12.7 % | +9.7 % | -45.9 % |
+| 2x2 | 8/16 | 2 | 0xE86A | 2 2 1 3 | 1 | 0.47 | **-1.6 %** | **+1.6 %** | +1.7 % | -16.4 % |
+| 2x2 | 8/16 | 3 | 0x4AD3 | 2 3 2 1 | 1 | 0.45 | **-2.0 %** | **+1.4 %** | +0.4 % | -3.3 % |
+| 2x2 | 8/16 | 6 | 0x5E89 | 2 1 3 2 | 1 | 0.47 | **-0.1 %** | -1.7 % | +1.1 % | -8.0 % |
+| 2x2 | 8/16 | 7 | 0xC473 | 2 3 1 2 | 1 | 0.45 | **-0.7 %** | -2.8 % | **-0.0 %** | -2.8 % |
+| 2x2 | 8/16 | 8 | 0x7C49 | 2 1 2 3 | 1 | 0.47 | **-0.5 %** | -3.8 % | +1.4 % | -9.4 % |
+| 2x2 | 8/16 | 9 | 0x75B0 | 0 3 2 3 | 2 | 0.44 | +0.6 % | **+1.8 %** | +1.0 % | **+3.7 %** |
+| 2x2 | 8/16 | 12 | 0xD474 | 1 3 1 3 | 2 | 0.44 | **-1.0 %** | **+4.6 %** | **-0.8 %** | -0.9 % |
+| 2x2 | 8/16 | 16 | 0x7C92 | 1 2 2 3 | 1 | 0.51 | **-0.4 %** | -1.0 % | +1.2 % | -4.0 % |
+| 3x3 | 4/16 | 9 | 0x0000588E6 | 2 3 1 1 2 0 0 0 0 | 1 | 0.64 | **-0.5 %** | -3.2 % | +0.7 % | -15.1 % |
+| 3x3 | 8/16 | 8 | 0xDC64748EA | 2 3 1 1 3 1 2 2 3 | 3 | 0.62 | +0.9 % | **+1.5 %** | +1.5 % | -4.2 % |
+| 3x3 | 8/16 | 9 | 0x723107D37 | 3 2 3 3 0 1 2 1 3 | 4 | 0.54 | **-0.6 %** | **+7.6 %** | +0.9 % | -2.4 % |
+| 3x3 | 8/16 | 14 | 0xC93DE00BE | 3 3 0 0 3 3 2 2 2 | 4 | 0.57 | **-0.2 %** | -3.2 % | +1.7 % | -28.3 % |
+| 3x3 | 8/16 | 15 | 0xEB523413B | 3 2 1 1 2 1 2 3 3 | 3 | 0.59 | **-0.0 %** | -3.6 % | +1.5 % | -14.6 % |
+| 4x4 | 8/16 | 4 | 0xA49AAAC08B8B779D | 3 2 3 3 3 1 3 1 0 2 2 2 2 2 1 2 | 5 | 0.72 | **-0.4 %** | -5.4 % | +0.7 % | -7.6 % |
+| 4x4 | 8/16 | 7 | 0x790D392DE78D09AA | 2 2 2 0 3 1 3 3 3 1 2 2 3 0 2 3 | 6 | 0.69 | **-0.2 %** | -4.2 % | +1.2 % | -6.8 % |
+
+Masks behind: 15 (THR against the best reference), 6 (LAT against the best reference), 2 (THR against DeFT_P), 1 (LAT against DeFT_P), of 192.
+
+## X.10 The random masks that happen to be even patterns (the same number of faulty VLs in every chiplet), next to the other masks of their cell
+
+Added after the results were seen, for the comparison with round 25 (table B.11 of `summary_B.md`), whose masks are all even. `CI_heurLA_X_LF` against the best
+reference, effect [95 % CI] over the masks of the group. No test.
+
+| size | rate | pattern | masks | THR, uniform | LAT, uniform | THR, both traffic patterns | LAT, both traffic patterns |
+|---|---|---|---|---|---|---|---|
+| 2x2 | 4/16 | even, 1 per chiplet | 2 | +7.6 [-2.6, +18.9] | -25.5 [-32.3, -18.0] | +4.9 [-2.6, +13.1] | -16.2 [-19.9, -12.4] |
+| 2x2 | 4/16 | not even | 14 | +1.4 [+0.4, +2.3] | -23.2 [-30.0, -15.8] | +2.3 [+1.5, +3.2] | -17.0 [-20.7, -13.1] |
+| 2x2 | 8/16 | even, 2 per chiplet | 4 | +4.5 [+1.9, +7.1] | -25.0 [-41.3, -4.2] | +3.7 [+1.9, +5.4] | -19.7 [-28.1, -10.2] |
+| 2x2 | 8/16 | not even | 12 | -0.5 [-1.0, +0.0] | +0.7 [-2.0, +3.4] | -0.4 [-0.9, +0.1] | -0.9 [-2.6, +0.8] |
+
+Cells without an even mask are left out (3x3 and 4x4: a random draw is practically never even).
+
