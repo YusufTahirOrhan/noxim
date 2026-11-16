@@ -72,6 +72,18 @@ def main():
                 c.append('%.0f / %.0f' % (s[0], s[1]))
             L.append('| %s | %s / %s | %s |' % (p, RP.s1(RP.pct(base['THR'])), RP.s1(RP.pct(base['LAT'])), ' | '.join(c)))
         L.append('')
+    # ---- X.3 the main row against DeFT_P: the seeds of round 25 next to the seeds of this round ----
+    E25 = RP.Eval(RP.load_runs(os.path.join(RP.R25, 'eval_runs.csv')), E.P, RP.D_SEEDS)
+    L += ['## X.3 The main row against DeFT_P on two sets of seeds: round 25 (121-130) and this round (161-170)', '',
+          'The same two rows, the same six fault-free scenarios, the same loads and the same definitions; only the seeds differ (and `-deft_lb entry_stats 1`, which only',
+          'counts). Effect of the main row against DeFT_P in % with the 95 % interval over the ten seeds of the round. A by-product: the gain of the frozen configuration',
+          'on a third set of seeds.', '', '| size | THR: round 25 | THR: this round | LAT at 1.0 x Lsat: round 25 | LAT: this round | P99: round 25 | P99: this round |', '|---|---|---|---|---|---|---|']
+    for z in SIZES:
+        L.append('| %s | %s |' % (z, ' | '.join(RP.eff(e.group(MAIN, 'DeFT_P', z, n)) for n in ('THR', 'LAT', 'P99') for e in (E25, E))))
+    L += ['', 'Per scenario (THR / LAT at 1.0 x Lsat, round 25 -> this round):', '', '| scenario | 2x2 | 3x3 | 4x4 |', '|---|---|---|---|']
+    for p in SCEN:
+        L.append('| %s | %s |' % (p, ' | '.join('%s / %s -> %s / %s' % tuple(RP.s1(RP.pct(e.group(MAIN, 'DeFT_P', z, n, [p])[0])) for e in (E25, E) for n in ('THR', 'LAT')) for z in SIZES)))
+    L.append('')
     RP.wmd('extra_C.md', L)
     print(RP.NL.join(L))
 

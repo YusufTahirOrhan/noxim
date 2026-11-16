@@ -92,3 +92,26 @@ small (movinghot), the shares are ratios of small numbers.
 | chiptrans | +7.2 / -54.0 | -244 / -172 | -130 / -61 | -275 / -174 | -354 / -164 | 100 / 100 |
 | movinghot | +1.6 / -4.8 | -882 / -686 | -258 / -362 | -1009 / -785 | -2053 / -2645 | 182 / 84 |
 
+## X.3 The main row against DeFT_P on two sets of seeds: round 25 (121-130) and this round (161-170)
+
+The same two rows, the same six fault-free scenarios, the same loads and the same definitions; only the seeds differ (and `-deft_lb entry_stats 1`, which only
+counts). Effect of the main row against DeFT_P in % with the 95 % interval over the ten seeds of the round. A by-product: the gain of the frozen configuration
+on a third set of seeds.
+
+| size | THR: round 25 | THR: this round | LAT at 1.0 x Lsat: round 25 | LAT: this round | P99: round 25 | P99: this round |
+|---|---|---|---|---|---|---|
+| 2x2 | +7.3 [+7.0, +7.7] | +7.5 [+7.2, +7.8] | -33.0 [-37.4, -28.4] | -35.5 [-37.1, -33.9] | -51.8 [-57.1, -45.8] | -55.2 [-57.8, -52.5] |
+| 3x3 | +14.1 [+13.5, +14.7] | +13.6 [+13.0, +14.3] | -34.3 [-36.9, -31.6] | -37.6 [-41.3, -33.7] | -61.8 [-65.8, -57.4] | -64.3 [-68.3, -59.8] |
+| 4x4 | +12.0 [+11.6, +12.5] | +11.7 [+11.3, +12.2] | -33.9 [-37.1, -30.4] | -37.4 [-40.8, -33.7] | -62.0 [-66.0, -57.5] | -65.3 [-68.8, -61.4] |
+
+Per scenario (THR / LAT at 1.0 x Lsat, round 25 -> this round):
+
+| scenario | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| uniform | +6.0 / -18.0 -> +5.2 / -18.6 | +15.4 / -40.0 -> +15.2 / -37.5 | +18.4 / -31.1 -> +18.6 / -31.4 |
+| localized | +1.5 / -13.4 -> +1.7 / -17.3 | +8.6 / -35.5 -> +7.5 / -34.4 | +12.2 / -30.2 -> +12.9 / -36.1 |
+| hotspot | +21.3 / -60.0 -> +22.3 / -67.6 | +21.5 / -54.7 -> +20.6 / -71.3 | +24.4 / -52.5 -> +23.0 / -57.9 |
+| chipperm | +10.0 / -36.2 -> +10.4 / -35.0 | +34.8 / -33.4 -> +33.3 / -36.2 | +8.7 / -21.4 -> +8.5 / -25.4 |
+| chiptrans | +3.3 / -30.5 -> +3.3 / -34.1 | +6.0 / -16.5 -> +6.1 / -14.6 | +7.1 / -52.1 -> +7.2 / -54.0 |
+| movinghot | +3.1 / -28.3 -> +3.6 / -23.0 | +1.3 / -17.8 -> +2.0 / -8.2 | +2.7 / -2.9 -> +1.6 / -4.8 |
+

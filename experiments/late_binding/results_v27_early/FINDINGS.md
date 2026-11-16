@@ -31,6 +31,10 @@ and an early choice is nearly as good as a late one.**
   0.2 % in throughput and 0.1 % in latency.
 * **Below saturation an early row is never the better choice** (question 7): at 0.2 x Lsat all rows are within 3 %, from
   0.5 x Lsat on the early rows are slower than DeFT_P.
+* **A by-product: the main row's gain over DeFT_P is the same on a third set of seeds** (`report/extra_C.md` X.3). On the six
+  fault-free scenarios, seeds 161-170 give THR +7.5 / +13.6 / +11.7 % and LAT -35.5 / -37.6 / -37.4 % on 2x2 / 3x3 / 4x4;
+  round 25 on seeds 121-130 gave +7.3 / +14.1 / +12.0 % and -33.0 / -34.3 / -33.9 %. All nine pairs of intervals (THR, LAT,
+  P99) overlap.
 * What this does not show is in "Limits" at the end: the early rows are greedy choices of one kind, and a method that
   reserves or randomizes at injection was not tried.
 
