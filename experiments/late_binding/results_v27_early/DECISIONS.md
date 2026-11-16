@@ -69,3 +69,22 @@ Choices the prompt left open. Where there was a choice, the option that does not
   on 4x4 (uniform, 1.0 x Lsat, seed 101, `oracle_beta` 0 and 1) and its numbers were read. Seed 101 is a tuning seed, not an
   evaluation seed, and these runs are not part of any design; but the expectations in the pre-registration were written
   after them, and it says so.
+
+## After the pre-registration, before any run of Parts C and E
+* **Three descriptive tables were added to the report script** (`report_v27.py`, committed before the tuning ended and
+  before any run of Parts C and E; on synthetic data only): every row against DeFT_P per scenario (C.6), the entry-VL
+  counters per scenario (C.8), and in Part E the same early rows without faults, from the uniform and hotspot runs of
+  Part C (E.6), so that question 13 can be answered from one page. None of them is a test.
+* **A value that rounds to zero is printed as `0.0`** in the report tables, not as `+0.0` or `-0.0`. The CSV files hold the
+  values with two decimals and their sign.
+
+## Part D
+* **The best reference** of a cell (scenario, size, load) is the reference with the lowest mean latency over the ten seeds;
+  the main row is then compared with that reference seed by seed. The per-size number is the mean over the six scenarios of
+  these log ratios, so the best reference may be a different row in each scenario. This is the reading of the prompt
+  ("the best reference chosen per scenario, size and load") and it reproduces the 15 numbers of the independent
+  computation to the printed decimal.
+* **Latency above saturation is reported as measured,** with the accepted share of the offered load next to it. From
+  1.4 x Lsat on no row delivers the offered load; the mean latency is then that of the packets that arrived, and a row that
+  delivers more packets to congested destinations carries their waiting time in its mean. The table does not correct for
+  this; `FINDINGS.md` says so where it reads the table.

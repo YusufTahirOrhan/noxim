@@ -507,6 +507,18 @@ def part_c():
     for z, p, r, n, t in ahead:
         L.append('| %s | %s | `%s` | %s | %s | %s |' % (z, p, r, n, eff(t), 'yes' if (t[1] > 0 or t[2] < 0) else 'no'))
     L.append('')
+    L += ['### Each scenario separately: every row against DeFT_P (THR / LAT at 1.0 x Lsat; the mark says where the row stands against DeFT_P)', '']
+    others = [r for r in rows if r != 'DeFT_P']
+    for z in SIZES:
+        L += ['#### %s' % z, '', '| scenario | ' + ' | '.join('`%s`: THR | LAT' % r for r in others) + ' |', '|---|' + '---|---|' * len(others)]
+        for p in SCEN:
+            c = []
+            for r in others:
+                for n in ('THR', 'LAT'):
+                    t = find(z, r, 'DeFT_P', n, p)
+                    c.append('%s (%s)' % (s1(pct(t[0])), side(t, n)) if t[4] else 'n/a')
+            L.append('| %s | %s |' % (p, ' | '.join(c)))
+        L.append('')
 
     # ---- C.7 latency by load ----
     L += ['## C.7 Mean latency at the loads below and above saturation: every row against DeFT_P and against the main row', '']
@@ -527,23 +539,43 @@ def part_c():
           'time since generation at the Up move minus mean time since generation at the injection; for the three injection-time rows this is the age of their choice when it',
           'takes effect (an estimate from two means over the measured window).', '',
           '| size | row | not DeFT-P\'s VL | imbalance | largest Up count | hops per packet | wait in the source queue (cycles) | time from the injection to the Up move (cycles) |', '|---|---|---|---|---|---|---|---|']
+
+    def vlstats(r, z, scen):
+        """The counters of a row at 1.0 x Lsat, as means over the runs of the given scenarios (None where the row has no such counter)."""
+        v = [x for x in (E.run(r, z, p, 3, s) for p in scen for s in C_SEEDS) if x is not None]
+
+        def m(f):
+            w = [y for y in (f(x) for x in v) if y is not None]
+            return mean(w) if w else None
+        hp = m(lambda x: (x['hops_chip'] + x['hops_ipos']) / x['packets_measured'] if x.get('hops_chip') is not None and x.get('packets_measured') else None)
+        if r == 'DeFT_P' and anc:
+            hp = mean(anc['hops']['%s__%s' % (z, p)] for p in scen)
+        wait, age = m(lambda x: x.get('entry_inj_wait_mean')), m(lambda x: x.get('entry_up_age_mean'))
+        return dict(share=m(lambda x: x['entry_up_not_default'] / x['entry_up_moves'] if x.get('entry_up_moves') else None), imb=m(lambda x: x.get('vl_imbalance')),
+                    maxup=m(lambda x: x.get('vl_max_up')), hops=hp, wait=wait, toup=(age - wait) if age is not None and wait is not None else None)
+
+    def fm(x, form):
+        return form % x if x is not None else 'n/a'
     for z in SIZES:
         for r in rows:
-            up, nd = E.field(r, z, 3, 'entry_up_moves'), E.field(r, z, 3, 'entry_up_not_default')
-            v = [E.run(r, z, p, 3, s) for p in SCEN for s in C_SEEDS]
-            v = [x for x in v if x is not None]
-            sh = mean(x['entry_up_not_default'] / x['entry_up_moves'] for x in v if x.get('entry_up_moves')) if up else None
-            hp = mean((x['hops_chip'] + x['hops_ipos']) / x['packets_measured'] for x in v if x.get('hops_chip') is not None and x.get('packets_measured')) if E.field(r, z, 3, 'hops_chip') is not None else None
-            if r == 'DeFT_P' and anc:
-                hp = mean(anc['hops']['%s__%s' % (z, p)] for p in SCEN)
-            wait, age = E.field(r, z, 3, 'entry_inj_wait_mean'), E.field(r, z, 3, 'entry_up_age_mean')
+            q = vlstats(r, z, SCEN)
             L.append('| %s | `%s` | %s | %s | %s | %s | %s | %s |' % (
-                z, r, '0 % (by definition)' if r == 'DeFT_P' else ('%.1f %%' % (100 * sh) if sh is not None else 'n/a'),
-                '%.2f' % E.field(r, z, 3, 'vl_imbalance') if E.field(r, z, 3, 'vl_imbalance') is not None else 'n/a',
-                '%.0f' % E.field(r, z, 3, 'vl_max_up') if E.field(r, z, 3, 'vl_max_up') is not None else 'n/a',
-                ('%.2f' % hp + (' (anchor row, seed 101)' if r == 'DeFT_P' else '')) if hp is not None else 'n/a',
-                '%.1f' % wait if wait is not None else 'n/a', '%.1f' % (age - wait) if age is not None and wait is not None else 'n/a'))
+                z, r, '0 % (by definition)' if r == 'DeFT_P' else (fm(100 * q['share'], '%.1f %%') if q['share'] is not None else 'n/a'), fm(q['imb'], '%.2f'), fm(q['maxup'], '%.0f'),
+                fm(q['hops'], '%.2f') + (' (anchor row, seed 101)' if r == 'DeFT_P' and q['hops'] is not None else ''), fm(q['wait'], '%.1f'), fm(q['toup'], '%.1f')))
     L.append('')
+    L += ['### Per scenario (1.0 x Lsat, mean over the ten seeds): not DeFT-P' + chr(39) + 's VL / imbalance / hops per packet / time from the injection to the Up move (cycles)', '']
+    for z in SIZES:
+        L += ['#### %s' % z, '', '| scenario | `DeFT_P`: imbalance / hops | ' + ' | '.join('`%s`' % r for r in rows if r != 'DeFT_P') + ' |', '|---|---|' + '---|' * (len(rows) - 1)]
+        for p in SCEN:
+            c = []
+            for r in rows:
+                q = vlstats(r, z, [p])
+                if r == 'DeFT_P':
+                    c.append('%s / %s' % (fm(q['imb'], '%.2f'), fm(q['hops'], '%.2f')))
+                else:
+                    c.append('%s / %s / %s / %s' % (fm(100 * q['share'], '%.0f %%') if q['share'] is not None else 'n/a', fm(q['imb'], '%.2f'), fm(q['hops'], '%.2f'), fm(q['toup'], '%.0f')))
+            L.append('| %s | %s |' % (p, ' | '.join(c)))
+        L.append('')
 
     # ---- C.9 THR at the last load, absolute values ----
     L += ['## C.9 Runs in which the largest accepted throughput is at the last load (2.4 x Lsat): THR is then a lower bound for that row', '',
@@ -656,6 +688,20 @@ def part_e():
             v = {n: [D.smean(r, e, p, n) for e in es for p in RP26.PATTERNS] for n in METS}
             L.append('| %s | `%s` | %s |' % (z, r, ' | '.join(('%.4f' if n == 'THR' else '%.1f') % mean(x for x in v[n] if x is not None) for n in METS)))
     L.append('')
+    fc = os.path.join(RES, 'eval_runs.csv')
+    if os.path.exists(fc):
+        EC = Eval(load_runs(fc), json.load(open(os.path.join(R25, 'load_points_v25.json'))), C_SEEDS)
+        L += ['## E.6 For comparison: the same rows without faults (Part C, uniform and hotspot traffic only)', '',
+              'Not the same design: ten seeds (161-170), THR over nine loads, interval over the seeds. The share is that of the main row' + chr(39) + 's gain over DeFT_P, as in E.2.', '',
+              '| size | row | against the main row: THR | LAT | P99 | against DeFT_P: THR | LAT | P99 | share: THR | LAT |', '|---|---|---|---|---|---|---|---|---|---|']
+        for z in SIZES:
+            for r in rows + [MAIN]:
+                c = [eff(EC.group(r, MAIN, z, n, RP26.PATTERNS)) if r != MAIN else '' for n in METS] + [eff(EC.group(r, 'DeFT_P', z, n, RP26.PATTERNS)) for n in METS]
+                for n in ('THR', 'LAT'):
+                    x, y = EC.group(r, 'DeFT_P', z, n, RP26.PATTERNS)[0], EC.group(MAIN, 'DeFT_P', z, n, RP26.PATTERNS)[0]
+                    c.append('%.0f %%' % (100 * x / y) if r != MAIN and y and not isnan(x) and not isnan(y) else '')
+                L.append('| %s | `%s` | %s |' % (z, r, ' | '.join(c)))
+        L.append('')
     wmd('summary_E.md', L)
     os.makedirs(PD, exist_ok=True)
     write(os.path.join(PD, 'early_late_faults.csv'), out)
