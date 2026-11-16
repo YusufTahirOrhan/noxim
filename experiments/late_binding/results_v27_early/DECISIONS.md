@@ -169,3 +169,28 @@ Choices the prompt left open. Where there was a choice, the option that does not
   printed decimal. The primary family is checked by `check_v27_family.py` as pre-registered.
 * **The report was run while Part E was still running.** Nothing had been dropped by the time rule, so no decision of the
   addendum (A3) was open, and Part E has no test.
+
+## After Part E (17 Nov, 02:15)
+* **Part E ran as designed:** 2,304 of 2,304 runs, none missing, no dead-end event, no hop of an `EB` row with more than
+  one output; 2.5 h of machine time after the timing runs. Parts C and E together took 16.9 h from the start of the timing
+  runs (estimate 16.2 h); the time rule dropped nothing.
+* **The headline is stated with its limit.** Part C says that the gain needs late binding (18 of 18 tests). Part E says
+  that with a quarter of the VLs faulty the early rows are ahead of DeFT_P and `EB_route` comes within about 1 % of the
+  main row's throughput on 3x3 and 4x4. The second weakens the first as a general claim, and it is the result that does
+  not favour our method, so it is in the first paragraph of `FINDINGS.md`, in the answer to question 13 and in the
+  README, next to the first. `FINDINGS.md` also says that the two rest on evidence of different weight (a pre-registered
+  family on ten seeds; a descriptive result on two seeds).
+* **A table of Part E by traffic pattern was added** (`extra_v27.py`, `report/extra_E.md`; not pre-registered, no test).
+  `summary_E.md` gives the effects against DeFT_P and against the best DeFT variant for the two patterns together, as
+  pre-registered, and the pre-registered split by pattern only against the main row. Half of the design is hotspot
+  traffic, under which the early rows are near the main row with and without faults; without the split against DeFT_P
+  one cannot see that the change under faults is under uniform traffic and concerns `EB_route`. The table puts the same
+  two patterns without faults (Part C) next to it, with the caveat that the two designs differ in seeds and loads.
+* **The explanation of Part E is given as a reading.** That the imbalance under faults is fixed by the mask and visible
+  on the routes, and that fewer candidates leave less to bind late, fits the numbers (the split by traffic, the split by
+  masks with and without a chiplet of one functional VL, the smaller gain of the main row itself). No run tests it.
+* **Sixteen numbers of Part E were computed a second time** by code that shares nothing with the reports (effects with
+  their intervals, shares, the uniform-only effects, the two groups of masks, a count of masks): all agree.
+* **Not done, and why:** `EB_vl64` under faults would say what `EB_route`'s result is worth with information of a
+  realistic age. It is not in the pre-registered design of Part E, and adding a row after seeing the results would be a
+  new experiment, so it is named as a limit and as the obvious next run.

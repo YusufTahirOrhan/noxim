@@ -1,8 +1,9 @@
 # Findings v27: early against late binding
 
-Status: **in progress.** Done: the gates, the pre-registration, the tuning (Part B) and the addendum with the frozen
-values, the evaluation (Part C, 11,340 runs), Part D, the reuse check of Part E. Not done yet: the fault runs (Part E,
-question 13). Every answer below says whether it is final.
+Status: **complete.** The gates, the pre-registration, the tuning (Part B, 1,840 runs) and the addendum with the frozen
+values, the evaluation (Part C, 11,340 runs), Part D (no new runs) and the fault runs (Part E, 2,304 runs) are done. No
+run is missing, nothing was dropped by the time rule, there is no dead-end event in any run, and no hop of an `EB` run
+offers more than one output. All thirteen answers below are final.
 
 **The question of the round.** Every reference of rounds 23 to 26 chooses the entry VL without looking at the network. So
 those rounds cannot say how much of the main row's gain over DeFT comes from binding the entry VL late, on the interposer,
@@ -11,9 +12,11 @@ injection (`EB_vl`, `EB_route`, `EB_vl64`) or at the Down move (`EB_down`); and 
 across the VLs (`LB_noVLrep`). Nothing of the frozen configuration is retuned and no existing row is changed.
 
 ## The answer in short
-**The gain comes from binding late. Choosing the entry VL by congestion and binding it early does not earn a part of the
-gain: it loses against DeFT's table. The one exception is hotspot traffic, where choosing by congestion is what counts
-and an early choice is nearly as good as a late one.**
+**Without faults the gain comes from binding late. Choosing the entry VL by congestion and binding it early does not earn
+a part of the gain: it loses against DeFT's table. The exception without faults is hotspot traffic, where choosing by
+congestion is what counts and an early choice is nearly as good as a late one. With a quarter of the VLs faulty the
+picture shifts: the early rows are ahead of DeFT_P, and the best of them comes within about 1 % of the main row's
+throughput on 3x3 and 4x4.**
 * **All 18 tests of the primary family are supported, none against** (question 3). The main row has 7 to 43 % more
   throughput than `EB_vl`, `EB_route` and `EB_down` and 32 to 81 % less latency at 1.0 x Lsat, on every size.
 * **The early rows are not between DeFT_P and the main row. They are behind DeFT_P** (question 4): `EB_vl` by 8 to 15 % in
@@ -27,6 +30,13 @@ and an early choice is nearly as good as a late one.**
   of DeFT_P in throughput, and the early rows reach 77 to 100 % of the main row's gain. The hot spot does not move and the
   rest of the network is not loaded, so what a source reads at injection is still true when the packet arrives. Where the
   hot spot moves (movinghot), the early rows are behind DeFT_P again.
+* **Under faults the early rows do much better** (question 13; rate 4/16, uniform and hotspot traffic, descriptive). All
+  three are ahead of DeFT_P (THR +4.9 to +12.6 %) and reach 41 to 96 % of the main row's throughput gain. `EB_route`
+  reaches 90 and 96 % of it on 3x3 and 4x4 and is 1.1 and 0.5 % behind the main row in throughput, 10.5 and 6.2 % in
+  latency. The main row is still ahead of every early row on every size. The change is under uniform traffic: with
+  fewer VLs there is less to bind late, and the imbalance that is left is fixed by the mask, like a hot spot that does
+  not move. So "late" is what matters without faults; with many faults an early choice that reads the route, with
+  knowledge no real source has, gets most of the throughput.
 * **The occupancy reports across the VLs buy nothing measurable** (question 11): the main row without them is within
   0.2 % in throughput and 0.1 % in latency.
 * **Below saturation an early row is never the better choice** (question 7): at 0.2 x Lsat all rows are within 3 %, from
@@ -424,7 +434,63 @@ largest share of a reference.
   (+14.1 %, RC), at the same delivered share.
 
 ### 13. Part E: do the early rows behave differently under faults?
-*Pending.*
+*Final (`report/summary_E.md`, `report/extra_E.md`, `paper_data/early_late_faults.csv`; 2,304 new runs, seeds 151 and 152, no
+dead-end event, no hop of an `EB` row offers more than one output; the reference rows and the main row are the runs of
+round 26, `reuse_check.md`). Descriptive, no test; unit = mask, 16 masks per size, a quarter of the VLs faulty, uniform and
+hotspot traffic.* **Yes. Under faults the early rows are ahead of DeFT_P, and they are much closer to the main row than
+without faults. The order of the rows stays the same. `EB_route` on 3x3 and 4x4 reaches 90 and 96 % of the main row's
+throughput gain. The statement "the gain comes from binding late" is a statement about the network without faults.**
+
+| size | row | THR against the main row | LAT at 1.0 x Lsat against the main row | THR against DeFT_P | LAT against DeFT_P | share of the main row's gain: THR / LAT |
+|---|---|---|---|---|---|---|
+| 2x2 | `EB_vl` | -4.9 [-6.0, -3.7] | +22.5 [+18.0, +27.2] | +7.5 [+6.0, +9.1] | -32.5 [-36.9, -27.8] | 59 % / 66 % |
+| 2x2 | `EB_route` | -4.1 [-5.3, -3.0] | +22.4 [+18.1, +26.9] | +8.3 [+7.0, +9.8] | -32.6 [-36.5, -28.4] | 65 % / 66 % |
+| 2x2 | `EB_down` | -2.0 [-2.9, -1.2] | +18.4 [+13.2, +23.7] | +10.7 [+9.4, +12.1] | -34.8 [-39.1, -30.2] | 83 % / 72 % |
+| 2x2 | main row (round 26) | | | +13.0 [+11.7, +14.4] | -44.9 [-48.6, -41.0] | |
+| 3x3 | `EB_vl` | -5.4 [-7.5, -3.3] | +33.3 [+20.1, +48.0] | +6.2 [+3.9, +8.5] | -25.7 [-33.2, -17.4] | 52 % / 51 % |
+| 3x3 | `EB_route` | -1.1 [-1.7, -0.6] | +10.5 [+7.4, +13.7] | +11.0 [+7.9, +14.2] | -38.4 [-45.2, -30.8] | 90 % / 83 % |
+| 3x3 | `EB_down` | -6.6 [-9.3, -3.8] | +70.4 [+39.3, +108.5] | +4.9 [+2.1, +7.7] | -5.0 [-18.9, +11.2] | 41 % / 9 % |
+| 3x3 | main row (round 26) | | | +12.3 [+8.9, +15.7] | -44.3 [-51.3, -36.3] | |
+| 4x4 | `EB_vl` | -5.2 [-7.6, -2.8] | +27.9 [+14.5, +42.9] | +7.3 [+4.8, +9.9] | -29.0 [-36.4, -20.8] | 57 % / 58 % |
+| 4x4 | `EB_route` | -0.5 [-1.2, +0.1] | +6.2 [+3.3, +9.1] | +12.6 [+10.5, +14.7] | -41.1 [-45.0, -36.9] | 96 % / 90 % |
+| 4x4 | `EB_down` | -6.6 [-9.2, -3.9] | +53.6 [+27.8, +84.6] | +5.8 [+3.1, +8.5] | -14.8 [-29.0, +2.3] | 45 % / 27 % |
+| 4x4 | main row (round 26) | | | +13.2 [+10.8, +15.6] | -44.5 [-48.3, -40.5] | |
+
+* **The main row is still ahead of every early row**, on every size and in both metrics, by 0.5 to 6.6 % in THR and 6 to
+  70 % in LAT. One interval includes 0: THR against `EB_route` on 4x4. `EB_route` has the higher throughput in 6 of the 16
+  masks of 4x4 and in 2 of 3x3; no other early row is ahead of the main row in more than one mask of a size, and no row
+  is ahead in latency in more than 2 (`report/extra_E.md` Y.4).
+* **The distances are a fraction of those without faults.** On the same two traffic patterns without faults (Part C,
+  `summary_E.md` E.6) the early rows are behind the main row by 10.6 / 12.9 / 14.4 % in THR (`EB_vl`), 9.7 / 7.7 / 7.3 %
+  (`EB_route`) and 2.4 / 14.7 / 17.8 % (`EB_down`), and their shares of the THR gain are 11 / 16 / 18 %, 19 / 51 / 60 % and
+  81 / 3 / -4 %. (Not the same design: ten seeds and nine loads there, two seeds and four loads here.)
+* **The change is under uniform traffic, and the row that changes sides is `EB_route`** (`report/extra_E.md` Y.1, Y.2).
+  Under hotspot traffic the faults change little: the early rows reach 73 to 101 % of the main row's THR gain, as they do
+  without faults (77 to 100 %). Under uniform traffic without faults `EB_route` has none of the gain on 3x3 and 4x4 (-13
+  and 11 %); with faults it has 73 and 84 % of it, and 57 and 77 % of the LAT gain. `EB_vl` and `EB_down` do not change
+  sides: under uniform traffic with faults they are level with DeFT_P or behind it on 3x3 and 4x4 (THR -1.7 to -2.8 %,
+  three of the four intervals including 0; LAT +9 to +66 %), though by far less than without faults (THR -12 to -17 %).
+* **There is less to gain, and so less to bind late.** Under uniform traffic the main row's own gain over DeFT_P is +4.1 /
+  +6.4 / +7.9 % with these faults, against +5.2 / +15.2 / +18.6 % without. Round 26 found where it goes: a chiplet that
+  is left one functional VL leaves nothing to choose, early or late. The same shows here (`summary_E.md` E.3). In the masks
+  with such a chiplet the early rows are within 3.2 % of the main row's throughput on 3x3 and 4x4 (`EB_route` -0.5 and
+  +0.1 %); in the masks without one, `EB_vl` and `EB_down` are 7.9 to 12.0 % behind and `EB_route` 1.5 and 1.7 %.
+* **Against the strongest reference under faults** (the best of DeFT_P, DeFT_B, DeFT_Dis and DeFT_Ran per mask, mostly
+  DeFT_B) only `EB_route` on 3x3 and 4x4 is ahead: THR +2.1 and +4.4 %, LAT -7.2 and -13.0 %, in 13 and 16 of the 16 masks.
+  The main row is +3.2 and +4.9 %, -16.0 and -18.0 %. `EB_vl` is level or behind on every size, `EB_down` level on 2x2 and
+  behind on 3x3 and 4x4 (LAT +43 and +26 %), `EB_route` slightly behind on 2x2 (THR -1.6 %).
+* **My reading.** A quarter of the VLs is missing for the whole run. The imbalance this creates is fixed by the mask,
+  like a hot spot that does not move, and it shows on the routes to the VLs that are left, which `EB_route` reads and
+  `EB_vl` does not. What remains for a late choice is the short-lived part, and with fewer candidates there is less of
+  it. This fits the three observations above; the runs do not test it.
+* **What it means for the claim.** Without faults a congestion-aware choice has to be late to gain anything, outside
+  hotspot traffic. With a quarter of the VLs faulty most of the throughput gain is within reach of an early choice that
+  reads the queues on the route with exact, free and instant knowledge of the whole network. No real source has that
+  knowledge; `EB_vl64` shows what 64 cycles of age cost without faults, and it was not run under faults. The main row
+  gets the gain from what a router knows about itself and its neighbours, and the latency of `EB_route` stays 6 to 22 %
+  above the main row's.
+* **Limits of Part E:** one fault rate (4/16), two traffic patterns of which one is hotspot, two seeds, 16 masks per
+  size; no test. `EB_vl64` and `LB_noVLrep` were not run under faults.
 
 ## Compared with what I stated in advance
 The expectations are in `PREREGISTRATION.md` ("Stated in advance"), written before any tuning or evaluation run and not
@@ -445,9 +511,11 @@ the gain. Outside hotspot traffic it earns none.
 | `EB_vl64` behind `EB_vl` | **Yes**, by 1.5 to 2.7 % in THR. |
 | `LB_noVLrep` within 1 % in THR and 2 % in LAT of the main row | **Yes.** Within 0.2 % and 0.1 %. |
 | tests most at risk: the main row against `EB_route` on 2x2 | **Not at risk:** +17.3 % and -59.9 %. |
-| Part E: the order of the rows stays under faults, the distances shrink | *Pending (question 13).* |
+| Part E: the order of the rows stays under faults, the distances shrink | **Yes, and by more than I had thought.** The order is the same on every size. In THR the distance to the main row is less than half of the distance without faults in eight of the nine cases: `EB_route` is 1.1 and 0.5 % behind on 3x3 and 4x4 (7.7 and 7.3 % without faults). |
 
 The tuning runs had already spoken against two of these (the addendum, A2). The expectations were left as they were.
+What I had not expected at all is that the early rows would be ahead of DeFT_P under faults when they are behind it
+without.
 
 ## Limits
 * **The early rows are one kind of early binder.** Each takes, at one moment, the candidate with the smallest sum of hops
@@ -467,6 +535,11 @@ The tuning runs had already spoken against two of these (the addendum, A2). The 
 * **THR is a lower bound in a quarter to two thirds of the cells** (the largest accepted throughput is at the last load,
   2.4 x Lsat, in 16 to 41 of 60 scenario-seed cells per size and row; `report/summary_C.md` C.9), for every row alike.
 * **Part C is fault-free and at pipe_all 2.** Three of the early rows are run under faults in Part E; `EB_vl64` and
-  `LB_noVLrep` are not.
+  `LB_noVLrep` are not. Part E has one fault rate (4/16), two traffic patterns of which one is hotspot, two seeds and no
+  test; its comparison with Part C (the same two patterns without faults) is between two designs that differ in seeds
+  and loads.
+* **The two halves of the answer rest on evidence of different weight.** "Without faults the gain needs late binding"
+  is the pre-registered family, 18 tests on ten fresh seeds. "With a quarter of the VLs faulty an early route-aware
+  choice gets most of the throughput gain" is a descriptive result on two seeds and 16 masks per size.
 * **The reading of why `EB_route` gains nothing** (sources that herd on the same momentarily empty route) is a reading.
   The counters are totals over the run and cannot show it.
