@@ -232,9 +232,9 @@ row ahead of the main row with an interval that excludes 0.
   uniform traffic (THR +1.8 %). In five more cells the mean of an early row is on the good side of DeFT_P with an interval
   that includes 0. The main row is ahead of DeFT_P in all 36 cells of size x scenario x metric, every interval excluding 0.
 
-So the answer to the question of the round has two parts. **Under hotspot traffic the gain comes from choosing the entry
-VL by congestion at all:** every row that looks at the network gets it, and a row that binds early is 0 to 4.5 % behind
-the main row in THR and 2 to 16 % in LAT. **Under the other five kinds of traffic the gain comes from binding late:** the
+So the answer to the question of the round has two parts without faults (for the faults see question 13). **Under
+hotspot traffic the gain comes from choosing the entry VL by congestion at all:** every row that looks at the network
+gets it, and a row that binds early is 0 to 4.5 % behind the main row in THR and 2 to 16 % in LAT. **Under the other five kinds of traffic the gain comes from binding late:** the
 rows that choose by congestion and bind early do not get a part of it. They lose against the table of DeFT.
 
 ### 7. Latency below saturation (0.2, 0.5, 0.8 x Lsat): all rows
@@ -325,8 +325,8 @@ At 1.0 x Lsat, 2x2 / 3x3 / 4x4 (mean over the six scenarios and the ten seeds):
 * **Age of the choice: 35 to 72 cycles below saturation, 110 to 290 at 1.0 x Lsat.** Below saturation an injection-time
   choice is as old as the trip is long: at 0.2 and 0.5 x Lsat 35 to 45 cycles pass between the injection and the Up move
   on 2x2, 47 to 57 on 3x3 and 58 to 72 on 4x4, at most 9 more than for the main row (38 to 42 / 46 to 50 / 58 to 63). At
-  1.0 x Lsat it is 125 to 154, 113 to 210 and 181 to 291 cycles. A part of that is the row's own doing, since a saturated row has slow packets, so the age at
-  1.0 x Lsat is a symptom as much as a cause. What the runs do say: the 64 cycles of `EB_vl64` on top cost 1.5 to 2.7 %
+  1.0 x Lsat it is 125 to 154, 113 to 210 and 181 to 291 cycles. A part of that is the row's own doing, since a
+  saturated row has slow packets, so the age at 1.0 x Lsat is a symptom as much as a cause. What the runs do say: the 64 cycles of `EB_vl64` on top cost 1.5 to 2.7 %
   of throughput (question 8), and the rows lose already at 0.5 x Lsat (question 7), where the choice is youngest.
 * **Hotspot traffic: why they win there.** Three things come together. DeFT-P's table is the unbalanced one: it sends all
   packets of a destination through one entry VL, the hot nodes overload theirs, and its busiest VL carries 1.58 / 2.61 /
@@ -494,8 +494,9 @@ throughput gain. The statement "the gain comes from binding late" is a statement
 
 ## Compared with what I stated in advance
 The expectations are in `PREREGISTRATION.md` ("Stated in advance"), written before any tuning or evaluation run and not
-changed after the tuning. **I overestimated the early rows.** I expected a congestion-aware early choice to earn a part of
-the gain. Outside hotspot traffic it earns none.
+changed after the tuning. **I overestimated the early rows without faults and underestimated them under faults.** I
+expected a congestion-aware early choice to earn a part of the gain. Without faults it earns none outside hotspot
+traffic. With a quarter of the VLs faulty `EB_route` earns nearly all of the throughput gain on 3x3 and 4x4.
 
 | what I expected | what the runs show |
 |---|---|
@@ -522,16 +523,17 @@ without.
   and weighted occupancy. They do not count the packets that are already on their way to a VL, they do not randomize
   among candidates that are nearly as good, and every source reads the same state. A method that reserves, or that
   spreads its choices, might do better. What the round shows is that congestion-aware early binding of this kind, with
-  more information than a real source could have, does not reach DeFT_P outside hotspot traffic. It does not show that
-  no early binder can.
+  more information than a real source could have, does not reach DeFT_P without faults outside hotspot traffic. It does
+  not show that no early binder can. Part E shows that the same rows do reach DeFT_P, and one of them nearly the main
+  row, once a quarter of the VLs is faulty.
 * **`EB_down` does not have that limit in the same way**: it decides with the main row's own cost at a router on the
   packet's path, and loses for the reason the question is about, the commitment.
 * **One `oracle_beta` per row and size**, chosen by the mean score over five scenarios on two seeds. The tuning by
   scenario shows that no value of the grid brings an early row to the main row's score in any tuning scenario; Part C
   itself has the chosen value only.
 * **Latency at 1.0 x Lsat of DeFT-P compares rows of which some are saturated.** The large numbers (up to +440 % against
-  the main row) say that a row is past its own limit at that load, not that it is that much slower in general. THR and the latencies at
-  0.2 and 0.5 x Lsat are the plainer comparisons, and they point the same way.
+  the main row) say that a row is past its own limit at that load, not that it is that much slower in general. THR and
+  the latencies at 0.2 and 0.5 x Lsat are the plainer comparisons, and they point the same way.
 * **THR is a lower bound in a quarter to two thirds of the cells** (the largest accepted throughput is at the last load,
   2.4 x Lsat, in 16 to 41 of 60 scenario-seed cells per size and row; `report/summary_C.md` C.9), for every row alike.
 * **Part C is fault-free and at pipe_all 2.** Three of the early rows are run under faults in Part E; `EB_vl64` and
