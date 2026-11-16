@@ -715,3 +715,168 @@ The 40 h rule dropped nothing (`runtime_estimate.md`).
 
 Start with `results_v26_faults/FINDINGS.md`. The tables for the paper are in `results_v26_faults/paper_data/` (one CSV per
 table or figure; `paper_data/README.md` lists them).
+
+## Round 27 (results_v27_early/): early against late binding. Does the gain come from binding late, or from choosing the entry VL by congestion at all?
+Every reference of rounds 23 to 26 chooses the entry VL without looking at the network, so those rounds cannot say how much of
+the main row's gain over DeFT comes from binding the entry VL late and how much from choosing it by congestion at all. This
+round adds rows that choose by congestion but bind early, and the main row without its occupancy reports across the VLs. The
+frozen configuration of round 25 is not retuned and no existing row is changed. The simulator gets four options, all off by
+default (`results_v27_early/regression.md`: the 84-configuration set is byte-identical to the d641861 build with the options
+absent and with every option given at its default). The rows, the tuning rule, the tests and what I expected are fixed in
+`results_v27_early/PREREGISTRATION.md` before any run of Parts B, C and E; its addendum freezes the tuned values before Part C.
+
+**The answer.** Without faults the gain comes from binding late: all 18 tests are supported, and the rows that choose by
+congestion and bind early are not between DeFT_P and the main row but behind DeFT_P. The exception is hotspot traffic, where
+choosing by congestion at all is what counts. With a quarter of the VLs faulty the early rows are ahead of DeFT_P, and the
+best of them comes within about 1 % of the main row's throughput on 3x3 and 4x4 (descriptive, Part E).
+* **New options of `-deft_lb`:** `oracle_scope vl|route` (what the injection-time choice reads: the occupancy at the entry VL,
+  or the queues on the interposer route to it), `oracle_period P` (the occupancies are sampled every P cycles; 0 = read at
+  the moment of the choice), `entry_commit off|down` (the head commits to one entry VL at the Down move), `up_report 0|1`
+  (the occupancy reports across the VLs). `entry_stats 1` only counts; `commit_check N` is a diagnostic of the unit checks.
+* **Rows** (pipe_all 2; every row with DeFT-P's VN options and `-traffic_rng 1`; LUTs `luts/v23`).
+
+  | row | what binds the entry VL, and when |
+  |---|---|
+  | `DeFT_P` | the LUT, at injection (round 25) |
+  | `CI_heurLA_X_LF` (**main**) | the selection on the interposer, hop by hop (round 25, frozen) |
+  | `EB_vl` | at injection: fewest hops + `oracle_beta` x the occupancy at the entry VL, read at that moment |
+  | `EB_route` | at injection: fewest hops + `oracle_beta` x the queues on the interposer route to the entry VL |
+  | `EB_vl64` | `EB_vl` with occupancies sampled every 64 cycles |
+  | `EB_down` | the main row until the Down move, where it commits to its cheapest entry VL |
+  | `LB_noVLrep` | the main row without the occupancy reports across the VLs |
+
+  The three injection-time rows read the state of the whole network at no cost and with no delay, which no real source
+  could. They are the favourable case for early binding in what they know, and greedy in what they do with it.
+* **Drivers.** `experiments_v27.py` (the regression; dispatches to `experiments_v27_eval.py`: the gates `a2_*`, the tuning
+  `b_*`, Part C `c_*`, Part E `e_*`). `chain_v27.sh a|b` and `chain_v27c.sh` run the round unattended and stop at the first
+  failed check; `restore_v27.py` is the time rule after the timing runs. `tune_scen_v27.py` writes the tuning by scenario.
+  `report_v27.py` writes `report/` and `paper_data/`; `extra_v27.py` writes the descriptive tables `report/extra_C.md` and
+  `report/extra_E.md` that `FINDINGS.md` quotes; `check_v27_family.py` computes the primary family a second time without the
+  report's code (`report/families_check.md`).
+```
+bash build_ref.sh d641861 && python3 experiments_v27.py regress 12 before && make && python3 experiments_v27.py regress 12 after
+python3 experiments_v27.py a2_anchor 12 && python3 experiments_v27.py a2_units 12 && python3 experiments_v27.py a2_drain 12
+python3 experiments_v27.py e_reuse 12 && python3 experiments_v27.py b_rule && python3 experiments_v27.py b_tune 12 && python3 experiments_v27.py b_choose
+python3 experiments_v27.py a2_drain 12 tuned && python3 tune_scen_v27.py
+python3 experiments_v27.py c_timing 12 && python3 experiments_v27.py c_eval 12 && python3 experiments_v27.py c_check && python3 experiments_v27.py c_csv
+python3 experiments_v27.py e_eval 12 && python3 experiments_v27.py e_check && python3 experiments_v27.py e_csv
+python3 report_v27.py all && python3 check_v27_family.py && python3 extra_v27.py
+```
+(The raw outputs stay under `~/lbraw/v27` until the stage that writes the CSV.)
+
+### Gates
+* **Regression** (`regression_before.md`, `regression.md`): 84 / 84 byte-identical to the d641861 build before the change, and
+  after it with the options absent and with every option at its default.
+* **Anchor** (`anchor.md`): DEFT_LB with both VLs from the LUT and XY in both layers gives DeFT_P's results in 18 / 18 runs,
+  so the early rows are compared with DeFT_P itself.
+* **Unit checks** (`unit_checks.md`): `entry_stats` changes no statistic (18 / 18); `entry_commit down` changes nothing when
+  every chiplet has one functional VL (3 / 3); the committed candidate is a cheapest output of the main row's selection in
+  12,000 of 12,000 sampled heads on 3x3 and 4x4.
+* **Drain tests** (`drain_v27.csv`, `drain_v27_tuned.csv`): the five new rows on six masks per size, 90 / 90 pass; the three
+  tuned rows again with their chosen values, 54 / 54 pass. No dead-end event, and no hop of an `EB` run offers more than one
+  output, in any run of the round.
+* **Safety** (`FINDINGS.md`, A3): each new row restricts the checked relation or leaves it unchanged, so no new proof and no
+  new model check are needed.
+
+### Part B: tuning of `oracle_beta` (`tuning_v27.md`, `tuning_by_scenario_v27.md`; 1,840 runs, seeds 101, 102)
+The rule of round 24 on 2x2 and 4x4 (3x3 takes the 4x4 value), grid {0.125, ..., 8}, separately for the three rows.
+
+| | `EB_vl` | `EB_route` | `EB_vl64` | main row (frozen) |
+|---|---|---|---|---|
+| 2x2: value (score) | 0.5 (-0.893) | 2 (-0.597) | 0.25 (-1.094) | (+0.530) |
+| 4x4 and 3x3: value (score) | 1 (-1.276) | 4 (-0.116) | 1 (-1.406) | (+0.648) |
+* No chosen value is at an end of the grid. **With its best value every early row scores below DeFT-P** (score 0); the main
+  row scores +0.53 and +0.65.
+* By scenario the mean hides a split: under hotspot traffic the early rows are close to the main row, under chipperm and
+  chiptrans traffic they are behind DeFT-P at every value of the grid. No value brings an early row to the main row's score
+  in any tuning scenario.
+
+### Part C: the evaluation (`report/summary_C.md`, `report/extra_C.md`; 11,340 runs, seeds 161-170, no dead-end event)
+Six fault-free scenarios, nine loads (0.2 to 2.4 x Lsat of DeFT-P), seven rows, ten seeds. The 30 h rule dropped nothing
+(`runtime_estimate.md`). Effects are means over the six scenarios with the 95 % interval over the ten seeds.
+* **Primary family (Holm over 18: three sizes; the main row against `EB_vl`, `EB_route` and `EB_down`; THR and LAT at
+  1.0 x Lsat): 18 of 18 supported, none against.** Computed a second time by `check_v27_family.py`: all 18 tests agree.
+
+  | size | THR: the main row against `EB_vl`, `EB_route`, `EB_down` | LAT at 1.0 x Lsat: against `EB_vl`, `EB_route`, `EB_down` |
+  |---|---|---|
+  | 2x2 | +20.0, +17.3, +6.9 % | -68.0, -59.9, -46.8 % |
+  | 3x3 | +23.6, +15.8, +32.8 % | -73.5, -32.4, -81.4 % |
+  | 4x4 | +31.8, +12.4, +42.9 % | -77.2, -41.0, -80.3 % |
+* **The early rows are behind DeFT_P, not between DeFT_P and the main row.** THR against DeFT_P on 2x2 / 3x3 / 4x4: `EB_vl`
+  -10.4 / -8.0 / -15.2 %, `EB_route` -8.3 / -1.9 / -0.6 %, `EB_down` +0.6 / -14.4 / -21.8 %, `EB_vl64` -12.4 / -10.5 /
+  -16.5 %; the main row +7.5 / +13.6 / +11.7 %. Of the 18 shares of the main row's gain that the three rows of the family
+  reach (three sizes, THR and LAT), 16 are negative; the largest is 17 %.
+* **Hotspot traffic is the exception.** There every row that looks at the network is 17 to 23 % ahead of DeFT_P in THR, the
+  early rows reach 77 to 100 % of the main row's THR gain, and on 3x3 and 4x4 the injection-time rows are level with the
+  main row in THR (within 0.7 %). In the other five scenarios every early row is behind the main row on every size in
+  both metrics, and behind DeFT_P in all but 9 of 120 cells. In no cell is an early row ahead of the main row with an
+  interval that excludes 0.
+* **`EB_route` is the better injection-time row** (THR +2.3 / +6.7 / +17.2 % against `EB_vl`): the queues on the route say
+  more than the occupancy at the entry VL. It is level with DeFT_P on 3x3 and 4x4 and behind it on 2x2.
+* **`EB_down` is the cleanest test of "late".** It commits at the Down move to what is the main row's own first choice
+  (unit checks) and has 6.5 / 24.7 / 30.0 % less throughput than the main row; on 3x3 and 4x4 it is the weakest row.
+* **Age of the information:** `EB_vl64` has 1.5 to 2.7 % less THR and 8 to 41 % more LAT at 1.0 x Lsat than `EB_vl`.
+* **Why the early rows lose.** `EB_vl` and `EB_down` give up the balance of DeFT-P's table and drift to the nearest VL (the
+  busiest VL of `EB_vl` carries 3.2 times the mean VL under chipperm traffic on 4x4, DeFT_P's 1.1). `EB_route` keeps the
+  balance, with 5 to 7 % more hops than DeFT_P, and still gains nothing. An injection-time choice is 35 to 72 cycles old
+  when it takes effect below saturation and 110 to 290 cycles at 1.0 x Lsat. Under hotspot traffic the hot spot does not
+  move and the rest of the network is not loaded, so the early choice is still true on arrival; under movinghot traffic
+  the injection-time rows are 4 to 15 % behind DeFT_P.
+* **`LB_noVLrep`: the occupancy reports across the VLs buy nothing measurable** (THR within 0.2 %, LAT within 0.1 %, P99
+  within 0.8 % of the main row on every size, every interval including 0).
+* **Below saturation:** at 0.2 x Lsat all rows are within 3 % of each other; from 0.5 x Lsat on the early rows are slower
+  than DeFT_P (+3 to +8 % for the injection-time rows at 0.5 x Lsat) and the main row is faster (-2 %).
+* **The main row's gain over DeFT_P is the same on a third set of seeds:** THR +7.5 / +13.6 / +11.7 % and LAT -35.5 / -37.6 /
+  -37.4 % here, +7.3 / +14.1 / +12.0 % and -33.0 / -34.3 / -33.9 % in round 25 on the same six scenarios.
+* THR is the largest accepted throughput over loads up to 2.4 x Lsat; in a quarter to two thirds of the cells it is
+  reached at the last load and is then a lower bound, for every row alike. LAT at 1.0 x Lsat of DeFT-P compares rows of
+  which some are past their own saturation. Everything outside the primary family is descriptive. The early rows are
+  greedy choices of one kind with exact and free information; a method that reserves or randomizes at injection was not
+  tried (`FINDINGS.md`, "Limits").
+
+### Part D: latency at every load (`report/summary_D.md`; no new runs, from `results_v25_confirm/eval_runs.csv`)
+Mean latency of the main row against the best of DeFT_P, DeFT_B, MTR, RC and XY_SP at each of the nine loads (the best
+reference per scenario, size and load), six fault-free scenarios, seeds 121-130; negative = the main row is faster.
+
+| load (x Lsat) | 0.2 | 0.5 | 0.8 | 1.0 | 1.2 | 1.4 | 1.6 | 2.0 | 2.4 |
+|---|---|---|---|---|---|---|---|---|---|
+| 2x2 | +2.0 % | -0.5 % | -0.1 % | -11.0 % | -29.2 % | +1.1 % | +5.9 % | +5.0 % | +7.7 % |
+| 3x3 | +1.5 % | 0.0 % | -0.6 % | -9.7 % | -49.7 % | -40.3 % | -11.9 % | +6.0 % | +4.7 % |
+| 4x4 | +0.9 % | +0.4 % | +0.7 % | -13.2 % | -39.4 % | -21.8 % | -9.5 % | +8.5 % | +16.6 % |
+* Below saturation the main row buys nothing and costs little: 0.9 to 2.0 % slower than the best reference at 0.2 x Lsat
+  (which there is XY_SP, shortest paths), within 0.7 % at 0.5 and 0.8 x Lsat.
+* The gain is around saturation: 10 to 13 % at 1.0 x Lsat and 29 to 50 % at 1.2 x Lsat, where the main row still delivers
+  99 % of the offered load and no reference more than 95 %.
+* Far above saturation the sign turns, and the number no longer compares like with like: no row delivers the offered load,
+  the mean is that of the packets that arrived, and the main row delivers 2 to 10 % more of them.
+
+### Part E: the early rows under random VL faults (`report/summary_E.md`, `report/extra_E.md`; 2,304 new runs, seeds 151, 152, no dead-end event)
+The 48 masks of rate 4/16 of round 26 (16 per size), uniform and hotspot traffic, four loads; `EB_vl`, `EB_route` and `EB_down`
+are new runs, the DeFT variants and the main row are the runs of round 26 (`reuse_check.md`: 192 / 192 runs reproduced by
+the build of this round). Unit = mask. Descriptive, no test.
+* **Under faults the early rows are ahead of DeFT_P and much closer to the main row.** The order of the rows is that of
+  the fault-free runs.
+
+  | size | THR against the main row: `EB_vl`, `EB_route`, `EB_down` | LAT against the main row | THR against DeFT_P | share of the main row's THR gain |
+  |---|---|---|---|---|
+  | 2x2 | -4.9, -4.1, -2.0 % | +22.5, +22.4, +18.4 % | +7.5, +8.3, +10.7 % | 59, 65, 83 % |
+  | 3x3 | -5.4, -1.1, -6.6 % | +33.3, +10.5, +70.4 % | +6.2, +11.0, +4.9 % | 52, 90, 41 % |
+  | 4x4 | -5.2, -0.5, -6.6 % | +27.9, +6.2, +53.6 % | +7.3, +12.6, +5.8 % | 57, 96, 45 % |
+* **The main row is still ahead of every early row** on every size in both metrics; one interval includes 0 (THR against
+  `EB_route` on 4x4). `EB_route` has the higher throughput in 6 of the 16 masks of 4x4.
+* **The change against the fault-free runs is under uniform traffic.** Under hotspot traffic the early rows reach 73 to
+  101 % of the main row's THR gain with faults and 77 to 100 % without. Under uniform traffic `EB_route` reaches 73 and 84 %
+  of it on 3x3 and 4x4 with faults and -13 and 11 % without; `EB_vl` and `EB_down` stay level with DeFT_P or behind it
+  on those two sizes.
+* **There is less to bind late.** Under uniform traffic the main row's own gain over DeFT_P is +4.1 / +6.4 / +7.9 % with
+  these faults and +5.2 / +15.2 / +18.6 % without. In the masks with a chiplet that is left one functional VL the early
+  rows are within 3.2 % of the main row's throughput on 3x3 and 4x4.
+* Against the best of the four DeFT variants only `EB_route` on 3x3 and 4x4 is ahead (THR +2.1 and +4.4 %, LAT -7.2 and
+  -13.0 %; the main row +3.2 and +4.9 %, -16.0 and -18.0 %).
+* So "the gain needs late binding" is the result without faults. With a quarter of the VLs faulty an injection-time
+  choice that reads the queues on the route, with exact and instant knowledge of the whole network, gets most of the
+  throughput gain. One fault rate, two traffic patterns, two seeds; `EB_vl64`, which would show what that knowledge is
+  worth at a realistic age, was not run under faults.
+
+Start with `results_v27_early/FINDINGS.md` (the thirteen questions, the comparison with what was stated in advance, the
+limits). The tables for the paper are in `results_v27_early/paper_data/` (`paper_data/README.md` lists them).
