@@ -149,3 +149,23 @@ Choices the prompt left open. Where there was a choice, the option that does not
 * **Nothing is dropped** (`drops.json`), so the addition to the time rule (addendum A3, point 2) has nothing to decide;
   `restore_v27.py` runs in the chain and reports that. If the machine is shared again later, the runs take longer than
   estimated; the rule decided at the timing runs and is not applied a second time, so nothing is dropped then either.
+
+## After Part C (16 Nov, 23:45)
+* **Part C ran as designed:** 11,340 of 11,340 runs, none missing, no dead-end event, no hop of an `EB` row with more than
+  one output; 13.8 h of machine time after the timing runs (estimate 13.6 h with them). The PC stayed free.
+* **Two descriptive tables were added that are not in the pre-registration** (`extra_v27.py`, `report/extra_C.md`): the
+  counters of C.8 at 0.2, 0.5 and 0.8 x Lsat next to 1.0 x Lsat, with the delivered share of the offered load, and the
+  share of the main row's gain per scenario. Reason for the first: C.8 gives the counters at 1.0 x Lsat of DeFT-P, as
+  pre-registered, and there three of the early rows are past their own saturation (they deliver 82 to 93 % of the offered
+  load), so the age of their choice at that load is partly a result of losing and not only a reason for it. The table at
+  the lower loads shows the age where no row is saturated. Reason for the second: the mean over the six scenarios hides
+  that the shares are 77 to 100 % under hotspot traffic and negative elsewhere. Neither table has a test, and neither
+  changes a pre-registered number.
+* **The latency at 1.0 x Lsat stays the pre-registered metric**, although for a saturated row it measures the saturation
+  and not the routing. `FINDINGS.md` says so where it quotes those numbers and gives THR and the latencies below
+  saturation next to them. The primary family is not changed: THR alone already gives nine supported tests of nine.
+* **Fifteen secondary numbers were computed a second time** by code that shares nothing with the report (shares, effects
+  per scenario, latencies at other loads, the row against row effects that `FINDINGS.md` leans on): all agree to the
+  printed decimal. The primary family is checked by `check_v27_family.py` as pre-registered.
+* **The report was run while Part E was still running.** Nothing had been dropped by the time rule, so no decision of the
+  addendum (A3) was open, and Part E has no test.
