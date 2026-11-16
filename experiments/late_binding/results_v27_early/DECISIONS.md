@@ -140,3 +140,12 @@ Choices the prompt left open. Where there was a choice, the option that does not
   `runtime_estimate.md` about the machine was changed in `experiments_v27_eval.timing` before the timing runs, and the
   timing step was run once on stubbed runs in a scratch folder to check its text and its three outcomes (nothing dropped,
   Part E dropped, four items dropped). No run of Parts C and E existed at that time.
+
+## The timing runs (16 Nov, 09:19 to 09:56)
+* **The PC was free during the timing runs.** Sampled on the Windows side over six seconds: its processes together used
+  0.03 hardware threads at the start (09:19) and 0.10 at the end (09:57); the application of the morning was not running
+  and no process with more than 20 s of processor time had started in between. So the estimate of `runtime_estimate.md`
+  is that of a free machine: 13.6 h for Part C and 2.6 h for Part E, 16.2 h together.
+* **Nothing is dropped** (`drops.json`), so the addition to the time rule (addendum A3, point 2) has nothing to decide;
+  `restore_v27.py` runs in the chain and reports that. If the machine is shared again later, the runs take longer than
+  estimated; the rule decided at the timing runs and is not applied a second time, so nothing is dropped then either.
