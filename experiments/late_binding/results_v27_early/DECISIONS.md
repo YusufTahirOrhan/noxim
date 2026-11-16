@@ -156,8 +156,8 @@ Choices the prompt left open. Where there was a choice, the option that does not
 * **Two descriptive tables were added that are not in the pre-registration** (`extra_v27.py`, `report/extra_C.md`): the
   counters of C.8 at 0.2, 0.5 and 0.8 x Lsat next to 1.0 x Lsat, with the delivered share of the offered load, and the
   share of the main row's gain per scenario. Reason for the first: C.8 gives the counters at 1.0 x Lsat of DeFT-P, as
-  pre-registered, and there three of the early rows are past their own saturation (they deliver 82 to 93 % of the offered
-  load), so the age of their choice at that load is partly a result of losing and not only a reason for it. The table at
+  pre-registered, and there three of the early rows are past their own saturation (`EB_vl` and `EB_vl64` deliver 82 to
+  93 % of the offered load, `EB_down` 82 and 87 % on 4x4 and 3x3), so the age of their choice at that load is partly a result of losing and not only a reason for it. The table at
   the lower loads shows the age where no row is saturated. Reason for the second: the mean over the six scenarios hides
   that the shares are 77 to 100 % under hotspot traffic and negative elsewhere. Neither table has a test, and neither
   changes a pre-registered number.
