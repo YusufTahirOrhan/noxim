@@ -87,7 +87,39 @@ restricts the checked relation or leaves it unchanged.
 *Pending.*
 
 ### 12. Part D: the table, and whether it agrees with the numbers above
-*Pending.*
+*Final (no new runs; `report/summary_D.md`, `paper_data/latency_by_load_v25.csv`).* **It agrees: all 15 numbers of the
+independent computation are reproduced to the printed decimal.**
+
+Mean latency of the main row against the best reference (the best of DeFT_P, DeFT_B, MTR, RC, XY_SP per scenario, size and
+load), from the runs of round 25 (six fault-free scenarios, seeds 121-130), in % with the 95 % interval over the seeds;
+negative = the main row is faster. In brackets after it: the share of the offered load that the main row delivers and the
+largest share of a reference.
+
+| load (x Lsat) | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| 0.2 | +2.0 [+1.7, +2.2] | +1.5 [+1.3, +1.6] | +0.9 [+0.7, +1.1] |
+| 0.5 | -0.5 [-0.7, -0.3] | 0.0 [-0.2, +0.1] | +0.4 [+0.3, +0.6] |
+| 0.8 | -0.1 [-0.6, +0.4] | -0.6 [-1.0, -0.2] | +0.7 [+0.3, +1.1] |
+| 1.0 | -11.0 [-13.2, -8.8] | -9.7 [-10.9, -8.4] | -13.2 [-14.6, -11.7] |
+| 1.2 | -29.2 [-31.7, -26.7] (0.987 / 0.953) | -49.7 [-51.8, -47.5] (0.995 / 0.941) | -39.4 [-40.5, -38.4] (0.987 / 0.933) |
+| 1.4 | +1.1 [-1.5, +3.8] (0.889 / 0.871) | -40.3 [-42.6, -38.0] (0.934 / 0.843) | -21.8 [-22.9, -20.6] (0.917 / 0.834) |
+| 1.6 | +5.9 [+4.2, +7.6] (0.792 / 0.780) | -11.9 [-13.7, -10.0] (0.845 / 0.769) | -9.5 [-12.1, -6.9] (0.834 / 0.750) |
+| 2.0 | +5.0 [+3.7, +6.2] (0.657 / 0.645) | +6.0 [+3.1, +8.9] (0.717 / 0.658) | +8.5 [+6.6, +10.5] (0.697 / 0.633) |
+| 2.4 | +7.7 [+7.2, +8.3] (0.565 / 0.554) | +4.7 [+2.4, +7.1] (0.624 / 0.575) | +16.6 [+12.4, +21.0] (0.604 / 0.555) |
+
+* **Below saturation the main row buys nothing and costs little.** At 0.2 x Lsat it is 0.9 to 2.0 % slower than the best
+  reference, which there is XY_SP (shortest paths) in 17 of the 18 cells; against DeFT_P it is faster at that load (2x2
+  uniform: 37.1 against 37.9 cycles). At 0.5 and 0.8 x Lsat it is within 0.7 % of the best reference (RC in most cells).
+* **The gain is around saturation:** 10 to 13 % at 1.0 x Lsat and 29 to 50 % at 1.2 x Lsat, where the main row still
+  delivers 99 % of the offered load and no reference more than 95 %.
+* **Far above saturation the sign turns, and the number no longer compares like with like.** From 1.4 x Lsat on no row
+  delivers the offered load, and the mean latency is that of the packets that arrived. At 2.0 and 2.4 x Lsat the main row
+  has 5 to 17 % more latency than the best reference (MTR in most cells) and delivers 2 to 10 % more. The largest cells are
+  hotspot on 3x3 and 4x4 (4x4 at 2.0 x Lsat: 653 against 321 cycles, with 0.761 against 0.614 of the offered load
+  delivered): the row that delivers more of the packets to the hot nodes has their waiting time in its mean.
+* **Scenarios in which the main row is behind the best reference at 1.0 x Lsat** (known from round 25): localized on 2x2
+  (+8.4 %, RC; at 1.4 x Lsat RC also delivers more: 0.900 against 0.826) and movinghot on 3x3 (+11.1 %, MTR) and 4x4
+  (+14.1 %, RC), at the same delivered share.
 
 ### 13. Part E: do the early rows behave differently under faults?
 *Pending.*

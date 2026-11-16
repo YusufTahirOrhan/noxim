@@ -51,6 +51,12 @@ def pct(x):
     return 100.0 * (math.exp(x) - 1.0)
 
 
+def s1(x):
+    """A signed percentage with one decimal; a value that rounds to zero is printed as 0.0 (not as +0.0 or -0.0)."""
+    s = '%+.1f' % x
+    return '0.0' if s in ('+0.0', '-0.0') else s
+
+
 def tci(xs):
     """(mean, low, high, p, n) of a sample of log ratios: one-sample t interval and two-sided test against 0."""
     xs = [x for x in xs if x is not None and not isnan(x)]
@@ -82,8 +88,8 @@ def eff(t):
     if n == 0:
         return 'n/a'
     if isnan(lo):
-        return '%+.1f' % pct(m)
-    return '%+.1f [%+.1f, %+.1f]' % (pct(m), pct(lo), pct(hi))
+        return s1(pct(m))
+    return '%s [%s, %s]' % (s1(pct(m)), s1(pct(lo)), s1(pct(hi)))
 
 
 def pv(p):
@@ -170,7 +176,7 @@ def part_d():
                 out.append(dict(size=z, load_x_lsat=mult, scenario=p, rate=rate, best_reference=best[p], effect_pct=round(pct(t1[0]), 2), ci_low=round(pct(t1[1]), 2),
                                 ci_high=round(pct(t1[2]), 2), **{'lat_' + r: round(lm[r], 3) for r in rows_all}, **{'accepted_share_' + r: round(sh[r], 4) for r in rows_all}))
         L.append('')
-        cmp_lines.append('| %s | %s | %s | %s |' % (z, ' / '.join('%+.1f' % x for x in got[:5]), ' / '.join('%+.1f' % x for x in D_GIVEN[z]),
+        cmp_lines.append('| %s | %s | %s | %s |' % (z, ' / '.join(s1(x) for x in got[:5]), ' / '.join(s1(x) for x in D_GIVEN[z]),
                                                    'yes' if all(abs(a - b) < 0.051 for a, b in zip(got[:5], D_GIVEN[z])) else 'no'))
     L += ['## Against the independent computation', '',
           'The prompt of the round gives, from an independent computation, the effect at 0.2 / 0.5 / 0.8 / 1.0 / 1.2 x Lsat.', '',
@@ -180,8 +186,8 @@ def part_d():
         L += ['### %s' % z, '', '| scenario | load (x Lsat) | main | ' + ' | '.join(D_REFS) + ' | main against the best reference |', '|---|---|---|' + '---|' * (len(D_REFS) + 1)]
         for r in out:
             if r['size'] == z and r['scenario'] != 'all':
-                L.append('| %s | %.1f | %.1f | %s | %+.1f %% |' % (r['scenario'], r['load_x_lsat'], r['lat_' + MAIN],
-                                                                 ' | '.join(('**%.1f**' if x == r['best_reference'] else '%.1f') % r['lat_' + x] for x in D_REFS), r['effect_pct']))
+                L.append('| %s | %.1f | %.1f | %s | %s %% |' % (r['scenario'], r['load_x_lsat'], r['lat_' + MAIN],
+                                                               ' | '.join(('**%.1f**' if x == r['best_reference'] else '%.1f') % r['lat_' + x] for x in D_REFS), s1(r['effect_pct'])))
         L.append('')
     wmd('summary_D.md', L)
     os.makedirs(PD, exist_ok=True)
@@ -472,7 +478,7 @@ def part_c():
             for r in new:
                 for n in ('THR', 'LAT'):
                     t = find(z, r, MAIN, n, p)
-                    c.append('%+.1f (%s)' % (pct(t[0]), side(t, n)) if t[4] else 'n/a')
+                    c.append('%s (%s)' % (s1(pct(t[0])), side(t, n)) if t[4] else 'n/a')
             L.append('| %s | %s |' % (p, ' | '.join(c)))
             for r in rows:
                 e = dict(size=z, scenario=p, row=r, THR=E.smean(r, z, p, 'THR'), LAT=E.smean(r, z, p, 'LAT'), P99=E.smean(r, z, p, 'P99'))
