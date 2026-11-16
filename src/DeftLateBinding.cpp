@@ -110,6 +110,24 @@ struct FastUpdate { double at; size_t index; double goal; };
 std::deque<FastUpdate> g_fast_updates;      // Eq. (2) writes, applied FAST_Q_WRITE_DELAY cycles later
 const double FAST_Q_WRITE_DELAY = 3.0;
 unsigned long g_fast_offered[2][7] = {{0}, {0}};    // decisions by layer and number of offered outputs
+// v27 (all off by default; see DeftLateBinding.h): the scope and the sampling period of the oracle entry policy, the commit of the
+// entry VL at the Down move, the reports across the VLs, and counters.
+enum OracleScope { SCOPE_VL = 0, SCOPE_ROUTE };
+int g_oracle_scope = SCOPE_VL;
+int g_oracle_period = 0;
+double g_oracle_tick = -1.0;                       // cycle of the last oracleTick call
+std::vector<double> g_occ_exit_s, g_occ_entry_s;   // per VL: occExit / occEntry at the last sampling cycle (0 before the first)
+int g_entry_commit = 0;
+int g_up_report = 1;
+bool g_entry_stats = false;
+unsigned long g_commit_down = 0, g_commit_bound = 0;   // measured Down moves of heads / of them with more than one entry candidate (bound here)
+unsigned long g_es_up = 0, g_es_up_notdef = 0;         // measured Up moves of heads / of them on a VL that is not DeFT-P's entry VL
+double g_es_up_age = 0.0;                              // sum over those Up moves of (cycle - generation cycle of the packet)
+unsigned long g_es_inj = 0;                            // measured injections of inter-chiplet heads
+double g_es_inj_wait = 0.0;                            // sum over them of (cycle - generation cycle of the packet)
+int g_commit_check = 0;                                // unit check of entry_commit: the first N bound heads of the measured window
+unsigned long g_cc_n = 0, g_cc_unique = 0, g_cc_tie = 0, g_cc_diff = 0;
+double g_cc_gap = 0.0;
 // Optional VC usage file (parameter vc_stats); empty = off (default).
 std::string g_vc_stats_file;
 double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
@@ -274,6 +292,29 @@ double occEntry(int vl)
            portFlits(DeftTopology::chipletEndpointForVerticalLink(vl), DIRECTION_HUB);
 }
 
+// v27 (-deft_lb oracle_scope route): the flits (all VCs) in the input buffers a packet passes between the interposer router
+// below exit VL v and the chiplet router above entry VL e. For every hop of the XY route on the interposer (X first, then Y,
+// which is the route of a head with the one entry candidate e): the input buffer of the router the hop leads to, at the port it
+// arrives through. Then the Up input buffer of the chiplet router above e.
+double occRoute(int v, int e)
+{
+    int r = DeftTopology::interposerEndpointForVerticalLink(v);
+    const int target = DeftTopology::interposerEndpointForVerticalLink(e);
+    const int tx = footprintX(target), ty = footprintY(target);
+    double n = 0.0;
+    while (footprintX(r) != tx) {
+        const int d = tx > footprintX(r) ? DIRECTION_EAST : DIRECTION_WEST;
+        r = neighborId(r, d);
+        n += portFlits(r, arrivalPort(d));
+    }
+    while (footprintY(r) != ty) {
+        const int d = ty > footprintY(r) ? DIRECTION_SOUTH : DIRECTION_NORTH;
+        r = neighborId(r, d);
+        n += portFlits(r, arrivalPort(d));
+    }
+    return n + portFlits(DeftTopology::chipletEndpointForVerticalLink(e), DIRECTION_HUB);
+}
+
 VlMask functionalMask(int chiplet_id)
 {
     VlMask m = 0;
@@ -425,6 +466,8 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
     const bool entry_cost = isCostPolicy(c.entry_policy);
     if (exit_cost || entry_cost) {
         const bool oracle = c.exit_policy == POLICY_ORACLE || c.entry_policy == POLICY_ORACLE;
+        if (oracle && g_oracle_period > 0)      // v27: a source that runs before every router of this cycle takes the sample itself
+            oracleTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
         const int sx = footprintX(src), sy = footprintY(src);
         const int dx = footprintX(dst), dy = footprintY(dst);
         double best = std::numeric_limits<double>::max();
@@ -439,10 +482,12 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
                               manhattanXY(vlChipX(v), vlChipY(v), vlChipX(e), vlChipY(e)) +
                               manhattanXY(vlChipX(e), vlChipY(e), dx, dy);
                 if (oracle) {
+                    // v27: oracle_period > 0 reads the sampled occupancies, oracle_scope route the queues on the route to e
                     if (c.exit_policy == POLICY_ORACLE)
-                        cost += c.oracle_beta * occExit(v);
+                        cost += c.oracle_beta * (g_oracle_period > 0 ? g_occ_exit_s[v] : occExit(v));
                     if (c.entry_policy == POLICY_ORACLE)
-                        cost += c.oracle_beta * occEntry(e);
+                        cost += c.oracle_beta * (g_oracle_scope == SCOPE_ROUTE ? occRoute(v, e) :
+                                                 g_oracle_period > 0 ? g_occ_entry_s[e] : occEntry(e));
                 }
                 if (cost < best - 1e-9) {
                     best = cost;
@@ -601,6 +646,24 @@ bool setParam(const std::string &key, const std::string &value,
         }
         return true;
     }
+    if (key == "oracle_scope") {       // v27
+        if (value == "vl") g_oracle_scope = SCOPE_VL;
+        else if (value == "route") g_oracle_scope = SCOPE_ROUTE;
+        else {
+            if (error_message) *error_message = "oracle_scope must be vl or route";
+            return false;
+        }
+        return true;
+    }
+    if (key == "entry_commit") {       // v27
+        if (value == "off") g_entry_commit = 0;
+        else if (value == "down") g_entry_commit = 1;
+        else {
+            if (error_message) *error_message = "entry_commit must be off or down";
+            return false;
+        }
+        return true;
+    }
     char *end = 0;
     double d = strtod(value.c_str(), &end);
     if (end == value.c_str()) {
@@ -750,6 +813,34 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_entry_bound_k = (int) d;
     }
+    else if (key == "oracle_period") {      // v27
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "oracle_period must be an integer >= 0";
+            return false;
+        }
+        g_oracle_period = (int) d;
+    }
+    else if (key == "up_report") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "up_report must be 0 or 1";
+            return false;
+        }
+        g_up_report = (int) d;
+    }
+    else if (key == "entry_stats") {
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "entry_stats must be 0 or 1";
+            return false;
+        }
+        g_entry_stats = d != 0.0;
+    }
+    else if (key == "commit_check") {
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "commit_check must be an integer >= 0";
+            return false;
+        }
+        g_commit_check = (int) d;
+    }
     else {
         if (error_message) *error_message = "unknown DEFT_LB parameter " + key;
         return false;
@@ -838,7 +929,60 @@ bool validateConfiguration(std::string *error_message)
         if (error_message) *error_message = "lookahead_fallback requires lookahead_route 1";
         return false;
     }
+    // v27
+    if (g_oracle_scope == SCOPE_ROUTE &&
+        !(c.exit_policy == POLICY_LUT && c.entry_policy == POLICY_ORACLE && c.ipos_tm == TM_XY)) {
+        if (error_message) *error_message = "oracle_scope route is defined for exit lut, entry oracle and ipos_tm XY";
+        return false;
+    }
+    if (g_oracle_period > 0 && g_oracle_scope != SCOPE_VL) {
+        if (error_message) *error_message = "oracle_period needs oracle_scope vl";
+        return false;
+    }
+    if (g_oracle_period > 0 && c.exit_policy != POLICY_ORACLE && c.entry_policy != POLICY_ORACLE) {
+        if (error_message) *error_message = "oracle_period needs an oracle policy (exit or entry oracle)";
+        return false;
+    }
+    if (g_entry_commit && GlobalParams::selection_strategy != "DEFT_HEUR") {
+        if (error_message) *error_message = "entry_commit down uses the cost of the heuristic selection: it needs -sel DEFT_HEUR";
+        return false;
+    }
+    if (g_commit_check > 0 && !g_entry_commit) {
+        if (error_message) *error_message = "commit_check needs entry_commit down";
+        return false;
+    }
+    if (!g_up_report && g_fast_on) {
+        if (error_message) *error_message = "up_report 0 is not supported by -sel DEFT_FAST";
+        return false;
+    }
+    if (g_entry_stats && (!DeftVerticalLinkLut::isLoaded() || !DeftVerticalLinkLut::hasDestinationEntries())) {
+        if (error_message) *error_message = "entry_stats needs -deft_vl_lut with entries_by_destination (DeFT-P's entry VL)";
+        return false;
+    }
     return true;
+}
+
+// ---- v27: sampled occupancies for the oracle policy ----
+bool oraclePeriodic()
+{
+    return g_oracle_period > 0;
+}
+
+void oracleTick(double now)
+{
+    if (now == g_oracle_tick)
+        return;
+    g_oracle_tick = now;
+    if ((int) g_occ_entry_s.size() != NVL) {
+        g_occ_exit_s.assign(NVL, 0.0);
+        g_occ_entry_s.assign(NVL, 0.0);
+    }
+    if (g_oracle_period <= 0 || ((long long) (now + 0.5)) % g_oracle_period != 0)
+        return;
+    for (int v = 0; v < NVL; v++) {
+        g_occ_exit_s[v] = occExit(v);
+        g_occ_entry_s[v] = occEntry(v);
+    }
 }
 
 // ---- registry ----
@@ -1223,6 +1367,13 @@ void prepareHeadPacket(Packet &p, const bool *local_vc_full)
                 g_eb_after_sum += __builtin_popcountll(entry_mask);
             }
         }
+        if (g_entry_stats) {     // v27, observation only: how long the packet waited in the source queue before this choice
+            const double now = sc_time_stamp().to_double() / GlobalParams::clock_period_ps;
+            if (now - GlobalParams::reset_time >= GlobalParams::stats_warm_up_time) {
+                g_es_inj++;
+                g_es_inj_wait += now - p.timestamp;
+            }
+        }
     }
     p.deft_exit_mask = exit_mask;
     p.deft_entry_mask = entry_mask;
@@ -1400,6 +1551,10 @@ void writeStatsFile()
     o << "  ]" << std::endl << "}" << std::endl;
 }
 
+// v27: defined with the selection logic
+void commitEntry(RouteData *nrd, double now);
+int defaultVl(bool exit_phase, int src, int dst);
+
 } // namespace
 
 // ---- router hooks ----
@@ -1444,6 +1599,15 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
     }
 
     RouteData nrd = nextRouteData(rd, out_dir, out_vc);
+    // v27 (-deft_lb entry_commit down): the head moves onto its Down VL; if more than one entry candidate is left, bind one now
+    if (g_entry_commit && out_dir == DIRECTION_HUB && !isInterposer(cur) && nrd.current_id >= 0)
+        commitEntry(&nrd, now);
+    // v27 (-deft_lb entry_stats 1), observation only: the head moves Up
+    if (g_entry_stats && out_dir == DIRECTION_HUB && isInterposer(cur) && measuring(now)) {
+        g_es_up++;
+        g_es_up_notdef += vlAtRouter(cur) != defaultVl(false, rd.src_id, rd.dst_id);
+        g_es_up_age += now - flit->timestamp;
+    }
     if (statsOn())
         statsForward(router, dir_in, out_dir, *flit, now, front_cycle, rd.deft_exit_mask, rd.deft_entry_mask,
                      nrd.deft_exit_mask, nrd.deft_entry_mask);
@@ -1675,10 +1839,14 @@ double bestContinuation(const RouteData &rd, int o, double w)
         std::vector<int> nd;
         legalOutputsWithVn(nrd, &nd);
         best = std::numeric_limits<double>::max();
+        // v27 (-deft_lb up_report 0): o is the Up output of an interposer router, so the continuations are outputs of the chiplet
+        // router above the VL. Their occupancies would have to be reported across the VL; without the reports only the hop
+        // counts remain.
+        const bool no_report = !g_up_report && o == DIRECTION_HUB && isInterposer(rd.current_id);
         for (size_t j = 0; j < nd.size(); j++) {
             const int z = nd[j];
             double cz = hopsAfterMove(nrd, z) +
-                        w * downstreamOccupancy(nr, z, outputVc(nrd, z));
+                        (no_report ? 0.0 : w * downstreamOccupancy(nr, z, outputVc(nrd, z)));
             best = std::min(best, cz);
         }
         if (nd.empty())
@@ -1686,6 +1854,113 @@ double bestContinuation(const RouteData &rd, int o, double w)
                                  nrd.deft_exit_mask, nrd.deft_entry_mask);
     }
     return best;
+}
+
+// The cost DEFT_HEUR gives output o of router for a head with route data rd, without the lut_bias term (selectHeuristic).
+double heuristicCost(Router *router, const RouteData &rd, int o)
+{
+    double c = localCost(router, rd, o, g_config.heur_w, g_config.heur_busy);
+    if (!g_config.heur_lookahead)
+        c += hopsAfterMove(rd, o);
+    else
+        c += 1.0 + bestContinuation(rd, o, g_config.heur_w);
+    return c;
+}
+
+// v27 (-deft_lb entry_commit down; off by default). Called when a head is forwarded onto its Down VL; *nrd is its route data at
+// the interposer router below, after the move. If the entry mask has more than one candidate it is reduced to one, v*:
+//   for every candidate v, the head with the entry mask {v} is offered one output o_v at that router (XY, YX, O1; with a turn
+//   model that offers more, the cheapest);
+//   cost(v) = the cost DEFT_HEUR gives o_v from the state of that router at this moment (localCost + 1 + bestContinuation with
+//   heur_lookahead 1), plus lut_bias if v is not the default entry VL of the packet while that VL is a candidate;
+//   v* = the candidate of least cost, ties at random (pickMin).
+// The head is not in that router yet, so the busy term is read as for a decision computed ahead (g_asking_absent), exactly as
+// precomputeNextDecision reads it for the main row. From here on the packet has one entry candidate.
+// With -deft_lb commit_check N the first N bound heads of the measured window are compared with the selection of the main row:
+// the costs DEFT_HEUR gives the outputs offered with the full mask, lut_bias included as selectHeuristic charges it.
+void commitEntry(RouteData *nrd, double now)
+{
+    const VlMask cand = nrd->deft_entry_mask;
+    const bool meas = measuring(now);
+    if (meas)
+        g_commit_down++;
+    if (popcount(cand) <= 1)
+        return;
+    Router *next = routerById(nrd->current_id);
+    if (!next)
+        return;
+    const int def = g_lut_bias > 0 ? defaultVl(false, nrd->src_id, nrd->dst_id) : -1;
+    const bool def_in = def >= 0 && (cand & bit(def));
+    std::vector<int> vls, outs;
+    std::vector<double> cost;
+    g_asking_absent = true;
+    for (int v = 0; v < NVL; v++) {
+        if (!(cand & bit(v)))
+            continue;
+        RouteData c = *nrd;
+        c.deft_entry_mask = bit(v);
+        std::vector<int> offered;
+        legalOutputsWithVn(c, &offered);
+        if (offered.empty())
+            continue;                           // not reachable in this virtual network: not a candidate the router would offer
+        int o = offered[0];
+        double x = heuristicCost(next, c, o);
+        for (size_t k = 1; k < offered.size(); k++) {
+            const double y = heuristicCost(next, c, offered[k]);
+            if (y < x - 1e-9) {
+                x = y;
+                o = offered[k];
+            }
+        }
+        if (def_in && v != def)
+            x += g_lut_bias;
+        vls.push_back(v);
+        outs.push_back(o);
+        cost.push_back(x);
+    }
+    if (vls.empty()) {
+        g_asking_absent = false;
+        return;
+    }
+    if (g_commit_check > 0 && meas && g_cc_n < (unsigned long) g_commit_check) {
+        // the main row at the same router, state and moment: the cheapest outputs of DEFT_HEUR with the full entry mask
+        std::vector<int> offered;
+        legalOutputsWithVn(*nrd, &offered);
+        std::vector<double> mc(offered.size(), 0.0);
+        double mbest = std::numeric_limits<double>::max(), cbest = std::numeric_limits<double>::max();
+        for (size_t k = 0; k < offered.size(); k++) {
+            mc[k] = heuristicCost(next, *nrd, offered[k]) + (g_lut_bias > 0 ? lutBias(*nrd, offered[k]) : 0.0);
+            mbest = std::min(mbest, mc[k]);
+        }
+        for (size_t k = 0; k < cost.size(); k++)
+            cbest = std::min(cbest, cost[k]);
+        g_asking_absent = false;
+        const int pick = pickMin(vls, cost);
+        int o_pick = -1;
+        for (size_t k = 0; k < vls.size(); k++)
+            if (vls[k] == pick)
+                o_pick = outs[k];
+        int n_min = 0;
+        bool pick_is_min = false;
+        for (size_t k = 0; k < offered.size(); k++)
+            if (mc[k] < mbest + 1e-9) {
+                n_min++;
+                pick_is_min = pick_is_min || offered[k] == o_pick;
+            }
+        g_cc_n++;
+        if (!pick_is_min) g_cc_diff++;
+        else if (n_min > 1) g_cc_tie++;
+        else g_cc_unique++;
+        g_cc_gap = std::max(g_cc_gap, std::fabs(mbest - cbest));
+        if (meas)
+            g_commit_bound++;
+        nrd->deft_entry_mask = bit(pick);
+        return;
+    }
+    g_asking_absent = false;
+    if (meas)
+        g_commit_bound++;
+    nrd->deft_entry_mask = bit(pickMin(vls, cost));
 }
 
 // ---- DEFT_FAST ----
@@ -2388,6 +2663,24 @@ void writeJson(std::ostream &out)
             << ", \"entry_candidates_after_mean\": " << (g_eb_packets ? g_eb_after_sum / g_eb_packets : 0.0)
             << "," << std::endl;
     }
+    // v27: fields only present with the options on
+    if (g_oracle_scope == SCOPE_ROUTE)
+        out << "    \"oracle_scope\": \"route\"," << std::endl;
+    if (g_oracle_period > 0)
+        out << "    \"oracle_period\": " << g_oracle_period << "," << std::endl;
+    if (g_entry_commit)
+        out << "    \"entry_commit\": \"down\", \"entry_commit_down_moves\": " << g_commit_down << ", \"entry_commit_bound\": "
+            << g_commit_bound << "," << std::endl;
+    if (g_commit_check > 0)
+        out << "    \"commit_checked\": " << g_cc_n << ", \"commit_check_unique\": " << g_cc_unique << ", \"commit_check_tie\": "
+            << g_cc_tie << ", \"commit_check_different\": " << g_cc_diff << ", \"commit_check_max_gap\": " << g_cc_gap << ","
+            << std::endl;
+    if (!g_up_report)
+        out << "    \"up_report\": 0," << std::endl;
+    if (g_entry_stats)
+        out << "    \"entry_up_moves\": " << g_es_up << ", \"entry_up_not_default\": " << g_es_up_notdef
+            << ", \"entry_up_age_mean\": " << (g_es_up ? g_es_up_age / g_es_up : 0.0) << ", \"entry_inj\": " << g_es_inj
+            << ", \"entry_inj_wait_mean\": " << (g_es_inj ? g_es_inj_wait / g_es_inj : 0.0) << "," << std::endl;
     out << "    \"packets_intra\": " << g_delays_intra.size() << std::endl;
     out << "  }" << std::endl;
     if (statsOn())

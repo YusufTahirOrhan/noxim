@@ -146,6 +146,24 @@ bool downstreamVcFull(int router_id, int out_dir, int out_vc);
 // cost(best) < cost(default) - D.
 double hysteresis();
 
+// ---- v27: early binding of the entry VL, for comparison (all off by default) -------------
+// -deft_lb oracle_scope vl|route (vl): what the oracle entry policy counts for an entry candidate. vl: the area of the VL (all
+//   input buffers of the interposer router below it and the Up input buffer of the chiplet router above it). route: the input
+//   buffers the packet will pass from the interposer router below its exit VL to the chiplet router above the candidate
+//   (XY on the interposer). Defined for exit lut, entry oracle, ipos_tm XY.
+// -deft_lb oracle_period P (0): with P > 0 the oracle policy reads the VL occupancies sampled at the last cycle that is a multiple
+//   of P. oracleTick takes the sample; it must be called before any router changes state in a cycle (Router::txProcess and
+//   rxProcess call it first; the injection-time choice calls it too, for a source that runs before every router).
+// -deft_lb entry_commit off|down (off): when a head is forwarded onto its Down VL with more than one entry candidate left, the
+//   entry mask is reduced to one candidate, the one whose output at the interposer router below is the cheapest for the heuristic
+//   selection at that moment (onHeadForward).
+// -deft_lb up_report 0|1 (1): with 0 the lookahead term of the selection does not use the occupancies that the chiplet router
+//   above a VL would have to report across the VL (bestContinuation of the Up output of an interposer router: hop counts only).
+// -deft_lb entry_stats 0|1 (0): observation only. Counts, in the measured window, the Up moves and those on a VL that is not
+//   DeFT-P's entry VL of the packet, and the time since the generation of the packet at the Up move and at the injection.
+bool oraclePeriodic();
+void oracleTick(double now);
+
 // ---- router hooks ----------------------------------------------------
 // Called when the head flit is forwarded from router through out_dir.
 // Prunes the masks in *flit, updates Q tables and statistics.

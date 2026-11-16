@@ -76,6 +76,8 @@ void Router::rxProcess()
 {
     if (DeftLB::fastActive() && !reset.read())
 	DeftLB::fastTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
+    if (DeftLB::oraclePeriodic() && !reset.read())      // v27: the occupancy sample of -deft_lb oracle_period
+	DeftLB::oracleTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
     if (reset.read()) {
 	TBufferFullStatus bfs;
 	// Clear outputs and indexes of receiving protocol
@@ -148,8 +150,10 @@ void Router::txProcess()
 {
   if (DeftLB::fastActive() && !reset.read())
       DeftLB::fastTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
+  if (DeftLB::oraclePeriodic() && !reset.read())        // v27: the occupancy sample of -deft_lb oracle_period
+      DeftLB::oracleTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
 
-  if (reset.read()) 
+  if (reset.read())
     {
       // Clear outputs and indexes of transmitting protocol
       for (int i = 0; i < DIRECTIONS + 2; i++) 
