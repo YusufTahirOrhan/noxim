@@ -88,3 +88,27 @@ Choices the prompt left open. Where there was a choice, the option that does not
   1.4 x Lsat on no row delivers the offered load; the mean latency is then that of the packets that arrived, and a row that
   delivers more packets to congested destinations carries their waiting time in its mean. The table does not correct for
   this; `FINDINGS.md` says so where it reads the table.
+
+## While the tuning ran (16 Nov, about 07:00)
+* **The PC is shared, and the runs take about 1.7 to 2 times as long as in round 26.** Since 03:03 another application
+  of the user runs on the PC and uses about 5 of its 12 hardware threads (measured twice: 4.9 on average since it started,
+  5.1 over six seconds). A 4x4 run of the tuning takes about 200 s of one of the twelve process slots; in round 26 it took
+  about 100 s. The simulator is not the cause: the d641861 build and the build of this round, started together on the same
+  3,000-cycle 4x4 DeFT_P run, needed 66 and 67 s of processor time and wrote the same file. No result depends on the speed
+  of the machine. Two things do: the durations, and the time rule of Part C.
+* **The reuse check of Part E passed** (`reuse_check.md`): DeFT_P and the main row on masks 1 and 2 of every size, run with
+  the build of this round, are identical to the rows of `results_v26_faults/fault_rate_runs.csv` in 192 of 192 runs, in
+  every column. So the five reference rows of Part E are taken from that file and not run again.
+* **The time rule on a shared machine** (fixed here, before the timing runs; it goes into the addendum of the
+  pre-registration with the chosen values).
+  1. The estimate is the one the timing runs give as they are measured, with whatever else runs on the PC at that time. We
+     do not wait for a free machine and we do not correct the estimate. What is dropped follows the pre-registered order.
+     The pre-registration says that each timing set has the machine to itself: that holds for the jobs of this round (no
+     other job of the round runs next to a timing set), not for the PC, and `runtime_estimate.md` will say so.
+  2. One addition. If something was dropped and the runs then go faster than estimated (the other application ends), the
+     dropped items are run after all, in the reverse of the drop order (seeds 166-170, `LB_noVLrep`, `EB_vl64`, Part E):
+     the items of Part C when the kept runs of Part C are done, Part E when Part C is complete. An item is run only if the
+     time since the start of the timing runs plus the time of that item at the speed measured until then is at most 30 h.
+     The decision reads the clock and the number of finished runs, nothing else: no result of Parts C and E is looked at
+     before it and the report scripts are not run before it. So the budget of 30 h is kept either way, and the data are the
+     most the budget allows. Without this addition a slow hour at the time of the timing runs would cost Part E for good.
