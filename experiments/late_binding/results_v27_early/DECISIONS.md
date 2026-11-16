@@ -112,3 +112,31 @@ Choices the prompt left open. Where there was a choice, the option that does not
      The decision reads the clock and the number of finished runs, nothing else: no result of Parts C and E is looked at
      before it and the report scripts are not run before it. So the budget of 30 h is kept either way, and the data are the
      most the budget allows. Without this addition a slow hour at the time of the timing runs would cost Part E for good.
+* **The other application was closed at about 07:40** (by the user, who was told what it cost). From then on the 4x4 runs of
+  the tuning finish at 7 to 8 per minute, against 3 to 4 per minute before: the speed of round 26. The 4x4 half of the
+  tuning therefore ran partly on the shared and partly on the free machine, which changes its duration and nothing else.
+  The time rule stays as fixed above, whatever the machine does at the time of the timing runs.
+
+## After the tuning (16 Nov, about 09:20)
+* **The values are the rule's, with no judgement added.** All six choices are interior points of the grid, so no
+  extension step ran. For `EB_route` the score is flat towards large values (4x4: -0.119, -0.116, -0.128 at 2, 4, 8); the
+  rule takes the largest and so do we.
+* **A table of the tuning by scenario was added** (`tune_scen_v27.py`, `tuning_by_scenario_v27.md`). It is not in the
+  pre-registration. It reads the tuning runs only and changes no choice. Reason: every tuned early row scores below
+  DeFT-P, and the mean over the five scenarios hides that the three rows are close to the main row under hotspot traffic
+  and far behind DeFT-P under chipperm and chiptrans traffic. Whoever reads the addendum should know what was known
+  before Part C. The table also shows the score of every value in every scenario, so that one can see that the outcome
+  does not hang on the chosen value: no value brings an early row to the main row's score in any tuning scenario.
+* **The expectations of the pre-registration are not rewritten after the tuning.** They were written before any tuning
+  run and the tuning runs already speak against two of them (`EB_vl` and `EB_route` at least level with DeFT-P). They stay
+  and are compared with Part C as they are; the addendum (A2) records what the tuning showed.
+* **The tuning does not favour the main row by its scenarios.** The score is the mean over uniform, hotspot, chipperm,
+  chiptrans and uniform with one faulty VL per chiplet, the scenarios of round 24, where the main row's parameters were
+  tuned by the same score on the same seeds. A score over hotspot alone, the traffic under which the early rows do best,
+  would choose smaller values for `EB_route` (0.5 on 2x2, 0.125 on 4x4), but it would not change the picture: the hotspot
+  score of every chosen value is within 0.06 of the best hotspot score of the grid (the largest gaps are those of
+  `EB_route`, 0.054 on 2x2 and 0.052 on 4x4).
+* **`chain_v27.sh c` is replaced by `chain_v27c.sh`**, which applies the time rule of the addendum (A3). The sentence of
+  `runtime_estimate.md` about the machine was changed in `experiments_v27_eval.timing` before the timing runs, and the
+  timing step was run once on stubbed runs in a scratch folder to check its text and its three outcomes (nothing dropped,
+  Part E dropped, four items dropped). No run of Parts C and E existed at that time.

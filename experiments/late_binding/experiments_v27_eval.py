@@ -551,7 +551,8 @@ def ensure_tables():
 
 def timing(nproc):
     """Part C: the seed-161 runs at the 2nd, 5th and 9th load of every cell. Part E: seed 151, the 1st and 4th load, masks 1-4 of every size.
-    Both sets are runs of the designs (kept) and are timed one after the other, each with the machine to itself."""
+    Both sets are runs of the designs (kept) and are timed one after the other; no other job of the round runs next to a set. The estimate is
+    taken as measured, with whatever else runs on the PC (PREREGISTRATION.md, addendum A3); what was dropped can come back (restore_v27.py)."""
     ensure_tables()
     nproc = X.width(nproc)
     jc = eval_jobs(seeds=(161,), loads=(1, 4, 8), d=[])
@@ -580,11 +581,13 @@ def timing(nproc):
          'Part C timing runs: the %d runs of seed 161 at the 2nd, 5th and 9th load (0.5, 1.2 and 2.4 x Lsat) of every (row, size, scenario) cell: %.0f s wall with %d processes;' % (len(jc), tc, nproc),
          '%d missing. Part E timing runs: the %d runs of seed 151 at the 1st and 4th load (0.5 and 2.0 x Lsat) of masks 1 to 4 of every size, the three rows and both traffic' % (
              sum(1 for x in rc.values() if x is None), len(je)),
-         'patterns: %.0f s wall; %d missing. Both sets are runs of the designs and are kept; nothing of their results was looked at. Each set had the machine to itself.' % (
-             te, sum(1 for x in re_.values() if x is None)), '',
+         'patterns: %.0f s wall; %d missing. Both sets are runs of the designs and are kept; nothing of their results was looked at. No other job of this round ran next to' % (
+             te, sum(1 for x in re_.values() if x is None)),
+         'a set; what else ran on the PC at that time is in `DECISIONS.md`. The estimate is taken as measured (`PREREGISTRATION.md`, addendum A3).', '',
          'Part C: %d runs, estimated **%.1f h**. Part E: %d runs, estimated **%.1f h**. Together **%.1f h**.' % (len(full_c), est_c, len(full_e), est_e, est_c + est_e), '',
          'Rule (pre-registered): above %.0f h in total drop, in this order: Part E; `EB_vl64`; `LB_noVLrep`; seeds 166-170.' % LIMIT_H, '',
-         '**Dropped: %s.** Runs to do: %d (Part C) and %d (Part E), estimated %.1f h.' % (', '.join(d) if d else 'nothing', n_c, n_e, est2)]
+         '**Dropped: %s.** Runs to do: %d (Part C) and %d (Part E), estimated %.1f h.' % (', '.join(d) if d else 'nothing', n_c, n_e, est2), '',
+         'What is dropped here is run after all if it later fits into the %.0f h (addendum A3; `restore_v27.py` logs every such decision in `time_rule.md`).' % LIMIT_H]
     wmd('runtime_estimate.md', L)
     keep = {j[0] for j in eval_jobs()} | {j[0] for j in fault_jobs()}          # timing runs of dropped cells are removed
     for js_, stage in ((jc, 'eval'), (je, 'fault')):

@@ -1,8 +1,9 @@
 # Findings v27: early against late binding
 
 Status: **in progress.** Done: the regression before and after the code change, the anchor row, the unit checks of the new
-options, the drain tests of the new rows; the pre-registration is committed. Not started: the tuning (Part B), the
-evaluation (Part C), the fault runs (Part E). Every answer below says whether it is final.
+options, the drain tests of the new rows, the pre-registration, the tuning (Part B) and the addendum with the frozen
+values, the reuse check of Part E, Part D. Not done yet: the evaluation (Part C) and the fault runs (Part E). Every
+answer below says whether it is final.
 
 **The question of the round.** Every reference of rounds 23 to 26 chooses the entry VL without looking at the network. So
 those rounds cannot say how much of the main row's gain over DeFT comes from binding the entry VL late, on the interposer,
@@ -34,7 +35,7 @@ restricts the checked relation or leaves it unchanged.
 ## The thirteen questions
 
 ### 1. Regression and gates: all pass? Is the anchor row identical to DeFT_P?
-*Final for the gates before the tuning; the drain tests of the tuned rows with their chosen values follow after Part B.*
+*Final.*
 **All pass, and the anchor row is identical to DeFT_P.**
 * **Regression** (`regression_before.md`, `regression.md`): 84 / 84 byte-identical to the d641861 build before the change,
   and after it with the options absent and with every option given at its default.
@@ -49,15 +50,48 @@ restricts the checked relation or leaves it unchanged.
   2x2, where D = 2 is charged to a different thing, in 5,977 of 6,000.
 * **Drain tests** (`drain_v27.csv`): the five new rows on six masks per size (fault-free, the same VL faulty in every
   chiplet, mask 1 of each of the four fault rates of round 26): **90 / 90 pass**, every packet delivered, the network
-  empties, no dead-end event.
-* **The binding is early:** no hop of an `EB` run offers more than one output, in every run so far (unit checks and drain
-  tests).
+  empties, no dead-end event. The three tuned rows again with their chosen values (`drain_v27_tuned.csv`): **54 / 54
+  pass**.
+* **The binding is early:** no hop of an `EB` run offers more than one output, in every run so far (unit checks, drain
+  tests and the 1,680 tuning runs of the three tuned rows).
 * **`EB_vl` with `oracle_beta 0`** (description): the entry VL of fewest hops is DeFT-P's entry VL for 51 to 53 % of the
   packets in five of the six scenarios and for 41 to 46 % under hotspot traffic. So "nearest" and DeFT-P's LUT agree for
   about half of the packets.
 
 ### 2. The tuned `oracle_beta` of `EB_vl`, `EB_route` and `EB_vl64`, and their scores next to the main row's
-*Pending.*
+*Final.* From `tuning_v27.md` and `tuning_choice_v27.json` (`tune_runs.csv`: 1,840 runs, seeds 101 and 102, no dead-end
+event, no hop of an `EB` run offers more than one output). Scores are in natural-log units against DeFT-P, higher is
+better; the three terms of the score are given as percentages against DeFT-P over the five tuning scenarios.
+
+| size | row | `oracle_beta` | score | THR | LAT at 1.0 x Lsat | LAT at 0.5 x Lsat |
+|---|---|---|---|---|---|---|
+| 2x2 | main row (frozen, not tuned here) | | **+0.530** | +10.6 % | -33.4 % | -2.3 % |
+| 2x2 | `EB_vl` | **0.5** | -0.893 | -8.7 % | +115.7 % | +3.4 % |
+| 2x2 | `EB_route` | **2** | -0.597 | -6.1 % | +58.9 % | +7.4 % |
+| 2x2 | `EB_vl64` | **0.25** | -1.094 | -10.5 % | +149.9 % | +6.9 % |
+| 4x4, and 3x3 by the rule | main row (frozen, not tuned here) | | **+0.648** | +17.5 % | -37.3 % | -2.0 % |
+| 4x4, and 3x3 by the rule | `EB_vl` | **1** | -1.276 | -13.4 % | +201.2 % | +3.0 % |
+| 4x4, and 3x3 by the rule | `EB_route` | **4** | -0.116 | +2.1 % | +8.9 % | +5.3 % |
+| 4x4, and 3x3 by the rule | `EB_vl64` | **1** | -1.406 | -14.4 % | +232.7 % | +5.0 % |
+
+* **No chosen value lies at an end of the grid** {0.125, ..., 8}, so the grid was not extended. The values are frozen in
+  the addendum of `PREREGISTRATION.md`.
+* **With its best value every early row scores below DeFT-P; the main row scores +0.53 and +0.65.** On the tuning
+  scenarios the tuned early rows are not between DeFT-P and the main row, they are behind DeFT-P. The one that comes near
+  DeFT-P is `EB_route` on 4x4 (THR +2.1 %, LAT at 1.0 x Lsat +8.9 %). I had expected `EB_route` between DeFT-P and the main
+  row on the larger sizes; on the tuning scenarios it is not.
+* **The mean hides a split by traffic** (`tuning_by_scenario_v27.md`; two seeds per cell, so pointers and no more).
+  Under **hotspot** traffic the three early rows are close to the main row: THR +16 to +20 % against the main row's
+  +19.9 % on 2x2 and +28.7 to +29.0 % against +30.5 % on 4x4; LAT at 1.0 x Lsat -51 to -52 % against -56 % and -31 to
+  -32 % against -33 %. Under **uniform** traffic `EB_route` is level with DeFT-P or ahead of it on 4x4 (LAT -12 % without
+  faults, -22 % with one faulty VL per chiplet, against the main row's -36 % and -40 %) and behind it on 2x2; `EB_vl` and
+  `EB_vl64` are behind DeFT-P on both sizes. Under **chipperm and chiptrans** traffic every early row has a negative
+  score at every value of the grid: under chipperm `EB_vl` has 30 % (2x2) and 46 % (4x4) less throughput than DeFT-P and
+  10 and 8.6 times its latency at 1.0 x Lsat.
+* **The result does not hang on the chosen value.** In no tuning scenario does any value of the grid bring an early row
+  to the main row's score. The closest is `EB_route` under hotspot traffic on 4x4: +0.722 against +0.729.
+* The early rows have one free parameter each, tuned here. The main row's parameters were tuned in round 24 by the same
+  score on the same scenarios and seeds, and are frozen since.
 
 ### 3. Primary family: how many of 18 supported, which against?
 *Pending.*

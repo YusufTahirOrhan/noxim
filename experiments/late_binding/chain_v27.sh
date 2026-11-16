@@ -1,9 +1,9 @@
 #!/bin/bash
-# v27 (results_v27_early/PREREGISTRATION.md), unattended, in three parts:
+# v27 (results_v27_early/PREREGISTRATION.md), unattended, in three parts (the third in chain_v27c.sh):
 #   detach.sh v27a bash chain_v27.sh a     the gates of the new rows: anchor, unit checks, drain tests (a failed gate stops)
 #   detach.sh v27b bash chain_v27.sh b     after the pre-registration: the reuse check of Part E, the tuning of oracle_beta, its choice,
 #                                          and the drain tests of the tuned rows with their chosen values
-#   detach.sh v27c bash chain_v27.sh c     after the addendum with the chosen values: the timing runs, Part C, Part E
+#   detach.sh v27c bash chain_v27c.sh      after the addendum with the chosen values: the timing runs, Part C, Part E (a file of its own)
 # The run stages take their number of processes from ~/lbraw/v27/width.txt at every batch of runs (experiments_v27.width).
 # Resumable: finished stages and finished runs are skipped. (A timing stage that was interrupted must be run again in full: delete
 # its outputs first; it times one call and skips finished runs.)
@@ -34,22 +34,10 @@ main() {
         [ -f $V/drain_v27_tuned.csv ] && ! [ -d "$R/drain_tuned" ] || step python3 experiments_v27.py a2_drain 12 tuned || exit 84
         ;;
     c)
-        [ -f $V/tuning_choice_v27.json ] || { echo "no tuning choice"; exit 90; }
-        grep -q "Addendum" $V/PREREGISTRATION.md || { echo "the addendum with the chosen values is not in PREREGISTRATION.md"; exit 90; }
-        [ -f $V/drops.json ] || step python3 experiments_v27.py c_timing 12 || exit 91
-        if [ ! -f $V/eval_runs.csv ] || [ -d "$R/eval" ]; then
-            step python3 experiments_v27.py c_eval 12 || exit 92
-            step python3 experiments_v27.py c_check || exit 93
-            step python3 experiments_v27.py c_csv || exit 94
-        fi
-        if [ ! -f $V/fault_runs.csv ] || [ -d "$R/fault" ]; then
-            step python3 experiments_v27.py e_eval 12 || exit 95
-            step python3 experiments_v27.py e_check || exit 96
-            step python3 experiments_v27.py e_csv || exit 97
-        fi
+        echo "Parts C and E run from chain_v27c.sh (the time rule of the addendum is applied there): detach.sh v27c bash chain_v27c.sh"; exit 9
         ;;
     *)
-        echo "usage: chain_v27.sh a|b|c"; exit 9
+        echo "usage: chain_v27.sh a|b   (Parts C and E: chain_v27c.sh)"; exit 9
         ;;
     esac
     echo "=== $(date '+%F %T') chain $1 complete"

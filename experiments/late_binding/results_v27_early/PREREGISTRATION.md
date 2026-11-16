@@ -204,3 +204,59 @@ restrict the checked relation; see `FINDINGS.md`). `EB_vl64` and `LB_noVLrep` ar
 ## Checks of the analysis
 The 18 tests of the primary family are computed a second time by a script that shares no code with the report
 (`check_v27_family.py`), as in rounds 25 and 26.
+
+---
+
+## Addendum (16 Nov 2026): after Part B, before any run of Parts C and E
+
+### A1. The values of `oracle_beta`, frozen for Parts C and E
+Chosen by the rule of Part B from the 1,840 tuning runs (`tune_runs.csv`: seeds 101 and 102, no dead-end event, no hop of an
+`EB` run that offers more than one output). The score of every value is in `tuning_v27.md`, the choice in
+`tuning_choice_v27.json`.
+
+| row | 2x2 | 3x3 (the 4x4 value) | 4x4 |
+|---|---|---|---|
+| `EB_vl` | 0.5 | 1 | 1 |
+| `EB_route` | 2 | 4 | 4 |
+| `EB_vl64` | 0.25 | 1 | 1 |
+
+No chosen value lies at an end of the grid, so the grid was not extended. The all-pairs drain tests of the three rows with
+these values, on the six masks per size of the gates (`drain_v27_tuned.csv`): **54 / 54 pass**, every packet delivered, no
+dead-end event, no hop that offers more than one output. The gate before Part C is passed.
+
+### A2. What the tuning runs showed (known before Part C; nothing above is rewritten)
+Scores against DeFT-P in natural-log units, higher is better (the main row is not tuned here):
+
+| size | main row | `EB_vl` | `EB_route` | `EB_vl64` |
+|---|---|---|---|---|
+| 2x2 | +0.530 | -0.893 | -0.597 | -1.094 |
+| 4x4 | +0.648 | -1.276 | -0.116 | -1.406 |
+
+* **With its best value every early row has a negative score:** over the five tuning scenarios it is behind DeFT-P, not
+  between DeFT-P and the main row. That is not what I stated in advance for `EB_vl` and `EB_route`.
+* By scenario (`tuning_by_scenario_v27.md`; two seeds per cell, so a pointer and no more): under hotspot traffic the three
+  rows are close to the main row (THR within 4 points, LAT at 1.0 x Lsat within 6 points); under uniform traffic `EB_route`
+  is level with DeFT-P or ahead of it on 4x4 and behind it on 2x2, and `EB_vl` and `EB_vl64` are behind it on both sizes;
+  under chipperm and chiptrans traffic every early row has a negative score at every value of the grid, `EB_vl` and
+  `EB_vl64` by far. No value of the grid brings an early row to the main row's score in any tuning scenario; the closest
+  is `EB_route` under hotspot traffic on 4x4 (+0.722 against +0.729).
+* **What this changes: nothing.** The expectations of "Stated in advance" stay as written and are compared with Part C as
+  they are. The rows, the design, the primary family and the time rule are those above. Part C is the test: seeds 161-170,
+  six fault-free scenarios, of which localized and movinghot were not in the tuning.
+
+### A3. The time rule on a shared machine (fixed on 16 Nov at about 07:00, before the timing runs; `DECISIONS.md`)
+During a part of the tuning another application of the user used about 5 of the 12 hardware threads of the PC and the
+runs took 1.7 to 2 times as long as in round 26; it was closed at about 07:40. The time rule of Part C stands. Two points
+were fixed while that was the state of the machine, and they hold whatever the machine does later:
+1. **The estimate is taken as measured**, with whatever else runs on the PC at the time of the timing runs. We do not wait
+   for a free machine and we do not correct the estimate; what is dropped follows the order above. "Each set has the
+   machine to itself" means that no other job of this round runs next to a timing set; `runtime_estimate.md` says so.
+2. **What was dropped is run after all if it then fits.** If the runs go faster than estimated, the dropped items are taken
+   back in the reverse of the drop order (seeds 166-170, `LB_noVLrep`, `EB_vl64`, then Part E): the items of Part C when the
+   kept runs of Part C are done, Part E when Part C is complete. An item is run only if the time since the start of the
+   timing runs plus the time of the item at the speed measured until then is at most 30 h. The decision reads the clock
+   and the number of finished runs and nothing else: no result of Parts C and E is looked at before it and no report
+   script is run before it (`restore_v27.py`; every decision is logged in `time_rule.md`).
+
+If an item stays dropped, the analysis is the one above on what was run; with seeds 166-170 dropped the tests have five
+seeds (4 df) and the report says so.

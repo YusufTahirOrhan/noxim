@@ -1,0 +1,71 @@
+{
+ "2x2": {
+  "CI_heurLA_X_LF": {
+   "score": 0.5302906946644772
+  },
+  "EB_vl": {
+   "beta": 0.5,
+   "score": -0.8927979258767593,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_route": {
+   "beta": 2.0,
+   "score": -0.5969366712481013,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_vl64": {
+   "beta": 0.25,
+   "score": -1.093807705000961,
+   "extended": [],
+   "at_end": false
+  }
+ },
+ "4x4": {
+  "CI_heurLA_X_LF": {
+   "score": 0.6478923824149183
+  },
+  "EB_vl": {
+   "beta": 1.0,
+   "score": -1.276068727144666,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_route": {
+   "beta": 4.0,
+   "score": -0.11604033778911949,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_vl64": {
+   "beta": 1.0,
+   "score": -1.4062295604449915,
+   "extended": [],
+   "at_end": false
+  }
+ },
+ "3x3": {
+  "CI_heurLA_X_LF": {
+   "score": 0.6478923824149183
+  },
+  "EB_vl": {
+   "beta": 1.0,
+   "score": -1.276068727144666,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_route": {
+   "beta": 4.0,
+   "score": -0.11604033778911949,
+   "extended": [],
+   "at_end": false
+  },
+  "EB_vl64": {
+   "beta": 1.0,
+   "score": -1.4062295604449915,
+   "extended": [],
+   "at_end": false
+  }
+ }
+}
