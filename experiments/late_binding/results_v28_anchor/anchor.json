@@ -1,0 +1,42 @@
+{
+ "EB_inf": {
+  "identical": false,
+  "same": 0,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": -0.03848184474647409,
+  "mean_lat": -0.8909576284596543,
+  "mean_p99": -1.6905265610484888
+ },
+ "EB_inf_ts": {
+  "identical": true,
+  "same": 21,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": 0.0,
+  "mean_lat": 0.0,
+  "mean_p99": 0.0
+ },
+ "EB_down_inf": {
+  "identical": false,
+  "same": 0,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": -0.13004800552969265,
+  "mean_lat": -0.15809231944060587,
+  "mean_p99": -1.8925258055974337
+ },
+ "EB_down_inf_ts": {
+  "identical": true,
+  "same": 21,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": 0.0,
+  "mean_lat": 0.0,
+  "mean_p99": 0.0
+ },
+ "EB_inf_other": {
+  "same_as_EB_inf": 21,
+  "runs": 21
+ }
+}
