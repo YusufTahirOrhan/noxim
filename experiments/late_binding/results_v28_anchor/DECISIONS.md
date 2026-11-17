@@ -9,6 +9,11 @@ that means: when in doubt, favour the early rows.
 * The reference of the regression is a fresh build of b164e9e (the last commit of round 27, `build_ref.sh b164e9e`,
   `~/lbbin/noxim_b164e9e`). It has the md5 of `bin/noxim` (9c32b6ee...): the binary of round 27 is the build of its sources. The
   d641861 build (the reference of round 27) is compared as well.
+* `regression_before.md` says that the sources differed from b164e9e when it was written: the A1 changes were being written in the
+  working tree while A0 ran. The binary under test in A0 was the b164e9e build itself (md5 in the file), so A0 is the regression before
+  the change.
+* The first start of the A1 regression (03:26) gave every new option explicitly off except `tie_stream 0`, which I had left out of the
+  list. It was stopped at 100 of 336 runs (03:33) and started again with `tie_stream 0` in the list; the partial outputs were deleted.
 
 ### A1: the options
 * `oracle_bias D`, `oracle_pending 0|1` and the sampling of `oracle_scope route` and of the pending counters by `oracle_period P` are

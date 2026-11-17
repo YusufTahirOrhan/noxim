@@ -1034,12 +1034,12 @@ def reuse(nproc):
     import experiments_v25_eval as EV25
     EV25.to_csv(X.raw('reuse'), tmp)
     old = {(r['variant'], r['pattern'], r['mask'], r['rate'], r['seed']): r for r in csv.DictReader(open(os.path.join(X26.RES, 'fault_rate_runs.csv')))}
-    rate_of = {e['mask']: e['rate'] for e in X26.part_b()}
+    rate_of = {(e['size'], e['mask']): e['rate'] for e in X26.part_b()}
     new = list(csv.DictReader(open(tmp)))
     by, diff = {}, []
     for r in new:
         o = old.get((r['variant'], r['pattern'], r['mask'], r['rate'], r['seed']))
-        k = (r['pattern'].split('-')[0], rate_of[r['mask']], r['variant'])
+        k = (r['pattern'].split('-')[0], rate_of[(r['pattern'].split('-')[0], r['mask'])], r['variant'])
         t = by.setdefault(k, [0, 0])
         t[0] += 1
         if o is not None and all(o[c] == r[c] for c in o):

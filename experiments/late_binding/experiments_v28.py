@@ -38,7 +38,7 @@ MAIN = X25.MAIN
 job, lb, lkey = X24.job, X24.lb, X24.lkey
 
 # ---- the options of this round, each at its default (A1) ----
-NEW_OFF = lb('oracle_bias', 0, 'oracle_pending', 0, 'pending_check', 0)
+NEW_OFF = lb('oracle_bias', 0, 'oracle_pending', 0, 'pending_check', 0, 'tie_stream', 0)
 EXPLICIT_OFF = X27.EXPLICIT_OFF + NEW_OFF
 
 
