@@ -22,6 +22,7 @@ main() {
     [ -f $V/tuning_choice_v28.json ] || { echo "no tuning choice"; exit 90; }
     [ -f $V/drain_v28_tuned.csv ] || { echo "no drain tests of the tuned rows"; exit 90; }
     grep -q "Addendum" $V/PREREGISTRATION.md || { echo "the addendum with the chosen configurations is not in PREREGISTRATION.md"; exit 90; }
+    grep -q "768 / 768 runs identical" $V/reuse_check.md || { echo "the reuse check of the rows of round 26 has not passed (reuse_check.md)"; exit 90; }
     mkdir -p "$R"
     if [ ! -f $V/drops.json ]; then
         date +%s > "$R/c_start.txt"

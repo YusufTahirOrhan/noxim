@@ -88,6 +88,14 @@ that means: when in doubt, favour the early rows.
 * **Drain tests** (`drain_v28.csv`): a test fails if a packet is not delivered, if there is a dead-end event, if a hop of the row
   offers more than one output, or if a pending counter is not 0 at the end (rows with `oracle_pending 1`).
 
+### The pre-registration and the reuse check
+* `PREREGISTRATION.md` was committed when the anchors, the reproduction, the unit checks and the drain tests had passed, while the reuse
+  check (768 runs, about an hour) was still running; it gates Parts D and E only, and `chain_v28c.sh` refuses to start without it.
+  The tuning (chain b) started at the same time and shared the machine with it until it ended. Nothing of the tuning depends on it.
+* `unit_checks.md` check 4 (single runs, a description) was read after `stated_in_advance.md` had been committed and before the
+  pre-registration; it suggests that the count of the bound packets buys more than I expected. The expectations were not changed; the
+  pre-registration says that I saw the check.
+
 ## Part B
 * **B3 shares the batches of B1.** B3 (`lut_bias` of `EB_down`) does not depend on B1, so its grid and its extension steps run in the
   same batches as B1's (the machine stays full). B2 starts when B1 and B3 are complete. The prompt's order "B1 -> B2, B3" is kept for
