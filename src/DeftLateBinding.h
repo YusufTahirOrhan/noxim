@@ -164,6 +164,24 @@ double hysteresis();
 bool oraclePeriodic();
 void oracleTick(double now);
 
+// ---- v28: the strongest early binder (all off by default) -------------------------------------
+// -deft_lb oracle_bias D (0): with entry oracle, D is added to the cost of every entry candidate that is not DeFT-P's entry VL of the
+//   packet (the LUT's entries_by_destination entry of the destination router, as lut_bias reads it). D = beta x T: DeFT-P's entry VL is
+//   kept unless another VL is better by more than T flits (and the difference in hops). A very large D gives DeFT-P's entry VL always.
+// -deft_lb oracle_pending 0|1 (0): one counter per VL. When the injection-time choice binds an inter-chiplet packet to entry VL e, the
+//   counter of e grows by the length of the packet in flits; when its head is forwarded Up on e it shrinks by the same amount. With 1
+//   the occupancy term of entry candidate e is the occupancy plus the counter of e (both oracle_scope values). A source that chooses
+//   later in the same cycle sees the choices made before it. Needs entry oracle.
+// -deft_lb oracle_period P with oracle_scope route and with oracle_pending 1 (v27 allowed it with oracle_scope vl only): at every
+//   cycle that is a multiple of P, oracleTick also samples the fill of every input port of every router (all that occRoute can
+//   read) and the pending counters; the injection-time choice reads the sample.
+// -deft_lb pending_check K (0; diagnostic): at the first three cycles that are multiples of K, the sum of the pending counters is
+//   compared with a scan of the network (pendingCheckTick); the results are written to the statistics. Reads only.
+// -deft_lb tie_stream 0|1 (0; diagnostic of the anchor gate): the tie-breaks of the injection-time choice and of entry_commit draw
+//   from a stream of their own instead of rand(), from which the routers' crossbar arbitration draws.
+bool pendingCheckOn();
+void pendingCheckTick(double now);
+
 // ---- router hooks ----------------------------------------------------
 // Called when the head flit is forwarded from router through out_dir.
 // Prunes the masks in *flit, updates Q tables and statistics.

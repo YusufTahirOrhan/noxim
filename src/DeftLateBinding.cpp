@@ -128,6 +128,21 @@ double g_es_inj_wait = 0.0;                            // sum over them of (cycl
 int g_commit_check = 0;                                // unit check of entry_commit: the first N bound heads of the measured window
 unsigned long g_cc_n = 0, g_cc_unique = 0, g_cc_tie = 0, g_cc_diff = 0;
 double g_cc_gap = 0.0;
+// v28 (all off by default; see DeftLateBinding.h): the anchor of the oracle entry policy at DeFT-P's entry VL, the count of the flits
+// already bound to each entry VL, the diagnostic check of that count, and the diagnostic stream of the tie-breaks.
+double g_oracle_bias = 0.0;                            // added to the cost of an entry candidate that is not DeFT-P's entry VL
+int g_oracle_pending = 0;
+std::vector<long long> g_pending;                      // per VL: flits of the packets bound to it at injection whose head has not moved Up
+std::vector<double> g_pending_s;                       // per VL: g_pending at the last sampling cycle (oracle_period > 0)
+std::vector<double> g_port_s;                          // per (router, input port): portFlits at the last sampling cycle (scope route)
+unsigned long g_oracle_samples = 0;                    // sampling cycles of the v28 snapshots
+int g_pending_check = 0;                               // the counters against a scan of the network, at the first three multiples of K
+double g_pc_tick = -1.0;
+std::vector<long long> g_pc_cycle, g_pc_counter, g_pc_scan;
+unsigned long g_pc_vl_mismatch = 0;
+bool g_tie_stream = false;                             // the tie-breaks of chooseMasks and commitEntry draw from a stream of their own
+std::mt19937 g_tie_rng;
+bool g_tie_seeded = false;
 // Optional VC usage file (parameter vc_stats); empty = off (default).
 std::string g_vc_stats_file;
 double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
@@ -292,11 +307,20 @@ double occEntry(int vl)
            portFlits(DeftTopology::chipletEndpointForVerticalLink(vl), DIRECTION_HUB);
 }
 
+// v28: the fill of an input port (all VCs) at this moment, or as sampled at the last sampling cycle (oracle_period > 0)
+double portFill(int router_id, int port, bool sampled)
+{
+    if (sampled)
+        return g_port_s[(size_t) router_id * QDIRS + port];
+    return (double) portFlits(router_id, port);
+}
+
 // v27 (-deft_lb oracle_scope route): the flits (all VCs) in the input buffers a packet passes between the interposer router
 // below exit VL v and the chiplet router above entry VL e. For every hop of the XY route on the interposer (X first, then Y,
 // which is the route of a head with the one entry candidate e): the input buffer of the router the hop leads to, at the port it
 // arrives through. Then the Up input buffer of the chiplet router above e.
-double occRoute(int v, int e)
+// v28: sampled = read the fills of the last sampling cycle (oracle_period > 0 with oracle_scope route).
+double occRoute(int v, int e, bool sampled = false)
 {
     int r = DeftTopology::interposerEndpointForVerticalLink(v);
     const int target = DeftTopology::interposerEndpointForVerticalLink(e);
@@ -305,15 +329,39 @@ double occRoute(int v, int e)
     while (footprintX(r) != tx) {
         const int d = tx > footprintX(r) ? DIRECTION_EAST : DIRECTION_WEST;
         r = neighborId(r, d);
-        n += portFlits(r, arrivalPort(d));
+        n += portFill(r, arrivalPort(d), sampled);
     }
     while (footprintY(r) != ty) {
         const int d = ty > footprintY(r) ? DIRECTION_SOUTH : DIRECTION_NORTH;
         r = neighborId(r, d);
-        n += portFlits(r, arrivalPort(d));
+        n += portFill(r, arrivalPort(d), sampled);
     }
-    return n + portFlits(DeftTopology::chipletEndpointForVerticalLink(e), DIRECTION_HUB);
+    return n + portFill(DeftTopology::chipletEndpointForVerticalLink(e), DIRECTION_HUB, sampled);
 }
+
+// v28 (-deft_lb oracle_pending 1): one counter per VL, sized on first use
+void ensurePending()
+{
+    if ((int) g_pending.size() != NVL)
+        g_pending.assign(NVL, 0);
+}
+
+// v28: the index of the tie that is taken among n. Without -deft_lb tie_stream 1 (the default) it is rand() % n, as before; with it
+// the draw comes from a stream of its own, seeded once from the run seed, so that the global rand() stream (from which the routers'
+// crossbar arbitration draws) is not touched. A diagnostic of the anchor gate (results_v28_anchor/anchor.md), not part of any row.
+int tieIndex(size_t n)
+{
+    if (!g_tie_stream)
+        return rand() % n;
+    if (!g_tie_seeded) {
+        g_tie_rng.seed((unsigned int) GlobalParams::rnd_generator_seed + 7919u);
+        g_tie_seeded = true;
+    }
+    std::uniform_int_distribution<int> pick(0, (int) n - 1);
+    return pick(g_tie_rng);
+}
+
+int defaultVl(bool exit_phase, int src, int dst);   // v24 B1; defined with the selection logic
 
 VlMask functionalMask(int chiplet_id)
 {
@@ -470,6 +518,11 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
             oracleTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
         const int sx = footprintX(src), sy = footprintY(src);
         const int dx = footprintX(dst), dy = footprintY(dst);
+        const bool sampled = g_oracle_period > 0;
+        // v28: oracle_bias D is added to the cost of every entry candidate that is not DeFT-P's entry VL of the packet
+        const int def_entry = (c.entry_policy == POLICY_ORACLE && g_oracle_bias > 0) ? defaultVl(false, src, dst) : -1;
+        if (c.entry_policy == POLICY_ORACLE && g_oracle_pending)
+            ensurePending();
         double best = std::numeric_limits<double>::max();
         std::vector<std::pair<int, int> > ties;
         for (int v = 0; v < NVL; v++) {
@@ -485,9 +538,16 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
                     // v27: oracle_period > 0 reads the sampled occupancies, oracle_scope route the queues on the route to e
                     if (c.exit_policy == POLICY_ORACLE)
                         cost += c.oracle_beta * (g_oracle_period > 0 ? g_occ_exit_s[v] : occExit(v));
-                    if (c.entry_policy == POLICY_ORACLE)
-                        cost += c.oracle_beta * (g_oracle_scope == SCOPE_ROUTE ? occRoute(v, e) :
-                                                 g_oracle_period > 0 ? g_occ_entry_s[e] : occEntry(e));
+                    if (c.entry_policy == POLICY_ORACLE) {
+                        double occ = g_oracle_scope == SCOPE_ROUTE ? occRoute(v, e, sampled) :
+                                     sampled ? g_occ_entry_s[e] : occEntry(e);
+                        // v28: oracle_pending 1 adds the flits already bound to e (as sampled, with oracle_period > 0)
+                        if (g_oracle_pending)
+                            occ += sampled ? g_pending_s[e] : (double) g_pending[e];
+                        cost += c.oracle_beta * occ;
+                        if (def_entry >= 0 && e != def_entry)
+                            cost += g_oracle_bias;
+                    }
                 }
                 if (cost < best - 1e-9) {
                     best = cost;
@@ -497,7 +557,7 @@ void chooseMasks(int src, int dst, VlMask *exit_mask, VlMask *entry_mask)
                     ties.push_back(std::make_pair(v, e));
             }
         }
-        std::pair<int, int> pick = ties[rand() % ties.size()];
+        std::pair<int, int> pick = ties[tieIndex(ties.size())];
         if (exit_cost)
             es = bit(pick.first);
         if (entry_cost)
@@ -534,6 +594,19 @@ int pickMin(const std::vector<int> &dirs, const std::vector<double> &cost)
         if (cost[k] < best + 1e-9)
             ties.push_back(dirs[k]);
     return ties[rand() % ties.size()];
+}
+
+// v28: pickMin with the tie-break of tieIndex (the commit of entry_commit down). Without tie_stream it is pickMin.
+int pickMinTie(const std::vector<int> &dirs, const std::vector<double> &cost)
+{
+    double best = std::numeric_limits<double>::max();
+    for (size_t k = 0; k < cost.size(); k++)
+        best = std::min(best, cost[k]);
+    std::vector<int> ties;
+    for (size_t k = 0; k < cost.size(); k++)
+        if (cost[k] < best + 1e-9)
+            ties.push_back(dirs[k]);
+    return ties[tieIndex(ties.size())];
 }
 
 double percentile(std::vector<double> v, double p)
@@ -841,6 +914,34 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_commit_check = (int) d;
     }
+    else if (key == "oracle_bias") {        // v28
+        if (!(d >= 0)) {
+            if (error_message) *error_message = "oracle_bias must be >= 0";
+            return false;
+        }
+        g_oracle_bias = d;
+    }
+    else if (key == "oracle_pending") {     // v28
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "oracle_pending must be 0 or 1";
+            return false;
+        }
+        g_oracle_pending = (int) d;
+    }
+    else if (key == "pending_check") {      // v28, diagnostic
+        if (d < 0 || d != std::floor(d)) {
+            if (error_message) *error_message = "pending_check must be an integer >= 0";
+            return false;
+        }
+        g_pending_check = (int) d;
+    }
+    else if (key == "tie_stream") {         // v28, diagnostic
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "tie_stream must be 0 or 1";
+            return false;
+        }
+        g_tie_stream = d != 0.0;
+    }
     else {
         if (error_message) *error_message = "unknown DEFT_LB parameter " + key;
         return false;
@@ -935,10 +1036,7 @@ bool validateConfiguration(std::string *error_message)
         if (error_message) *error_message = "oracle_scope route is defined for exit lut, entry oracle and ipos_tm XY";
         return false;
     }
-    if (g_oracle_period > 0 && g_oracle_scope != SCOPE_VL) {
-        if (error_message) *error_message = "oracle_period needs oracle_scope vl";
-        return false;
-    }
+    // (v27 allowed oracle_period with oracle_scope vl only; v28 samples the route of oracle_scope route as well)
     if (g_oracle_period > 0 && c.exit_policy != POLICY_ORACLE && c.entry_policy != POLICY_ORACLE) {
         if (error_message) *error_message = "oracle_period needs an oracle policy (exit or entry oracle)";
         return false;
@@ -959,6 +1057,23 @@ bool validateConfiguration(std::string *error_message)
         if (error_message) *error_message = "entry_stats needs -deft_vl_lut with entries_by_destination (DeFT-P's entry VL)";
         return false;
     }
+    // v28
+    if (g_oracle_bias > 0 && c.entry_policy != POLICY_ORACLE) {
+        if (error_message) *error_message = "oracle_bias is a term of the oracle entry policy: it needs entry oracle";
+        return false;
+    }
+    if (g_oracle_bias > 0 && (!DeftVerticalLinkLut::isLoaded() || !DeftVerticalLinkLut::hasDestinationEntries())) {
+        if (error_message) *error_message = "oracle_bias needs -deft_vl_lut with entries_by_destination (DeFT-P's entry VL)";
+        return false;
+    }
+    if (g_oracle_pending && c.entry_policy != POLICY_ORACLE) {
+        if (error_message) *error_message = "oracle_pending counts the packets bound by the oracle entry policy: it needs entry oracle";
+        return false;
+    }
+    if (g_pending_check > 0 && !g_oracle_pending) {
+        if (error_message) *error_message = "pending_check needs oracle_pending 1";
+        return false;
+    }
     return true;
 }
 
@@ -976,6 +1091,8 @@ void oracleTick(double now)
     if ((int) g_occ_entry_s.size() != NVL) {
         g_occ_exit_s.assign(NVL, 0.0);
         g_occ_entry_s.assign(NVL, 0.0);
+        g_pending_s.assign(NVL, 0.0);                     // v28
+        g_port_s.assign((size_t) NROUTERS * QDIRS, 0.0);  // v28
     }
     if (g_oracle_period <= 0 || ((long long) (now + 0.5)) % g_oracle_period != 0)
         return;
@@ -983,6 +1100,83 @@ void oracleTick(double now)
         g_occ_exit_s[v] = occExit(v);
         g_occ_entry_s[v] = occEntry(v);
     }
+    // v28: the pending counters (oracle_pending 1) and the fill of every input port (oracle_scope route), in the same sample
+    if (g_oracle_pending) {
+        ensurePending();
+        for (int v = 0; v < NVL; v++)
+            g_pending_s[v] = (double) g_pending[v];
+    }
+    if (g_oracle_scope == SCOPE_ROUTE)
+        for (int r = 0; r < NROUTERS; r++)
+            for (int p = 0; p < QDIRS; p++)
+                g_port_s[(size_t) r * QDIRS + p] = portFlits(r, p);
+    if (g_oracle_pending || g_oracle_scope == SCOPE_ROUTE)
+        g_oracle_samples++;
+}
+
+// ---- v28: the check of the pending counters (-deft_lb pending_check K; diagnostic, off by default) ----
+namespace {
+
+// A flit of the scan: if it is the head of an inter-chiplet packet that has not moved Up yet (it is at a router of its source
+// chiplet or of the interposer), its packet's flits count for its entry VL (the one candidate of its entry mask).
+void scanHead(int router_id, const Flit &f, std::vector<long long> *scan)
+{
+    if (f.flit_type != FLIT_TYPE_HEAD)
+        return;
+    const int cs = chipletOf(f.src_id), cd = chipletOf(f.dst_id);
+    if (cs < 0 || cd < 0 || cs == cd)
+        return;
+    if (!isInterposer(router_id) && chipletOf(router_id) != cs)
+        return;                              // in the destination chiplet: the head has moved Up
+    for (int v = 0; v < NVL; v++)
+        if (f.deft_entry_mask == bit(v))
+            (*scan)[v] += f.sequence_length;
+}
+
+} // namespace
+
+bool pendingCheckOn()
+{
+    return g_pending_check > 0;
+}
+
+// Called first in every process that changes the network state (Router::txProcess, Router::rxProcess, and the injection), so the
+// first call of a cycle sees the state at the end of the previous cycle. At the first three cycles that are multiples of K: the sum of
+// the pending counters against a scan of the network. The scan counts every head of an inter-chiplet packet that has not moved Up
+// (in an input buffer of a router of its source chiplet or of the interposer, or on the link into such a router: a flit that the
+// receiving router has not taken yet), with the length of its packet, per entry VL. Reads only.
+void pendingCheckTick(double now)
+{
+    if (now == g_pc_tick)
+        return;
+    g_pc_tick = now;
+    const long long t = (long long) (now + 0.5);
+    if (g_pc_cycle.size() >= 3 || t <= 0 || t % g_pending_check != 0)
+        return;
+    ensurePending();
+    std::vector<long long> scan(NVL, 0);
+    for (int id = 0; id < NROUTERS; id++) {
+        Router *r = routerById(id);
+        if (!r)
+            continue;
+        for (int port = 0; port < QDIRS; port++) {
+            for (int vc = 0; vc < GlobalParams::n_virtual_channels; vc++)
+                for (unsigned int k = 0; k < r->buffer[port][vc].Size(); k++)
+                    scanHead(id, r->buffer[port][vc].Peek(k), &scan);
+            if (r->req_rx[port].read() == 1 - r->current_level_rx[port])
+                scanHead(id, r->flit_rx[port].read(), &scan);
+        }
+    }
+    long long cs = 0, ss = 0;
+    for (int v = 0; v < NVL; v++) {
+        cs += g_pending[v];
+        ss += scan[v];
+        if (g_pending[v] != scan[v])
+            g_pc_vl_mismatch++;
+    }
+    g_pc_cycle.push_back(t);
+    g_pc_counter.push_back(cs);
+    g_pc_scan.push_back(ss);
 }
 
 // ---- registry ----
@@ -1353,10 +1547,18 @@ void prepareHeadPacket(Packet &p, const bool *local_vc_full)
 {
     if (!DeftVirtualNetwork::isEnabled())
         return;
+    if (g_pending_check > 0)       // v28 diagnostic: a source that runs before every router of this cycle takes the check itself
+        pendingCheckTick(sc_time_stamp().to_double() / GlobalParams::clock_period_ps);
     VlMask exit_mask = 0, entry_mask = 0;
     if (isActive() && chipletOf(p.src_id) >= 0 && chipletOf(p.dst_id) >= 0 &&
         chipletOf(p.src_id) != chipletOf(p.dst_id)) {
         chooseMasks(p.src_id, p.dst_id, &exit_mask, &entry_mask);
+        if (g_oracle_pending) {    // v28: the packet is bound to its entry VL now; its flits count for that VL until its head moves Up
+            ensurePending();
+            for (int e = 0; e < NVL; e++)
+                if (entry_mask == bit(e))
+                    g_pending[e] += p.size;
+        }
         if (g_entry_bound_mode != EB_OFF) {
             const VlMask before = entry_mask;
             entry_mask = boundEntryMask(p.src_id, p.dst_id, exit_mask, entry_mask);
@@ -1573,6 +1775,11 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
             ensureVlCounters();
             if (isInterposer(cur)) g_vl_up[v]++;
             else g_vl_down[v]++;
+            // v28 (-deft_lb oracle_pending 1): the head moves Up on v; its packet no longer counts for v
+            if (g_oracle_pending && isInterposer(cur)) {
+                ensurePending();
+                g_pending[v] -= flit->sequence_length;
+            }
         }
     }
 
@@ -1935,7 +2142,7 @@ void commitEntry(RouteData *nrd, double now)
         for (size_t k = 0; k < cost.size(); k++)
             cbest = std::min(cbest, cost[k]);
         g_asking_absent = false;
-        const int pick = pickMin(vls, cost);
+        const int pick = pickMinTie(vls, cost);
         int o_pick = -1;
         for (size_t k = 0; k < vls.size(); k++)
             if (vls[k] == pick)
@@ -1960,7 +2167,7 @@ void commitEntry(RouteData *nrd, double now)
     g_asking_absent = false;
     if (meas)
         g_commit_bound++;
-    nrd->deft_entry_mask = bit(pickMin(vls, cost));
+    nrd->deft_entry_mask = bit(pickMinTie(vls, cost));
 }
 
 // ---- DEFT_FAST ----
@@ -2681,6 +2888,33 @@ void writeJson(std::ostream &out)
         out << "    \"entry_up_moves\": " << g_es_up << ", \"entry_up_not_default\": " << g_es_up_notdef
             << ", \"entry_up_age_mean\": " << (g_es_up ? g_es_up_age / g_es_up : 0.0) << ", \"entry_inj\": " << g_es_inj
             << ", \"entry_inj_wait_mean\": " << (g_es_inj ? g_es_inj_wait / g_es_inj : 0.0) << "," << std::endl;
+    // v28: fields only present with the options on
+    if (g_oracle_bias > 0)
+        out << "    \"oracle_bias\": " << g_oracle_bias << "," << std::endl;
+    if (g_oracle_pending) {
+        ensurePending();
+        long long left = 0;
+        int nonzero = 0;
+        for (int v = 0; v < NVL; v++) {
+            left += g_pending[v] < 0 ? -g_pending[v] : g_pending[v];
+            nonzero += g_pending[v] != 0;
+        }
+        out << "    \"oracle_pending\": 1, \"oracle_pending_left_abs\": " << left << ", \"oracle_pending_left_nonzero\": " << nonzero
+            << "," << std::endl;
+    }
+    if (g_oracle_period > 0 && (g_oracle_pending || g_oracle_scope == SCOPE_ROUTE))
+        out << "    \"oracle_samples\": " << g_oracle_samples << "," << std::endl;
+    if (g_pending_check > 0) {
+        out << "    \"pending_check_cycles\": [";
+        for (size_t k = 0; k < g_pc_cycle.size(); k++) out << (k ? ", " : "") << g_pc_cycle[k];
+        out << "], \"pending_check_counters\": [";
+        for (size_t k = 0; k < g_pc_counter.size(); k++) out << (k ? ", " : "") << g_pc_counter[k];
+        out << "], \"pending_check_scan\": [";
+        for (size_t k = 0; k < g_pc_scan.size(); k++) out << (k ? ", " : "") << g_pc_scan[k];
+        out << "], \"pending_check_vl_mismatch\": " << g_pc_vl_mismatch << "," << std::endl;
+    }
+    if (g_tie_stream)
+        out << "    \"tie_stream\": 1," << std::endl;
     out << "    \"packets_intra\": " << g_delays_intra.size() << std::endl;
     out << "  }" << std::endl;
     if (statsOn())
