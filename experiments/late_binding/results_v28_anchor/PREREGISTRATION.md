@@ -299,3 +299,57 @@ below 100 %, and a larger share under faults. If it reaches the main row, that i
   8/16 on 2x2 (few masks with a free choice, wide intervals), and the loss sits in masks with a chiplet that is left one functional VL.
 * **In one sentence:** without faults an early binder with ideal information and an anchor at DeFT gets the hotspot part of the gain and
   little else, so most of the gain still needs late binding; under faults it gets most of the throughput gain and part of the latency gain.
+
+---
+
+## Addendum (17 Nov 2026): after Part B, before any run of Parts C and D
+
+### A1. The chosen configurations, frozen for Parts C and D
+Chosen by the rule of Part B from the tuning runs (`tuning_v28.md`, `tuning_choice_v28.json`; `tune_runs.csv`: 8,800 runs of this round,
+seeds 101 and 102, no dead-end event, no hop of an early row that offers more than one output; DeFT_P, the main row and the members with
+P = 0 and T = 0 from `results_v27_early/tune_runs.csv`, reproduced by this build). Scores against DeFT-P in natural-log units, higher is
+better; DeFT_P scores 0.
+
+| row | 2x2 | 3x3 (the 4x4 choice) | 4x4 |
+|---|---|---|---|
+| `EB_best` | S vl, P 1, B 0.5, T 8 (`oracle_bias` 4); score +0.5505 | S vl, P 1, B 1, T 2 (`oracle_bias` 2); score +0.4936 | S vl, P 1, B 1, T 2 (`oracle_bias` 2); score +0.4936 |
+| `EB_best64` | S vl, P 1, B 0.5, T 32, `oracle_period 64`; score +0.3473 | S vl, P 1, B 1, T 16, `oracle_period 64`; score +0.3446 | S vl, P 1, B 1, T 16, `oracle_period 64`; score +0.3446 |
+| `EB_down_t` | `lut_bias` 4; score +0.2597 | `lut_bias` 4; score +0.2249 | `lut_bias` 4; score +0.2249 |
+| main row (frozen, not tuned) | score +0.5303 | score +0.6479 | score +0.6479 |
+
+* No chosen configuration scores below 0, so the rule for a best member at T = infinity does not apply; no "better of `EB_best` and DeFT_P"
+  share is reported.
+* The anchors of Parts C and D: `EB_inf` = EBf(vl, 1, B of `EB_best`, infinity) on each size (at T = infinity the results do not depend on S,
+  P, B or the period; `anchor.md`), the anchor of `EB_best` and `EB_best64`; `EB_down_inf` = `EB_down` with `lut_bias 1e9`, the anchor of
+  `EB_down_t`.
+* Extensions run (`tuning_v28.md`): T = 32 for (vl, 0) and (route, 0) on both sizes and T = 64 for (route, 0) on 4x4; B = 0.25 for (vl, 0),
+  (vl, 1) and (route, 1) on 2x2 and for (vl, 0) and (route, 1) on 4x4, and B = 8 for (route, 0) on 4x4; B2: T = 64 on 2x2. B3 needed no
+  extension (the best D is 4 on both sizes). No chosen value is at an end of what was run: `EB_best` has T 8 and 2 inside {0, ..., 16} and B
+  0.5 and 1 inside the B grid (2x2: B 0.25 was run); `EB_best64` has T 32 (2x2, with 64 run) and 16 (4x4, with 32 run).
+* Drain tests of the three tuned rows with their chosen values (`drain_v28_tuned.csv`): **54 / 54 pass** (`EB_best`, `EB_best64` and `EB_down_t` on the six masks per size of the gates): every packet
+  delivered, the network empties, no dead-end event, no hop that offers more than one output, every pending counter 0 at the end. The gate
+  before Part C is passed.
+
+### A2. What the tuning runs showed (known before Part C; nothing above is rewritten)
+* **The early family comes close to the main row on the tuning scenarios, and on 2x2 above it:** `EB_best` scores +0.551 against the main
+  row's +0.530 on 2x2 and +0.494 against +0.648 on 4x4 (THR +10.7 and +12.9 % against DeFT-P, the main row +10.6 and +17.5 %; LAT at
+  1.0 x Lsat -33.9 and -30.8 %, the main row -33.4 and -37.3 %). That is far above what I stated in advance (+0.05 to +0.20 on 4x4, 0 to
+  +0.10 on 2x2), and it does not follow the prompt's picture of "DeFT-P's table with a correction for hot spots": by scenario, `EB_best` is
+  ahead of DeFT-P in every tuning scenario on both sizes, and on 2x2 it is level with the main row or ahead in uniform, hotspot and uniform
+  with one faulty VL per chiplet.
+* **What the pending count buys, and what the anchor buys.** The count of the packets already bound is most of it. At T = 0 the best member
+  with P = 1 scores +0.530 (2x2) and +0.484 (4x4), the best with P = 0 (round 27's rows) -0.597 and -0.116: +1.13 and +0.60. The anchor buys a
+  lot without the count (the best P = 0 member with T > 0 scores +0.204 and +0.219, at T = 16 and 32) and little with it (+0.021 and +0.009
+  from T = 0 to the chosen T). So round 27's early rows lost because they herded, not because they left DeFT-P's table.
+* **Which occupancy:** with the count, the occupancy at the entry VL (S = vl) is a little better than the queues on the route (best (vl, 1)
+  +0.551 and +0.494, best (route, 1) +0.520 and +0.474); without it, the route is better, as in round 27.
+* **Old information costs a lot:** `EB_best64` scores +0.347 and +0.345 (64-cycle-old occupancies and counts), and it needs a larger anchor
+  (T 32 and 16 against 8 and 2).
+* **The commit at the Down move** with its own `lut_bias` (4 on both sizes) scores +0.260 and +0.225. With the main row's `lut_bias`, which
+  is round 27's `EB_down`, it scores -0.242 on 2x2 (D = 2) and -1.409 on 4x4 (D = 0).
+* By scenario on 4x4 (two seeds per cell, so a pointer and no more): `EB_best` is close to the main row under hotspot (+0.686 against +0.729)
+  and chipperm traffic (+0.339 against +0.361) and behind it under uniform (+0.488 against +0.642), chiptrans (+0.415 against +0.777) and
+  uniform traffic with one faulty VL per chiplet (+0.540 against +0.730).
+* **What this changes: nothing.** The expectations of "Stated in advance" stay as written and are compared with Parts C and D as they are.
+  The rows, the designs, the two primary families, the anchors and the time rule are those above. Part C is the test on new seeds (171-180)
+  and on six scenarios, of which localized and movinghot were not in the tuning; Part D is the test under faults.
