@@ -113,8 +113,14 @@ that means: when in doubt, favour the early rows.
   B in {0.125, ..., 8}).
 * The scores read DeFT_P, the main row and the P = 0, T = 0 members from `results_v27_early/tune_runs.csv` and the runs of this round
   from the raw folder (later from `tune_runs.csv`, which has only the runs of this round).
+* **How it ran.** 8,800 runs from 04:59 to 17:25 on 17 Nov (12.4 h), the first two hours next to the reuse check. Step 0: the B1 grid and the
+  B3 grid (6,240 runs); step 1: T = 32 and B = 0.25 / 8 where the rule asked (1,840 runs); step 2: T = 64 for (route, 0) on 4x4 (200 runs);
+  step 3: B2 (480 runs); B2's T = 64 on 2x2 (40 runs). The drain tests of the tuned rows then passed (54 / 54), and the addendum was committed
+  before chain c started.
 
 ## Parts C, D and E
+* **The machine at the timing runs** (17 Nov, from 17:41): nothing else of this round ran; on the Windows side only the Claude
+  processes and the usual services were running, with no measurable CPU use in a 5 s sample taken just before the start.
 * **Part D, rows and runs**: `EB_best` and `EB_down_t` at 1/16 and 4/16, `EB_best64` at 4/16, and the anchor rows if they join
   (above). The runs of the other rows (DeFT_P, DeFT_B, DeFT_Dis, DeFT_Ran, the main row) are those of round 26.
 * **The time rule.** The estimate is taken as measured, with whatever else runs on the PC at the time of the timing runs (round 27,
