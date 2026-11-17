@@ -127,6 +127,11 @@ that means: when in doubt, favour the early rows.
   addendum A3). Timing runs: Part C the seed-171 runs at the 2nd, 5th and 9th load of every cell; Part D and Part E the seed-151 runs at
   the 1st and 4th load of masks 1 to 4 of every size and rate. They are runs of the designs and are kept. What is dropped is taken back
   if it fits later, in the reverse of the drop order (`restore_v28.py`), as in round 27.
+* **Paused on the user's request** on 17 Nov 2026 at 19:28 (chain c stopped: tmux session ended, every simulator process ended, the
+  disk flushed). At that moment 2,407 of the 11,340 runs of Part C were finished (the 378 timing runs included) and the timing runs of Parts
+  D and E (432 and 192) were done; no output file was unreadable; the 12 runs in flight are run again when the chain resumes (the runner
+  skips only finished runs). Nothing was dropped by the 30 h rule, so the pause changes no decision of the time rule; on resuming, the
+  seconds of the pause are added to `~/lbraw/v28/c_start.txt` as the chain's header says, and the pause is recorded here with its length.
 * **v28 has its own `run_seg`**: round 27 called `experiments_v26_eval.run_seg`, which reads round 26's width file
   (`~/lbraw/v26/width.txt`, deleted), so a change of round 27's width file took effect only at the next stage. This round's stages
   read `~/lbraw/v28/width.txt` at every segment of 384 runs.
