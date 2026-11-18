@@ -132,6 +132,7 @@ that means: when in doubt, favour the early rows.
   D and E (432 and 192) were done; no output file was unreadable; the 12 runs in flight are run again when the chain resumes (the runner
   skips only finished runs). Nothing was dropped by the 30 h rule, so the pause changes no decision of the time rule; on resuming, the
   seconds of the pause are added to `~/lbraw/v28/c_start.txt` as the chain's header says, and the pause is recorded here with its length.
+  **Resumed** on 18 Nov 2026 at 07:58 after 44,914 s (12.5 h); `c_start.txt` holds that number as its second entry.
 * **v28 has its own `run_seg`**: round 27 called `experiments_v26_eval.run_seg`, which reads round 26's width file
   (`~/lbraw/v26/width.txt`, deleted), so a change of round 27's width file took effect only at the next stage. This round's stages
   read `~/lbraw/v28/width.txt` at every segment of 384 runs.
