@@ -1,0 +1,13 @@
+size,early_row,metric,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,EB_best,THR,10,-0.93,-1.32,-0.54,0.0004302,0.0004302,against
+2x2,EB_best,LAT,10,3.86,2.88,4.86,8.542e-06,2.563e-05,against
+2x2,EB_down_t,THR,10,1.82,1.52,2.12,2.255e-07,1.128e-06,supported
+2x2,EB_down_t,LAT,10,-17.72,-19.58,-15.82,1.22e-08,7.623e-08,supported
+3x3,EB_best,THR,10,4.44,4.13,4.75,1.08e-10,1.188e-09,supported
+3x3,EB_best,LAT,10,-2.97,-3.84,-2.09,3.571e-05,7.142e-05,supported
+3x3,EB_down_t,THR,10,7.15,6.6,7.7,2.274e-10,2.274e-09,supported
+3x3,EB_down_t,LAT,10,-17.07,-18.85,-15.26,1.089e-08,7.623e-08,supported
+4x4,EB_best,THR,10,2.86,2.57,3.14,2.901e-09,2.321e-08,supported
+4x4,EB_best,LAT,10,-7.84,-9.1,-6.55,3.075e-07,1.23e-06,supported
+4x4,EB_down_t,THR,10,6.36,6.04,6.67,4.585e-12,5.502e-11,supported
+4x4,EB_down_t,LAT,10,-22.45,-24.01,-20.86,4.126e-10,3.713e-09,supported
