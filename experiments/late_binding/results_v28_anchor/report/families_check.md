@@ -5,6 +5,7 @@ The tests of `PREREGISTRATION.md` computed from the per-run CSVs by a script tha
 
 * Part C: 11340 runs; sizes 2x2, 3x3, 4x4; scenarios chipperm, chiptrans, hotspot, localized, movinghot, uniform.
 * **Family 1 (Part C): 12 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0047 percentage points (the report rounds to 0.01); verdicts: 10 supported, 2 against, 0 n.s..
-* Part D: no fault_runs.csv yet.
+* Part D: 6144 runs of the early rows and of the main row; sizes 2x2, 3x3, 4x4.
+* **Family 2 (Part D): 24 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0048 percentage points (the report rounds to 0.01); verdicts: 20 supported, 3 against, 1 n.s..
 
 **All compared tests agree: yes.**
