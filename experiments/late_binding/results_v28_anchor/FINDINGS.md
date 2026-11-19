@@ -1,9 +1,10 @@
 # Findings v28: the strongest early binder
 
-Status: **Parts A, B and C are complete; Parts D and E are running.** The gates, the pre-registration, the tuning (Part B, 8,800 runs),
-the addendum with the frozen configurations and the evaluation without faults (Part C, 11,340 runs) are done: no run is missing, nothing
-was dropped by the time rule, there is no dead-end event in any run, and no hop of an early row offers more than one output. Answers 1 to
-9 below are final. Answers 10 to 12 (the early rows under faults, the reports across the VLs under faults, the paragraph) are open.
+Status: **Parts A, B, C and D are complete; Part E is running.** The gates, the pre-registration, the tuning (Part B, 8,800 runs), the
+addendum with the frozen configurations, the evaluation without faults (Part C, 11,340 runs) and the early rows under faults (Part D, 6,912
+runs) are done: no run is missing, nothing was dropped by the time rule, there is no dead-end event in any run, and no hop of an early row
+offers more than one output. Answers 1 to 10 below are final. Answers 11 and 12 (the reports across the VLs under faults, the paragraph) and
+the answer in short for the faulty network are open.
 
 **The question of the round.** Round 27's early rows were a weak class of early binders: their family did not contain DeFT, and they
 herded. This round builds the strongest early binder we can (ideal information, a count of the packets already bound to each VL, an
@@ -346,8 +347,102 @@ reaches 74 / 46 / 46 % of the main row's THR gain and 56 / 58 / 43 % of its LAT 
   4 scores best, 8 scores +0.20 and +0.14 and 16 is nearly DeFT_P (+0.05, +0.01), so the best value is inside the grid (`tuning_v28.md`).
 * I had expected a large `lut_bias` (8 or more on 4x4) and a score near 0. It chose 4 and reaches about half of the main row's gain.
 
-### 10. Primary family 2 (faults): how many of 24 supported, which against? The shares under faults
-*Open: Part D is running (6,912 runs).*
+### 10. Primary family 2: how many of 24 supported, which against? The shares under faults by rate and traffic
+*Final (`report/summary_D.md`, `report/primary_D.csv`, `paper_data/early_best_faults.csv`, `paper_data/early_best_faults_shares.csv`; computed a second
+time by `check_v28_family.py`: 24 tests, 0 different). 6,912 new runs, seeds 151 and 152; none missing, no dead-end event, no hop of an early row
+with more than one output, nothing dropped by the time rule. Unit = mask, 16 per size and rate; DeFT's variants and the main row are the runs of
+round 26.* **20 of 24 supported, 3 against, 1 not significant. The four that are not supported are the four tests against `EB_best` on 2x2: at the
+rate 1/16 the early row is ahead of the main row in THR and in LAT (both against); at 4/16 it is ahead in LAT (against) and level in THR (not
+significant). On 3x3 and 4x4 the main row is ahead of `EB_best` at both rates, by 1.3 to 3.9 % in THR and 4.4 to 7.6 % in LAT, and it is ahead of
+`EB_down_t` in all twelve tests. Under faults `EB_best` reaches 113 / 92 / 80 % of the main row's THR gain over DeFT_P at the rate 1/16 and 102 / 87 /
+80 % at 4/16, and 105 / 93 / 91 % and 104 / 92 / 87 % of its LAT gain. Without faults it reaches 110 / 85 / 82 % and 104 / 95 / 93 % under the same two
+traffic patterns. So faults do not bring this early binder closer to the main row: the shares under faults are larger than Part C's because the
+fault design has uniform and hotspot traffic only. One reservation: on 4x4 at 4/16 the tuned row is not the strongest early row (last bullet
+but two).**
+
+Effect of the main row against the early row with its 95 % interval over the 16 masks; p adjusted by Holm over the 24:
+
+| size | rate | early row | THR | p (Holm) | verdict | LAT at 1.0 x Lsat | p (Holm) | verdict |
+|---|---|---|---|---|---|---|---|---|
+| 2x2 | 1/16 | `EB_best` | -1.7 [-2.1, -1.3] | 1.7e-06 | **against** | +3.1 [+2.7, +3.5] | 9.7e-10 | **against** |
+| 2x2 | 1/16 | `EB_down_t` | +1.2 [+0.4, +2.0] | 0.011 | supported | -14.4 [-16.7, -12.2] | 3.9e-08 | supported |
+| 2x2 | 4/16 | `EB_best` | -0.3 [-0.7, +0.2] | 0.243 | **n.s.** | +2.2 [+1.0, +3.4] | 0.005 | **against** |
+| 2x2 | 4/16 | `EB_down_t` | +2.8 [+1.8, +3.9] | 0.00027 | supported | -14.8 [-17.3, -12.2] | 1.3e-07 | supported |
+| 3x3 | 1/16 | `EB_best` | +1.3 [+0.8, +1.8] | 0.00027 | supported | -5.2 [-7.4, -3.0] | 0.00085 | supported |
+| 3x3 | 1/16 | `EB_down_t` | +6.7 [+6.0, +7.5] | 9.5e-11 | supported | -26.1 [-27.9, -24.2] | 2.7e-12 | supported |
+| 3x3 | 4/16 | `EB_best` | +1.5 [+0.9, +2.0] | 0.00022 | supported | -4.4 [-5.5, -3.3] | 8.5e-06 | supported |
+| 3x3 | 4/16 | `EB_down_t` | +4.8 [+3.1, +6.4] | 0.00014 | supported | -24.0 [-29.5, -18.1] | 1.2e-05 | supported |
+| 4x4 | 1/16 | `EB_best` | +3.9 [+3.4, +4.4] | 1.8e-09 | supported | -5.6 [-7.0, -4.2] | 8.5e-06 | supported |
+| 4x4 | 1/16 | `EB_down_t` | +9.5 [+8.6, +10.5] | 1.8e-11 | supported | -22.5 [-25.1, -19.8] | 1.8e-09 | supported |
+| 4x4 | 4/16 | `EB_best` | +2.5 [+1.8, +3.1] | 8.5e-06 | supported | -7.6 [-10.2, -4.9] | 0.00022 | supported |
+| 4x4 | 4/16 | `EB_down_t` | +6.7 [+5.5, +7.9] | 3.9e-08 | supported | -27.2 [-30.1, -24.3] | 6.4e-10 | supported |
+
+Share of the main row's gain over DeFT_P that a row reaches, in %, 2x2 / 3x3 / 4x4 (`summary_D.md` D.3). The lines "none" are Part C restricted to
+uniform and hotspot traffic with THR over the four loads of the fault design (`report/extra_D.md` X.1; descriptive, added after the results were
+seen, `DECISIONS.md`):
+
+| row | faulty VLs | both patterns: THR | LAT | uniform: THR | LAT | hotspot: THR | LAT |
+|---|---|---|---|---|---|---|---|
+| `EB_best` | none | 110 / 85 / 82 | 104 / 95 / 93 | 158 / 70 / 62 | 115 / 88 / 81 | 97 / 96 / 95 | 102 / 98 / 97 |
+| `EB_best` | 1/16 | **113 / 92 / 80** | **105 / 93 / 91** | 158 / 85 / 61 | 110 / 80 / 79 | 101 / 97 / 92 | 103 / 98 / 98 |
+| `EB_best` | 4/16 | **102 / 87 / 80** | **104 / 92 / 87** | 117 / 64 / 50 | 105 / 78 / 61 | 99 / 96 / 93 | 103 / 98 / 97 |
+| `EB_best64` | none | 97 / 69 / 74 | 88 / 70 / 77 | 97 / 35 / 42 | 56 / 21 / 26 | 97 / 95 / 96 | 94 / 95 / 95 |
+| `EB_best64` | 4/16 | 97 / 85 / 80 | 88 / 80 / 79 | 89 / 57 / 45 | 77 / 51 / 43 | 99 / 95 / 96 | 93 / 90 / 94 |
+| `EB_down_t` | none | 86 / 62 / 49 | 77 / 67 / 65 | 106 / 55 / 45 | 58 / 57 / 47 | 81 / 68 / 52 | 80 / 72 / 72 |
+| `EB_down_t` | 1/16 | 91 / 58 / 52 | 74 / 59 / 61 | 142 / 65 / 46 | 65 / 52 / 47 | 78 / 54 / 56 | 78 / 62 / 69 |
+| `EB_down_t` | 4/16 | 77 / 60 / 48 | 73 / 53 / 46 | 95 / 65 / 43 | 68 / 47 / 34 | 74 / 58 / 50 | 75 / 55 / 51 |
+
+* **How clear the four tests on 2x2 are.** At 1/16 the THR of `EB_best` is 1.8 % above the main row's (behind the main row in 1 of the 16 masks)
+  and its LAT 3.0 % lower (behind in none). At 4/16 its THR is 0.3 % above ([-0.2, +0.8]; behind in 6 masks) and its LAT 2.2 % lower (behind
+  in 3). On 3x3 and 4x4 it is behind the main row in THR in 14 and 16 of the 16 masks at 1/16 and in 15 and 16 at 4/16, and in LAT in every
+  mask. Against `EB_down_t` the main row is ahead by 1.2 to 9.5 % in THR and by 14 to 27 % in LAT.
+* **Under faults the early row stands to the main row as it does without faults.** `EB_best` against the main row, THR and LAT in %, 2x2 / 3x3 /
+  4x4: without faults under the same traffic +1.2 / -2.5 / -3.8 and -2.6 / +3.9 / +4.4; at 1/16 +1.8 / -1.3 / -3.7 and -3.0 / +5.5 / +5.9; at
+  4/16 +0.3 / -1.4 / -2.4 and -2.2 / +4.6 / +8.2. Ahead on 2x2, a few percent behind on 3x3 and 4x4, at every fault rate.
+* **By traffic.** Under hotspot traffic `EB_best` reaches 92 to 101 % of the main row's THR gain and 97 to 103 % of its LAT gain at every size
+  and rate, as without faults; on 3x3 and 4x4 it is 0.6 to 1.8 % behind the main row in THR and 1.7 to 2.5 % in LAT. Under uniform traffic it
+  is 1.9 to 5.6 % behind in THR and 7 to 14 % in LAT on those sizes, and at 4/16 its share is below the fault-free one on every size (THR 117 /
+  64 / 50 % against 158 / 70 / 62 %, LAT 105 / 78 / 61 % against 115 / 88 / 81 %). So a quarter of the VLs faulty moves this early binder away
+  from the main row under uniform traffic, not towards it.
+* **By rate.** The main row's own gain over DeFT_P shrinks from 1/16 to 4/16 on 3x3 and 4x4 (THR +14.9 / +16.9 / +21.0 % and +13.0 / +12.3 /
+  +13.2 %; LAT -45.4 / -52.1 / -48.2 % and -44.9 / -44.3 / -44.5 %), and that of `EB_best` shrinks with it (+16.9 / +15.4 / +16.4 % and +13.3 /
+  +10.7 / +10.5 %; -47.1 / -49.5 / -45.2 % and -46.1 / -41.7 / -40.0 %).
+* **Against the best of DeFT's four variants on each mask** (DeFT_P, DeFT_B, DeFT_Dis, DeFT_Ran) `EB_best` is ahead at every size and rate:
+  THR +5.1 / +4.2 / +4.8 % at 1/16 and +2.9 / +1.8 / +2.4 % at 4/16, LAT -21.3 / -13.9 / -14.8 % and -18.7 / -12.2 / -11.3 % (the main row: THR
+  +3.3 / +5.5 / +8.9 % and +2.6 / +3.2 / +4.9 %, LAT -18.9 / -18.4 / -19.6 % and -16.9 / -16.0 / -18.0 %). `EB_down_t` is not: on 3x3 and 4x4 it
+  has 0.6 to 1.7 % less THR than the best DeFT variant and 4 to 13 % more latency (on 4x4 at 1/16 both intervals include 0).
+* **`EB_down_t`** reaches 91 / 58 / 52 % (1/16) and 77 / 60 / 48 % (4/16) of the THR gain and 74 / 59 / 61 % and 73 / 53 / 46 % of the LAT gain,
+  about what it reaches without faults under the same traffic (86 / 62 / 49 % and 77 / 67 / 65 %). It is furthest behind the main row under
+  hotspot traffic (THR -4.7 to -9.7 %, LAT +21 to +51 %).
+* **Old information costs less under faults.** `EB_best64` against `EB_best` at 4/16: THR -0.6 / -0.3 / 0.0 %, LAT +9.8 / +7.7 / +4.4 %; without
+  faults under the same traffic -1.6 / -2.5 / -1.6 % and +11.5 / +19.8 / +10.4 % (`extra_D.md` X.3). It reaches 97 / 85 / 80 % of the main row's
+  THR gain and 88 / 80 / 79 % of its LAT gain; against the main row it is level in THR on 2x2 and has 1.7 and 2.5 % less on 3x3 and 4x4, with
+  7 to 13 % more latency.
+* **Masks with a chiplet that is left one functional VL** (at 4/16: 6 of the 16 masks of 3x3, 10 of 4x4; D.4). `EB_best` against the main row
+  in those masks: THR -1.3 and -2.2 %, LAT +6.0 and +10.2 %; in the other masks -1.5 and -2.8 %, +3.8 and +5.0 %. The main row's own THR
+  gain over DeFT_P is smaller where a chiplet has no choice left (+6.9 and +11.4 % against +15.7 and +16.3 %).
+* **The anchors are level with DeFT_P under faults as well:** THR within 0.23 % and LAT within 1.7 % at every size and rate; of the 24
+  intervals one excludes 0, barely (THR of `EB_inf` on 4x4 at 1/16, -0.22 %).
+* **On 4x4 at 4/16 a member of the family that the tuning did not choose is the stronger early row** (`extra_D.md` X.2; descriptive, added
+  after the results were seen). Round 27 ran `EB_route` on the same 48 masks of rate 4/16 with the same traffic, loads and seeds; it is the
+  member (route, P = 0, T = 0) of this round's family with round 27's `oracle_beta`. `EB_best` against `EB_route`: THR +4.6 [+3.4, +5.8] / -0.3
+  [-0.9, +0.3] / -1.9 [-2.5, -1.3] %, LAT -20.1 / -5.3 / +1.9 [-3.0, +7.1] %. On 4x4 `EB_best` has less throughput than `EB_route` in 15 of the 16
+  masks. `EB_route` is level with the main row in THR there (-0.5 % [-1.2, +0.1]) and 6.2 % slower; `EB_best` is 2.4 % behind and 8.2 %
+  slower. So the supported THR test on 4x4 at 4/16 is a test against the row that the tuning rule chose. Against the best early row that was
+  run there, the main row's lead in THR cannot be told from 0, and its lead in LAT is 6 %. On 2x2 `EB_best` is far ahead of `EB_route`; on
+  3x3 the two are level in THR and `EB_best` is 5 % faster. The tuning had pointed this way: on 4x4 the best member with S = route and the
+  count (route, P 1, B 0.5, T 4) scored +0.474 against the +0.494 of `EB_best` over the five tuning scenarios, and +0.630 against +0.540 in
+  the one with faults (`tuning_v28.md`). That member was not run in Part D.
+* **Round 27's Part E, read again.** Round 27 found its early rows "much closer to the main row" under faults than without. That was weak
+  early rows recovering, under uniform traffic, from a loss they had without faults (round 27: `EB_route` reached 73 and 84 % of the main row's
+  THR gain on 3x3 and 4x4 under uniform traffic with faults, and -13 and 11 % without). `EB_best` has no such loss to recover from and
+  reaches under faults what it reaches without. Against round 27's rows on the same masks
+  it is ahead of `EB_vl` on every size (THR +5.4 / +4.2 / +3.0 %, LAT 15 to 22 % lower); `EB_down_t` against `EB_down` gains under uniform
+  traffic (THR +0.8 / +7.1 / +6.0 %, LAT -10 / -48 / -33 %) and loses under hotspot traffic (THR -2.3 / -2.5 / -5.1 %, LAT +10 / +15 / +20 %).
+* I had expected 20 to 23 of 24 supported and none against, every test at 1/16 supported, and the THR tests against `EB_best` at 4/16 on 3x3
+  and 4x4 at risk. The count is as expected and `EB_down_t` is behind in every test. Three tests are against, two of them at 1/16; the tests
+  I called at risk are supported (with the reservation above for 4x4). The shares at 1/16 are 80 to 113 %, not the 30 to 70 % I expected,
+  and they are no smaller than at 4/16.
 
 ### 11. Part E: are the reports across the VLs unnecessary under faults, by the stated margin?
 *Open: Part E runs after Part D (3,072 runs).*

@@ -136,9 +136,10 @@ that means: when in doubt, favour the early rows.
 * **v28 has its own `run_seg`**: round 27 called `experiments_v26_eval.run_seg`, which reads round 26's width file
   (`~/lbraw/v26/width.txt`, deleted), so a change of round 27's width file took effect only at the next stage. This round's stages
   read `~/lbraw/v28/width.txt` at every segment of 384 runs.
-* **How Parts C and D ran.** Part C: 11,340 runs, 13.6 h of running time (17 Nov 17:41 to 18 Nov 20:27 with the pause of 12.5 h), the estimate was
-  13.4 h. Part D: 6,912 runs from 18 Nov 20:27 to 19 Nov 03:48 (7.4 h). No run missing, no dead-end event, no hop of an early row with more than
-  one output; `restore_v28.py` had nothing to take back because nothing was dropped.
+* **How Parts C and D ran.** Part C: 11,340 runs in 13.6 h of running time with its timing runs (estimate 13.4 h), ended on 18 Nov at 20:27; the
+  pause of 12.5 h is not counted. Part D: 6,912 runs in 7.8 h with its timing runs (estimate 7.8 h), from 18 Nov 20:27 to 19 Nov 03:48. No run
+  missing, no dead-end event, no hop of an early row with more than one output; `restore_v28.py` had nothing to take back because nothing
+  was dropped.
 * **The report was run part by part** (`report_v28.py c` after Part C, `d` after Part D), each with the code as committed before the runs of
   that part ended; `check_v28_family.py` after each. The Part D report was run once before on the finished 2x2 and 3x3 runs in a scratch
   folder (`~/lbraw/v28/dry_res`, deleted) to see that the code runs on real data; no number of that run is used, and nothing was changed
