@@ -880,3 +880,211 @@ the build of this round). Unit = mask. Descriptive, no test.
 
 Start with `results_v27_early/FINDINGS.md` (the thirteen questions, the comparison with what was stated in advance, the
 limits). The tables for the paper are in `results_v27_early/paper_data/` (`paper_data/README.md` lists them).
+
+## Round 28 (results_v28_anchor/): the strongest early binder. An early family that contains DeFT, a tuned commit at the Down move, and the reports across the VLs under faults
+Round 27's early rows were a weak class of early binders: their family did not contain DeFT (any `oracle_beta` leaves DeFT-P's balanced
+table) and they herded (every source read the same state; nothing counted the packets already on their way to a VL). This round builds the
+strongest early binder we can and gives it the tuning of the main row: ideal information (global, instantaneous, free), a count of the
+packets already bound to each VL, and an anchor at DeFT-P's entry VL with a threshold T, so that the family contains DeFT_P (T = infinity).
+Also: the main row without the occupancy reports across the VLs (`LB_noVLrep`) under random VL faults. The frozen configuration of round 25
+is not retuned and no existing row is changed. The simulator gets two options and two diagnostics, all off by default
+(`results_v28_anchor/regression.md`: the 84-configuration set is byte-identical to the b164e9e build with the options absent and with every
+option given at its default). The rows, the tuning rule, the tests and what I expected are fixed in `results_v28_anchor/PREREGISTRATION.md`
+(the expectations committed separately before any performance result, `stated_in_advance.md`); its addendum freezes the tuned rows before
+Part C.
+
+**The answer.** The strongest early binder reaches the main row on 2x2, where it is slightly ahead, and most of the main row's gain on
+3x3 and 4x4: without faults 66 and 75 % of the throughput gain over DeFT_P and 93 and 82 % of the latency gain, and under random VL faults
+what it reaches without faults under the same traffic. So round 27's answer ("without faults the gain comes from binding late") was an
+answer about early binders that herd; it does not hold for an early binder that counts the packets already bound to each VL. That binder
+has to know the whole network at the moment of injection. With the same state 64 cycles old, or with the main row's own information
+bound at the Down move, an early row reaches about half of the gain on 3x3 and 4x4. Primary family 1: 10 of 12 supported, 2 against;
+primary family 2: 20 of 24 supported, 3 against, 1 not significant; the six tests that are not supported are the ones against `EB_best`
+on 2x2. The occupancy reports across the VLs are unnecessary under faults by the margin stated before the runs.
+
+* **New options of `-deft_lb`:** `oracle_bias D` (the cost of an entry candidate that is not DeFT-P's entry VL is raised by D = B x T),
+  `oracle_pending 0|1` (one counter per VL of the flits bound to it at injection whose head has not moved Up, added to the occupancy term),
+  and `oracle_period P` for `oracle_scope route` and for the counters (a snapshot every P cycles). Diagnostics: `pending_check K` (the
+  counters against a scan of the network at three cycles) and `tie_stream 1` (the tie-breaks of the early rows draw from a stream of their
+  own instead of `rand()`, from which the routers' crossbar arbitration draws).
+* **Rows** (pipe_all 2; every row with DeFT-P's VN options and `-traffic_rng 1`; LUTs `luts/v23`).
+
+  | row | what binds the entry VL, and when |
+  |---|---|
+  | `DeFT_P` | the LUT, at injection (round 25) |
+  | `CI_heurLA_X_LF` (**main**) | the selection on the interposer, hop by hop (round 25, frozen) |
+  | `EB_best` | at injection: the entry VL of least hops + B (occupancy + P x pending) + B T [not DeFT-P's VL], the best member of the family by the tuning score |
+  | `EB_best64` | `EB_best` with occupancies and pending counts sampled every 64 cycles, T tuned again |
+  | `EB_down_t` | `EB_down` of round 27 (the main row until the Down move, where it commits) with its own tuned `lut_bias` |
+  | `EB_inf`, `EB_down_inf` | the T = infinity members (anchors): DeFT_P's routing with the row's draws of the random stream |
+  | `LB_noVLrep` | the main row without the occupancy reports across the VLs (Part E only) |
+
+* **Drivers.** `experiments_v28.py` (the regression; dispatches to `experiments_v28_eval.py`: the gates `a2_*`, the reuse check `d_reuse`, the
+  tuning `b_*`, Parts C, D and E `c_*`, `d_*`, `e_*`). `chain_v28.sh a|b` and `chain_v28c.sh` run the round unattended and stop at the first
+  failed check; `restore_v28.py` is the time rule after the timing runs. `report_v28.py` writes `report/` and `paper_data/`;
+  `check_v28_family.py` computes both primary families a second time without the report's code (`report/families_check.md`);
+  `extra_v28.py` writes the descriptive tables `report/extra_D.md` and `report/extra_E.md` that `FINDINGS.md` quotes (added after the
+  results of those parts were seen).
+```
+bash build_ref.sh b164e9e && python3 experiments_v28.py regress 12 before && make && python3 experiments_v28.py regress 12 after
+python3 experiments_v28.py a2_anchor 12 && python3 experiments_v28.py a2_repro 12 && python3 experiments_v28.py a2_units 12
+python3 experiments_v28.py a2_drain 12 && python3 experiments_v28.py d_reuse 12
+python3 experiments_v28.py b_rule && python3 experiments_v28.py b_tune 12 && python3 experiments_v28.py b_choose && python3 experiments_v28.py a2_drain 12 tuned
+python3 experiments_v28.py c_timing 12 && python3 experiments_v28.py c_eval 12 && python3 experiments_v28.py c_check && python3 experiments_v28.py c_csv
+python3 experiments_v28.py d_eval 12 && python3 experiments_v28.py d_check && python3 experiments_v28.py d_csv
+python3 experiments_v28.py e_eval 12 && python3 experiments_v28.py e_check && python3 experiments_v28.py e_csv
+python3 report_v28.py all && python3 check_v28_family.py && python3 extra_v28.py
+```
+(The raw outputs stay under `~/lbraw/v28` until the stage that writes the CSV; the tuning keeps its state in `~/lbraw/v28/tune_state.json`.)
+
+### Gates
+* **Regression** (`regression_before.md`, `regression.md`): 84 / 84 byte-identical to the b164e9e build before the change, and after it with
+  the options absent and with every option given at its default.
+* **The anchors** (`anchor.md`): the T = infinity members (`oracle_bias 1e9`; `EB_down` with `lut_bias 1e9`) take DeFT-P's entry VL for
+  every packet but are byte-identical to DeFT_P in 0 / 21 runs: the routers' crossbar arbitration draws from `rand()`, and the early rows
+  draw once more per packet. With their tie-breaks on a stream of their own (`tie_stream 1`) both are identical in 21 / 21. So the families
+  contain DeFT_P's routing exactly; the anchor rows `EB_inf` and `EB_down_inf` (DeFT_P with another arbitration sequence) join Parts C and D.
+* **Round 27 reproduced** (`repro_v27.md`): 320 / 320 tuning runs identical (two early rows of round 27, DeFT_P, the main row).
+* **Unit checks** (`unit_checks.md`): the pending counters equal a scan of the network at three cycles in 12 / 12 runs; the check reads only.
+* **Drain tests:** 90 / 90 (`drain_v28.csv`) and 54 / 54 for the tuned rows (`drain_v28_tuned.csv`), every pending counter 0 at the end, no
+  dead-end event, no hop of an early row that offers more than one output. **Reuse check** (`reuse_check.md`): 768 / 768 runs of round 26
+  reproduced. **Safety** (`FINDINGS.md`, A3): each new row binds one functional entry VL; no new proof or model check is needed.
+
+### Part B: tuning (`tuning_v28.md`; 8,800 runs, seeds 101, 102)
+The rule of round 24 on 2x2 and 4x4 (3x3 takes the 4x4 choice). B1: S in {vl, route} x P in {0, 1} x B in {0.5, 1, 2, 4} x T in {0, 2, 4, 8,
+16} with the extensions the rule asks for (T to 32 and 64, B to 0.25 and 8); B2: T of `EB_best64`; B3: `lut_bias` of `EB_down_t`.
+
+| | `EB_best` | `EB_best64` | `EB_down_t` | main row (frozen) |
+|---|---|---|---|---|
+| 2x2: configuration (score) | vl, P 1, B 0.5, T 8 (+0.551) | T 32 (+0.347) | `lut_bias` 4 (+0.260) | (+0.530) |
+| 4x4 and 3x3: configuration (score) | vl, P 1, B 1, T 2 (+0.494) | T 16 (+0.345) | `lut_bias` 4 (+0.225) | (+0.648) |
+* **The count of the bound packets buys most of it:** at T = 0 the best member scores +0.530 / +0.484 with it and -0.597 / -0.116 without
+  it (round 27's rows). **The anchor buys much without the count** (+0.204 / +0.219 at T = 16 / 32) **and little with it** (+0.02 / +0.01).
+  Round 27's early rows lost because they herded.
+* On the tuning seeds `EB_best` is about level with the main row on 2x2 and has three quarters of its score on 4x4.
+
+### Part C: the evaluation without faults (`report/summary_C.md`; 11,340 runs, seeds 171-180, no dead-end event)
+Six fault-free scenarios, nine loads (0.2 to 2.4 x Lsat of DeFT-P), seven rows, ten seeds. The 30 h rule dropped nothing
+(`runtime_estimate.md`). Effects are means over the six scenarios with the 95 % interval over the ten seeds.
+* **Primary family 1 (Holm over 12: three sizes; the main row against `EB_best` and `EB_down_t`; THR and LAT at 1.0 x Lsat):
+  10 of 12 supported, 2 against.** The two against are the tests against `EB_best` on 2x2, where the early row is ahead in
+  both metrics. Computed a second time by `check_v28_family.py`: all 12 tests agree.
+
+  | size | THR: the main row against `EB_best`, `EB_down_t` | LAT at 1.0 x Lsat: against `EB_best`, `EB_down_t` |
+  |---|---|---|
+  | 2x2 | -0.9, +1.8 % | +3.9, -17.7 % |
+  | 3x3 | +4.4, +7.1 % | -3.0, -17.1 % |
+  | 4x4 | +2.9, +6.4 % | -7.8, -22.5 % |
+* **The strongest early binder reaches the main row on 2x2 and most of its gain over DeFT_P on 3x3 and 4x4.** Share of the
+  main row's gain that a row reaches (THR / LAT at 1.0 x Lsat; above 100 % = ahead of the main row), 2x2 / 3x3 / 4x4:
+
+  | row | all six scenarios: THR | LAT | hotspot alone: THR | LAT | the other five: THR | LAT |
+  |---|---|---|---|---|---|---|
+  | `EB_best` | 113 / 66 / 75 % | 109 / 93 / 82 % | 96 / 93 / 95 % | 102 / 98 / 97 % | 129 / 58 / 66 % | 114 / 90 / 74 % |
+  | `EB_best64` | 82 / 46 / 58 % | 72 / 48 / 51 % | 97 / 93 / 95 % | 94 / 95 / 95 % | 70 / 31 / 40 % | 56 / 21 / 29 % |
+  | `EB_down_t` | 74 / 46 / 46 % | 56 / 58 / 43 % | 83 / 65 / 55 % | 80 / 72 / 72 % | 66 / 41 / 41 % | 37 / 50 / 29 % |
+
+  Against DeFT_P: the main row THR +7.2 / +13.7 / +12.0 %, LAT -35.5 / -35.7 / -36.0 %; `EB_best` +8.2 / +8.8 / +8.9 % and -37.9 /
+  -33.8 / -30.6 %; `EB_best64` +5.9 / +6.0 / +6.8 % and -27.1 / -19.0 / -20.4 %; `EB_down_t` +5.3 / +6.1 / +5.3 % and -21.6 / -22.5 /
+  -17.5 %. No tuned row is behind DeFT_P on any size (in round 27 every early row was behind it in THR, `EB_down` on 2x2 excepted).
+* **`EB_best` is not DeFT with a correction for hot spots.** At 1.0 x Lsat it leaves DeFT-P's entry VL for 24.6 / 49.4 / 49.4 %
+  of the packets, in every scenario alike (19.2 / 44.2 / 43.6 % at 0.5 x Lsat; the main row 36.4 / 56.7 / 57.9 %), and it is
+  ahead of DeFT_P in THR and LAT in 34 of the 36 cells of size and scenario and level in two. Its VLs are balanced like
+  the main row's or better (busiest VL / mean VL 1.28 / 1.32 / 1.40; the main row 1.30 / 1.52 / 1.67, DeFT_P 1.33 / 1.50 /
+  1.77), with 1 to 5 % more hops per packet than DeFT_P.
+* **Per scenario** (unadjusted intervals): in 42 of the 162 cells (size x scenario x tuned early row x THR, LAT, P99) an early
+  row is ahead of the main row (24) or level with it (18). `EB_best` is ahead in THR and LAT under uniform (+3.2 / -3.2 %) and
+  localized traffic (+4.8 / -3.9 %) on 2x2, and in LAT under hotspot and movinghot traffic there. On 3x3 and 4x4 it is behind
+  in every scenario except movinghot; its largest deficits are chipperm on 3x3 (THR -13.8 %), uniform on 4x4 (THR -6.6 %) and
+  chiptrans on 4x4 (LAT +38.9 %). `EB_down_t` is ahead in THR under movinghot traffic on every size (+1.1 / +1.8 / +2.6 %).
+* **Old information costs a quarter to a half of the gain.** `EB_best64` against `EB_best`: THR -2.1 / -2.6 / -1.9 %, LAT +17.4 /
+  +22.3 / +14.7 %. Under hotspot traffic nothing is lost in THR (+0.2 / 0.0 / +0.1 %); in the other five scenarios THR -2.6 /
+  -3.1 / -2.3 % and LAT +19.0 / +26.5 / +17.4 %.
+* **`EB_down_t`** (the main row until the Down move, the commit there with its own tuned `lut_bias`) is the weakest tuned
+  row: the main row is ahead of it in all six tests, by 1.8 to 7.1 % in THR and 17 to 22 % in LAT. Tuned, it is no longer
+  behind DeFT_P as `EB_down` was in round 27; it leaves DeFT-P's entry VL for 5.7 / 4.5 / 3.1 % of the packets.
+* **Below saturation** no tuned early row costs anything worth naming: at 0.2 and 0.5 x Lsat each is within 0.9 % of DeFT_P
+  or faster, and at 0.8 x Lsat `EB_best` is as fast as the main row (6 to 10 % faster than DeFT_P). At 0.2 and 0.5 x Lsat the
+  main row keeps a lead of 1.2 to 2.4 % over `EB_best` on 3x3 and 4x4, where `EB_best` takes 2 to 3 % more hops than DeFT_P.
+  **Above DeFT-P's saturation load the main row carries on and `EB_best` does not on 3x3 and 4x4:** at 1.2 x Lsat `EB_best` has
+  39 and 35 % more latency than the main row there, at 1.4 x Lsat 47 and 18 % more (2x2: +5.2 and -3.5 %). That is where
+  the THR shares of 66 and 75 % come from.
+* **The anchors** `EB_inf` and `EB_down_inf` are level with DeFT_P (THR within 0.1 %, LAT within 1.6 %, every interval over
+  the six scenarios including 0), so the tuned rows' effects are not an effect of the other draws of the random stream.
+* **The main row's gain over DeFT_P is the same on a fourth set of seeds:** THR +7.2 / +13.7 / +12.0 % and LAT -35.5 / -35.7 /
+  -36.0 % here; +7.5 / +13.6 / +11.7 % and -35.5 / -37.6 / -37.4 % in round 27.
+* THR is the largest accepted throughput over loads up to 2.4 x Lsat; in 24 to 43 of 60 (scenario, seed) cells per size and
+  row it is reached at the last load and is then a lower bound, for every row alike. LAT at 1.0 x Lsat of DeFT-P compares
+  rows of which some are past their own saturation. Everything outside the primary family is descriptive.
+
+### Part D: the early rows under random VL faults (`report/summary_D.md`, `report/extra_D.md`; 6,912 new runs, seeds 151, 152, no dead-end event)
+The 96 masks of the rates 1/16 and 4/16 of round 26 (16 per size and rate), uniform and hotspot traffic, four loads. `EB_best`,
+`EB_down_t` and the two anchors at both rates, `EB_best64` at 4/16; the DeFT variants and the main row are the runs of round 26
+(`reuse_check.md`: 768 / 768 runs reproduced by the build of this round). Unit = mask. Nothing was dropped by the 30 h rule.
+* **Primary family 2 (Holm over 24: three sizes, two rates; the main row against `EB_best` and `EB_down_t`; THR and LAT at
+  1.0 x Lsat): 20 of 24 supported, 3 against, 1 not significant.** The four that are not supported are the tests against
+  `EB_best` on 2x2. Computed a second time by `check_v28_family.py`: all 24 tests agree.
+
+  | size | rate | THR: the main row against `EB_best`, `EB_down_t` | LAT at 1.0 x Lsat: against `EB_best`, `EB_down_t` |
+  |---|---|---|---|
+  | 2x2 | 1/16 | -1.7 (against), +1.2 % | +3.1 (against), -14.4 % |
+  | 2x2 | 4/16 | -0.3 (n.s.), +2.8 % | +2.2 (against), -14.8 % |
+  | 3x3 | 1/16 | +1.3, +6.7 % | -5.2, -26.1 % |
+  | 3x3 | 4/16 | +1.5, +4.8 % | -4.4, -24.0 % |
+  | 4x4 | 1/16 | +3.9, +9.5 % | -5.6, -22.5 % |
+  | 4x4 | 4/16 | +2.5, +6.7 % | -7.6, -27.2 % |
+* **Under faults `EB_best` reaches what it reaches without faults.** Share of the main row's gain over DeFT_P, THR and LAT,
+  2x2 / 3x3 / 4x4: 113 / 92 / 80 % and 105 / 93 / 91 % at 1/16, 102 / 87 / 80 % and 104 / 92 / 87 % at 4/16; without faults under
+  the same two traffic patterns 110 / 85 / 82 % and 104 / 95 / 93 % (`extra_D.md`, descriptive). The shares are larger than
+  Part C's because the fault design has uniform and hotspot traffic only. Under hotspot traffic 92 to 101 % and 97 to 103 %
+  at every size and rate. Under uniform traffic at 4/16 the share is below the fault-free one on every size (THR 117 / 64 /
+  50 % against 158 / 70 / 62 %, LAT 105 / 78 / 61 % against 115 / 88 / 81 %).
+* **Against the best of DeFT's four variants on each mask** `EB_best` is ahead at every size and rate (THR +5.1 / +4.2 / +4.8 %
+  at 1/16, +2.9 / +1.8 / +2.4 % at 4/16; LAT -21.3 / -13.9 / -14.8 % and -18.7 / -12.2 / -11.3 %); the main row +3.3 / +5.5 / +8.9 %
+  and +2.6 / +3.2 / +4.9 %, -18.9 / -18.4 / -19.6 % and -16.9 / -16.0 / -18.0 %. `EB_down_t` is level with the best DeFT variant
+  or behind it on 3x3 and 4x4.
+* **`EB_down_t`** reaches 91 / 58 / 52 % and 77 / 60 / 48 % of the THR gain and 74 / 59 / 61 % and 73 / 53 / 46 % of the LAT gain;
+  the main row is ahead of it in all twelve tests (THR 1.2 to 9.5 %, LAT 14 to 27 %).
+* **Old information costs less under faults:** `EB_best64` against `EB_best` at 4/16 THR -0.6 / -0.3 / 0.0 % and LAT +9.8 / +7.7 /
+  +4.4 % (without faults under the same traffic -1.6 / -2.5 / -1.6 % and +11.5 / +19.8 / +10.4 %); it reaches 97 / 85 / 80 % of the
+  main row's THR gain and 88 / 80 / 79 % of its LAT gain.
+* **On 4x4 at 4/16 the tuned row is not the strongest early row** (`extra_D.md` X.2, descriptive, added after the results
+  were seen). Round 27's `EB_route`, the member (route, P = 0, T = 0) of this round's family, ran on the same masks: `EB_best`
+  against it THR +4.6 / -0.3 / -1.9 %, LAT -20.1 / -5.3 / +1.9 %. On 4x4 `EB_route` is level with the main row in THR (-0.5 %
+  [-1.2, +0.1]) and 6.2 % slower, so there the main row's lead over the best early row that was run is a lead in latency
+  only. The best member with S = route and the count, (route, P 1, B 0.5, T 4), scored above `EB_best` in the tuning's faulty
+  scenario (+0.630 against +0.540) and was not run in Part D.
+* **The anchors** are level with DeFT_P (THR within 0.23 %, LAT within 1.7 %; one of 24 intervals excludes 0, barely).
+* Two traffic patterns, two seeds, four loads; THR is the largest accepted throughput over loads up to 2.0 x Lsat of DeFT-P
+  on the mask. Everything outside the primary family is descriptive.
+
+### Part E: the reports across the VLs under faults (`report/summary_E.md`, `report/extra_E.md`; 3,072 new runs, seeds 151, 152, no dead-end event)
+`LB_noVLrep` (the main row with `-deft_lb up_report 0`) on the 192 masks of round 26 (rates 1/16, 2/16, 4/16, 8/16; 16 per size and rate),
+uniform and hotspot traffic, four loads; the main row is the runs of round 26. Stated before the runs: the reports are called
+unnecessary if at every size and rate the 95 % interval over the masks lies within +-1 % in THR and +-3 % in LAT.
+* **They are unnecessary by that margin: all 24 intervals are inside.** The row without the reports is within 0.3 % of the main row
+  in THR and in LAT in every cell (THR -0.1 to +0.3 %, LAT -0.2 to +0.3 %). The widest intervals are [-0.1, +0.6] in THR (2x2 at 1/16)
+  and [-1.2, +1.9] in LAT (3x3 at 8/16).
+* **The same where a chiplet is left one functional VL** (66 of the 192 masks; in the cells with 6 or more such masks THR -0.1 to
+  +0.2 % and LAT -0.4 to +0.3 %, every interval including 0) and under each traffic pattern alone (THR -0.2 to +0.4 %, LAT -0.5 to
+  +0.8 %).
+* **Single masks** lose up to 1.0 % in THR and 5.9 % in LAT and gain up to 1.9 % and 5.0 %, each value from four pairs of runs. The row
+  without the reports is behind the main row in 78 of the 192 masks in THR and in 95 in LAT (`extra_E.md`, a table added after the
+  results were seen).
+* With round 27 (no faults: within 0.2 % in THR and 0.1 % in LAT) this says that the main row does not need the occupancy wires across
+  the VLs (12 per VL). The frozen configuration keeps them; no row was changed.
+
+### How much of the gain needs late binding (`FINDINGS.md`, question 12)
+* **Against an early binder with ideal information:** none on 2x2. On 3x3 and 4x4 a third and a quarter of the THR gain and 7 and 18 %
+  of the LAT gain without faults, 8 to 20 % and 7 to 13 % under faults.
+* **With the main row's own information, bound at the Down move instead of hop by hop:** about half (a quarter of the THR gain on
+  2x2).
+* **How sure.** The direction on each size rests on tests fixed before the runs (both families adjusted by Holm and computed twice) and
+  has the same sign on the tuning seeds, on ten fresh seeds and under faults. The sizes of the shares are descriptive. `EB_best` is the
+  best member of one family of early binders, so the parts that need late binding are upper bounds; on 4x4 at the rate 4/16 a member
+  that the tuning did not choose is level with the main row in THR. And `EB_best` uses what no source has: the fill of every entry
+  buffer and the count of every bound packet, at the instant of injection.
+
+Start with `results_v28_anchor/FINDINGS.md` (the twelve questions, the comparison with what was stated in advance, the limits). Every
+table of the report is in `results_v28_anchor/report/summary.md`; the tables for the paper are in `results_v28_anchor/paper_data/`
+(`paper_data/README.md` lists them).
