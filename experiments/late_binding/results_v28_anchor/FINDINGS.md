@@ -1,22 +1,24 @@
 # Findings v28: the strongest early binder
 
-Status: **Parts A, B, C and D are complete; Part E is running.** The gates, the pre-registration, the tuning (Part B, 8,800 runs), the
-addendum with the frozen configurations, the evaluation without faults (Part C, 11,340 runs) and the early rows under faults (Part D, 6,912
-runs) are done: no run is missing, nothing was dropped by the time rule, there is no dead-end event in any run, and no hop of an early row
-offers more than one output. Answers 1 to 10 below are final. Answers 11 and 12 (the reports across the VLs under faults, the paragraph) and
-the answer in short for the faulty network are open.
+Status: **All parts are complete.** The gates, the pre-registration, the tuning (Part B, 8,800 runs), the addendum with the frozen
+configurations, the evaluation without faults (Part C, 11,340 runs), the early rows under faults (Part D, 6,912 runs) and the main row
+without the reports across the VLs under faults (Part E, 3,072 runs) are done: no run is missing, nothing was dropped by the time rule,
+there is no dead-end event in any run, and no hop of an early row offers more than one output. All twelve answers below are final.
 
 **The question of the round.** Round 27's early rows were a weak class of early binders: their family did not contain DeFT, and they
 herded. This round builds the strongest early binder we can (ideal information, a count of the packets already bound to each VL, an
 anchor at DeFT-P's entry VL with a threshold, so that the family contains DeFT_P) and gives it the same tuning as the main row. How much of
 the main row's gain can a congestion-aware choice reach if it is bound early? Also: the reports across the VLs under faults.
 
-## The answer in short (so far: without faults)
-**Without faults the strongest early binder reaches the main row on 2x2, where it is slightly ahead, and most of the main row's gain on 3x3
-and 4x4: 66 and 75 % of the throughput gain over DeFT_P and 93 and 82 % of the latency gain at 1.0 x Lsat. Round 27's answer ("without
-faults the gain comes from binding late") was an answer about early binders that herd. It does not hold for an early binder that counts the
-packets already bound to each VL. What stays true is narrower: the main row gets from local information, at the routers on the way, what
-an early choice gets only from knowing the whole network at the moment of injection.**
+## The answer in short
+**The strongest early binder we could build reaches the main row on 2x2, where it is slightly ahead, and most of the main row's gain on 3x3
+and 4x4, without faults and with them. Without faults it reaches 66 and 75 % of the throughput gain over DeFT_P and 93 and 82 % of the
+latency gain at 1.0 x Lsat there. Under random VL faults it reaches what it reaches without faults under the same traffic (87 to 92 % and
+80 % of the throughput gain, 92 to 93 % and 87 to 91 % of the latency gain). Round 27's answer ("without faults the gain comes from binding
+late") was an answer about early binders that herd. It does not hold for an early binder that counts the packets already bound to each
+VL. What stays true is narrower: the main row gets from local information, at the routers on the way, what an early choice gets only from
+knowing the whole network at the moment of injection. And the main row does not need the occupancy reports across the VLs, under faults
+as without them.**
 * **Primary family 1: 10 of 12 supported, 2 against** (question 3). The two against are the tests against `EB_best` on 2x2, where the early
   row has 0.9 % more throughput than the main row and 3.7 % less latency. On 3x3 and 4x4 the main row is ahead of `EB_best` by 4.4 and 2.9 %
   in THR and by 3.0 and 7.8 % in LAT; of `EB_down_t` it is ahead on every size (THR 1.8 to 7.1 %, LAT 17 to 22 %).
@@ -35,6 +37,27 @@ an early choice gets only from knowing the whole network at the moment of inject
 * **What the strongest early binder does not reach**: on 3x3 and 4x4 a third and a quarter of the THR gain (the main row carries on above
   DeFT-P's saturation load, where `EB_best` has 18 to 47 % more latency), and a small lead of the main row at low load (1 to 2.4 % at 0.2 and
   0.5 x Lsat; question 6). On 2x2 nothing.
+* **Primary family 2, under random VL faults: 20 of 24 supported, 3 against, 1 not significant** (question 10). The four that are not
+  supported are the tests against `EB_best` on 2x2, where the early row is ahead of the main row at the rate 1/16 and ahead in LAT and
+  level in THR at 4/16. On 3x3 and 4x4 the main row is ahead of `EB_best` by 1.3 to 3.9 % in THR and by 4.4 to 7.6 % in LAT, and it is
+  ahead of `EB_down_t` in all twelve tests (THR 1.2 to 9.5 %, LAT 14 to 27 %).
+* **Faults do not bring this early binder closer to the main row** (question 10). Under faults `EB_best` reaches 113 / 92 / 80 % of the
+  THR gain at 1/16 and 102 / 87 / 80 % at 4/16, and 105 / 93 / 91 % and 104 / 92 / 87 % of the LAT gain. Without faults under the same two
+  traffic patterns it reaches 110 / 85 / 82 % and 104 / 95 / 93 %. The shares under faults are larger than those over the six scenarios
+  because the fault design has uniform and hotspot traffic only. Under uniform traffic at 4/16 the share is below the fault-free one on
+  every size. Round 27's "much closer under faults" was a weak early binder recovering from a loss it had without faults.
+* **One reservation under faults** (question 10): on 4x4 at 4/16 the row that the tuning chose is not the strongest early row. Round 27's
+  `EB_route`, a member of the family, has 1.9 % more throughput than `EB_best` on the same masks and is level with the main row in THR
+  (-0.5 % [-1.2, +0.1]); in LAT the main row is 6 % ahead of it. That comparison was added after the results were seen.
+* **The reports across the VLs are unnecessary under faults, by the margin stated before the runs** (question 11). The main row without
+  them (`LB_noVLrep`) on the 192 masks of round 26: at every size and rate the 95 % interval lies within +-1 % in THR and +-3 % in LAT
+  (effects -0.1 to +0.3 % and -0.2 to +0.3 %; the widest intervals [-0.1, +0.6] and [-1.2, +1.9]), also where a chiplet is left one
+  functional VL. The hardware does not need the 12 wires per VL for them.
+* **How much of the gain needs late binding** (question 12). Against an early binder with ideal information: none on 2x2; on 3x3 and 4x4
+  a third and a quarter of the THR gain and 7 and 18 % of the LAT gain without faults, 8 to 20 % and 7 to 13 % under faults. With the main
+  row's own information, bound at the Down move instead of hop by hop: about half. The direction on each size is sure (tests fixed before
+  the runs, a second computation, three sets of seeds). The sizes of the shares are descriptive, and `EB_best` is the best member of one
+  family, so the parts that need late binding are upper bounds.
 
 ## Safety of the new rows (A3)
 **No new proof and no new model check are needed, and after reading the code I agree with that.** Every new row binds one functional
@@ -77,6 +100,8 @@ take DeFT-P's entry VL for every packet and differ from DeFT_P only by the seque
   includes 0. At 0.2 and 0.5 x Lsat they are within 0.01 % of DeFT_P. Per scenario 4 of their 72 THR and LAT cells have an unadjusted
   interval that excludes 0 (the largest: `EB_inf`, LAT -6.8 % under hotspot traffic on 2x2), about what chance gives. So the comparison of
   a tuned row with DeFT_P is not an effect of the random stream, and the comparison with its anchor says the same (question 4).
+* **The anchor rows in Part D** (`report/summary_D.md` D.7): level with DeFT_P under faults as well. THR within 0.23 % and LAT within 1.7 % at
+  every size and rate; of the 24 intervals one excludes 0, barely (THR of `EB_inf` on 4x4 at 1/16, -0.22 %).
 * **At T = infinity nothing else matters:** EBf(vl, 0, 0.5, infinity) with `oracle_period 64` is identical to EBf(route, 1, 1, infinity) in
   21 / 21 runs, so one anchor row (`EB_inf`) stands for the T = infinity member of every sub-family, of `EB_best` and of `EB_best64`.
 * **v27 reproduced** (`repro_v27.md`): `EB_vl_b1` and `EB_route_b4` with the arguments of this round (`oracle_pending 0` and `oracle_bias 0`
@@ -445,17 +470,93 @@ seen, `DECISIONS.md`):
   and they are no smaller than at 4/16.
 
 ### 11. Part E: are the reports across the VLs unnecessary under faults, by the stated margin?
-*Open: Part E runs after Part D (3,072 runs).*
+*Final (`report/summary_E.md`, `paper_data/novlrep_faults.csv`). 3,072 new runs, seeds 151 and 152; none missing, no dead-end event, nothing dropped by
+the time rule. `LB_noVLrep` (the main row with `-deft_lb up_report 0`) against the main row of round 26 on the 192 masks of round 26 (rates 1/16, 2/16,
+4/16, 8/16), uniform and hotspot traffic, four loads; unit = mask, 16 per size and rate.* **Yes. At every size and rate the 95 % interval lies within
++-1 % in THR and within +-3 % in LAT, the margin stated before the runs. The row without the reports is within 0.3 % of the main row in THR and in
+LAT in all twelve cells; every THR interval lies between -0.3 and +0.6 % and every LAT interval between -1.2 and +1.9 %. The same holds in the
+masks with a chiplet that is left one functional VL and under each traffic pattern alone. So under faults, as without them (round 27), the
+occupancy reports across the VLs buy nothing that these runs can show, and the hardware does not need the 12 wires per VL for them.**
+
+Effect of `LB_noVLrep` against the main row with its 95 % interval over the 16 masks (THR negative and LAT positive: the row without the reports
+is behind):
+
+| size | rate | THR | LAT at 1.0 x Lsat | P99 | THR within +-1 % | LAT within +-3 % |
+|---|---|---|---|---|---|---|
+| 2x2 | 1/16 | +0.2 [-0.1, +0.6] | -0.1 [-0.5, +0.3] | -1.2 [-3.3, +0.9] | yes | yes |
+| 2x2 | 2/16 | +0.3 [0.0, +0.5] | 0.0 [-0.4, +0.5] | +0.1 [-1.7, +1.9] | yes | yes |
+| 2x2 | 4/16 | +0.1 [-0.2, +0.4] | -0.2 [-0.7, +0.4] | -0.5 [-2.9, +1.9] | yes | yes |
+| 2x2 | 8/16 | 0.0 [-0.2, +0.2] | +0.3 [-0.3, +0.8] | +1.0 [-0.3, +2.4] | yes | yes |
+| 3x3 | 1/16 | +0.1 [-0.1, +0.3] | -0.1 [-0.5, +0.2] | -0.1 [-2.0, +1.9] | yes | yes |
+| 3x3 | 2/16 | 0.0 [-0.2, +0.2] | +0.2 [-0.2, +0.6] | -0.2 [-1.6, +1.2] | yes | yes |
+| 3x3 | 4/16 | +0.2 [0.0, +0.4] | +0.1 [-0.9, +1.0] | -0.2 [-2.6, +2.2] | yes | yes |
+| 3x3 | 8/16 | -0.1 [-0.3, +0.1] | +0.3 [-1.2, +1.9] | -0.2 [-3.7, +3.5] | yes | yes |
+| 4x4 | 1/16 | +0.1 [-0.1, +0.3] | 0.0 [-0.1, +0.2] | +0.4 [-0.7, +1.6] | yes | yes |
+| 4x4 | 2/16 | +0.1 [-0.1, +0.2] | -0.2 [-0.9, +0.5] | 0.0 [-1.8, +1.8] | yes | yes |
+| 4x4 | 4/16 | 0.0 [-0.2, +0.3] | -0.2 [-0.8, +0.4] | -1.6 [-3.7, +0.6] | yes | yes |
+| 4x4 | 8/16 | +0.2 [-0.1, +0.4] | +0.2 [-0.8, +1.2] | +1.0 [-1.6, +3.8] | yes | yes |
+
+* **How far inside the margin.** The widest THR interval is [-0.1, +0.6] (2x2 at 1/16), the widest LAT interval [-1.2, +1.9] (3x3 at 8/16). Of
+  the 24 intervals one excludes 0: THR on 2x2 at 2/16, +0.25 % [+0.03, +0.47], in favour of the row without the reports. P99 has no stated
+  margin: -1.6 to +1.0 %, every interval includes 0, the widest are [-3.7, +3.5] and [-1.6, +3.8] at 8/16 on 3x3 and 4x4.
+* **The criterion asks all 24 intervals to be inside**, so the number of cells does not make the verdict easier to reach: one cell outside
+  would have changed it.
+* **The masks with a chiplet that is left one functional VL** (E.2; 66 of the 192 masks), where I had expected the loss if there is one.
+  Where there are 6 or more of them (2x2 at 8/16: 12; 3x3 at 4/16 and 8/16: 6 and 16; 4x4 at 4/16 and 8/16: 10 and 16) the row without the
+  reports is within -0.1 to +0.2 % in THR and -0.4 to +0.3 % in LAT, and every interval includes 0. Where there are 1 to 3 (3x3 at 2/16,
+  4x4 at 1/16 and 2/16) the values are +0.1 to +0.4 % and -1.9 to +0.8 %, with intervals too wide to say anything (LAT [-14.7, +19.1] over two
+  masks).
+* **Single masks** (E.3, and `report/extra_E.md` X.4, a table added after the results were seen). The largest loss of the row without the
+  reports in one mask is 1.0 % in THR (4x4 at 8/16) and 5.9 % in LAT (3x3 at 8/16; 4.6 % on 3x3 at 4/16, 3.1 % on 4x4 at 4/16 and 8/16). The
+  largest gain in one mask is as large: +1.9 % in THR, and -5.0 % in LAT in the cell with the largest loss. The row without the reports is
+  behind the main row in 78 of the 192 masks in THR and in 95 in LAT. A value of one mask is a mean over four pairs of runs, so these runs
+  neither show nor exclude a loss of a few percent in a single mask; what they show is that the masks spread evenly around 0.
+* **Each traffic pattern alone** (E.4): THR -0.2 to +0.4 %, LAT -0.5 to +0.8 %. Of the 48 intervals three exclude 0, all three in THR and in
+  favour of the row without the reports (+0.3 to +0.4 %).
+* **What it means.** With `up_report 0` the lookahead term of the Up output of an interposer router counts hops only; it no longer uses the
+  occupancies of the outputs of the chiplet router above the VL, which that router would report down across the VL. The selection still
+  sees the credits of the Up link itself. Faults put more traffic on fewer VLs, which is where the state one router further could have
+  mattered. It does not, at any rate up to half of the VLs faulty.
+* **Limits.** The frozen configuration, pipe_all 2, uniform and hotspot traffic, two seeds, four loads. The margin (+-1 % and +-3 %) is my
+  choice, stated before the runs; it is a statement about the mean over random masks of a rate, not about every mask.
+* I had expected this verdict, and a miss, if any, at 8/16 on 2x2 with the loss in the masks with a chiplet left one functional VL. No
+  cell misses; the widest intervals are at 8/16 on 3x3 and 4x4, not on 2x2, and those masks show no loss.
 
 ### 12. How much of the main row's gain needs late binding, without faults and with faults, and how sure is that?
-*Open until Parts D and E are done. Without faults: see "The answer in short".*
+*Final.* **Against an early binder with ideal information: none of it on 2x2, and on 3x3 and 4x4 a third and a quarter of the throughput
+gain and 7 and 18 % of the latency gain without faults, 8 to 20 % and 7 to 13 % under faults. With the information the main row itself
+has, bound at the Down move instead of hop by hop, about half (a quarter of the throughput gain on 2x2).**
 
-## Compared with what I stated in advance (so far: Parts B and C)
+On 2x2 nothing of the main row's gain over DeFT_P needs late binding: `EB_best` is ahead of the main row without faults and at both fault
+rates (of the six pre-registered tests there, five are against the main row and one is not significant). On 3x3 and 4x4 the main row keeps
+a lead that this early binder does not reach: without faults 34 and 25 % of the throughput gain and 7 and 18 % of the latency gain at
+1.0 x Lsat (six scenarios); under faults 8 to 13 % and 20 % of the throughput gain and 7 to 8 % and 9 to 13 % of the latency gain (uniform
+and hotspot traffic, where the fault-free values are 15 and 18 %, and 5 and 7 %). So faults change this little. That lead is what binding
+late is worth against the best that binding early did with knowledge of the whole network. It sits in the scenarios other than hotspot
+and above DeFT-P's saturation load; under hotspot traffic it is 2 to 8 % of the gain. With less knowledge the part that needs late
+binding is larger. The same state up to 64 cycles old leaves 54 and 42 % of the throughput gain and 52 and 49 % of the latency gain
+unreached on 3x3 and 4x4 without faults (15 to 21 % under faults at the rate 4/16). The main row's own information, bound at its first
+decision on the interposer instead of hop by hop (`EB_down_t`), leaves 26 / 54 / 54 % of the throughput gain and 44 / 42 / 57 % of the
+latency gain unreached without faults, and 9 to 52 % and 26 to 54 % under faults. **How sure.** Of the direction on each size, very: the
+comparisons were fixed before the runs, both families are adjusted by Holm and were computed a second time by a script that shares no
+code with the report; on 3x3 and 4x4 the main row is ahead of `EB_best` in all 4 tests without faults and in all 8 under faults, and
+ahead of `EB_down_t` in all 18 tests on the three sizes; the sign is the same on the tuning seeds (2x2 and 4x4), on ten fresh seeds and
+on the two fault seeds. Of the sizes of the shares, less: they are ratios without a test (the ten per-seed shares of `EB_best` without
+faults lie between 62 and 71 % in THR and 87 and 97 % in LAT on 3x3, and between 70 and 80 % and 77 and 86 % on 4x4), THR is a lower
+bound in 40 to 72 % of the cells for every row, and under faults there are two traffic patterns and two seeds. Of "the strongest early
+binder", least: it is the best member of one family by a tuning on five scenarios, so its shares are lower bounds for binding early and
+the parts above are upper bounds for what needs binding late. On 4x4 at the rate 4/16 a member that the tuning did not choose (round
+27's `EB_route`) is level with the main row in throughput (-0.5 % [-1.2, +0.1]); there a throughput lead of the main row is not shown,
+and what is left is 6 % in latency (question 10).
+
+## Compared with what I stated in advance
 The expectations are in `stated_in_advance.md` (commit ffe51de, before any performance result of a new row) and unchanged in
 `PREREGISTRATION.md`. **I underestimated the early binder on nearly every point.** In round 27 I had overestimated the early rows without
 faults; this time I expected the anchor to do the work and the count of the bound packets to add little, and it is the other way round.
 The prompt's expectation (DeFT-P's table with a correction for hot spots, a share well below 100 %) is not what the runs show either; its
-other branch applies: the early binder reaches the main row on 2x2, and that is reported as a result.
+other branch applies: the early binder reaches the main row on 2x2, and that is reported as a result. Under faults I had the number of
+supported tests right and the place of the others wrong: three are against the main row, all on 2x2. The prompt's "larger share under
+faults" holds only as an effect of the traffic mix of the fault design. Part E came out as I expected.
 
 | what I expected | what the runs show |
 |---|---|
@@ -477,9 +578,17 @@ other branch applies: the early binder reaches the main row on 2x2, and that is 
 | `EB_best` leaves DeFT-P's entry VL for 5 to 25 % of the packets, 30 to 60 % under hotspot traffic, under 10 % elsewhere | **No.** 25 / 49 / 49 %, the same in every scenario. |
 | `EB_best64` against `EB_best`: THR within 1.5 %, LAT 2 to 10 % higher | **No.** THR -1.9 to -2.6 %, LAT +15 to +22 %. |
 | nearly no cost of old information under hotspot traffic | **Yes.** THR 0.0 to +0.2 %, LAT +2.0 to +9.6 %. |
-| Part D, Part E, the sentence at the end | *open* |
+| Part D, family 2: 20 to 23 of 24 supported, none against | **The count yes, "none against" no.** 20 supported, 3 against, 1 not significant; the four are the tests against `EB_best` on 2x2. |
+| at the rate 1/16 every test supported | **No.** Two of the three against are at 1/16 (2x2, THR and LAT). |
+| at 4/16 the THR tests against `EB_best` on 3x3 and 4x4 at risk; the LAT tests supported | **Both THR tests are supported** (+1.5 and +2.5 %), and the LAT tests on 3x3 and 4x4; the LAT test on 2x2 is against. The risk was real on 4x4 for a row that the tuning did not choose: against round 27's `EB_route` the main row's lead in THR is 0.5 % with an interval that includes 0. |
+| `EB_down_t` behind the main row in every test | **Yes.** 12 of 12. |
+| share of the THR gain under faults: `EB_best` 60 to 100 % at 4/16, 30 to 70 % at 1/16 | **4/16: yes on 3x3 and 4x4** (87 and 80 %), 102 % on 2x2. **1/16: no**, 113 / 92 / 80 %. |
+| larger under hotspot than under uniform traffic | **Yes on 3x3 and 4x4** (THR 96 to 97 % and 92 to 93 % against 64 to 85 % and 50 to 61 %), **no on 2x2** (99 to 101 % against 117 to 158 %). |
+| Part E: the reports across the VLs unnecessary by the stated margin at every size and rate | **Yes.** All 24 intervals are inside; the row without the reports is within 0.3 % in THR and in LAT. |
+| if a cell misses the margin, it is 8/16 on 2x2, and the loss sits in the masks with a chiplet left one functional VL | **No cell misses.** The widest intervals are at 8/16 on 3x3 and 4x4 (LAT [-1.2, +1.9] and [-0.8, +1.2]), not on 2x2 ([-0.3, +0.8]), and those masks show no loss. |
+| in one sentence: without faults the early binder gets the hotspot part of the gain and little else, so most of the gain still needs late binding; under faults it gets most of the throughput gain and part of the latency gain | **No without faults; more than that under faults.** Without faults it gets most of the gain in the other five scenarios as well (129 / 58 / 66 % of the THR gain). Under faults it gets most of both gains (THR 80 to 113 %, LAT 87 to 105 %), which is what it gets without faults under the same traffic. |
 
-## Limits (so far: Parts B and C)
+## Limits
 * **`EB_best` is the strongest early binder we could build, not the strongest there is.** The family has one form of cost (hops, the
   occupancy at the entry VL or on the route, the count of the bound packets, the anchor) and takes its minimum. A binder that predicts,
   that reserves, or that randomizes among candidates that are nearly as good is outside it. So the shares are lower bounds on what an
@@ -499,6 +608,21 @@ other branch applies: the early binder reaches the main row on 2x2, and that is 
   in THR (within 0.1 %) and at most 1.6 % in LAT at 1.0 x Lsat, every interval including 0.
 * **One packet length (8 flits), one buffer depth, pipe_all 2, no faults in Part C.** T and the count are in flits; other packet lengths
   were not run.
+* **Under faults: two traffic patterns, two seeds, four loads, 16 masks per size and rate.** Parts D and E have uniform and hotspot traffic
+  only, loads up to 2.0 x Lsat of DeFT-P on the mask, and seeds 151 and 152; the interval is over the masks. The shares under faults
+  compare with the fault-free ones only on the same two patterns (`report/extra_D.md`), not with Part C's six scenarios. `EB_best64` was
+  not run at the rate 1/16.
+* **Under faults the tuned row is not the strongest member of its family on 4x4.** The tuning has one faulty scenario of five. On 4x4 at
+  4/16 round 27's `EB_route` has more throughput than `EB_best` and is level with the main row. The member (route, P 1, B 0.5, T 4), which
+  scored above `EB_best` in that scenario (+0.630 against +0.540), was not run in Part D. So on 4x4 under faults a throughput lead of the
+  main row over the strongest early binder is not established; a latency lead over every early row that was run is (6 % or more).
+* **The extra comparisons of Part D were chosen after its results were seen** (`extra_v28.py`, `report/extra_D.md`): descriptive, no
+  test. Two statements of this file rest on them: that the larger shares under faults come from the traffic mix, and the reservation for
+  4x4 at 4/16.
+* **Part E says "unnecessary" by a margin that I chose** (+-1 % in THR, +-3 % in LAT, stated before the runs), for the mean over 16 random
+  masks of a size and rate. It is not a statement about every mask: single masks lose up to 1.0 % in THR and 5.9 % in LAT and gain up to
+  1.9 % and 5.0 %, each value from four pairs of runs. The reports are the occupancies of the outputs of the chiplet router above a VL;
+  the credits of the Up link itself stay.
 * **Why the count works is a reading.** The counters are totals over a run. That later sources see earlier choices, and so do not pile onto
-  the same VL, is what the sub-family table of the tuning suggests (with the count every member scores above +0.35 whatever B and T;
+  the same VL, is what the sub-family table of the tuning suggests (with the count every member scores +0.35 or more whatever B and T;
   without it the members with T = 0 score -0.12 to -1.5); it is not measured directly.
