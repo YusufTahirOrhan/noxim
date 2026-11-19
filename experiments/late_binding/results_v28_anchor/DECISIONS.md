@@ -155,3 +155,18 @@ that means: when in doubt, favour the early rows.
     did not choose is the stronger early binder under faults, that favours the early side and has to be said (the conservative rule);
   * `EB_best64` against `EB_best` without faults on the same two traffic patterns.
   The pre-registered tables, tests and verdicts are unchanged; `report_v28.py` was not edited.
+* **How Part E ran.** 3,072 runs in 3.5 h with its timing runs (estimate 3.5 h), on 19 Nov from 03:48 to 07:05. No run missing, no dead-end
+  event; `restore_v28.py` had nothing to take back. The three parts together took 24.9 h of running time (estimate 24.7 h; the pause is not
+  counted), so the 30 h rule never came into play. Chain c ended at 07:05 with every check passed.
+* **The report of Part E** was run once before on the finished 2x2 and 3x3 runs in a scratch folder (`~/lbraw/v28/dry_res`, deleted), as for
+  Part D, to see that the code runs on real data. Those two sizes were complete at that moment, so that run showed their final numbers
+  before the 4x4 runs had ended. Nothing was changed after it: `report_v28.py` is as committed in ffe51de (17 Nov, before any run of Parts B
+  to E), and the criterion of Part E is the one of the pre-registration. `report_v28.py all` then wrote `report/summary.md` and
+  `paper_data/README.md`; it reproduces `summary_C.md`, `summary_D.md` and their CSVs unchanged, and `check_v28_family.py` agrees on the 36
+  tests of the two families.
+* **Extra table for Part E, added after its results were seen** (`extra_v28.py` X.4, `report/extra_E.md`; descriptive, no test, outside the
+  pre-registration). The pre-registered table E.3 gives the mask with the largest loss of `LB_noVLrep` per size and rate. The largest of 16
+  values is a loss in every cell, whatever the row does, so E.3 alone cannot be read. X.4 puts the mask with the largest gain next to it and
+  counts the masks in which the row without the reports is behind. This table favours the verdict "unnecessary", which is the cheaper
+  hardware for our method; the verdict itself rests on the pre-registered criterion (E.1) alone, and `FINDINGS.md` gives the largest losses
+  as they are. `extra_D.md` is unchanged by the new code.
