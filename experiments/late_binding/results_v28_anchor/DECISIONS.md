@@ -136,3 +136,21 @@ that means: when in doubt, favour the early rows.
 * **v28 has its own `run_seg`**: round 27 called `experiments_v26_eval.run_seg`, which reads round 26's width file
   (`~/lbraw/v26/width.txt`, deleted), so a change of round 27's width file took effect only at the next stage. This round's stages
   read `~/lbraw/v28/width.txt` at every segment of 384 runs.
+* **How Parts C and D ran.** Part C: 11,340 runs, 13.6 h of running time (17 Nov 17:41 to 18 Nov 20:27 with the pause of 12.5 h), the estimate was
+  13.4 h. Part D: 6,912 runs from 18 Nov 20:27 to 19 Nov 03:48 (7.4 h). No run missing, no dead-end event, no hop of an early row with more than
+  one output; `restore_v28.py` had nothing to take back because nothing was dropped.
+* **The report was run part by part** (`report_v28.py c` after Part C, `d` after Part D), each with the code as committed before the runs of
+  that part ended; `check_v28_family.py` after each. The Part D report was run once before on the finished 2x2 and 3x3 runs in a scratch
+  folder (`~/lbraw/v28/dry_res`, deleted) to see that the code runs on real data; no number of that run is used, and nothing was changed
+  after it.
+* **Extra comparisons for Part D, added after its results were seen** (`extra_v28.py`, `report/extra_D.md`; descriptive, no test, outside
+  the pre-registration, and marked so wherever they are used):
+  * the fault-free runs of Part C restricted to the two traffic patterns of the fault design (uniform, hotspot), with THR over the nine
+    loads and over the four loads of the fault design. Reason: Part C's shares are over six scenarios and Part D's over two, so "is the
+    share larger under faults" cannot be read off the two reports;
+  * round 27's early rows (`EB_vl`, `EB_route`, `EB_down`; `results_v27_early/fault_runs.csv`) against this round's rows on the same 48 masks
+    of rate 4/16 (same traffic, loads and seeds). Reason: `EB_route` is a member of this round's family ((route, P = 0, T = 0) with round
+    27's `oracle_beta`), and round 27 measured it within 0.5 % of the main row's throughput on 4x4. If a member of the family that the tuning
+    did not choose is the stronger early binder under faults, that favours the early side and has to be said (the conservative rule);
+  * `EB_best64` against `EB_best` without faults on the same two traffic patterns.
+  The pre-registered tables, tests and verdicts are unchanged; `report_v28.py` was not edited.
