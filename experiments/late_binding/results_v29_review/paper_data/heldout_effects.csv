@@ -1,0 +1,181 @@
+size,scenario,comparison,metric,effect_pct,ci_low,ci_high,p,p_holm,verdict,best_reference,seeds
+2x2,tornado,main row against DeFT_P,THR,13.85,13.23,14.48,1.385e-12,,,,181-190
+2x2,tornado,main row against DeFT_P,LAT,-32.51,-37.66,-26.94,1.366e-06,,,,181-190
+2x2,tornado,main row against DeFT_P,P99,-42.43,-49.74,-34.05,7.184e-06,,,,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,1.3,0.88,1.72,6.101e-05,,,RC,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-17.86,-21.37,-14.2,3.025e-06,,,RC,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-20.8,-27.67,-13.28,0.0002539,,,RC,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B",THR,13.85,13.23,14.48,1.385e-12,,,DeFT_P,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B",LAT,-32.51,-37.66,-26.94,1.366e-06,,,DeFT_P,181-190
+2x2,tornado,"main row against best of DeFT_P, DeFT_B",P99,-42.43,-49.74,-34.05,7.184e-06,,,DeFT_P,181-190
+2x2,tornado,"main row against best of MTR, RC",THR,1.3,0.88,1.72,6.101e-05,,,RC,181-190
+2x2,tornado,"main row against best of MTR, RC",LAT,-17.86,-21.37,-14.2,3.025e-06,,,RC,181-190
+2x2,tornado,"main row against best of MTR, RC",P99,-20.8,-27.67,-13.28,0.0002539,,,RC,181-190
+2x2,neighbour,main row against DeFT_P,THR,11.28,10.92,11.64,7.104e-14,,,,181-190
+2x2,neighbour,main row against DeFT_P,LAT,-27.72,-31.13,-24.14,1.013e-07,,,,181-190
+2x2,neighbour,main row against DeFT_P,P99,-46.5,-51.57,-40.91,1.789e-07,,,,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,5.07,4.34,5.81,6.481e-08,,,RC,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.16,-10.89,-5.35,0.0001263,,,RC,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-19.12,-26.36,-11.17,0.0006288,,,RC,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B",THR,11.28,10.92,11.64,7.104e-14,,,DeFT_P,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B",LAT,-27.72,-31.13,-24.14,1.013e-07,,,DeFT_P,181-190
+2x2,neighbour,"main row against best of DeFT_P, DeFT_B",P99,-46.5,-51.57,-40.91,1.789e-07,,,DeFT_P,181-190
+2x2,neighbour,"main row against best of MTR, RC",THR,5.07,4.34,5.81,6.481e-08,,,RC,181-190
+2x2,neighbour,"main row against best of MTR, RC",LAT,-8.16,-10.89,-5.35,0.0001263,,,RC,181-190
+2x2,neighbour,"main row against best of MTR, RC",P99,-19.12,-26.36,-11.17,0.0006288,,,RC,181-190
+2x2,randperm,main row against DeFT_P,THR,-4.33,-5.08,-3.58,4.559e-07,,,,181-190
+2x2,randperm,main row against DeFT_P,LAT,-40.59,-45.43,-35.31,2.251e-07,,,,181-190
+2x2,randperm,main row against DeFT_P,P99,-70.38,-78.2,-59.74,8.778e-06,,,,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-10.75,-11.44,-10.06,1.022e-10,,,RC,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.84,-11.1,-6.52,1.594e-05,,,MTR,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-23.97,-30.22,-17.16,4.924e-05,,,MTR,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B",THR,-4.33,-5.08,-3.58,4.559e-07,,,DeFT_P,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B",LAT,-40.59,-45.43,-35.31,2.251e-07,,,DeFT_P,181-190
+2x2,randperm,"main row against best of DeFT_P, DeFT_B",P99,-70.38,-78.2,-59.74,8.778e-06,,,DeFT_P,181-190
+2x2,randperm,"main row against best of MTR, RC",THR,-10.75,-11.44,-10.06,1.022e-10,,,RC,181-190
+2x2,randperm,"main row against best of MTR, RC",LAT,-8.84,-11.1,-6.52,1.594e-05,,,MTR,181-190
+2x2,randperm,"main row against best of MTR, RC",P99,-23.97,-30.22,-17.16,4.924e-05,,,MTR,181-190
+2x2,all three,main row against DeFT_P,THR,6.62,6.24,7.01,1.881e-11,1.505e-10,supported,,181-190
+2x2,all three,main row against DeFT_P,LAT,-33.82,-36.46,-31.07,2.71e-09,1.626e-08,supported,,181-190
+2x2,all three,main row against DeFT_P,P99,-54.98,-60.01,-49.33,9.746e-08,,,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-1.7,-2.04,-1.36,1.353e-06,1.353e-06,against,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-11.74,-13.3,-10.14,7.277e-08,2.183e-07,supported,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-21.32,-25.27,-17.17,2.311e-06,,,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B",THR,6.62,6.24,7.01,1.881e-11,,,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B",LAT,-33.82,-36.46,-31.07,2.71e-09,,,,181-190
+2x2,all three,"main row against best of DeFT_P, DeFT_B",P99,-54.98,-60.01,-49.33,9.746e-08,,,,181-190
+2x2,all three,"main row against best of MTR, RC",THR,-1.7,-2.04,-1.36,1.353e-06,,,,181-190
+2x2,all three,"main row against best of MTR, RC",LAT,-11.74,-13.3,-10.14,7.277e-08,,,,181-190
+2x2,all three,"main row against best of MTR, RC",P99,-21.32,-25.27,-17.17,2.311e-06,,,,181-190
+3x3,tornado,main row against DeFT_P,THR,9.86,9.62,10.1,5.737e-15,,,,181-190
+3x3,tornado,main row against DeFT_P,LAT,-43.53,-47.49,-39.27,2.575e-08,,,,181-190
+3x3,tornado,main row against DeFT_P,P99,-75.33,-79.89,-69.75,8.445e-08,,,,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,6.12,5.98,6.26,3.879e-15,,,RC,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-40.91,-45.23,-36.24,7.745e-08,,,RC,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-74.28,-78.61,-69.07,4.517e-08,,,RC,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B",THR,9.86,9.62,10.1,5.737e-15,,,DeFT_P,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B",LAT,-43.53,-47.49,-39.27,2.575e-08,,,DeFT_P,181-190
+3x3,tornado,"main row against best of DeFT_P, DeFT_B",P99,-75.33,-79.89,-69.75,8.445e-08,,,DeFT_P,181-190
+3x3,tornado,"main row against best of MTR, RC",THR,6.12,5.98,6.26,3.879e-15,,,RC,181-190
+3x3,tornado,"main row against best of MTR, RC",LAT,-40.91,-45.23,-36.24,7.745e-08,,,RC,181-190
+3x3,tornado,"main row against best of MTR, RC",P99,-74.28,-78.61,-69.07,4.517e-08,,,RC,181-190
+3x3,neighbour,main row against DeFT_P,THR,8.38,7.32,9.44,1.75e-08,,,,181-190
+3x3,neighbour,main row against DeFT_P,LAT,-24.85,-27.37,-22.24,1.475e-08,,,,181-190
+3x3,neighbour,main row against DeFT_P,P99,-52.52,-58.31,-45.91,4.041e-07,,,,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.92,2.1,3.75,1.918e-05,,,MTR,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-10.28,-12.6,-7.89,6.2e-06,,,RC,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-34.38,-42.61,-24.98,5.547e-05,,,RC,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B",THR,8.38,7.32,9.44,1.75e-08,,,DeFT_P,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B",LAT,-24.85,-27.37,-22.24,1.475e-08,,,DeFT_P,181-190
+3x3,neighbour,"main row against best of DeFT_P, DeFT_B",P99,-52.52,-58.31,-45.91,4.041e-07,,,DeFT_P,181-190
+3x3,neighbour,"main row against best of MTR, RC",THR,2.92,2.1,3.75,1.918e-05,,,MTR,181-190
+3x3,neighbour,"main row against best of MTR, RC",LAT,-10.28,-12.6,-7.89,6.2e-06,,,RC,181-190
+3x3,neighbour,"main row against best of MTR, RC",P99,-34.38,-42.61,-24.98,5.547e-05,,,RC,181-190
+3x3,randperm,main row against DeFT_P,THR,17.58,17.03,18.14,4.896e-14,,,,181-190
+3x3,randperm,main row against DeFT_P,LAT,-42.71,-47.23,-37.81,9.237e-08,,,,181-190
+3x3,randperm,main row against DeFT_P,P99,-76.27,-80.4,-71.27,3.741e-08,,,,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,11.42,11.07,11.78,5.517e-14,,,RC,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-34.96,-40.07,-29.43,8.201e-07,,,RC,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-70.26,-75.86,-63.36,3.514e-07,,,RC,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B",THR,17.58,17.03,18.14,4.896e-14,,,DeFT_P,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B",LAT,-42.71,-47.23,-37.81,9.237e-08,,,DeFT_P,181-190
+3x3,randperm,"main row against best of DeFT_P, DeFT_B",P99,-76.27,-80.4,-71.27,3.741e-08,,,DeFT_P,181-190
+3x3,randperm,"main row against best of MTR, RC",THR,11.42,11.07,11.78,5.517e-14,,,RC,181-190
+3x3,randperm,"main row against best of MTR, RC",LAT,-34.96,-40.07,-29.43,8.201e-07,,,RC,181-190
+3x3,randperm,"main row against best of MTR, RC",P99,-70.26,-75.86,-63.36,3.514e-07,,,RC,181-190
+3x3,all three,main row against DeFT_P,THR,11.87,11.52,12.21,3.088e-14,3.705e-13,supported,,181-190
+3x3,all three,main row against DeFT_P,LAT,-37.59,-40.11,-34.95,9.458e-10,6.621e-09,supported,,181-190
+3x3,all three,main row against DeFT_P,P99,-69.71,-73.26,-65.69,4.474e-09,,,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,6.76,6.49,7.04,7.317e-13,8.049e-12,supported,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-29.88,-32.53,-27.12,6.37e-09,3.185e-08,supported,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-63.11,-67.34,-58.34,1.757e-08,,,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B",THR,11.87,11.52,12.21,3.088e-14,,,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B",LAT,-37.59,-40.11,-34.95,9.458e-10,,,,181-190
+3x3,all three,"main row against best of DeFT_P, DeFT_B",P99,-69.71,-73.26,-65.69,4.474e-09,,,,181-190
+3x3,all three,"main row against best of MTR, RC",THR,6.76,6.49,7.04,7.317e-13,,,,181-190
+3x3,all three,"main row against best of MTR, RC",LAT,-29.88,-32.53,-27.12,6.37e-09,,,,181-190
+3x3,all three,"main row against best of MTR, RC",P99,-63.11,-67.34,-58.34,1.757e-08,,,,181-190
+4x4,tornado,main row against DeFT_P,THR,3.19,3.01,3.37,1.46e-11,,,,181-190
+4x4,tornado,main row against DeFT_P,LAT,-12.15,-15.13,-9.07,1.366e-05,,,,181-190
+4x4,tornado,main row against DeFT_P,P99,-13.69,-22.64,-3.71,0.01396,,,,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,1.92,1.76,2.09,5.94e-10,,,RC,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.62,-12.15,-4.96,0.0005717,,,RC,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-13.03,-23.29,-1.41,0.0329,,,RC,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B",THR,3.19,3.01,3.37,1.46e-11,,,DeFT_P,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B",LAT,-12.15,-15.13,-9.07,1.366e-05,,,DeFT_P,181-190
+4x4,tornado,"main row against best of DeFT_P, DeFT_B",P99,-13.69,-22.64,-3.71,0.01396,,,DeFT_P,181-190
+4x4,tornado,"main row against best of MTR, RC",THR,1.92,1.76,2.09,5.94e-10,,,RC,181-190
+4x4,tornado,"main row against best of MTR, RC",LAT,-8.62,-12.15,-4.96,0.0005717,,,RC,181-190
+4x4,tornado,"main row against best of MTR, RC",P99,-13.03,-23.29,-1.41,0.0329,,,RC,181-190
+4x4,neighbour,main row against DeFT_P,THR,15.55,14.14,16.98,7.213e-10,,,,181-190
+4x4,neighbour,main row against DeFT_P,LAT,-34.72,-39.43,-29.65,4.173e-07,,,,181-190
+4x4,neighbour,main row against DeFT_P,P99,-60.92,-67.3,-53.3,8.115e-07,,,,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,8.64,7.72,9.56,3.738e-09,,,RC,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-13.44,-15.18,-11.66,6.348e-08,,,RC,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-34.67,-39.37,-29.6,4.18e-07,,,RC,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B",THR,15.55,14.14,16.98,7.213e-10,,,DeFT_P,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B",LAT,-34.72,-39.43,-29.65,4.173e-07,,,DeFT_P,181-190
+4x4,neighbour,"main row against best of DeFT_P, DeFT_B",P99,-60.92,-67.3,-53.3,8.115e-07,,,DeFT_P,181-190
+4x4,neighbour,"main row against best of MTR, RC",THR,8.64,7.72,9.56,3.738e-09,,,RC,181-190
+4x4,neighbour,"main row against best of MTR, RC",LAT,-13.44,-15.18,-11.66,6.348e-08,,,RC,181-190
+4x4,neighbour,"main row against best of MTR, RC",P99,-34.67,-39.37,-29.6,4.18e-07,,,RC,181-190
+4x4,randperm,main row against DeFT_P,THR,15.0,14.38,15.62,6.059e-13,,,,181-190
+4x4,randperm,main row against DeFT_P,LAT,-44.21,-48.93,-39.07,1.156e-07,,,,181-190
+4x4,randperm,main row against DeFT_P,P99,-78.54,-83.11,-72.73,1.476e-07,,,,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,12.24,11.7,12.79,1.323e-12,,,RC,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-35.32,-40.33,-29.89,6.571e-07,,,MTR,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-71.93,-77.58,-64.85,4.507e-07,,,MTR,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B",THR,15.0,14.38,15.62,6.059e-13,,,DeFT_P,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B",LAT,-44.21,-48.93,-39.07,1.156e-07,,,DeFT_P,181-190
+4x4,randperm,"main row against best of DeFT_P, DeFT_B",P99,-78.54,-83.11,-72.73,1.476e-07,,,DeFT_P,181-190
+4x4,randperm,"main row against best of MTR, RC",THR,12.24,11.7,12.79,1.323e-12,,,RC,181-190
+4x4,randperm,"main row against best of MTR, RC",LAT,-35.32,-40.33,-29.89,6.571e-07,,,MTR,181-190
+4x4,randperm,"main row against best of MTR, RC",P99,-71.93,-77.58,-64.85,4.507e-07,,,MTR,181-190
+4x4,all three,main row against DeFT_P,THR,11.1,10.53,11.67,4.726e-12,4.726e-11,supported,,181-190
+4x4,all three,main row against DeFT_P,LAT,-31.61,-34.56,-28.52,1.151e-08,4.602e-08,supported,,181-190
+4x4,all three,main row against DeFT_P,P99,-58.32,-62.68,-53.46,2.35e-08,,,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,7.52,7.12,7.92,7.973e-12,7.176e-11,supported,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-20.02,-22.63,-17.32,9.979e-08,2.183e-07,supported,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-45.77,-50.69,-40.35,1.476e-07,,,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B",THR,11.1,10.53,11.67,4.726e-12,,,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B",LAT,-31.61,-34.56,-28.52,1.151e-08,,,,181-190
+4x4,all three,"main row against best of DeFT_P, DeFT_B",P99,-58.32,-62.68,-53.46,2.35e-08,,,,181-190
+4x4,all three,"main row against best of MTR, RC",THR,7.52,7.12,7.92,7.973e-12,,,,181-190
+4x4,all three,"main row against best of MTR, RC",LAT,-20.02,-22.63,-17.32,9.979e-08,,,,181-190
+4x4,all three,"main row against best of MTR, RC",P99,-45.77,-50.69,-40.35,1.476e-07,,,,181-190
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-3.28,-10.75,5.07,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-5.68,-17.86,8.4,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-12.44,-23.97,2.92,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,3.78,-1.76,11.42,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-18.19,-40.91,11.14,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-45.08,-74.28,38.19,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,5.63,0.25,12.24,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-11.08,-35.32,14.07,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-30.67,-71.93,29.7,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",THR,4.87,-4.33,13.85,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",LAT,-29.04,-40.59,-13.43,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",P99,-46.19,-70.38,-28.84,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",THR,9.02,1.33,17.58,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",LAT,-33.61,-43.53,-17.81,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",P99,-60.81,-76.27,-15.84,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",THR,9.57,2.66,15.55,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",LAT,-26.33,-44.21,-2.88,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of DeFT_P, DeFT_B",P99,-48.68,-78.54,11.82,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",THR,-3.28,-10.75,5.07,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",LAT,-5.68,-17.86,8.4,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",P99,-12.44,-23.97,2.92,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",THR,3.78,-1.76,11.42,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",LAT,-18.19,-40.91,11.14,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",P99,-45.08,-74.28,38.19,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",THR,5.63,0.25,12.24,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",LAT,-11.08,-35.32,14.07,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)","main row against best of MTR, RC",P99,-30.67,-71.93,29.7,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,THR,4.87,-4.33,13.85,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,LAT,-29.04,-40.59,-13.43,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+2x2,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,P99,-46.61,-70.38,-28.84,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,THR,9.02,1.33,17.58,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,LAT,-33.61,-43.53,-17.81,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+3x3,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,P99,-60.81,-76.27,-15.84,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,THR,9.57,2.66,15.55,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,LAT,-26.33,-44.21,-2.88,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130
+4x4,"the five untuned (tornado, neighbour, randperm, localized, movinghot)",main row against DeFT_P,P99,-48.68,-78.54,11.82,,,,mean of the five per-scenario effects; ci_low and ci_high are the range of the five,181-190 and 121-130

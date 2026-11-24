@@ -1,0 +1,157 @@
+size,scenarios,row,reference,metric,effect_pct,ci_low,ci_high,p,n_seeds
+2x2,the three new scenarios,LB_b0,CI_heurLA_X_LF,THR,-0.96,-1.42,-0.49,0.001306,10
+2x2,the three new scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-2.64,-3.1,-2.17,4.707e-07,10
+2x2,the three new scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-1.7,-2.04,-1.36,1.353e-06,10
+2x2,the three new scenarios,LB_b0,CI_heurLA_X_LF,LAT,4.1,3.6,4.6,1.468e-08,10
+2x2,the three new scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.12,-9.63,-6.58,1.056e-06,10
+2x2,the three new scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-11.74,-13.3,-10.14,7.277e-08,10
+2x2,the three new scenarios,LB_b0,CI_heurLA_X_LF,P99,4.64,2.74,6.56,0.0003264,10
+2x2,the three new scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-17.67,-22.04,-13.07,2.042e-05,10
+2x2,the three new scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-21.32,-25.27,-17.17,2.311e-06,10
+2x2,the three new scenarios,LB_b0,CI_heurLA_X_LF,LAT05,0.4,0.26,0.55,0.000167,10
+2x2,the three new scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.81,-1.1,-0.51,0.0001624,10
+2x2,the three new scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.21,-1.47,-0.94,3.261e-06,10
+2x2,tornado,LB_b0,CI_heurLA_X_LF,THR,-1.03,-1.44,-0.61,0.0003327,10
+2x2,tornado,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,0.26,-0.37,0.9,0.375,10
+2x2,tornado,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,1.3,0.88,1.72,6.101e-05,10
+2x2,tornado,LB_b0,CI_heurLA_X_LF,LAT,6.25,5.01,7.51,9.618e-07,10
+2x2,tornado,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-12.73,-16.65,-8.62,8.833e-05,10
+2x2,tornado,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-17.86,-21.37,-14.2,3.025e-06,10
+2x2,tornado,LB_b0,CI_heurLA_X_LF,P99,6.72,1.18,12.57,0.02219,10
+2x2,tornado,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-15.48,-23.48,-6.64,0.00405,10
+2x2,tornado,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-20.8,-27.67,-13.28,0.0002539,10
+2x2,tornado,LB_b0,CI_heurLA_X_LF,LAT05,0.39,-0.03,0.81,0.06474,10
+2x2,tornado,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.12,-0.66,0.42,0.6311,10
+2x2,tornado,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.51,-0.74,-0.27,0.0009647,10
+2x2,neighbour,LB_b0,CI_heurLA_X_LF,THR,-0.45,-0.73,-0.17,0.005333,10
+2x2,neighbour,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,4.6,3.91,5.29,9.102e-08,10
+2x2,neighbour,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,5.07,4.34,5.81,6.481e-08,10
+2x2,neighbour,LB_b0,CI_heurLA_X_LF,LAT,1.26,0.76,1.76,0.0002759,10
+2x2,neighbour,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-7.01,-9.56,-4.38,0.0002277,10
+2x2,neighbour,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.16,-10.89,-5.35,0.0001263,10
+2x2,neighbour,LB_b0,CI_heurLA_X_LF,P99,-0.46,-2.24,1.35,0.5742,10
+2x2,neighbour,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-19.49,-26.77,-11.5,0.0005792,10
+2x2,neighbour,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-19.12,-26.36,-11.17,0.0006288,10
+2x2,neighbour,LB_b0,CI_heurLA_X_LF,LAT05,0.22,-0.15,0.59,0.2168,10
+2x2,neighbour,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.26,-1.65,-0.87,4.671e-05,10
+2x2,neighbour,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.48,-1.91,-1.04,3.185e-05,10
+2x2,randperm,LB_b0,CI_heurLA_X_LF,THR,-1.39,-2.38,-0.39,0.01189,10
+2x2,randperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-12.0,-12.59,-11.41,9.62e-12,10
+2x2,randperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-10.75,-11.44,-10.06,1.022e-10,10
+2x2,randperm,LB_b0,CI_heurLA_X_LF,LAT,4.85,4.11,5.59,1.019e-07,10
+2x2,randperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-4.42,-6.98,-1.79,0.004409,10
+2x2,randperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-8.84,-11.1,-6.52,1.594e-05,10
+2x2,randperm,LB_b0,CI_heurLA_X_LF,P99,7.85,4.51,11.29,0.0004113,10
+2x2,randperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-18.0,-25.81,-9.38,0.001513,10
+2x2,randperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-23.97,-30.22,-17.16,4.924e-05,10
+2x2,randperm,LB_b0,CI_heurLA_X_LF,LAT05,0.61,0.37,0.84,0.0002386,10
+2x2,randperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.03,-1.54,-0.52,0.0014,10
+2x2,randperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.63,-2.06,-1.2,1.334e-05,10
+2x2,the six of round 25,LB_b0,CI_heurLA_X_LF,THR,-0.85,-1.02,-0.68,1.402e-06,10
+2x2,the six of round 25,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-0.85,-1.1,-0.6,3.217e-05,10
+2x2,the six of round 25,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,0.0,-0.31,0.31,0.9853,10
+2x2,the six of round 25,LB_b0,CI_heurLA_X_LF,LAT,4.23,3.34,5.12,1.623e-06,10
+2x2,the six of round 25,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-7.29,-9.16,-5.38,1.513e-05,10
+2x2,the six of round 25,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-11.05,-13.24,-8.8,2.2e-06,10
+2x2,the six of round 25,LB_b0,CI_heurLA_X_LF,P99,2.91,0.52,5.36,0.0221,10
+2x2,the six of round 25,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-22.16,-27.99,-15.85,4.68e-05,10
+2x2,the six of round 25,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-24.36,-29.81,-18.48,1.447e-05,10
+2x2,the six of round 25,LB_b0,CI_heurLA_X_LF,LAT05,1.52,1.38,1.66,1.445e-09,10
+2x2,the six of round 25,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,0.97,0.78,1.17,1.455e-06,10
+2x2,the six of round 25,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.54,-0.73,-0.35,0.0001305,10
+2x2,the four tuning scenarios,LB_b0,CI_heurLA_X_LF,THR,-0.79,-0.94,-0.63,1.237e-06,10
+2x2,the four tuning scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.12,1.86,2.37,1.591e-08,10
+2x2,the four tuning scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.93,2.59,3.26,8.458e-09,10
+2x2,the four tuning scenarios,LB_b0,CI_heurLA_X_LF,LAT,3.59,3.21,3.97,4.499e-09,10
+2x2,the four tuning scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-14.87,-16.74,-12.96,5.181e-08,10
+2x2,the four tuning scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-17.82,-19.73,-15.86,1.533e-08,10
+2x2,the four tuning scenarios,LB_b0,CI_heurLA_X_LF,P99,2.38,0.48,4.33,0.01945,10
+2x2,the four tuning scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-33.57,-39.25,-27.36,2.688e-06,10
+2x2,the four tuning scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-35.12,-40.55,-29.19,1.387e-06,10
+2x2,the four tuning scenarios,LB_b0,CI_heurLA_X_LF,LAT05,1.72,1.56,1.87,1.211e-09,10
+2x2,the four tuning scenarios,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,0.74,0.45,1.03,0.0002465,10
+2x2,the four tuning scenarios,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.96,-1.13,-0.79,3.926e-07,10
+2x2,localized and movinghot,LB_b0,CI_heurLA_X_LF,THR,-0.98,-1.5,-0.46,0.002112,10
+2x2,localized and movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-6.52,-7.05,-5.99,6.556e-10,10
+2x2,localized and movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-5.6,-6.16,-5.03,4.072e-09,10
+2x2,localized and movinghot,LB_b0,CI_heurLA_X_LF,LAT,5.52,3.05,8.04,0.0006067,10
+2x2,localized and movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,9.95,6.57,13.44,7.342e-05,10
+2x2,localized and movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,4.2,-0.06,8.65,0.05278,10
+2x2,localized and movinghot,LB_b0,CI_heurLA_X_LF,P99,3.97,-1.68,9.94,0.1493,10
+2x2,localized and movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,6.89,-3.67,18.62,0.1814,10
+2x2,localized and movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,2.81,-9.22,16.44,0.6266,10
+2x2,localized and movinghot,LB_b0,CI_heurLA_X_LF,LAT05,1.13,0.79,1.47,3.487e-05,10
+2x2,localized and movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,1.44,1.11,1.78,3.916e-06,10
+2x2,localized and movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,0.31,-0.07,0.7,0.09546,10
+2x2,uniform,LB_b0,CI_heurLA_X_LF,THR,-1.58,-2.05,-1.1,4.221e-05,10
+2x2,uniform,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-2.95,-3.5,-2.39,8.524e-07,10
+2x2,uniform,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-1.39,-2.12,-0.67,0.001892,10
+2x2,uniform,LB_b0,CI_heurLA_X_LF,LAT,3.05,2.34,3.76,3.861e-06,10
+2x2,uniform,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,3.9,1.26,6.61,0.008303,10
+2x2,uniform,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,0.83,-1.93,3.67,0.5185,10
+2x2,uniform,LB_b0,CI_heurLA_X_LF,P99,0.72,-2.4,3.94,0.6186,10
+2x2,uniform,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-6.81,-15.57,2.86,0.1407,10
+2x2,uniform,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-7.47,-16.61,2.66,0.1252,10
+2x2,uniform,LB_b0,CI_heurLA_X_LF,LAT05,1.43,1.05,1.8,1.094e-05,10
+2x2,uniform,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,1.37,0.97,1.76,2.458e-05,10
+2x2,uniform,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.06,-0.3,0.19,0.6067,10
+2x2,localized,LB_b0,CI_heurLA_X_LF,THR,-0.87,-1.41,-0.32,0.005776,10
+2x2,localized,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-8.44,-8.98,-7.89,8.704e-11,10
+2x2,localized,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-7.63,-8.28,-6.98,1.026e-09,10
+2x2,localized,LB_b0,CI_heurLA_X_LF,LAT,4.59,3.55,5.64,3.171e-06,10
+2x2,localized,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,13.37,11.34,15.44,7.458e-08,10
+2x2,localized,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,8.4,6.76,10.06,7.649e-07,10
+2x2,localized,LB_b0,CI_heurLA_X_LF,P99,6.94,4.68,9.25,5.712e-05,10
+2x2,localized,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,9.83,4.28,15.68,0.00271,10
+2x2,localized,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,2.71,-2.9,8.64,0.31,10
+2x2,localized,LB_b0,CI_heurLA_X_LF,LAT05,1.29,1.06,1.52,4.19e-07,10
+2x2,localized,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,2.68,2.37,2.99,9.467e-09,10
+2x2,localized,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,1.37,0.97,1.77,2.612e-05,10
+2x2,hotspot,LB_b0,CI_heurLA_X_LF,THR,-0.53,-1.02,-0.03,0.03994,10
+2x2,hotspot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.35,1.38,3.34,0.0003773,10
+2x2,hotspot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.9,1.84,3.97,0.0001487,10
+2x2,hotspot,LB_b0,CI_heurLA_X_LF,LAT,2.89,2.09,3.69,1.724e-05,10
+2x2,hotspot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-11.37,-13.03,-9.68,1.534e-07,10
+2x2,hotspot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-13.86,-15.47,-12.22,2.429e-08,10
+2x2,hotspot,LB_b0,CI_heurLA_X_LF,P99,4.36,-0.32,9.27,0.06481,10
+2x2,hotspot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-16.54,-21.66,-11.09,0.0001166,10
+2x2,hotspot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-20.03,-23.9,-15.98,2.998e-06,10
+2x2,hotspot,LB_b0,CI_heurLA_X_LF,LAT05,-0.69,-0.97,-0.41,0.0003608,10
+2x2,hotspot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-2.55,-2.98,-2.12,3.085e-07,10
+2x2,hotspot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.88,-2.15,-1.6,1.106e-07,10
+2x2,chipperm,LB_b0,CI_heurLA_X_LF,THR,-0.78,-0.9,-0.66,1.261e-07,10
+2x2,chipperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,6.91,6.34,7.47,3.856e-10,10
+2x2,chipperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,7.75,7.2,8.3,1.077e-10,10
+2x2,chipperm,LB_b0,CI_heurLA_X_LF,LAT,4.86,4.36,5.36,3.129e-09,10
+2x2,chipperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-26.0,-31.18,-20.43,6.058e-06,10
+2x2,chipperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-29.43,-34.39,-24.09,1.855e-06,10
+2x2,chipperm,LB_b0,CI_heurLA_X_LF,P99,3.98,2.01,5.99,0.001267,10
+2x2,chipperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-50.9,-60.56,-38.88,4.335e-05,10
+2x2,chipperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-52.78,-61.93,-41.44,2.482e-05,10
+2x2,chipperm,LB_b0,CI_heurLA_X_LF,LAT05,3.53,3.2,3.86,1.603e-09,10
+2x2,chipperm,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,2.09,1.65,2.53,1.863e-06,10
+2x2,chipperm,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-1.39,-1.71,-1.07,4.242e-06,10
+2x2,chiptrans,LB_b0,CI_heurLA_X_LF,THR,-0.26,-0.38,-0.14,0.0008296,10
+2x2,chiptrans,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.39,2.09,2.69,2.004e-08,10
+2x2,chiptrans,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,2.66,2.39,2.93,3.003e-09,10
+2x2,chiptrans,LB_b0,CI_heurLA_X_LF,LAT,3.57,2.65,4.51,1.01e-05,10
+2x2,chiptrans,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-22.92,-28.97,-16.35,5.084e-05,10
+2x2,chiptrans,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,-25.58,-31.41,-19.25,1.836e-05,10
+2x2,chiptrans,LB_b0,CI_heurLA_X_LF,P99,0.53,-2.73,3.9,0.7244,10
+2x2,chiptrans,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-49.0,-57.08,-39.39,1.003e-05,10
+2x2,chiptrans,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,-49.27,-57.8,-39.01,1.586e-05,10
+2x2,chiptrans,LB_b0,CI_heurLA_X_LF,LAT05,2.66,2.39,2.92,2.712e-09,10
+2x2,chiptrans,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,2.14,1.81,2.47,1.299e-07,10
+2x2,chiptrans,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.5,-0.78,-0.22,0.002773,10
+2x2,movinghot,LB_b0,CI_heurLA_X_LF,THR,-1.09,-1.98,-0.2,0.02206,10
+2x2,movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-4.57,-5.36,-3.78,4.554e-07,10
+2x2,movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,-3.52,-4.64,-2.39,6.663e-05,10
+2x2,movinghot,LB_b0,CI_heurLA_X_LF,LAT,6.46,1.41,11.75,0.01714,10
+2x2,movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,6.64,-0.11,13.84,0.05334,10
+2x2,movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,0.17,-7.93,8.98,0.9648,10
+2x2,movinghot,LB_b0,CI_heurLA_X_LF,P99,1.09,-9.13,12.45,0.8238,10
+2x2,movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,4.03,-16.81,30.1,0.6985,10
+2x2,movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",P99,2.92,-20.86,33.83,0.8101,10
+2x2,movinghot,LB_b0,CI_heurLA_X_LF,LAT05,0.96,0.47,1.46,0.001644,10
+2x2,movinghot,LB_b0,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,0.22,-0.26,0.71,0.3245,10
+2x2,movinghot,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT05,-0.73,-1.14,-0.32,0.003072,10

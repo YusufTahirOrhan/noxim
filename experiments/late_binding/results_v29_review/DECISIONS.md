@@ -143,3 +143,18 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
 * One compile of a Verilator checker (a try of the E2 vector check that I had started by hand) ran for about 30 seconds next to the
   first timing set (2x2, the Part B runs) before I stopped it. One process next to twelve for half a minute of a set of several minutes:
   the estimate of that set is high by well under 1 %, which errs towards dropping.
+
+## The time rule: what was dropped, and how it can come back
+* **Estimate 54.0 h, above 48 h: Part G and Part F2 are dropped** (`runtime_estimate.md`), the first two items of the pre-registered
+  order; what is kept is estimated at 44.9 h. The runs were slower than in round 28 (9.5 s per run of a reference at depth 6 on 4x4
+  against 7.8 s for the rows of round 28).
+* **Taking an item back** (`restore_v29.py`, `time_rule.md`). The pre-registered sentence is applied literally at the end of every part:
+  time since the start of the timing runs + what is still to run of the kept parts + the item, each at the speed measured until then
+  (the time used so far over the estimate of the runs finished in it), at most 48 h. Reverse of the drop order: F2 first, G only after
+  F2. Part G counts with its limit of 3 h, unscaled. The script reads the clock and counts files; it opens no result.
+* **The ends of B1 and B2 passed with nobody at the keyboard** (the session that ran the round was interrupted between 17:30 and 23:45 on
+  24 Nov). Their decisions were made afterwards with the times of the chain's log and only the files that existed at those moments:
+  50.9 h and 50.7 h, so F2 stays dropped. From C1 on the script is run when a part ends.
+* **Processors given to the hardware flow are not charged to the rule.** The synthesis and the checks of Part E run with three threads
+  next to the twelve simulator processes. Their share of the machine (3 of 15 runnable processes for as long as they run) is written as
+  a second number into `~/lbraw/v29/b_start.txt` and is not counted as time of Parts B to G; `time_rule.md` shows it at each decision.

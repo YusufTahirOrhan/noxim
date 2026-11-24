@@ -1,0 +1,13 @@
+size,row,reference,metric,scenarios,group,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,CI_heurLA_X_LF,DeFT_P,THR,tornado+neighbour+randperm,a,10,6.62,6.24,7.01,1.881e-11,1.505e-10,supported
+2x2,CI_heurLA_X_LF,DeFT_P,LAT,tornado+neighbour+randperm,a,10,-33.82,-36.46,-31.07,2.71e-09,1.626e-08,supported
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,tornado+neighbour+randperm,b,10,-1.7,-2.04,-1.36,1.353e-06,1.353e-06,against
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,tornado+neighbour+randperm,b,10,-11.74,-13.3,-10.14,7.277e-08,2.183e-07,supported
+3x3,CI_heurLA_X_LF,DeFT_P,THR,tornado+neighbour+randperm,a,10,11.87,11.52,12.21,3.088e-14,3.705e-13,supported
+3x3,CI_heurLA_X_LF,DeFT_P,LAT,tornado+neighbour+randperm,a,10,-37.59,-40.11,-34.95,9.458e-10,6.621e-09,supported
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,tornado+neighbour+randperm,b,10,6.76,6.49,7.04,7.317e-13,8.049e-12,supported
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,tornado+neighbour+randperm,b,10,-29.88,-32.53,-27.12,6.37e-09,3.185e-08,supported
+4x4,CI_heurLA_X_LF,DeFT_P,THR,tornado+neighbour+randperm,a,10,11.1,10.53,11.67,4.726e-12,4.726e-11,supported
+4x4,CI_heurLA_X_LF,DeFT_P,LAT,tornado+neighbour+randperm,a,10,-31.61,-34.56,-28.52,1.151e-08,4.602e-08,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",THR,tornado+neighbour+randperm,b,10,7.52,7.12,7.92,7.973e-12,7.176e-11,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",LAT,tornado+neighbour+randperm,b,10,-20.02,-22.63,-17.32,9.979e-08,2.183e-07,supported
