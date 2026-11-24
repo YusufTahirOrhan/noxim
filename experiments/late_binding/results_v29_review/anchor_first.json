@@ -1,0 +1,20 @@
+{
+ "EB_first_inf": {
+  "identical": false,
+  "same": 0,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": 0.08067434717697886,
+  "mean_lat": 0.2076800032522197,
+  "mean_p99": -0.7127214539229931
+ },
+ "EB_first_inf_ts": {
+  "identical": true,
+  "same": 21,
+  "runs": 21,
+  "runs_off_default": 0,
+  "mean_thr": 0.0,
+  "mean_lat": 0.0,
+  "mean_p99": 0.0
+ }
+}
