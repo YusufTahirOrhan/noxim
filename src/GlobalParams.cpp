@@ -47,6 +47,7 @@ int GlobalParams::n_delta_tiles;
 double GlobalParams::r2r_link_length;
 double GlobalParams::r2h_link_length;
 int GlobalParams::buffer_depth;
+int GlobalParams::buffer_depth_ipos = 0;
 int GlobalParams::flit_size;
 int GlobalParams::min_packet_size;
 int GlobalParams::max_packet_size;

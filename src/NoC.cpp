@@ -2552,12 +2552,16 @@ void NoC::buildDeft2D()
         core[id] = tile;
         t[layout_x][layout_y] = tile;
 
+        // v29 (-buffer_ipos N; 0 = off): every input buffer of an interposer router has depth N; the chiplet routers keep -buffer
+        const int router_buffer_depth =
+            (GlobalParams::buffer_depth_ipos > 0 && DeftTopology::isInterposerRouter(id)) ?
+            GlobalParams::buffer_depth_ipos : GlobalParams::buffer_depth;
         tile->r->configure(id,
                            GlobalParams::stats_warm_up_time,
-                           GlobalParams::buffer_depth,
+                           router_buffer_depth,
                            grtable);
         tile->r->power.configureRouter(GlobalParams::flit_size,
-                                       GlobalParams::buffer_depth,
+                                       router_buffer_depth,
                                        GlobalParams::flit_size,
                                        string(GlobalParams::routing_algorithm),
                                        "default");

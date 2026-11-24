@@ -249,6 +249,7 @@ void loadConfiguration() {
     GlobalParams::r2r_link_length = readParam<double>(config, "r2r_link_length");
     GlobalParams::r2h_link_length = readParam<double>(config, "r2h_link_length");
     GlobalParams::buffer_depth = readParam<int>(config, "buffer_depth");
+    GlobalParams::buffer_depth_ipos = readParam<int>(config, "buffer_depth_ipos", 0);
     GlobalParams::flit_size = readParam<int>(config, "flit_size");
     GlobalParams::min_packet_size = readParam<int>(config, "min_packet_size");
     GlobalParams::max_packet_size = readParam<int>(config, "max_packet_size");
@@ -458,6 +459,7 @@ void showHelp(char selfname[])
          << "\t-traffic_rng 0|1\tTraffic generator with its own RNG seeded from -seed (default 0)" << endl
          << "\t-pipe_all N\t\tEvery head waits N cycles at an input-buffer front before it may reserve an output (default 0)" << endl
          << "\t-vc_per_hop 0|1\tWithout VN rules (MTR, RC): any free output VC at each hop, round-robin (default 0)" << endl
+         << "\t-buffer_ipos N\t\tDEFT_2_5D: depth of every input buffer of an interposer router (default 0 = as -buffer)" << endl
          << "\t-deft_chiplets_x N, -deft_chiplets_y N\tDEFT_2_5D chiplet grid (default 2 x 2)" << endl
          << "\t-deft_chiplet_w N, -deft_chiplet_h N\tDEFT_2_5D routers per chiplet (default 4 x 4)" << endl
          << "\t-detailed\t\tShow detailed statistics" << endl
@@ -627,6 +629,11 @@ void checkConfiguration()
 
     if (GlobalParams::buffer_depth < 1) {
 	cerr << "Error: buffer must be >= 1" << endl;
+	exit(1);
+    }
+    if (GlobalParams::buffer_depth_ipos < 0 ||
+	(GlobalParams::buffer_depth_ipos > 0 && GlobalParams::topology != TOPOLOGY_DEFT_2_5D)) {
+	cerr << "Error: buffer_ipos must be >= 0 and needs the DEFT_2_5D topology" << endl;
 	exit(1);
     }
     if (GlobalParams::flit_size <= 0) {
@@ -811,6 +818,8 @@ void parseCmdLine(int arg_num, char *arg_vet[])
 
 	    else if (!strcmp(arg_vet[i], "-buffer"))
 		GlobalParams::buffer_depth = atoi(requireOptionValue(i, arg_num, arg_vet, "-buffer"));
+	    else if (!strcmp(arg_vet[i], "-buffer_ipos"))
+		GlobalParams::buffer_depth_ipos = atoi(requireOptionValue(i, arg_num, arg_vet, "-buffer_ipos"));
 	    else if (!strcmp(arg_vet[i], "-buffer_tt"))
 		setBufferToTile(atoi(requireOptionValue(i, arg_num, arg_vet, "-buffer_tt")));
 	    else if (!strcmp(arg_vet[i], "-buffer_ft"))

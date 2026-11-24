@@ -74,6 +74,33 @@ Power::Power()
     initPowerBreakdown();
 }
 
+// v29: the entry of a buffer table of the power configuration for (depth, item size). The table (power.yaml) has the depths 2, 4, 8, 16, 32
+// and 64. A depth it has is read as before. A depth it does not have (-buffer 5 or 6, -buffer_ipos 7) is interpolated linearly between
+// the nearest tabulated depths below and above it with the same item size; beyond the table the nearest depth is taken.
+static double bufferPowerEntry(map<pair<int,int>, double> &table, int depth, int item_size)
+{
+    map<pair<int,int>, double>::iterator it = table.find(pair<int,int>(depth, item_size));
+    if (it != table.end())
+        return it->second;
+    int lo = -1, hi = -1;
+    for (it = table.begin(); it != table.end(); ++it) {
+        if (it->first.second != item_size)
+            continue;
+        const int d = it->first.first;
+        if (d < depth && d > lo)
+            lo = d;
+        if (d > depth && (hi < 0 || d < hi))
+            hi = d;
+    }
+    assert(lo >= 0 || hi >= 0);
+    if (lo < 0)
+        return table[pair<int,int>(hi, item_size)];
+    if (hi < 0)
+        return table[pair<int,int>(lo, item_size)];
+    const double a = table[pair<int,int>(lo, item_size)], b = table[pair<int,int>(hi, item_size)];
+    return a + (b - a) * (depth - lo) / (double) (hi - lo);
+}
+
 void Power::configureRouter(int link_width,
 	int buffer_depth,
 	int buffer_item_size,
@@ -83,20 +110,14 @@ void Power::configureRouter(int link_width,
 // (s)tatic, (d)ynamic power
 
     // Buffer 
-    pair<int,int> key = pair<int,int>(buffer_depth, buffer_item_size);
-    
-    assert(GlobalParams::power_configuration.bufferPowerConfig.leakage.find(key) != GlobalParams::power_configuration.bufferPowerConfig.leakage.end());
-    assert(GlobalParams::power_configuration.bufferPowerConfig.push.find(key) != GlobalParams::power_configuration.bufferPowerConfig.push.end());
-    assert(GlobalParams::power_configuration.bufferPowerConfig.front.find(key) != GlobalParams::power_configuration.bufferPowerConfig.front.end());
-    assert(GlobalParams::power_configuration.bufferPowerConfig.pop.find(key) != GlobalParams::power_configuration.bufferPowerConfig.pop.end());
-
     // Dynamic values are expressed in Joule
     // Static/Leakage values must be converted from Watt to Joule
+    // (v29: a depth that is not in the table is interpolated, bufferPowerEntry)
 
-    buffer_router_pwr_s = W2J(GlobalParams::power_configuration.bufferPowerConfig.leakage[key]);
-    buffer_router_push_pwr_d = GlobalParams::power_configuration.bufferPowerConfig.push[key];
-    buffer_router_front_pwr_d = GlobalParams::power_configuration.bufferPowerConfig.front[key];
-    buffer_router_pop_pwr_d = GlobalParams::power_configuration.bufferPowerConfig.pop[key];
+    buffer_router_pwr_s = W2J(bufferPowerEntry(GlobalParams::power_configuration.bufferPowerConfig.leakage, buffer_depth, buffer_item_size));
+    buffer_router_push_pwr_d = bufferPowerEntry(GlobalParams::power_configuration.bufferPowerConfig.push, buffer_depth, buffer_item_size);
+    buffer_router_front_pwr_d = bufferPowerEntry(GlobalParams::power_configuration.bufferPowerConfig.front, buffer_depth, buffer_item_size);
+    buffer_router_pop_pwr_d = bufferPowerEntry(GlobalParams::power_configuration.bufferPowerConfig.pop, buffer_depth, buffer_item_size);
 
     // Routing 
     assert(GlobalParams::power_configuration.routerPowerConfig.routing_algorithm_pm.find(routing_function) != GlobalParams::power_configuration.routerPowerConfig.routing_algorithm_pm.end());

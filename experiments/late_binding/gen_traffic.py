@@ -19,6 +19,14 @@ Patterns:
   movinghot   phases of T cycles; in phase k, 40 % of every source's traffic goes to hot chiplet
               HOT[k] (uniform over its routers), 60 % uniform; 4 phases repeat. HOT = the four
               corner chiplets 0, CX - 1, C - CX, C - 1 (default 0, 1, 2, 3)
+  tornado     (v29) router (x, y) of the chiplet layer sends only to ((x + FW / 2 - 1) mod FW, y), FW = the width of the layer in
+              routers (2x2: three columns to the east, 3x3: five, 4x4: seven, wrapping around); a packet never leaves its row
+  neighbour   (v29) a source sends to the routers of the chiplets adjacent to its own in the chiplet grid (the chiplets that share
+              an edge with it), uniformly over these routers
+  randperm    (v29) one fixed permutation of the routers without fixed points: router s sends only to PERM[s]. PERM is drawn once
+              per size with random.Random(2901).shuffle on list(range(N)), shuffled again (same generator) until no router maps to
+              itself (randperm_table())
+              tornado, neighbour and randperm are written only when asked for with --patterns.
 Usage: python3 gen_traffic.py OUTDIR [half] [--chiplets CX CY] [--chiplet-size W H] [--upto RATE]
   half: only the odd multiples of 0.0005 (0.0005, 0.0015, ..., 0.0395), used by the v2
         evaluation for scenarios with a low saturation rate; the 0.001 grid is unchanged.
@@ -26,6 +34,7 @@ Usage: python3 gen_traffic.py OUTDIR [half] [--chiplets CX CY] [--chiplet-size W
   --rates R1,R2,...: write exactly these rates and nothing else (all patterns, or --patterns P1,P2).
 """
 import os
+import random
 import sys
 
 CX, CY, CW, CH = 2, 2, 4, 4
@@ -89,6 +98,42 @@ def chiptrans(src):
     tgt = (c % CX) * CX + c // CX          # chiplet (cx, cy) -> chiplet (cy, cx)
     ds = [d for d in range(N) if chiplet(d) == tgt and d != src]
     return {d: 1.0 / len(ds) for d in ds}
+
+
+def tornado(src):
+    x, y = src % FW, src // FW
+    return {y * FW + (x + FW // 2 - 1) % FW: 1.0}
+
+
+def neighbour(src):
+    c = chiplet(src)
+    cx, cy = c % CX, c // CX
+    adj = [(cy + dy) * CX + cx + dx for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= cx + dx < CX and 0 <= cy + dy < CY]
+    ds = [d for d in range(N) if chiplet(d) in adj]
+    return {d: 1.0 / len(ds) for d in ds}
+
+
+RANDPERM_SEED = 2901
+_PERM = {}
+
+
+def randperm_table():
+    """The permutation of randperm for the current size: drawn once with random.Random(RANDPERM_SEED), shuffled again until it has no
+    fixed point."""
+    k = (CX, CY, CW, CH)
+    if k not in _PERM:
+        rnd = random.Random(RANDPERM_SEED)
+        perm = list(range(N))
+        while True:
+            rnd.shuffle(perm)
+            if all(perm[i] != i for i in range(N)):
+                break
+        _PERM[k] = perm
+    return _PERM[k]
+
+
+def randperm(src):
+    return {randperm_table()[src]: 1.0}
 
 
 def movinghot_phase(src, k):

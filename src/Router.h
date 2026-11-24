@@ -96,7 +96,9 @@ SC_MODULE(Router)
     // Constructor
 
     SC_CTOR(Router) {
-        traced_buffer_depth = GlobalParams::buffer_depth;
+        // v29: the buffer trace covers the deeper of the two depths (-buffer_ipos; 0 = as -buffer)
+        traced_buffer_depth = GlobalParams::buffer_depth_ipos > GlobalParams::buffer_depth ?
+                              GlobalParams::buffer_depth_ipos : GlobalParams::buffer_depth;
         for (int direction = 0; direction < DIRECTIONS + 2; direction++) {
             traced_buffer_slots[direction] = new sc_signal<Flit>*[MAX_VIRTUAL_CHANNELS];
             for (int vc = 0; vc < MAX_VIRTUAL_CHANNELS; vc++)

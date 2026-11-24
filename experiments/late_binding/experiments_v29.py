@@ -41,7 +41,7 @@ job, lb, lkey = X24.job, X24.lb, X24.lkey
 
 # ---- the options of this round, each at its default (A1). entry_commit first is a value of entry_commit, whose default (off) is in the
 # list of round 27 already. ----
-NEW_OFF = ['-buffer_ipos', '0']
+NEW_OFF = ['-buffer_ipos', '0'] + lb('buffer_stats', 0)
 EXPLICIT_OFF = X28.EXPLICIT_OFF + NEW_OFF
 
 

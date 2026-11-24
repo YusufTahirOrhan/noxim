@@ -143,6 +143,14 @@ unsigned long g_pc_vl_mismatch = 0;
 bool g_tie_stream = false;                             // the tie-breaks of chooseMasks and commitEntry draw from a stream of their own
 std::mt19937 g_tie_rng;
 bool g_tie_seeded = false;
+// v29 (all off by default; see DeftLateBinding.h): entry_commit first (g_entry_commit == 2) and the diagnostic of the buffer depths.
+unsigned long g_first_bound = 0, g_first_below = 0;    // measured heads bound by entry_commit first / of them at the router below the exit VL
+std::map<std::pair<int, double>, int> g_first_count;   // commits per packet in flight (source, generation cycle); erased at delivery
+int g_first_max = 0;                                   // the largest number of commits of one head (must be 1)
+unsigned long g_cc_not_least = 0;                      // commit_check with entry_commit first: the committed VL is not a candidate of least cost
+bool g_buffer_stats = false;
+unsigned int g_bs_cap_min[2] = {0, 0}, g_bs_cap_max[2] = {0, 0}, g_bs_fill[2] = {0, 0};   // [0 chiplet, 1 interposer]
+bool g_bs_seen[2] = {false, false};
 // Optional VC usage file (parameter vc_stats); empty = off (default).
 std::string g_vc_stats_file;
 double g_vs_rc_wait_sum = 0.0;           // measured window: permission wait of outbound packets
@@ -731,8 +739,9 @@ bool setParam(const std::string &key, const std::string &value,
     if (key == "entry_commit") {       // v27
         if (value == "off") g_entry_commit = 0;
         else if (value == "down") g_entry_commit = 1;
+        else if (value == "first") g_entry_commit = 2;      // v29
         else {
-            if (error_message) *error_message = "entry_commit must be off or down";
+            if (error_message) *error_message = "entry_commit must be off, down or first";
             return false;
         }
         return true;
@@ -942,6 +951,13 @@ bool setParam(const std::string &key, const std::string &value,
         }
         g_tie_stream = d != 0.0;
     }
+    else if (key == "buffer_stats") {       // v29, diagnostic
+        if (d != 0.0 && d != 1.0) {
+            if (error_message) *error_message = "buffer_stats must be 0 or 1";
+            return false;
+        }
+        g_buffer_stats = d != 0.0;
+    }
     else {
         if (error_message) *error_message = "unknown DEFT_LB parameter " + key;
         return false;
@@ -1042,11 +1058,16 @@ bool validateConfiguration(std::string *error_message)
         return false;
     }
     if (g_entry_commit && GlobalParams::selection_strategy != "DEFT_HEUR") {
-        if (error_message) *error_message = "entry_commit down uses the cost of the heuristic selection: it needs -sel DEFT_HEUR";
+        if (error_message) *error_message = "entry_commit down / first uses the cost of the heuristic selection: it needs -sel DEFT_HEUR";
         return false;
     }
     if (g_commit_check > 0 && !g_entry_commit) {
-        if (error_message) *error_message = "commit_check needs entry_commit down";
+        if (error_message) *error_message = "commit_check needs entry_commit down or first";
+        return false;
+    }
+    // v29
+    if (g_entry_commit == 2 && g_hysteresis > 0) {
+        if (error_message) *error_message = "entry_commit first takes the choice of the selection without the herding guard: use hysteresis 0";
         return false;
     }
     if (!g_up_report && g_fast_on) {
@@ -1755,6 +1776,7 @@ void writeStatsFile()
 
 // v27: defined with the selection logic
 void commitEntry(RouteData *nrd, double now);
+void commitFirst(RouteData *nrd, const Flit &flit, bool below, double now);   // v29
 int defaultVl(bool exit_phase, int src, int dst);
 
 } // namespace
@@ -1807,8 +1829,11 @@ void onHeadForward(Router *router, int dir_in, int out_dir, int out_vc,
 
     RouteData nrd = nextRouteData(rd, out_dir, out_vc);
     // v27 (-deft_lb entry_commit down): the head moves onto its Down VL; if more than one entry candidate is left, bind one now
-    if (g_entry_commit && out_dir == DIRECTION_HUB && !isInterposer(cur) && nrd.current_id >= 0)
+    if (g_entry_commit == 1 && out_dir == DIRECTION_HUB && !isInterposer(cur) && nrd.current_id >= 0)
         commitEntry(&nrd, now);
+    // v29 (-deft_lb entry_commit first): the head moves to an interposer router; if that router offers it more than one output, bind it now
+    if (g_entry_commit == 2 && nrd.current_id >= 0 && isInterposer(nrd.current_id))
+        commitFirst(&nrd, *flit, !isInterposer(cur), now);
     // v27 (-deft_lb entry_stats 1), observation only: the head moves Up
     if (g_entry_stats && out_dir == DIRECTION_HUB && isInterposer(cur) && measuring(now)) {
         g_es_up++;
@@ -1927,6 +1952,8 @@ void onRouteFailure(int router_id, const Flit &flit)
 
 void onHeadConsumed(const Flit &flit, double now)
 {
+    if (g_entry_commit == 2)             // v29: the commit counter of this packet
+        g_first_count.erase(std::make_pair(flit.src_id, flit.timestamp));
     if (statsOn())
         statsConsumed(flit, now);
     if (now - GlobalParams::reset_time < GlobalParams::stats_warm_up_time)
@@ -2168,6 +2195,120 @@ void commitEntry(RouteData *nrd, double now)
     if (meas)
         g_commit_bound++;
     nrd->deft_entry_mask = bit(pickMinTie(vls, cost));
+}
+
+// v29 (-deft_lb entry_commit first; off by default). Called when a head is forwarded to an interposer router; *nrd is its route data at
+// that router, after the move. If the routing function offers the head more than one output there, the head is bound now:
+//   the offered outputs get the cost of the main row's selection from the state of that router at this moment (heuristicCost, plus lutBias
+//   as selectHeuristic charges it; the head is not in that router yet, so the busy term is read as for a decision computed ahead), and
+//   the output of least cost is selected, ties drawn as the selection draws them (one draw of rand(); of the tie stream with tie_stream 1);
+//   every candidate that the selected output keeps (nextMasks) gets the cost DEFT_HEUR gives that output for a head with this one
+//   candidate, plus lut_bias if the candidate is not the default entry VL of the packet while that VL is in the mask (as commitEntry);
+//   the entry mask becomes the candidate of least cost, ties at random (pickMinTie, as commitEntry).
+// From here on the packet has one entry candidate: it is offered one output at every router, the commit router included, so the stored
+// decision of lookahead routing for that router is the selected output. below: the commit router is the one below the exit VL (the head
+// is being forwarded onto its Down VL).
+// With -deft_lb commit_check N the first N commits of the measured window are compared with a second evaluation of the selection: is the
+// output a head with the committed candidate alone is offered a cheapest output of the selection with the full mask (unique / tie /
+// different), and is the committed candidate one of least cost among the candidates of the full mask that take that output (not_least).
+void commitFirst(RouteData *nrd, const Flit &flit, bool below, double now)
+{
+    const VlMask cand = nrd->deft_entry_mask;
+    if (popcount(cand) <= 1)
+        return;
+    Router *next = routerById(nrd->current_id);
+    if (!next)
+        return;
+    std::vector<int> offered;
+    legalOutputsWithVn(*nrd, &offered);
+    if (offered.size() <= 1)
+        return;                                 // one output: nothing to decide at this router
+    const bool meas = measuring(now);
+    g_asking_absent = true;
+    std::vector<double> oc(offered.size(), 0.0);
+    for (size_t k = 0; k < offered.size(); k++)
+        oc[k] = heuristicCost(next, *nrd, offered[k]) + (g_lut_bias > 0 ? lutBias(*nrd, offered[k]) : 0.0);
+    const int o = pickMinTie(offered, oc);
+    VlMask ne, kept;
+    nextMasks(nrd->current_id, nrd->dir_in, o, nrd->src_id, nrd->dst_id, nrd->deft_exit_mask, cand, &ne, &kept, nrd->vc_id);
+    const int def = g_lut_bias > 0 ? defaultVl(false, nrd->src_id, nrd->dst_id) : -1;
+    const bool def_in = def >= 0 && (cand & bit(def));
+    std::vector<int> vls;
+    std::vector<double> cost;
+    for (int v = 0; v < NVL; v++) {
+        if (!(kept & bit(v)))
+            continue;
+        RouteData c = *nrd;
+        c.deft_entry_mask = bit(v);
+        double x = heuristicCost(next, c, o);
+        if (def_in && v != def)
+            x += g_lut_bias;
+        vls.push_back(v);
+        cost.push_back(x);
+    }
+    if (vls.empty()) {                          // cannot happen: an offered output keeps at least one candidate
+        g_asking_absent = false;
+        return;
+    }
+    const int pick = pickMinTie(vls, cost);
+    if (g_commit_check > 0 && meas && g_cc_n < (unsigned long) g_commit_check) {
+        // the selection of the main row at this router, state and moment, evaluated a second time
+        double mbest = std::numeric_limits<double>::max(), osel = 0.0;
+        std::vector<double> mc(offered.size(), 0.0);
+        for (size_t k = 0; k < offered.size(); k++) {
+            mc[k] = heuristicCost(next, *nrd, offered[k]) + (g_lut_bias > 0 ? lutBias(*nrd, offered[k]) : 0.0);
+            mbest = std::min(mbest, mc[k]);
+            if (offered[k] == o)
+                osel = oc[k];
+        }
+        // the output that a head with the committed candidate alone is offered
+        RouteData c = *nrd;
+        c.deft_entry_mask = bit(pick);
+        std::vector<int> po;
+        legalOutputsWithVn(c, &po);
+        const int o_pick = po.size() == 1 ? po[0] : -1;
+        int n_min = 0;
+        bool pick_is_min = false;
+        for (size_t k = 0; k < offered.size(); k++)
+            if (mc[k] < mbest + 1e-9) {
+                n_min++;
+                pick_is_min = pick_is_min || offered[k] == o_pick;
+            }
+        // the committed candidate against every candidate of the full mask whose own output is that output
+        double cbest = std::numeric_limits<double>::max(), cpick = std::numeric_limits<double>::max();
+        for (int v = 0; v < NVL; v++) {
+            if (!(cand & bit(v)))
+                continue;
+            RouteData cv = *nrd;
+            cv.deft_entry_mask = bit(v);
+            std::vector<int> vo;
+            legalOutputsWithVn(cv, &vo);
+            if (vo.size() != 1 || vo[0] != o_pick)
+                continue;
+            const double x = heuristicCost(next, cv, vo[0]) + ((def_in && v != def) ? g_lut_bias : 0.0);
+            cbest = std::min(cbest, x);
+            if (v == pick)
+                cpick = x;
+        }
+        g_cc_n++;
+        if (!pick_is_min) g_cc_diff++;
+        else if (n_min > 1) g_cc_tie++;
+        else g_cc_unique++;
+        if (cpick > cbest + 1e-9)
+            g_cc_not_least++;
+        g_cc_gap = std::max(g_cc_gap, std::fabs(mbest - osel));
+    }
+    g_asking_absent = false;
+    if (meas) {
+        g_first_bound++;
+        if (below)
+            g_first_below++;
+    }
+    int &n = g_first_count[std::make_pair(flit.src_id, flit.timestamp)];
+    n++;
+    if (n > g_first_max)
+        g_first_max = n;
+    nrd->deft_entry_mask = bit(pick);
 }
 
 // ---- DEFT_FAST ----
@@ -2784,6 +2925,24 @@ void vcStatsRcSample(int router_id, int flits, int slots, double now)
     g_vs_rc_peak_slots[router_id] = std::max(g_vs_rc_peak_slots[router_id], slots);
 }
 
+// ---- v29: the diagnostic of the buffer depths (-deft_lb buffer_stats 1; off by default). Observation only. ----
+bool bufferStatsOn()
+{
+    return g_buffer_stats;
+}
+
+void bufferStatsPush(int router_id, unsigned int capacity, unsigned int fill)
+{
+    const int layer = isInterposer(router_id) ? 1 : 0;
+    if (!g_bs_seen[layer] || capacity < g_bs_cap_min[layer])
+        g_bs_cap_min[layer] = capacity;
+    if (!g_bs_seen[layer] || capacity > g_bs_cap_max[layer])
+        g_bs_cap_max[layer] = capacity;
+    if (fill > g_bs_fill[layer])
+        g_bs_fill[layer] = fill;
+    g_bs_seen[layer] = true;
+}
+
 // ---- statistics ----
 void writeJson(std::ostream &out)
 {
@@ -2875,13 +3034,18 @@ void writeJson(std::ostream &out)
         out << "    \"oracle_scope\": \"route\"," << std::endl;
     if (g_oracle_period > 0)
         out << "    \"oracle_period\": " << g_oracle_period << "," << std::endl;
-    if (g_entry_commit)
+    if (g_entry_commit == 1)
         out << "    \"entry_commit\": \"down\", \"entry_commit_down_moves\": " << g_commit_down << ", \"entry_commit_bound\": "
             << g_commit_bound << "," << std::endl;
+    if (g_entry_commit == 2)                 // v29
+        out << "    \"entry_commit\": \"first\", \"entry_commit_first_bound\": " << g_first_bound << ", \"entry_commit_first_below\": "
+            << g_first_below << ", \"entry_commit_first_max_per_head\": " << g_first_max << "," << std::endl;
     if (g_commit_check > 0)
         out << "    \"commit_checked\": " << g_cc_n << ", \"commit_check_unique\": " << g_cc_unique << ", \"commit_check_tie\": "
             << g_cc_tie << ", \"commit_check_different\": " << g_cc_diff << ", \"commit_check_max_gap\": " << g_cc_gap << ","
             << std::endl;
+    if (g_commit_check > 0 && g_entry_commit == 2)       // v29
+        out << "    \"commit_check_not_least\": " << g_cc_not_least << "," << std::endl;
     if (!g_up_report)
         out << "    \"up_report\": 0," << std::endl;
     if (g_entry_stats)
@@ -2915,6 +3079,10 @@ void writeJson(std::ostream &out)
     }
     if (g_tie_stream)
         out << "    \"tie_stream\": 1," << std::endl;
+    if (g_buffer_stats)                      // v29: fields only present with the diagnostic on
+        out << "    \"buffer_depth_chip\": [" << g_bs_cap_min[0] << ", " << g_bs_cap_max[0] << "], \"buffer_depth_ipos\": [" << g_bs_cap_min[1]
+            << ", " << g_bs_cap_max[1] << "], \"buffer_fill_max_chip\": " << g_bs_fill[0] << ", \"buffer_fill_max_ipos\": " << g_bs_fill[1]
+            << "," << std::endl;
     out << "    \"packets_intra\": " << g_delays_intra.size() << std::endl;
     out << "  }" << std::endl;
     if (statsOn())

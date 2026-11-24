@@ -177,6 +177,7 @@ struct GlobalParams {
     static double r2r_link_length;
     static double r2h_link_length;
     static int buffer_depth;
+    static int buffer_depth_ipos;   // v29 (-buffer_ipos N): depth of every input buffer of an interposer router of DEFT_2_5D; 0 = buffer_depth
     static int flit_size;
     static int min_packet_size;
     static int max_packet_size;

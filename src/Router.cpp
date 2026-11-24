@@ -116,6 +116,8 @@ void Router::rxProcess()
 
 		    // Store the incoming flit in the circular buffer
 		    buffer[i][vc].Push(received_flit);
+		    if (DeftLB::bufferStatsOn())        // v29 diagnostic (-deft_lb buffer_stats 1): capacity and fill of this input buffer
+			DeftLB::bufferStatsPush(local_id, buffer[i][vc].GetMaxBufferSize(), buffer[i][vc].Size());
 		    LOG << " Flit " << received_flit << " collected from Input[" << i << "][" << vc <<"]" << endl;
 
 		    power.bufferRouterPush();

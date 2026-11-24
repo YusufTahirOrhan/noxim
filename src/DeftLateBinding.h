@@ -154,7 +154,7 @@ double hysteresis();
 // -deft_lb oracle_period P (0): with P > 0 the oracle policy reads the VL occupancies sampled at the last cycle that is a multiple
 //   of P. oracleTick takes the sample; it must be called before any router changes state in a cycle (Router::txProcess and
 //   rxProcess call it first; the injection-time choice calls it too, for a source that runs before every router).
-// -deft_lb entry_commit off|down (off): when a head is forwarded onto its Down VL with more than one entry candidate left, the
+// -deft_lb entry_commit off|down (off; v29 adds the value first, see below): when a head is forwarded onto its Down VL with more than one entry candidate left, the
 //   entry mask is reduced to one candidate, the one whose output at the interposer router below is the cheapest for the heuristic
 //   selection at that moment (onHeadForward).
 // -deft_lb up_report 0|1 (1): with 0 the lookahead term of the selection does not use the occupancies that the chiplet router
@@ -181,6 +181,23 @@ void oracleTick(double now);
 //   from a stream of their own instead of rand(), from which the routers' crossbar arbitration draws.
 bool pendingCheckOn();
 void pendingCheckTick(double now);
+
+// ---- v29 (all off by default) ---------------------------------------------------------------------
+// -deft_lb entry_commit first (a third value of entry_commit): like entry_commit down, but the head is bound at the first interposer router
+//   at which the routing function offers it more than one output, wherever that is: the router below the exit VL if the candidates lie on
+//   both sides of it, otherwise the first column of a candidate that the head reaches. The commit is made when the decision for that router
+//   is computed, i.e. when the head is forwarded to it (onHeadForward, where lookahead routing computes the next decision): the outputs get
+//   the cost of the heuristic selection from the state of that router at this moment (lookahead term and lut_bias as selectHeuristic charges
+//   them), the output of least cost is selected (ties as the selection draws them), and the entry mask is reduced to one of the candidates
+//   that this output keeps: the one of least cost through it (lut_bias as entry_commit down charges it), ties as entry_commit down draws
+//   them. From then on the packet has one entry candidate. Until then nothing differs from the row without the option. With a very large
+//   lut_bias every commit takes DeFT-P's entry VL. commit_check N compares the first N commits of the measured window with a second
+//   evaluation of the selection (the statistics fields of entry_commit down, and commit_check_not_least).
+// -deft_lb buffer_stats 0|1 (0; diagnostic of -buffer_ipos): observation only. At every flit written into an input buffer, the capacity of
+//   that buffer and its fill after the write are recorded per layer (chiplet routers, interposer routers): the smallest and the largest
+//   capacity seen and the largest fill.
+bool bufferStatsOn();
+void bufferStatsPush(int router_id, unsigned int capacity, unsigned int fill);
 
 // ---- router hooks ----------------------------------------------------
 // Called when the head flit is forwarded from router through out_dir.
