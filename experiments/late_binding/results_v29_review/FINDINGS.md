@@ -154,9 +154,10 @@ Per router with the simulated activity: interposer router 1.14, interposer route
     pins toggle in every cycle whether or not a flit moves), 3 % is leakage and 0.4 to 6 % switching. An interposer router of the main
     row has 1.12 times DeFT's flip-flops (1.15 with a VL) and 1.14 times its power (1.17 to 1.18). The figure therefore says little
     about the logic of the decision and much about the registers it adds.
-  * *No clock gating, no clock tree, no wires.* A real router gates the clock of its buffers, which are 60 % of DeFT's area; that would
-    shrink the common part of both designs and so raise the ratio. The 150 report wires into an interposer router and their drivers
-    have no capacitance here; they toggle rarely (occupancies change when flits move), but they are not counted at all.
+  * *No clock gating, no clock tree, no wires.* A real router gates the clock of its buffers, which are 60 % of DeFT's area; that
+    shrinks the part the two designs have in common, and the ratio then depends on whether the registers that the main row adds are
+    gated as well. The 150 report wires into an interposer router and their drivers have no capacitance here; they toggle rarely
+    (occupancies change when flits move), but they are not counted at all.
   * *Zero-delay simulation:* glitches are not counted. *One library corner* of a 45 nm teaching library.
   * *The default activity overstates the difference* (1.12): it lets the reset toggle, which damps every register behind a synchronous
     reset, and gives the 150 report inputs of the main row the activity of data.
