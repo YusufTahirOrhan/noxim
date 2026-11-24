@@ -159,13 +159,16 @@ def run_one(arg):
     n = d['tag']
     odir = os.path.join(RAW, form)
     os.makedirs(odir, exist_ok=True)
-    if os.path.exists(os.path.join(odir, n + '.stat.json')):
+    net = os.path.join(odir, n + '.net.v')
+    if os.path.exists(os.path.join(odir, n + '.stat.json')) and (form != 'flat' or os.path.exists(net + '.gz')):
         return n, form, True
     ys = os.path.join(odir, n + '.ys')
-    open(ys, 'w').write(script(d, form, odir))
+    open(ys, 'w').write(script(d, form, odir, net=(form == 'flat')))
     r = subprocess.run([S.YOSYS, '-q', '-l', os.path.join(odir, n + '.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if r.returncode != 0 and os.path.exists(os.path.join(odir, n + '.stat.json')):
         os.remove(os.path.join(odir, n + '.stat.json'))
+    if r.returncode == 0 and form == 'flat':          # the flattened netlist is kept, compressed (timing and power: E2, E4)
+        subprocess.run(['gzip', '-f', net], check=True)
     return n, form, r.returncode == 0
 
 

@@ -1,0 +1,36 @@
+3x3 chiplets, random VL placement per chiplet #0, XY/XY: 1764 channels, 3116 dependencies, 126208 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 9432
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #0, XY/YX: 1764 channels, 3116 dependencies, 125524 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 17912
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #1, XY/XY: 1796 channels, 3230 dependencies, 124572 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 7280
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #1, XY/YX: 1796 channels, 3230 dependencies, 124060 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 15848
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #2, XY/XY: 1772 channels, 3176 dependencies, 129116 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 8000
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #2, XY/YX: 1772 channels, 3176 dependencies, 127460 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 17360
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #3, XY/XY: 1864 channels, 3408 dependencies, 132124 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 5208
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #3, XY/YX: 1864 channels, 3408 dependencies, 131008 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 15850
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #4, XY/XY: 1800 channels, 3226 dependencies, 124816 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 7928
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #4, XY/YX: 1800 channels, 3226 dependencies, 125918 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 16076
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #5, XY/XY: 1796 channels, 3222 dependencies, 126640 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 6968
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, random VL placement per chiplet #5, XY/YX: 1796 channels, 3222 dependencies, 126740 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 16000
+    dependencies from a higher to a lower class: 0   CDG acyclic: True

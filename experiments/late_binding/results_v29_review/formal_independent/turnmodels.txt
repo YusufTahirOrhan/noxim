@@ -1,0 +1,16 @@
+3x3 chiplets, T(VN0)=OE, T(VN1)=OE, variant=LB, (iii)=on: 2038 channels, 4418 dependencies, 400098 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 59480
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, T(VN0)=WF, T(VN1)=WF, variant=LB, (iii)=on: 2020 channels, 4358 dependencies, 322050 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 55082
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, T(VN0)=NL, T(VN1)=NL, variant=LB, (iii)=on: 2020 channels, 4358 dependencies, 321420 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 55088
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, T(VN0)=OE, T(VN1)=OE, variant=LB, (iii)=off: 2044 channels, 4460 dependencies, 449028 interposer states (max 4 outputs offered)
+    dead ends: 17154   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 88212
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+    example dead end: (((0, 0), 'N'), (1, 0), [((1, 0), 'S')], 0, (6, 2), 'E', [((1, 0), 'S')])
+3x3 chiplets, T(VN0)=WF, T(VN1)=NL, variant=LB, (iii)=on: 2020 channels, 4358 dependencies, 321735 interposer states (max 4 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 55085
+    dependencies from a higher to a lower class: 0   CDG acyclic: True

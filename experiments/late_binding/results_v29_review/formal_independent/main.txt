@@ -1,0 +1,18 @@
+2x2 chiplets, T(VN0)=XY, T(VN1)=XY, variant=LB, (iii)=on: 800 channels, 1424 dependencies, 16480 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, T(VN0)=XY, T(VN1)=XY, variant=LB, (iii)=on: 1920 channels, 3632 dependencies, 132120 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+4x4 chiplets, T(VN0)=XY, T(VN1)=XY, variant=LB, (iii)=on: 3520 channels, 6848 dependencies, 555008 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+2x2 chiplets, T(VN0)=XY, T(VN1)=YX, variant=LB, (iii)=on: 800 channels, 1424 dependencies, 16480 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 1392
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+3x3 chiplets, T(VN0)=XY, T(VN1)=YX, variant=LB, (iii)=on: 1920 channels, 3632 dependencies, 132120 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 12276
+    dependencies from a higher to a lower class: 0   CDG acyclic: True
+4x4 chiplets, T(VN0)=XY, T(VN1)=YX, variant=LB, (iii)=on: 3520 channels, 6848 dependencies, 555008 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 54400
+    dependencies from a higher to a lower class: 0   CDG acyclic: True

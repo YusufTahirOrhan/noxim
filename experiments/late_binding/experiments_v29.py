@@ -113,7 +113,7 @@ def regress(nproc, which):
     return not diffs
 
 
-MODULES = {'a2': 'experiments_v29_gates', 'e2': 'experiments_v29_hw', 'e3': 'experiments_v29_hw', 'e4': 'experiments_v29_hw',
+MODULES = {'a2': 'experiments_v29_gates', 'e2': 'experiments_v29_hw2', 'e3': 'experiments_v29_hw', 'e4': 'experiments_v29_hw2',
            'g': 'experiments_v29_apps'}
 
 if __name__ == '__main__':

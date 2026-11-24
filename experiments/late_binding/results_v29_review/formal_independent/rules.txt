@@ -1,0 +1,54 @@
+2x2 chiplets, T(VN0)=XY, T(VN1)=XY, variant=noR2, (iii)=on: 800 channels, 1424 dependencies, 16480 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 48   CDG acyclic: False
+    example cycle (22 channels):
+        ('U', ((1, 0), 'N'), 0) k4 -> ('C', (5, 0), 'W', 0) k0
+        ('C', (5, 0), 'W', 0) k0 -> ('C', (4, 0), 'S', 0) k0
+        ('C', (4, 0), 'S', 0) k0 -> ('C', (4, 1), 'S', 0) k0
+        ('C', (4, 1), 'S', 0) k0 -> ('D', ((1, 0), 'W'), 0) k1
+        ('D', ((1, 0), 'W'), 0) k1 -> ('I', (4, 2), 'W', 0) k2
+        ('I', (4, 2), 'W', 0) k2 -> ('I', (3, 2), 'W', 0) k2
+        ('I', (3, 2), 'W', 0) k2 -> ('I', (2, 2), 'W', 0) k2
+        ('I', (2, 2), 'W', 0) k2 -> ('I', (1, 2), 'N', 0) k2
+        ('I', (1, 2), 'N', 0) k2 -> ('I', (1, 1), 'N', 0) k2
+        ('I', (1, 1), 'N', 0) k2 -> ('U', ((0, 0), 'N'), 0) k4
+        ('U', ((0, 0), 'N'), 0) k4 -> ('C', (1, 0), 'W', 0) k0
+        ('C', (1, 0), 'W', 0) k0 -> ('C', (0, 0), 'S', 0) k0
+        ('C', (0, 0), 'S', 0) k0 -> ('C', (0, 1), 'S', 0) k0
+        ('C', (0, 1), 'S', 0) k0 -> ('D', ((0, 0), 'W'), 0) k1
+2x2 chiplets, T(VN0)=XY, T(VN1)=XY, variant=noR3, (iii)=on: 800 channels, 1472 dependencies, 16480 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 48   CDG acyclic: False
+    example cycle (22 channels):
+        ('C', (5, 0), 'W', 1) k5 -> ('C', (4, 0), 'S', 1) k5
+        ('C', (4, 0), 'S', 1) k5 -> ('C', (4, 1), 'S', 1) k5
+        ('C', (4, 1), 'S', 1) k5 -> ('D', ((1, 0), 'W'), 1) k1
+        ('D', ((1, 0), 'W'), 1) k1 -> ('I', (4, 2), 'W', 1) k3
+        ('I', (4, 2), 'W', 1) k3 -> ('I', (3, 2), 'W', 1) k3
+        ('I', (3, 2), 'W', 1) k3 -> ('I', (2, 2), 'W', 1) k3
+        ('I', (2, 2), 'W', 1) k3 -> ('I', (1, 2), 'N', 1) k3
+        ('I', (1, 2), 'N', 1) k3 -> ('I', (1, 1), 'N', 1) k3
+        ('I', (1, 1), 'N', 1) k3 -> ('U', ((0, 0), 'N'), 1) k4
+        ('U', ((0, 0), 'N'), 1) k4 -> ('C', (1, 0), 'W', 1) k5
+        ('C', (1, 0), 'W', 1) k5 -> ('C', (0, 0), 'S', 1) k5
+        ('C', (0, 0), 'S', 1) k5 -> ('C', (0, 1), 'S', 1) k5
+        ('C', (0, 1), 'S', 1) k5 -> ('D', ((0, 0), 'W'), 1) k1
+        ('D', ((0, 0), 'W'), 1) k1 -> ('I', (0, 2), 'E', 1) k3
+2x2 chiplets, T(VN0)=XY, T(VN1)=XY, variant=noR1, (iii)=on: 800 channels, 1488 dependencies, 16480 interposer states (max 3 outputs offered)
+    dead ends: 0   paths > d0: 0   exits outside M0: 0   N/S-moving states with |M|>1: 0
+    dependencies from a higher to a lower class: 64   CDG acyclic: False
+    example cycle (22 channels):
+        ('U', ((1, 0), 'N'), 0) k4 -> ('C', (5, 0), 'W', 1) k5
+        ('C', (5, 0), 'W', 1) k5 -> ('C', (4, 0), 'S', 0) k0
+        ('C', (4, 0), 'S', 0) k0 -> ('C', (4, 1), 'S', 0) k0
+        ('C', (4, 1), 'S', 0) k0 -> ('D', ((1, 0), 'W'), 0) k1
+        ('D', ((1, 0), 'W'), 0) k1 -> ('I', (4, 2), 'W', 0) k2
+        ('I', (4, 2), 'W', 0) k2 -> ('I', (3, 2), 'W', 0) k2
+        ('I', (3, 2), 'W', 0) k2 -> ('I', (2, 2), 'W', 0) k2
+        ('I', (2, 2), 'W', 0) k2 -> ('I', (1, 2), 'N', 0) k2
+        ('I', (1, 2), 'N', 0) k2 -> ('I', (1, 1), 'N', 0) k2
+        ('I', (1, 1), 'N', 0) k2 -> ('U', ((0, 0), 'N'), 0) k4
+        ('U', ((0, 0), 'N'), 0) k4 -> ('C', (1, 0), 'W', 1) k5
+        ('C', (1, 0), 'W', 1) k5 -> ('C', (0, 0), 'S', 0) k0
+        ('C', (0, 0), 'S', 0) k0 -> ('C', (0, 1), 'S', 0) k0
+        ('C', (0, 1), 'S', 0) k0 -> ('D', ((0, 0), 'W'), 0) k1

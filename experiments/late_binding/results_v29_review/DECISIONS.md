@@ -82,3 +82,48 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   28 applied it (2x2 and 4x4, five scenarios, four loads, two seeds: 80 runs per configuration) five values are 400 runs. The rule is
   kept; DeFT-P and the main row are run again on the same cells (160 runs) and must equal the rows of round 27; the extension rule of
   `EB_down_t` in round 28 (16, 32, 64 if the best value is the largest) is taken over, which can add 40 runs per value and size.
+
+## Before the gates: six smoke runs
+* **Six runs of the new binary were made before anything was written down**, to see that the new options are accepted (DeFT_P on 2x2 with
+  4-flit buffers, `-buffer 5` and `-buffer_ipos 7` at 2.4 x Lsat; `entry_commit first` on 2x2 and 4x4 and the main row on 2x2 at 1.0 x
+  Lsat; seed 121). Their numbers are at the top of `stated_in_advance.md`, which was committed before the gates of A2 (commits 0c3988c,
+  8429055; the second only corrects the time of day in its first line). The unit check of `entry_commit first` then showed the latency of
+  that row on three more single runs; they are named in the pre-registration under "Gates", and the expectations were left as written.
+
+## Time rule: the timing runs
+* **What is timed.** Runs of the designs themselves, kept and not looked at: per size the seed-181 runs of B1 (every row, scenario and
+  load of one seed), the references at depth 6 with seeds 121 and 122 at the 2nd, 5th and 9th load (deeper buffers carry more traffic
+  beyond saturation, where a run is slowest, so B1 is no measure for them), and the seed-151 runs of C3 at the 1st and 4th load of masks
+  1 to 4 of both rates; the seed-191 runs of D2. The three sets of a size run one after the other with nothing else of the round on the
+  machine. Each part is then estimated with the seconds per run of the set of its kind and size, as measured, with no factor: B1 with
+  its own set; every part on the scenarios and ladders of round 25 (B2, C1, C2, D1, E1 and the evaluation and tuning runs of Part F) with
+  the depth-6 set; C3 with its own; D2 with its own. The rows of B2, E1 and F are late-binding rows at depth 4, which the depth-6 set of
+  the references does not time exactly; no factor is put on it (round 25's estimate was 13 % above the time taken).
+* **Not in the estimate: the hardware flow of Part E.** The prompt's drop list has no hardware item, and E2 to E4 have their own rule (a
+  step that the tools cannot do is named). The synthesis starts after the timing runs and runs next to the simulation chain with three
+  threads on the twelve logical processors, which slows the simulations while it lasts. If the time rule drops something, the hardware is
+  paused before a part is given up for lack of time: the restore rule reads the clock.
+
+## Part E: hardware
+* **E3, the buffers of the references.** The reference core of round 18 has 4-flit buffers written into it, so `hw/rtl/router_core29.v` is
+  that core with three macros: the depth of the input buffers, the depth behind the outputs that the credit counters count against, and
+  the depth behind the vertical-link output. `DeFT_d4` is synthesised from the core of round 18 unchanged (the reference of every ratio,
+  as in round 25) and `DeFT_d4c` from the new core at depth 4, to show that the new text alone changes nothing. `tb_core29.v` checks
+  every depth and fails when the bench and the RTL disagree on a depth (`hw/buffer_core_check.txt`).
+* **`DeFT_i7`: which buffers have 7 flits.** As `-buffer_ipos 7` in the simulator: every input buffer of an interposer router, the one
+  behind the Down link included. So the boundary router of the chiplet layer counts 7 credits for its Down output and keeps 4-flit
+  buffers, and the interposer router counts 4 credits for its Up output. The chiplet router without a VL is the one of depth 4.
+* **E2, the two variants.** `hw/rtl/lb29_units.v` is `lb25_units.v` of round 25 with two macros that remove the reads of the reports and
+  their registers (`LB_UP_REP 0`: the reports across the VLs; `LB_LOOKAHEAD 0`: every report). With both macros at 1 the text is the one
+  of round 25, and the main row is synthesised again from this file next to the variants, so that the three are compared within one run.
+  The router top, the core, the test benches and the Verilator checkers of round 25 are used unchanged. The vectors of a variant come
+  from the simulator row it builds (`LB_noVLrep`: `-deft_lb up_report 0`; `LB_noLA`: `heur_lookahead 0`); as a control the same vectors
+  are applied to the units of the main row and must give mismatches.
+* **E4, what "replays the recorded vectors" can mean.** The vectors of round 25 are one line per evaluation of the decision unit. They
+  carry no cycle and no port activity and exist for the main row only, so no router can be driven with them and DeFT's router not at all.
+  The prompt allows the default activity when the flow cannot read an activity file; OpenSTA can read one, so both are done: the default
+  activity for every router, and the activity of a simulation of each synthesised netlist under random packets at the flit rates per
+  port that the instrumented simulator counts on 4x4 at 0.5 and 1.0 x Lsat (pre-registration, Part E). This is a replay of the measured
+  load, not of recorded flits; the report says so next to the numbers. A replay of recorded flits through a router would need the
+  credits of the simulator's neighbours, which arrive at other cycles than the RTL sends its flits (the simulator's router and the RTL
+  differ in arbitration order and pipeline timing), and DeFT's RTL of round 18 has the VN rules of that round.
