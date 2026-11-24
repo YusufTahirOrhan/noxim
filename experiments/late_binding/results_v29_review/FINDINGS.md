@@ -50,7 +50,7 @@ Yes to both.
 * **Against the best reference** it is ahead in THR on 3x3 and 4x4 in every scenario (+1.9 to +12.2 %) and has lower LAT in all nine
   cells (-8 to -41 %). On 2x2 its THR is +1.3 % (`tornado`), +5.1 % (`neighbour`) and **-10.8 % (`randperm`)**, which makes the one test
   against.
-* **The best reference is RC** in 14 of the 18 cells of THR and LAT and MTR in the other four; no DeFT variant is the best anywhere.
+* **The best reference is RC** in 15 of the 18 cells of THR and LAT and MTR in the other three; no DeFT variant is the best anywhere.
 * The 2x2 loss under `randperm` is a loss of throughput beyond saturation only: at 1.0 x Lsat the main row has the lowest latency of
   all rows there (66 cycles against 73 for MTR and 112 for DeFT_P), and its P99 is 24 % below the best reference's.
 * Held against what I wrote in advance: I expected 9 or 10 of 12 with at most one against, the 2x2 tests against the best reference
@@ -77,9 +77,9 @@ their range (`report/summary_B.md`, B.5; no test).
 * **Against the references that tolerate VL faults it is ahead on every size** in both metrics on average, and in every scenario in
   latency. In throughput the one exception is again `randperm` on 2x2.
 * The objection of the reviews was that two untuned scenarios cannot tell tuning from workload. With five, the picture of round 25 for
-  3x3 and 4x4 holds without the tuning scenarios (the throughput gain over the best reference there is +3.8 and +5.6 % on the untuned
-  five against +10.5 and +7.6 % on the tuning four of round 25: about half), and the picture for 2x2 is confirmed as a loss in
-  throughput (-3.3 % against +2.9 % on the tuning four).
+  3x3 and 4x4 holds without the tuning scenarios, with smaller numbers: the throughput gain over the best reference is +3.8 and +5.6 %
+  on the untuned five against +10.5 and +7.6 % on the tuning four of round 25 (about a third of it on 3x3, three quarters on 4x4). On
+  2x2 the untuned scenarios show a loss in throughput (-3.3 %) where the tuning four showed a gain (+2.9 %).
 
 ## 4. `LB_b0`: what does `lut_bias 2` buy on 2x2?
 
@@ -90,5 +90,6 @@ The difference is the same on the scenarios that the tuning saw and on those it 
 
 **The paper can use one configuration for all sizes.** With `lut_bias 0` on 2x2 the comparisons read: against the best reference THR
 -2.6 % instead of -1.7 % on the new scenarios and -0.8 % instead of 0.0 % on the six of round 25; LAT -8.1 % instead of -11.7 % and
--7.3 % instead of -11.1 %. No verdict of a 2x2 test of round 25 or of this round depends on it except where the effect was already
-within 1 % of zero; the price of a single configuration is one point of throughput and four points of latency on the smallest system.
+-7.3 % instead of -11.1 %. On the six scenarios of round 25 the throughput against the best reference moves from level
+(0.0 [-0.3, +0.3] %) to slightly behind (-0.8 [-1.1, -0.6] %). The price of a single configuration is one point of throughput and four
+points of latency on the smallest system; the sentences of the paper about 2x2 would have to be written with those numbers.
