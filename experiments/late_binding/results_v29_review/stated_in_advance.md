@@ -1,6 +1,6 @@
 # Stated in advance (v29)
 
-Written on 24 Nov 2026 at about 14:55, after the code change of A1 was built and while its regression ran: before any gate of A2, before
+Written on 24 Nov 2026 at about 14:50, after the code change of A1 was built and while its regression ran: before any gate of A2, before
 any ladder of the new traffic patterns and before any run of Parts B to G. It is copied unchanged into `PREREGISTRATION.md`.
 
 **What I had seen of the new options when I wrote this** (six smoke runs of the new binary, made to see that the options are accepted; seed
