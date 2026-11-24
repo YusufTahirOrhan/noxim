@@ -158,3 +158,34 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
 * **Processors given to the hardware flow are not charged to the rule.** The synthesis and the checks of Part E run with three threads
   next to the twelve simulator processes. Their share of the machine (3 of 15 runnable processes for as long as they run) is written as
   a second number into `~/lbraw/v29/b_start.txt` and is not counted as time of Parts B to G; `time_rule.md` shows it at each decision.
+
+## E2 and E4 as run
+* **The main row is synthesised twice.** Once from the units of round 25 (in the E3 run, for the area ratios that Part C is read with;
+  those netlists equal round 25's) and once from `lb29_units.v` with both macros on (in the E2 run, next to the two variants). The two
+  texts pass the same vectors but are not synthesised to the same netlists (areas within 0.13 / 0.29 / 0.54 % in the three forms), so
+  the variants are compared with the main row of their own file.
+* **The cut configuration of a variant.** Round 25's rule is kept: the fewest registers in the decision unit that fit T_ref, and among
+  those the largest worst margin. For `LB_noLA` that is the register after stage B, for the main row and `LB_noVLrep` the one after M;
+  every table also gives `LB_noLA` with the main row's cut, because the delay left for the link is larger there.
+* **E4, the bench.** One router of each type at a fixed place in chiplet (1, 1): a chiplet router at local (1, 1), the boundary router
+  and the interposer router of the North VL, and the interposer router next to it. The NI tables of a chiplet router hold the North VL
+  as exit VL for every destination chiplet (its nearest VL in both places) and all VLs functional. The reports of the five neighbours of
+  a main-row router are its own report, delayed by a cycle: under uniform traffic the neighbours carry the same load, and random
+  reports would toggle 150 wires in every cycle. Body and tail flits carry random bits (the simulator has no payload).
+* **E4, calibration.** The bench is run on the RTL up to ten times, each time scaling a rate by target / achieved, until every rate is
+  within 3 % of the simulator's; otherwise the closest try is taken. 9 of the 24 cases end outside 3 % in one rate (the worst 7 %, at
+  the boundary routers, where the heads from the Up link, the heads that go down and the heads that end at the router share the same
+  ports); `report/summary_hw_E4.md`, E4.2, lists target and achieved for each. Power moves by about 1 % between 0.5 and 1.0 x Lsat,
+  so a rate that is 7 % off is of no consequence for the ratio.
+* **E4, a third activity that was not pre-registered: the tool's default with the reset, position and table inputs held constant.**
+  With the pure default every input toggles in 10 % of the cycles, the reset included, which holds the propagated activity of every
+  register with a synchronous reset down. Both are reported; the pre-registered pair (pure default, simulation) is unchanged.
+* **E4, the tie-low cell.** The synthesis script of rounds 18 and 25 names the output pin of `LOGIC0_X1` `ZN`; the cell's pin is `Z`.
+  Area and the timing reports of those rounds do not depend on it (the cell is counted, constants are on no timed path), and E2 and E3
+  keep the script as it is. For the simulation of a netlist and its power the pin is renamed in a copy of the netlist, where also
+  every internal net is split into bits and given a plain name so that simulator and timing tool use the same names; every pin is
+  annotated from the VCD in all 24 cases.
+* **The hardware's share of the machine.** All hardware stages since the start of the timing runs lasted 6,901 s with three threads
+  (`~/lbraw/logs/v29h.log`, `v29e4.log`): 6,901 x 3 / 15 = 1,380 s of the twelve simulator processes; 300 s more for the jobs run by
+  hand in that time (the table comparison of ARTIFACT.md with two processes for 3.5 minutes, single tries of the E2 and E4 stages).
+  1,680 s are written as the second number of `b_start.txt` and are not counted by the time rule from the end of C1 on.
