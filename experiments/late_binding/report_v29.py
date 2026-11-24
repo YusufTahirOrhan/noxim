@@ -1087,6 +1087,43 @@ def fmt_g(x):
     return '%g' % x
 
 
+def paper_readme():
+    """paper_data/README.md: the files that exist, with what they hold."""
+    T = [('heldout_effects.csv', 'Part B, the three scenarios that no round had run (seeds 181-190): the main row against DeFT_P, the best of the five references, the best of '
+          'DeFT_P and DeFT_B, the best of MTR and RC and XY_SP; per scenario and over the three; the primary family with its Holm-adjusted p and verdict; and the five '
+          'scenarios that the tuning never saw (with localized and movinghot of round 25) as the mean of the five per-scenario effects', 'size x scenario x comparison x metric'),
+         ('lb_b0.csv', 'Part B: `LB_b0` (the main row with `lut_bias 0`) on 2x2 against the main row and against the best reference, and the main row against the best '
+          'reference, on the three new scenarios and on the scenarios of round 25 (all six, the four of the tuning, the other two, each one)', 'scenario set x row x reference x metric'),
+         ('equal_area_effects.csv', 'Part C: the main row at depth 4 against the references with 5-flit and 6-flit buffers and with 7-flit buffers in the interposer routers '
+          '(each, the best of the set, the best of the two DeFT variants), each reference against itself at depth 4, and `LB_d6`; with the measured area of the set and of '
+          'the main row relative to DeFT at depth 4 in the three forms of the synthesis, and the primary family 2 with its Holm-adjusted p and verdict. `thr_over`: the '
+          'loads THR is taken over (four for the comparisons with `X_i7`)', 'size x reference set x comparison x scenario set x metric'),
+         ('equal_area_faults.csv', 'Part C3: under random VL faults (the masks of round 26, rates 1/16 and 4/16; unit = mask) the main row at depth 4 against the DeFT '
+          'variants at depth 6, and each variant at depth 6 against itself at depth 4', 'size x rate x traffic x row x reference x metric'),
+         ('vc_policy.csv', 'Part D1: MTR and RC with one VC per packet against their per-hop rows, DeFT_P against the better static row, and the main row against the best '
+          'reference with either VC policy', 'size x row x reference x scenario set x metric'),
+         ('deft_paper_setup.csv', 'Part D2, the set-up of the DeFT paper on 2x2: mean latency with its 95 % interval over five seeds, accepted throughput and P99 of DeFT_P, '
+          'MTR, RC and the two static rows at twelve loads (0.1 to 1.2 x Lsat of DeFT_P), three traffic patterns, `pipe_all` 2 and 0', 'pattern x pipe_all x load x row'),
+         ('nola_effects.csv', 'Part E1: `LB_noLA` (the main row without the lookahead term) against the main row, DeFT_P and the best of the five references; all six '
+          'scenarios, the four of the tuning, the other two', 'size x row x reference x scenario set x metric'),
+         ('hw_variants.csv', 'Parts E2 and E4 (`report_v29_hw.py`): DeFT, the main row and its two RTL variants: system area relative to DeFT in the three forms, the '
+          'cut configuration needed at T_ref with its margin, the delay left for an interposer link in the link cycle, the report inputs read, and on 4x4 the power of '
+          'the average router with each activity', 'design x size'),
+         ('early_more.csv', 'Part F: `EB_first` (and the aged rows `EB_best16`, `EB_best256` if they were run) against DeFT_P, the main row, `EB_best` and `EB_down_t`; the '
+          'share of the main row' + chr(39) + 's gain over DeFT_P; the share of the bound heads whose commit is made below the exit VL', 'size x row x reference x scenario set x metric')]
+    L = ['# paper_data (round 29)', '',
+         'One CSV per table or figure. Written by `report_v29.py` and `report_v29_hw.py` from the per-run CSVs of `results_v29_review/` and of the rounds whose rows are',
+         'reused (`results_v25_confirm/eval_runs.csv`, `results_v26_faults/fault_rate_runs.csv`, `results_v28_anchor/eval_runs.csv`; `../reuse_check.md`); nothing here is',
+         'edited by hand. Definitions: `../PREREGISTRATION.md`.', '',
+         '**Effects** are percentages, 100 x (exp(mean log ratio) - 1): per seed the mean over the scenarios of ln(row / reference), with the 95 % t interval over the seeds',
+         '(Part C3: per mask the mean over the two traffic patterns and the two seeds, the interval over the 16 masks). THR = the largest accepted throughput over the loads',
+         'of the ladder (flits/node/cycle; positive = higher); LAT, P99 = mean and 99th-percentile packet latency at 1.0 x Lsat of DeFT-P with 4-flit buffers (cycles;',
+         'negative = lower). Only the two primary families are adjusted (`../report/primary_B.csv`, `../report/primary_C.csv`); everything else is descriptive.', '',
+         '| file | table or figure | rows |', '|---|---|---|']
+    L += ['| `%s` | %s | %s |' % t for t in T if os.path.exists(os.path.join(PD, t[0]))]
+    open(os.path.join(PD, 'README.md'), 'w', encoding='utf-8', newline=NL).write(NL.join(L) + NL)
+
+
 PARTS = {'b': ('heldout_runs.csv', None), 'c': ('depth_runs.csv', None), 'd': ('deft_setup_runs.csv', None), 'e': ('nola_runs.csv', None), 'f': ('early_first_runs.csv', None)}
 
 
@@ -1104,6 +1141,7 @@ def main():
         if os.path.exists(f):
             L += open(f, encoding='utf-8').read().rstrip(NL).split(NL) + ['', '---', '']
     wmd('summary.md', L)
+    paper_readme()
 
 
 if __name__ == '__main__':

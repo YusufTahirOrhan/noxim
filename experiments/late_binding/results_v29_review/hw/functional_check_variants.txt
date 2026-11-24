@@ -1,0 +1,439 @@
+# v29 E2: the RTL units of the variants against vectors from simulator runs (experiments_v29.py e2_vec)
+
+Instrumented copy of the simulator of this round: noxim_v29_vec (the patch of round 25, results_v25_confirm/hw/tb/patch_vecdump.py). Runs: pipe_all 2, seed 1, at most 600000 lines
+per vector file. Per variant the 12 runs of round 25 (uniform traffic at 1.0 and 1.4 x Lsat, chipperm at 1.0 x Lsat, uniform with one faulty VL per chiplet at 1.0 x Lsat;
+three sizes) of the simulator row that the variant builds: main = CI_heurLA_X_LF, noVLrep = the same with -deft_lb up_report 0, noLA = the same with heur_lookahead 0.
+Units: rtl/lb29_units.v with the macros of the variant. Checkers and checks as round 25 (hw/tb/vl25.v, vl_sel25.cpp, vl_front25.cpp): offered outputs, pruned masks,
+the cost of every offered output, the choice with the pointer sweep, and the output requested through the fallback; every selection vector with each of the 8 cut
+configurations. Control: the selection vectors of a variant applied to the units of the main row (no cut) must give mismatches, or the check could not tell the
+designs apart.
+
+## main 2x2 uniform 0x0000 rate 0.0130: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=57084 mismatches=0 multi=26168 multi_by_last=0,10904,0,11050,4214 no_default=0 pointer_checks=936590
+RESULT front order_o=0 vectors=112929 mismatches=0 one_output=65645 fallback_checked=13847 fallback_took_other=862 head_holds_output=33437 decided_by_selection=0
+
+## main 2x2 uniform 0x0000 rate 0.0180: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=73411 mismatches=0 multi=33527 multi_by_last=0,14067,0,14210,5250 no_default=0 pointer_checks=1206870
+RESULT front order_o=0 vectors=507278 mismatches=0 one_output=258816 fallback_checked=35644 fallback_took_other=2556 head_holds_output=212818 decided_by_selection=0
+
+## main 2x2 chipperm 0x0000 rate 0.0115: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT front order_o=0 vectors=164633 mismatches=0 one_output=88306 fallback_checked=17091 fallback_took_other=1256 head_holds_output=59236 decided_by_selection=0
+
+## main 2x2 uniform 0x1111 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=39926 mismatches=0 multi=14717 multi_by_last=0,5492,0,6007,3218 no_default=0 pointer_checks=646410
+RESULT front order_o=0 vectors=83298 mismatches=0 one_output=50883 fallback_checked=7740 fallback_took_other=565 head_holds_output=24675 decided_by_selection=0
+
+## main 3x3 uniform 0x0 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=140082 mismatches=0 multi=49270 multi_by_last=0,21211,0,21682,6377 no_default=0 pointer_checks=2330180
+RESULT front order_o=0 vectors=291822 mismatches=0 one_output=179982 fallback_checked=26092 fallback_took_other=2033 head_holds_output=85748 decided_by_selection=0
+
+## main 3x3 uniform 0x0 rate 0.0140: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=183922 mismatches=0 multi=66135 multi_by_last=0,29237,0,29046,7852 no_default=0 pointer_checks=3070600
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=306266 fallback_checked=35831 fallback_took_other=2914 head_holds_output=257903 decided_by_selection=0
+
+## main 3x3 chipperm 0x0 rate 0.0075: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=139422 mismatches=0 multi=36121 multi_by_last=0,15597,0,15804,4720 no_default=0 pointer_checks=2349180
+RESULT front order_o=0 vectors=213448 mismatches=0 one_output=136308 fallback_checked=18426 fallback_took_other=1341 head_holds_output=58714 decided_by_selection=0
+
+## main 3x3 uniform 0x111111111 rate 0.0070: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=91826 mismatches=0 multi=25950 multi_by_last=0,10578,0,10998,4374 no_default=0 pointer_checks=1514470
+RESULT front order_o=0 vectors=177531 mismatches=0 one_output=115144 fallback_checked=13992 fallback_took_other=1076 head_holds_output=48395 decided_by_selection=0
+
+## main 4x4 uniform 0x0 rate 0.0080: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=253834 mismatches=0 multi=72648 multi_by_last=0,32023,0,32828,7797 no_default=0 pointer_checks=4267760
+RESULT front order_o=0 vectors=516926 mismatches=0 one_output=329648 fallback_checked=38665 fallback_took_other=3023 head_holds_output=148613 decided_by_selection=0
+
+## main 4x4 uniform 0x0 rate 0.0110: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=340734 mismatches=0 multi=99877 multi_by_last=0,44872,0,45026,9979 no_default=0 pointer_checks=5737830
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=328894 fallback_checked=30344 fallback_took_other=2881 head_holds_output=240762 decided_by_selection=0
+
+## main 4x4 chipperm 0x0 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=379633 fallback_checked=28910 fallback_took_other=2967 head_holds_output=191457 decided_by_selection=0
+
+## main 4x4 uniform 0x1111111111111111 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=184564 mismatches=0 multi=42240 multi_by_last=0,17402,0,19091,5747 no_default=0 pointer_checks=3084120
+RESULT front order_o=0 vectors=382738 mismatches=0 one_output=251313 fallback_checked=22807 fallback_took_other=1961 head_holds_output=108618 decided_by_selection=0
+
+## noVLrep 2x2 uniform 0x0000 rate 0.0130: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=56969 mismatches=0 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+RESULT front order_o=0 vectors=114350 mismatches=0 one_output=65979 fallback_checked=13941 fallback_took_other=880 head_holds_output=34430 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=56969 mismatches=603 multi=26121 multi_by_last=0,10908,0,10999,4214 no_default=0 pointer_checks=934760
+
+## noVLrep 2x2 uniform 0x0000 rate 0.0180: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=73807 mismatches=0 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+RESULT front order_o=0 vectors=510489 mismatches=0 one_output=261379 fallback_checked=37535 fallback_took_other=2717 head_holds_output=211575 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=73807 mismatches=1242 multi=33700 multi_by_last=0,14067,0,14366,5267 no_default=0 pointer_checks=1214270
+
+## noVLrep 2x2 chipperm 0x0000 rate 0.0115: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+RESULT front order_o=0 vectors=164633 mismatches=0 one_output=88306 fallback_checked=17091 fallback_took_other=1256 head_holds_output=59236 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=81201 mismatches=0 multi=32858 multi_by_last=0,16348,0,16510,0 no_default=0 pointer_checks=1365190
+
+## noVLrep 2x2 uniform 0x1111 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=39854 mismatches=0 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+RESULT front order_o=0 vectors=83928 mismatches=0 one_output=50526 fallback_checked=7758 fallback_took_other=639 head_holds_output=25644 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=39854 mismatches=507 multi=14682 multi_by_last=0,5440,0,6022,3220 no_default=0 pointer_checks=645210
+
+## noVLrep 3x3 uniform 0x0 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=139831 mismatches=0 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+RESULT front order_o=0 vectors=295913 mismatches=0 one_output=181306 fallback_checked=26217 fallback_took_other=2117 head_holds_output=88390 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=139831 mismatches=848 multi=49208 multi_by_last=0,21111,0,21719,6378 no_default=0 pointer_checks=2325580
+
+## noVLrep 3x3 uniform 0x0 rate 0.0140: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=183773 mismatches=0 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=315137 fallback_checked=35876 fallback_took_other=3002 head_holds_output=248987 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=183773 mismatches=1584 multi=65738 multi_by_last=0,29047,0,28813,7878 no_default=0 pointer_checks=3066480
+
+## noVLrep 3x3 chipperm 0x0 rate 0.0075: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=138893 mismatches=0 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+RESULT front order_o=0 vectors=211469 mismatches=0 one_output=135108 fallback_checked=18235 fallback_took_other=1339 head_holds_output=58126 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=138893 mismatches=607 multi=35905 multi_by_last=0,15517,0,15669,4719 no_default=0 pointer_checks=2339760
+
+## noVLrep 3x3 uniform 0x111111111 rate 0.0070: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=91983 mismatches=0 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+RESULT front order_o=0 vectors=180681 mismatches=0 one_output=116608 fallback_checked=13968 fallback_took_other=1124 head_holds_output=50105 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=91983 mismatches=573 multi=26082 multi_by_last=0,10640,0,11066,4376 no_default=0 pointer_checks=1517570
+
+## noVLrep 4x4 uniform 0x0 rate 0.0080: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=253364 mismatches=0 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+RESULT front order_o=0 vectors=512517 mismatches=0 one_output=327221 fallback_checked=38494 fallback_took_other=3028 head_holds_output=146802 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=253364 mismatches=908 multi=72490 multi_by_last=0,32059,0,32634,7797 no_default=0 pointer_checks=4258770
+
+## noVLrep 4x4 uniform 0x0 rate 0.0110: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=339587 mismatches=0 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=320275 fallback_checked=29446 fallback_took_other=2750 head_holds_output=250279 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=339587 mismatches=1586 multi=99254 multi_by_last=0,44550,0,44724,9980 no_default=0 pointer_checks=5717340
+
+## noVLrep 4x4 chipperm 0x0 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=379633 fallback_checked=28910 fallback_took_other=2967 head_holds_output=191457 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=284607 mismatches=0 multi=65418 multi_by_last=0,32172,0,33246,0 no_default=0 pointer_checks=4866030
+
+## noVLrep 4x4 uniform 0x1111111111111111 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=184293 mismatches=0 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+RESULT front order_o=0 vectors=376367 mismatches=0 one_output=246714 fallback_checked=22877 fallback_took_other=1986 head_holds_output=106776 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=184293 mismatches=723 multi=42203 multi_by_last=0,17331,0,19125,5747 no_default=0 pointer_checks=3079760
+
+## noLA 2x2 uniform 0x0000 rate 0.0130: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=56774 mismatches=0 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+RESULT front order_o=0 vectors=119332 mismatches=0 one_output=69442 fallback_checked=13885 fallback_took_other=929 head_holds_output=36005 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=56774 mismatches=11149 multi=26021 multi_by_last=0,10892,0,10915,4214 no_default=0 pointer_checks=931430
+
+## noLA 2x2 uniform 0x0000 rate 0.0180: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=71789 mismatches=0 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+RESULT front order_o=0 vectors=533946 mismatches=0 one_output=270962 fallback_checked=37589 fallback_took_other=2557 head_holds_output=225395 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=71789 mismatches=26128 multi=32562 multi_by_last=0,13560,0,13850,5152 no_default=0 pointer_checks=1180270
+
+## noLA 2x2 chipperm 0x0000 rate 0.0115: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=81110 mismatches=0 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+RESULT front order_o=0 vectors=171011 mismatches=0 one_output=92716 fallback_checked=17194 fallback_took_other=1363 head_holds_output=61101 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=81110 mismatches=17710 multi=32876 multi_by_last=0,16358,0,16518,0 no_default=0 pointer_checks=1364400
+
+## noLA 2x2 uniform 0x1111 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=2 cuts=000 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=001 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=010 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=011 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=100 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=101 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=110 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT sel order_o=0 dbias=2 cuts=111 vectors=39835 mismatches=0 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+RESULT front order_o=0 vectors=88848 mismatches=0 one_output=53923 fallback_checked=7905 fallback_took_other=664 head_holds_output=27020 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=2 cuts=000 vectors=39835 mismatches=6314 multi=14678 multi_by_last=0,5466,0,5996,3216 no_default=0 pointer_checks=644990
+
+## noLA 3x3 uniform 0x0 rate 0.0100: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=138646 mismatches=0 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+RESULT front order_o=0 vectors=317100 mismatches=0 one_output=193639 fallback_checked=26191 fallback_took_other=2295 head_holds_output=97270 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=138646 mismatches=22248 multi=48886 multi_by_last=0,20920,0,21590,6376 no_default=0 pointer_checks=2304880
+
+## noLA 3x3 uniform 0x0 rate 0.0140: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=179805 mismatches=0 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=306259 fallback_checked=34624 fallback_took_other=2762 head_holds_output=259117 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=179805 mismatches=48030 multi=63982 multi_by_last=0,27845,0,28349,7788 no_default=0 pointer_checks=2998420
+
+## noLA 3x3 chipperm 0x0 rate 0.0075: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=138274 mismatches=0 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+RESULT front order_o=0 vectors=221066 mismatches=0 one_output=139427 fallback_checked=18036 fallback_took_other=1498 head_holds_output=63603 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=138274 mismatches=14035 multi=35622 multi_by_last=0,15395,0,15510,4717 no_default=0 pointer_checks=2328890
+
+## noLA 3x3 uniform 0x111111111 rate 0.0070: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=91041 mismatches=0 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+RESULT front order_o=0 vectors=185810 mismatches=0 one_output=118282 fallback_checked=13860 fallback_took_other=1163 head_holds_output=53668 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=91041 mismatches=9897 multi=25717 multi_by_last=0,10389,0,10953,4375 no_default=0 pointer_checks=1500600
+
+## noLA 4x4 uniform 0x0 rate 0.0080: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=252639 mismatches=0 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+RESULT front order_o=0 vectors=536713 mismatches=0 one_output=338888 fallback_checked=38429 fallback_took_other=3403 head_holds_output=159396 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=252639 mismatches=31220 multi=72393 multi_by_last=0,31816,0,32778,7799 no_default=0 pointer_checks=4245360
+
+## noLA 4x4 uniform 0x0 rate 0.0110: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=333472 mismatches=0 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=318866 fallback_checked=28381 fallback_took_other=2661 head_holds_output=252753 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=333472 mismatches=67788 multi=97038 multi_by_last=0,43424,0,43736,9878 no_default=0 pointer_checks=5614280
+
+## noLA 4x4 chipperm 0x0 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=284115 mismatches=0 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+RESULT front order_o=0 vectors=600000 mismatches=0 one_output=372629 fallback_checked=26843 fallback_took_other=3098 head_holds_output=200528 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=284115 mismatches=36762 multi=65613 multi_by_last=0,32369,0,33244,0 no_default=0 pointer_checks=4857250
+
+## noLA 4x4 uniform 0x1111111111111111 rate 0.0060: statistics of the instrumented run byte-identical to bin/noxim
+RESULT sel order_o=0 dbias=0 cuts=000 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=001 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=010 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=011 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=100 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=101 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=110 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT sel order_o=0 dbias=0 cuts=111 vectors=183664 mismatches=0 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+RESULT front order_o=0 vectors=397071 mismatches=0 one_output=256903 fallback_checked=23170 fallback_took_other=2356 head_holds_output=116998 decided_by_selection=0
+control (units of the main row): RESULT sel order_o=0 dbias=0 cuts=000 vectors=183664 mismatches=17797 multi=42074 multi_by_last=0,17184,0,19143,5747 no_default=0 pointer_checks=3068780
+
+## Summary
+
+| variant | runs (statistics identical to bin/noxim) | selection vectors | of those with a choice | front vectors | fallback evaluated (took another output) | vectors in all | applied with the 8 cuts | mismatches | control: vectors, mismatches against the units of the main row |
+|---|---|---|---|---|---|---|---|---|---|
+| main | 12 (12) | 1870613 | 564929 | 4250603 | 289389 (23435) | 6121216 | 19215507 | 0 | - |
+| noVLrep | 12 (12) | 1868162 | 563659 | 4250347 | 290348 (23805) | 6118509 | 19195643 | 0 | 1868162, 9181 |
+| noLA | 12 (12) | 1851164 | 557462 | 4370897 | 286107 (24749) | 6222061 | 19180209 | 0 | 1851164, 309078 |
+
+**All vectors match, every instrumented run equals bin/noxim, and both controls give mismatches: yes.**

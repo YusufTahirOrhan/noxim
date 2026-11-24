@@ -1,0 +1,44 @@
+{
+ "summary": {
+  "main": {
+   "sel": 1870613,
+   "sel_applied": 14964904,
+   "front": 4250603,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 564929,
+   "fb": 289389,
+   "fb_other": 23435,
+   "control_vectors": 0,
+   "control_mism": 0
+  },
+  "noVLrep": {
+   "sel": 1868162,
+   "sel_applied": 14945296,
+   "front": 4250347,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 563659,
+   "fb": 290348,
+   "fb_other": 23805,
+   "control_vectors": 1868162,
+   "control_mism": 9181
+  },
+  "noLA": {
+   "sel": 1851164,
+   "sel_applied": 14809312,
+   "front": 4370897,
+   "mism": 0,
+   "runs": 12,
+   "identical": 12,
+   "multi": 557462,
+   "fb": 286107,
+   "fb_other": 24749,
+   "control_vectors": 1851164,
+   "control_mism": 309078
+  }
+ },
+ "ok": true
+}
