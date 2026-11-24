@@ -189,3 +189,9 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   (`~/lbraw/logs/v29h.log`, `v29e4.log`): 6,901 x 3 / 15 = 1,380 s of the twelve simulator processes; 300 s more for the jobs run by
   hand in that time (the table comparison of ARTIFACT.md with two processes for 3.5 minutes, single tries of the E2 and E4 stages).
   1,680 s are written as the second number of `b_start.txt` and are not counted by the time rule from the end of C1 on.
+
+## Tables added after the results (`extra_v29.py`; none is a test, none changes a pre-registered table)
+* **`report/extra_B.md`, X.1** (after Part B): the accepted throughput and the latency of every row at each of the nine loads on five
+  cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
+  `randperm` alone, where the main row's THR is even below DeFT_P's, while its latency at 1.0 x Lsat is the lowest of all rows. The
+  table shows where on the ladder the rows part: THR is a number from the last load.
