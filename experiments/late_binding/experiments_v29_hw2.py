@@ -654,7 +654,12 @@ def clean_netlist(d):
     os.remove(net)
     if r.returncode != 0:
         return None
-    os.replace(out + '.tmp', out)
+    # The flow of rounds 18 and 25 maps a constant 0 to LOGIC0_X1 with the pin name ZN; the cell's pin is Z. For area and timing the name is
+    # of no consequence; in a simulation the net would float. Here the pin gets its name.
+    s = open(out + '.tmp').read()
+    s, k = re.subn(r'(LOGIC0_X1\s+\S+\s*\(\s*)\.ZN\(', r'\1.Z(', s)
+    open(out, 'w').write(s)
+    os.remove(out + '.tmp')
     return out
 
 
