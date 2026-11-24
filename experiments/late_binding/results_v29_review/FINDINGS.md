@@ -96,3 +96,70 @@ The difference is the same on the scenarios that the tuning saw and on those it 
 -7.3 % instead of -11.1 %. On the six scenarios of round 25 the throughput against the best reference moves from level
 (0.0 [-0.3, +0.3] %) to slightly behind (-0.8 [-1.1, -0.6] %). The price of a single configuration is one point of throughput and four
 points of latency on the smallest system; the sentences of the paper about 2x2 would have to be written with those numbers.
+
+## 11. `LB_noLA` and the reports across the VLs: what they cost in hardware (E2)
+
+*(The simulation half of this answer, what the lookahead term buys, follows with E1.)*
+
+Two RTL variants of the main row's interposer router, each checked against 1.85 million recorded selections of its own simulator row
+in all eight cut configurations (0 mismatches; the same vectors through the main row's units give 9,181 and 309,078 mismatches) and
+synthesised next to the main row (`report/summary_hw_E2.md`).
+
+| | main row | `LB_noVLrep` | `LB_noLA` |
+|---|---|---|---|
+| report inputs an interposer router reads (without / with a VL) | 72 / 84 | 72 / 72 | 0 / 0 |
+| flip-flops of an interposer router on 4x4 (without / with a VL; DeFT 1,795 / 2,184) | 2,125 / 2,640 | 2,125 / 2,628 | 2,045 / 2,544 |
+| system area relative to DeFT, hierarchy kept (2x2 / 3x3 / 4x4) | 1.251 / 1.216 / 1.218 | 1.248 / 1.214 / 1.215 | 1.203 / 1.170 / 1.172 |
+| system area, core kept | 1.161 / 1.129 / 1.132 | 1.159 / 1.128 / 1.131 | 1.133 / 1.104 / 1.107 |
+| system area, flattened | 1.101 / 1.077 / 1.078 | 1.101 / 1.075 / 1.076 | 1.075 / 1.051 / 1.052 |
+| registers needed in the decision unit at T_ref | 1 (after M) | 1 (after M) | 1 (after B, or after M) |
+| delay left for an interposer link in the link cycle (DeFT 0.82 to 0.90 ns) | 0.25 to 0.41 ns | 0.19 to 0.44 ns | 0.35 to 0.53 ns (cut M), 0.27 to 0.40 ns (cut B) |
+
+* **The lookahead term is about a fifth of the main row's area above DeFT**: without it the system has 1.17 instead of 1.22 times
+  DeFT's area on 3x3 and 4x4 with the hierarchy kept (79 to 81 % of the overhead remains; 80 to 82 % with the core kept, 66 to 74 %
+  flattened). It removes all 150 report wires into an interposer router and the 72 or 84 bits of them that the router registers.
+* **The reports across the VLs are about one per cent of the overhead**: 12 report bits and 12 flip-flops in each of the 4 interposer
+  routers per chiplet that have a VL, and the 30 wires down each VL.
+* **Timing.** Every design needs one register inside the decision unit to fit DeFT's clock period, so the decision takes two cycles
+  and the residual delay is 0 for all three; no variant gets back to one cycle (without a cut `LB_noLA` misses T_ref by 0.19 ns, the
+  main row by 0.66 ns). At 1 ns the main row needs three registers and each variant two.
+* **Link budget.** The decision reads the head on the link, so the first stage of the decision takes most of the link cycle: an
+  interposer link may take 0.25 to 0.41 ns of it with the main row against 0.82 to 0.90 ns with DeFT. Without the lookahead term 0.35
+  to 0.53 ns are left (with the same cut): about 0.1 ns more, which is the size of the spread of this flow on unchanged logic (0.13 ns).
+  The reports across the VLs make no measurable difference.
+
+## 12. Power: the ratio of the main row to DeFT, and how far the figure can be trusted
+
+OpenSTA `report_power` on the flattened netlists of the 4x4 routers at a 1 ns clock (`report/summary_hw_E4.md`). Average router of a
+system (12 chiplet, 4 boundary, 12 interposer, 4 interposer + VL routers per chiplet), relative to DeFT:
+
+| activity | main row | `LB_noVLrep` | `LB_noLA` | DeFT, mW per router |
+|---|---|---|---|---|
+| simulation of the netlists at the load of 0.5 x Lsat | **1.063** | 1.061 | 1.034 | 11.2 |
+| simulation of the netlists at the load of 1.0 x Lsat | **1.077** | 1.075 | 1.045 | 11.2 |
+| the tool's default (0.1 transitions per cycle at every input) | 1.123 | 1.121 | 1.099 | 17.0 |
+| the default with reset, position and table inputs constant (not pre-registered) | 1.067 | 1.067 | 1.054 | 23.9 |
+
+Per router with the simulated activity: interposer router 1.14, interposer router with a VL 1.17 to 1.18, chiplet and boundary router
+0.98 to 1.01 (they differ from DeFT's by a table).
+
+* **The main row's routers take 6 to 8 % more power than DeFT's at system level** with the activity of a simulation, 14 to 18 % more in
+  an interposer router. The lookahead term is about 3 of the 6 to 8 points; the reports across the VLs 0.2 points.
+* **What the activity is.** The vectors that the flow records are evaluations of the decision unit and cannot drive a router, so the
+  load was replayed, not recorded flits: the simulator counted the flits per input port of every router on 4x4 under uniform traffic,
+  and each synthesised netlist was simulated under random 8-flit packets at those rates (`DECISIONS.md`, "E4"). In all 24 cases the
+  netlist prints the result line of the RTL, and every pin of it is annotated from the VCD.
+* **How far to trust it.**
+  * *The ratio is a ratio of flip-flops.* With the simulated activity 88 to 98 % of a router's power is in its flip-flops (their clock
+    pins toggle in every cycle whether or not a flit moves), 3 % is leakage and 0.4 to 6 % switching. An interposer router of the main
+    row has 1.12 times DeFT's flip-flops (1.15 with a VL) and 1.14 times its power (1.17 to 1.18). The figure therefore says little
+    about the logic of the decision and much about the registers it adds.
+  * *No clock gating, no clock tree, no wires.* A real router gates the clock of its buffers, which are 60 % of DeFT's area; that would
+    shrink the common part of both designs and so raise the ratio. The 150 report wires into an interposer router and their drivers
+    have no capacitance here; they toggle rarely (occupancies change when flits move), but they are not counted at all.
+  * *Zero-delay simulation:* glitches are not counted. *One library corner* of a 45 nm teaching library.
+  * *The default activity overstates the difference* (1.12): it lets the reset toggle, which damps every register behind a synchronous
+    reset, and gives the 150 report inputs of the main row the activity of data.
+  * The power is nearly flat in the load: DeFT's average router takes 11.20 mW at 0.5 x Lsat and 11.18 mW at 1.0 x Lsat.
+  So: the direction and the size class (several per cent at system level, about a sixth in an interposer router) can be quoted; the
+  second digit cannot, and a figure after layout with clock gating could differ in either direction.
