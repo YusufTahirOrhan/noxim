@@ -198,7 +198,7 @@ module tb_act18;
         for (t = 0; t < WARM + NCYC; t = t + 1) begin
             if (t == WARM && $value$plusargs("vcd=%s", vcdname)) begin
                 $dumpfile(vcdname);
-                $dumpvars(0, dut);
+                $dumpvars(1, dut);       // the nets of the router itself (in a netlist: every net)
             end
             for (i = 0; i < 2 * P; i = i + 1)
                 if (in_credit[i] === 1'b1) begin

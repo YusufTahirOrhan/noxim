@@ -10,14 +10,14 @@ one destination per source, the destinations are a permutation of the routers, n
 
 | size | pattern | tables | routers | sources | largest deviation of a sum | pattern | destinations in the own chiplet |
 |---|---|---|---|---|---|---|---|
-| 2x2 | tornado | 1 | 64 | all | 0.0e+00 | yes | 25.0 % |
-| 2x2 | neighbour | 1 | 64 | all | 0.0e+00 | yes | 0.0 % |
-| 2x2 | randperm | 1 | 64 | all | 0.0e+00 | yes | 23.4 % |
-| 3x3 | tornado | 1 | 144 | all | 0.0e+00 | yes | 0.0 % |
-| 3x3 | neighbour | 1 | 144 | all | 1.6e-08 | yes | 0.0 % |
-| 3x3 | randperm | 1 | 144 | all | 0.0e+00 | yes | 9.7 % |
-| 4x4 | tornado | 1 | 256 | all | 0.0e+00 | yes | 0.0 % |
-| 4x4 | neighbour | 1 | 256 | all | 1.6e-08 | yes | 0.0 % |
-| 4x4 | randperm | 1 | 256 | all | 0.0e+00 | yes | 5.9 % |
+| 2x2 | tornado | 39 | 64 | all | 0.0e+00 | yes | 25.0 % |
+| 2x2 | neighbour | 39 | 64 | all | 0.0e+00 | yes | 0.0 % |
+| 2x2 | randperm | 39 | 64 | all | 0.0e+00 | yes | 23.4 % |
+| 3x3 | tornado | 38 | 144 | all | 0.0e+00 | yes | 0.0 % |
+| 3x3 | neighbour | 38 | 144 | all | 3.2e-08 | yes | 0.0 % |
+| 3x3 | randperm | 37 | 144 | all | 0.0e+00 | yes | 9.7 % |
+| 4x4 | tornado | 37 | 256 | all | 0.0e+00 | yes | 0.0 % |
+| 4x4 | neighbour | 38 | 256 | all | 3.2e-08 | yes | 0.0 % |
+| 4x4 | randperm | 36 | 256 | all | 0.0e+00 | yes | 5.9 % |
 
 **All tables pass: yes.**

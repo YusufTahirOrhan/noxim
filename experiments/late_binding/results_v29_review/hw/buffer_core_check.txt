@@ -1,0 +1,25 @@
+# v29 E3: the buffer depths of rtl/router_core29.v (experiments_v29.py e3_tb; tb/tb_core29.v, Icarus Verilog)
+
+The router core with the depths bd (input buffers), cd (the buffers behind the N, E, S, W and Local outputs) and ch (behind the vertical-link output) under random
+packets on every input port and credits that come back late and in bursts. Checked: every flit that enters leaves; the flits of a packet leave in order on the
+port and VC its head named; packets stay contiguous per output VC; the unreturned flits of an output VC never exceed the depth behind it; the largest fill of an
+input buffer and the largest number of unreturned flits reach the depths (the last slot is used). Cases: the depths of DeFT_d4, DeFT_d5, DeFT_d6, of an
+interposer router of DeFT_i7 (7, 7, 4) and of a boundary router of DeFT_i7 (4, 4, 7); without and with the vertical-link port.
+
+RESULT core29 hub=0 bd=4 cd=4 ch=4 packets=2000 flits_in=10092 flits_out=10092 max_fill_in=4 max_unreturned_link=4 max_unreturned_hub=0 errors=0   OK
+RESULT core29 hub=1 bd=4 cd=4 ch=4 packets=2400 flits_in=11959 flits_out=11959 max_fill_in=4 max_unreturned_link=4 max_unreturned_hub=4 errors=0   OK
+RESULT core29 hub=0 bd=5 cd=5 ch=5 packets=2000 flits_in=10086 flits_out=10086 max_fill_in=5 max_unreturned_link=5 max_unreturned_hub=0 errors=0   OK
+RESULT core29 hub=1 bd=5 cd=5 ch=5 packets=2400 flits_in=11950 flits_out=11950 max_fill_in=5 max_unreturned_link=5 max_unreturned_hub=5 errors=0   OK
+RESULT core29 hub=0 bd=6 cd=6 ch=6 packets=2000 flits_in=9940 flits_out=9940 max_fill_in=6 max_unreturned_link=6 max_unreturned_hub=0 errors=0   OK
+RESULT core29 hub=1 bd=6 cd=6 ch=6 packets=2400 flits_in=11919 flits_out=11919 max_fill_in=6 max_unreturned_link=6 max_unreturned_hub=6 errors=0   OK
+RESULT core29 hub=0 bd=7 cd=7 ch=4 packets=2000 flits_in=10039 flits_out=10039 max_fill_in=7 max_unreturned_link=7 max_unreturned_hub=0 errors=0   OK
+RESULT core29 hub=1 bd=7 cd=7 ch=4 packets=2400 flits_in=11892 flits_out=11892 max_fill_in=7 max_unreturned_link=7 max_unreturned_hub=4 errors=0   OK
+RESULT core29 hub=0 bd=4 cd=4 ch=7 packets=2000 flits_in=10092 flits_out=10092 max_fill_in=4 max_unreturned_link=4 max_unreturned_hub=0 errors=0   OK
+RESULT core29 hub=1 bd=4 cd=4 ch=7 packets=2400 flits_in=11915 flits_out=11915 max_fill_in=4 max_unreturned_link=4 max_unreturned_hub=7 errors=0   OK
+
+Controls: the test bench is given other depths than the RTL was compiled with; each must FAIL.
+
+RESULT core29 hub=1 bd=6 cd=4 ch=4 packets=2400 flits_in=11948 flits_out=11908 max_fill_in=6 max_unreturned_link=4 max_unreturned_hub=4 errors=1222 FAIL  [the RTL has 4-flit input buffers, the test fills 6]
+RESULT core29 hub=1 bd=4 cd=4 ch=4 packets=2400 flits_in=12124 flits_out=12124 max_fill_in=4 max_unreturned_link=6 max_unreturned_hub=6 errors=6661 FAIL  [the RTL counts against 6-flit buffers behind its outputs, the test has 4]
+
+All cases pass and both controls fail: yes

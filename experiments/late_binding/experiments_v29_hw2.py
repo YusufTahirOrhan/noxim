@@ -9,8 +9,11 @@
   e2_synth   Yosys + ABC and OpenSTA as round 25: the main row and the two variants, interposer routers of 2x2 and 4x4, the eight cut
              configurations, three forms; DeFT's and the chiplet routers are those of e3_synth (extra = a regular expression on the tag)
   e2_csv     hw/area_variants.csv, hw/timing_variants.csv
-  e4_power   OpenSTA report_power on the flattened netlists of the 4x4 routers (default activity, and the activity of a VCD if one is
-             given for the design under ~/lbraw/v29/hw/vcd) -> hw/power_runs.csv
+  e4_loads   the instrumented copy counts the flits per input port of every router on 4x4 under uniform traffic at 0.5 and 1.0 x Lsat
+             (the rows DeFT_P, main, LB_noVLrep, LB_noLA; statistics byte-identical to bin/noxim) -> hw/port_loads.csv
+  e4_power   OpenSTA report_power on the flattened netlists of the 4x4 routers: with the default activity of the tool, and with the
+             activity of a simulation of the netlist that carries the load of port_loads.csv (hw/tb/tb_act18.v, tb_act25.v; the bench is
+             calibrated on the RTL, the netlist must give the same RESULT line) -> hw/power_runs.csv
 Variants of the interposer router (rtl/lb29_units.v with macros; router top, core, test benches and checkers are those of round 25):
   main      LB_UP_REP 1, LB_LOOKAHEAD 1: the units of round 25                 simulator row CI_heurLA_X_LF
   noVLrep   LB_UP_REP 0: no reports across the VLs                             simulator row LB_noVLrep (-deft_lb up_report 0)
@@ -384,27 +387,87 @@ def make_csv():
 
 
 # ---- E4: power ----
-POWER_TCL = """
-read_liberty {lib}
-read_verilog {net}
-link_design {top}
-create_clock -name clk -period {period} [get_ports clk]
-set_input_delay 0 -clock clk [lsearch -inline -all -not -exact [all_inputs] [get_ports clk]]
-set_output_delay 0 -clock clk [all_outputs]
-{activity}
-puts "POWER_BEGIN"
-report_power -digits 6
-puts "POWER_END"
-puts "ANNOT_BEGIN"
-report_activity_annotation
-puts "ANNOT_END"
-exit
-"""
+E4_SIZE = '4x4'
+E4_LOADS = {'05': 1, '10': 3}            # 0.5 and 1.0 x Lsat: the 2nd and 4th load of the ladder of round 25 (uniform traffic, 4x4)
+POS = {'chip5': (5, 5), 'chip6': (5, 4), 'ipos5': (6, 4), 'ipos6': (5, 4)}      # in chiplet (1, 1): a router without a VL, and the N slot
+PKT_LEN, WARM, NCYC, DMIN = 8, 2000, 10000, 2
+TOL = 0.03                               # the bench is calibrated until every rate is within 3 % of the simulator's
+
+
+def e4_rows():
+    """label -> arguments of the simulator row whose load a design carries (DeFT's routers: DeFT_P)."""
+    return {'DeFT': X25.row_args(E4_SIZE, 'DeFT_P'), 'main': VARIANTS['main']['row'](E4_SIZE), 'noVLrep': VARIANTS['noVLrep']['row'](E4_SIZE),
+            'noLA': VARIANTS['noLA']['row'](E4_SIZE)}
+
+
+def e4_rate(lt):
+    return X25.lp()[X.lkey(E4_SIZE, 'uniform', E5.FREE[E4_SIZE])]['eval'][E4_LOADS[lt]]
+
+
+def _load_one(arg):
+    """One simulator run with the port counters (and the same run with bin/noxim: the statistics must be the same file)."""
+    label, lt = arg
+    wd = os.path.join(RAW, 'loads')
+    rate = e4_rate(lt)
+    rname, args = X.job('loads', E4_SIZE, 'E4_' + label, e4_rows()[label], 2, 'uniform', E5.FREE[E4_SIZE], rate, VEC_SEED)
+    E5.gen_tables(E4_SIZE, 'uniform', [rate])
+    pre = os.path.join(wd, rname)
+    if not (os.path.exists(pre + '.ports.txt') and os.path.exists(pre + '.same')):
+        for tag, binary, env in (('ref', os.path.join(BIN, 'noxim'), ENV), ('vec', VECBIN, dict(ENV, LB29_PORTS=pre + '.ports.tmp'))):
+            subprocess.run([binary] + args + ['-stats_file', pre + '.%s.json' % tag], cwd=BIN, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=7200)
+        same = os.path.exists(pre + '.ref.json') and os.path.exists(pre + '.vec.json') and open(pre + '.ref.json', 'rb').read() == open(pre + '.vec.json', 'rb').read()
+        os.replace(pre + '.ports.tmp', pre + '.ports.txt')
+        open(pre + '.same', 'w').write('1' if same else '0')
+        for tag in ('ref', 'vec'):
+            if os.path.exists(pre + '.%s.json' % tag):
+                os.remove(pre + '.%s.json' % tag)
+    T = {}
+    for line in open(pre + '.ports.txt'):
+        f = line.split()
+        t = ('ipos' if f[2] == '1' else 'chip') + ('6' if f[3] == '1' else '5')
+        v = [int(x) for x in f[5:]]
+        a = T.setdefault(t, dict(n=0, cyc=0, fl=[0] * 12, fill=[0] * 12))
+        a['n'] += 1
+        a['cyc'] += int(f[4])
+        for i in range(12):
+            a['fl'][i] += v[3 * i]
+            a['fill'][i] += v[3 * i + 2]
+    return label, lt, rate, open(pre + '.same').read() == '1', T
+
+
+def loads(nthreads):
+    """hw/port_loads.csv: per row, load and router type the flits per cycle and input port, the share on VC 1 and the mean stay of a flit in
+    an input buffer, counted by the instrumented copy of the simulator in the measured window."""
+    from multiprocessing import Pool
+    os.makedirs(os.path.join(RAW, 'loads'), exist_ok=True)
+    with Pool(nthreads) as pool:
+        res = pool.map(_load_one, [(label, lt) for label in e4_rows() for lt in E4_LOADS], chunksize=1)
+    rows, ok = [], True
+    for label, lt, rate, same, T in res:
+        ok = ok and same and len(T) == 4
+        for t in sorted(T):
+            a = T[t]
+            fl, fill, c = a['fl'], a['fill'], float(a['cyc'])
+            fm, lm = sum(fl[:8]), sum(fill[:8])
+            rows.append(dict(design=label, load=lt, rate=rate, statistics_identical=int(same), rtype=t, routers=a['n'], cycles=a['cyc'] // a['n'],
+                             in_mesh=round(fm / (4 * c), 6), in_local=round((fl[8] + fl[9]) / c, 6), in_hub=round((fl[10] + fl[11]) / c, 6),
+                             vc1_mesh=round(sum(fl[1:8:2]) / max(1, fm), 4), vc1_hub=round(fl[11] / max(1, fl[10] + fl[11]), 4),
+                             stay_mesh=round(lm / max(1, fm), 3), stay_local=round((fill[8] + fill[9]) / max(1, fl[8] + fl[9]), 3),
+                             stay_hub=round((fill[10] + fill[11]) / max(1, fl[10] + fl[11]), 3), flits_mesh=fm, fill_mesh=lm))
+    with open(os.path.join(HW, 'port_loads.csv'), 'w', newline='') as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)
+        w.writeheader()
+        w.writerows(rows)
+    for r in rows:
+        print(r['design'], r['load'], r['rtype'], 'mesh %.4f local %.4f vertical %.4f; VC1 %.2f %.2f; stay %.2f %.2f' % (
+            r['in_mesh'], r['in_local'], r['in_hub'], r['vc1_mesh'], r['vc1_hub'], r['stay_mesh'], r['stay_hub']))
+    print('every instrumented run equals bin/noxim and has the four router types:', 'yes' if ok else 'NO')
+    return ok
 
 
 def power_designs():
-    """(label, design dict): the 4x4 routers of DeFT, of the main row and of the two variants (the cut configuration of round 25: one
-    register in the decision unit, after M)."""
+    """(label, router type, design dict): the 4x4 routers of DeFT, of the main row and of the two variants (the interposer routers in the
+    cut configuration of round 25: one register in the decision unit, after M)."""
     e3 = {d['tag']: d for d in H.designs_e3()}
     e2 = {d['tag']: d for d in designs_e2()}
     out = []
@@ -418,75 +481,261 @@ def power_designs():
     return out
 
 
-def power_one(arg):
-    label, t, d, period, act_name, act_tcl = arg
-    odir = os.path.join(RAW, 'power')
-    os.makedirs(odir, exist_ok=True)
+def load_table():
+    return {(r['design'], r['load'], r['rtype']): r for r in csv.DictReader(open(os.path.join(HW, 'port_loads.csv')))}
+
+
+def act_targets(label, t, lt, L):
+    """(targets, start parameters) of the bench for a router of type t under the load of a row: flits per cycle on a mesh input, from the
+    processing element and from the vertical link, flits per cycle that leave over the vertical link and to the processing element."""
+    r = L[(label, lt, t)]
+    ipos = t.startswith('ipos')
+    m, l, h = float(r['in_mesh']), float(r['in_local']), float(r['in_hub'])
+    pool = [L[(label, lt, x)] for x in (('ipos5', 'ipos6') if ipos else ('chip5', 'chip6'))]
+    stay_mesh = sum(float(x['fill_mesh']) for x in pool) / max(1.0, sum(float(x['flits_mesh']) for x in pool))
+    other = L[(label, lt, 'chip6' if ipos else 'ipos6')]            # the router at the other end of a VL
+    vert = float(other['in_hub']) if t.endswith('6') else 0.0        # what leaves over the vertical link arrives at its other end
+    eject = 0.0 if ipos else l                                       # uniform traffic: a router receives what it sends
+    tg = dict(mesh=m, local=0.0 if ipos else l, hub=h if t.endswith('6') else 0.0, vert=vert, eject=eject)
+
+    def q(rate):
+        return 0.0 if rate <= 0 else 65536.0 / (PKT_LEN / rate - PKT_LEN + 1)
+
+    def pr(w):
+        return 65536 if w <= DMIN else int(round(65536.0 / (w - DMIN + 1)))
+    par = dict(Q_MESH=q(m), Q_HUB=q(tg['hub']), S_VC1_MESH=256 * float(r['vc1_mesh']), S_VC1_HUB=256 * float(r['vc1_hub']),
+               PR_MESH=pr(stay_mesh), PR_HUB=pr(float(other['stay_hub'])))
+    if ipos:
+        par['S_VERT'] = 256 * vert / max(1e-9, 4 * m)
+    else:
+        par['Q_LOCAL'] = q(l)
+        par['S_EJECT'] = 256 * eject / max(1e-9, 4 * m + tg['hub'])
+        par['S_VERT'] = 256 * max(0.0, vert - l * 240.0 / 255.0) / max(1e-9, 4 * m)     # the router's own packets for other chiplets go down here
+        par['EXIT_SLOT'] = 0
+    return tg, par, dict(stay_mesh=stay_mesh, stay_hub=float(other['stay_hub']))
+
+
+def bench_of(d):
+    return 'tb_act25' if d['top'] == 'router25_top' else 'tb_act18'
+
+
+def bench_run(d, t, par, out, gate=None, vcd=None):
+    """Compile and run the activity bench of a design: the RTL, or (gate = netlist file) the synthesised netlist. Returns the RESULT line."""
+    tb = bench_of(d)
+    P = dict(d['params'], MX=POS[t][0], MY=POS[t][1], WARM=WARM, NCYC=NCYC, LEN=PKT_LEN, DMIN=DMIN, SEED=1)
+    P.update({k: int(round(v)) for k, v in par.items()})
+    cmd = [os.path.join(OSS, 'iverilog'), '-g2012', '-I' + R25, '-I' + R18, '-I' + RTL, '-s', tb] + ['-P%s.%s=%s' % (tb, k, v) for k, v in P.items()] + ['-o', out]
+    if gate:
+        cmd += ['-DGATE', os.path.join(RAW, 'power', 'cells.v'), gate] + ([UNITS] if tb == 'tb_act25' else [])
+    else:
+        cmd += dflags(d['defs']) + d['srcs']
+    cmd.append(os.path.join(H.TB, tb + '.v'))
+    r = subprocess.run(cmd, capture_output=True, text=True, env=env_eda())
+    if r.returncode != 0:
+        return 'RESULT compile failed: ' + ' '.join((r.stdout + r.stderr).split())[-400:]
+    r = subprocess.run([os.path.join(OSS, 'vvp'), out] + (['+vcd=' + vcd] if vcd else []), capture_output=True, text=True, env=env_eda())
+    os.remove(out)
+    res = [l for l in r.stdout.splitlines() if l.startswith('RESULT')]
+    return res[0] if res else 'RESULT none: ' + ' '.join(r.stdout.split())[-300:]
+
+
+def achieved(line):
+    m = re.search(r' in=([\d,]+) out=([\d,]+) ', line)
+    if not m:
+        return None
+    i, o = ([int(x) for x in m.group(k).split(',')] for k in (1, 2))
+    c = float(WARM + NCYC)
+    return dict(mesh=sum(i[:4]) / (4 * c), local=i[4] / c, hub=i[5] / c, vert=o[5] / c, eject=o[4] / c)
+
+
+KNOB = {'mesh': 'Q_MESH', 'local': 'Q_LOCAL', 'hub': 'Q_HUB', 'vert': 'S_VERT', 'eject': 'S_EJECT'}
+
+
+def calibrate(d, label, t, lt, L):
+    """The parameters of the bench with which the RTL carries the simulator's load: each rate within TOL of its target, or the closest of
+    ten tries. Returns (parameters, RESULT line, targets, achieved, tries)."""
+    tg, par, _ = act_targets(label, t, lt, L)
+    wd = os.path.join(RAW, 'act')
+    best = None
+    for k in range(10):
+        line = bench_run(d, t, par, os.path.join(wd, '%s__%s.rtl.vvp' % (d['tag'], lt)))
+        a = achieved(line)
+        if a is None or not line.rstrip().endswith('OK'):
+            return par, line, tg, a, k + 1
+        err = max(abs(a[x] / tg[x] - 1.0) for x in tg if tg[x] > 0)
+        if best is None or err < best[0]:
+            best = (err, dict(par), line, a)
+        if err <= TOL:
+            break
+        for x in tg:
+            if tg[x] > 0 and KNOB[x] in par:
+                f = min(2.0, max(0.5, tg[x] / max(a[x], 1e-9)))
+                par[KNOB[x]] = (max(par[KNOB[x]], 2.0) if f > 1.0 else par[KNOB[x]]) * f       # a knob at 0 can still be raised
+        tot = par.get('S_EJECT', 0.0) + par.get('S_VERT', 0.0)
+        if tot > 256.0:
+            for x in ('S_EJECT', 'S_VERT'):
+                if x in par:
+                    par[x] *= 256.0 / tot
+    return best[1], best[2], tg, best[3], k + 1
+
+
+CLEAN_YS = """read_liberty -lib {lib}
+read_verilog {net}
+hierarchy -top {top}
+splitnets
+rename -hide
+rename -enumerate
+write_verilog -noattr {out}
+"""
+
+POWER_TCL = """
+read_liberty {lib}
+read_verilog {net}
+link_design {top}
+create_clock -name clk -period {period} [get_ports clk]
+{activity}
+puts "POWER_BEGIN"
+report_power -digits 6
+puts "POWER_END"
+puts "ANNOT_BEGIN"
+report_activity_annotation
+puts "ANNOT_END"
+exit
+"""
+STATIC = 'set_power_activity -input_ports [get_ports {rst my_x* my_y*}] -activity 0 -duty 0' + NL + \
+    'if {[llength [get_ports -quiet cfg_*]]} {set_power_activity -input_ports [get_ports cfg_*] -activity 0 -duty 0}'
+
+
+def cells_file():
+    """Verilog models of the library cells, written by Yosys from the liberty file; every register of a model starts at 0."""
+    wd = os.path.join(RAW, 'power')
+    os.makedirs(wd, exist_ok=True)
+    out = os.path.join(wd, 'cells.v')
+    if not os.path.exists(out):
+        subprocess.run([S.YOSYS, '-q', '-p', 'read_liberty -ignore_miss_func %s; write_verilog -noattr %s' % (S.LIB, out + '.tmp')], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        s = open(out + '.tmp').read()
+        s = re.sub(r'^(\s*)reg (\w+);$', lambda m: '%sreg %s;%s%sinitial %s = 1\'b0;' % (m.group(1), m.group(2), NL, m.group(1), m.group(2)), s, flags=re.M)
+        open(out, 'w').write(s)
+        os.remove(out + '.tmp')
+    return out
+
+
+def clean_netlist(d):
+    """The flattened netlist with every internal net split into bits and given a plain name (so that the names of the simulation and of
+    the timing tool are the same); the ports keep theirs."""
+    wd = os.path.join(RAW, 'power')
     n = d['tag']
+    out = os.path.join(wd, n + '.clean.v')
+    if os.path.exists(out):
+        return out
     gz = os.path.join(RAW, 'flat', n + '.net.v.gz')
-    net = os.path.join(odir, n + '.net.v')
     if not os.path.exists(gz):
-        return label, t, act_name, None
+        return None
+    net = os.path.join(wd, n + '.net.v')
     subprocess.run('gunzip -c %s > %s' % (gz, net), shell=True, check=True)
-    tcl = os.path.join(odir, '%s__%s.tcl' % (n, act_name))
-    open(tcl, 'w').write(POWER_TCL.format(lib=S.LIB, net=net, top=d['top'], period=period, activity=act_tcl))
-    r = subprocess.run([S.STA, '-no_init', '-no_splash', '-exit', tcl], capture_output=True, text=True, timeout=7200)
-    open(os.path.join(odir, '%s__%s.txt' % (n, act_name)), 'w').write(r.stdout + r.stderr)
+    ys = os.path.join(wd, n + '.clean.ys')
+    open(ys, 'w').write(CLEAN_YS.format(lib=S.LIB, net=net, top=d['top'], out=out + '.tmp'))
+    r = subprocess.run([S.YOSYS, '-q', '-l', os.path.join(wd, n + '.clean.log'), '-s', ys], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os.remove(net)
+    if r.returncode != 0:
+        return None
+    os.replace(out + '.tmp', out)
+    return out
+
+
+def sta_power(d, net, name, activity):
+    wd = os.path.join(RAW, 'power')
+    tcl = os.path.join(wd, '%s__%s.tcl' % (d['tag'], name))
+    open(tcl, 'w').write(POWER_TCL.format(lib=S.LIB, net=net, top=d['top'], period=S.CLOCK_PS / 1000.0, activity=activity))
+    r = subprocess.run([S.STA, '-no_init', '-no_splash', '-exit', tcl], capture_output=True, text=True, timeout=14400)
+    open(os.path.join(wd, '%s__%s.txt' % (d['tag'], name)), 'w').write(r.stdout + r.stderr)
     m = re.search(r'POWER_BEGIN(.*?)POWER_END', r.stdout, re.S)
     if not m:
-        return label, t, act_name, None
+        return None
     out = {}
     for line in m.group(1).splitlines():
         f = line.split()
-        if len(f) >= 5 and f[0] in ('Sequential', 'Combinational', 'Total', 'Clock'):
+        if len(f) >= 5 and f[0] in ('Sequential', 'Combinational', 'Clock', 'Macro', 'Pad', 'Total'):
             try:
                 out[f[0].lower()] = [float(x) for x in f[1:5]]
             except ValueError:
                 pass
     a = re.search(r'ANNOT_BEGIN(.*?)ANNOT_END', r.stdout, re.S)
     out['annotation'] = ' '.join(a.group(1).split()) if a else ''
-    return label, t, act_name, out
+    return out
 
 
-def power(nthreads, period=None):
-    """report_power per router with the default activity of OpenSTA (inputs 0.1 transitions per clock period, duty 0.5, propagated), and
-    with the activity of a VCD where ~/lbraw/v29/hw/vcd/<tag>__<load>.vcd exists (written by the replay test bench, e4_vcd)."""
+def power_one(arg):
+    """One router and one activity: the default of the tool ('default'), the default with the reset, position and table inputs constant
+    ('default_static'), or the simulation of the netlist at a load ('sim05', 'sim10')."""
+    label, t, d, act = arg
+    res = dict(design=label, rtype=t, tag=d['tag'], activity=act, clock_ns=S.CLOCK_PS / 1000.0)
+    net = clean_netlist(d)
+    if net is None:
+        return dict(res, note='no netlist')
+    if act.startswith('default'):
+        out = sta_power(d, net, act, STATIC if act == 'default_static' else '# the default activity of the tool')
+    else:
+        lt = act[3:]
+        wd = os.path.join(RAW, 'act')
+        os.makedirs(wd, exist_ok=True)
+        L = load_table()
+        par, rtl, tg, a, tries = calibrate(d, label, t, lt, L)
+        res.update(rtl_result=rtl, tries=tries, **{'par_' + k: int(round(v)) for k, v in par.items()})
+        res.update({'target_' + k: round(v, 5) for k, v in tg.items()})
+        if a:
+            res.update({'bench_' + k: round(v, 5) for k, v in a.items()})
+        if a is None or not rtl.rstrip().endswith('OK'):
+            return dict(res, note='the bench failed on the RTL')
+        vcd = os.path.join(wd, '%s__%s.vcd' % (d['tag'], lt))
+        gate = bench_run(d, t, par, os.path.join(wd, '%s__%s.gate.vvp' % (d['tag'], lt)), gate=net, vcd=vcd)
+        res['gate_equals_rtl'] = int(gate == rtl)
+        if gate != rtl:
+            res['gate_result'] = gate
+        if not os.path.exists(vcd) or not gate.rstrip().endswith('OK'):
+            return dict(res, note='the simulation of the netlist failed')
+        out = sta_power(d, net, act, 'read_vcd -scope %s/dut %s' % (bench_of(d), vcd))
+        os.remove(vcd)
+    if not out or 'total' not in out:
+        return dict(res, note='no power report')
+    i, s, l, tot = out['total']
+    res.update(internal_w=i, switching_w=s, leakage_w=l, total_w=tot, annotation=out['annotation'][:400])
+    for g in ('sequential', 'combinational', 'clock'):
+        if g in out:
+            res[g + '_w'] = out[g][3]
+    return res
+
+
+def power(nthreads, extra):
+    """hw/power_runs.csv: OpenSTA report_power per router and activity (extra: a regular expression on 'label_type_activity')."""
     from multiprocessing import Pool
-    tim = {(r['design'], r['rtype'], r['size'], r['cuts']): r for r in csv.DictReader(open(os.path.join(HW, 'timing_variants.csv')))}
-    if period is None:      # the clock of the reference pipeline: the longest stage of DeFT's 4x4 routers in this run
-        st = []
-        for t in ('chip5', 'chip6', 'ipos5', 'ipos6'):
-            r = tim[('DeFT_d4', t, '4x4', '000')]
-            st.append(max(float(r[k]) for k in r if k.startswith('stage_') and k != 'stage_FROMLINK' and r[k] not in ('', None)))
-        period = round(max(st), 3)
-    jobs = []
-    for label, t, d in power_designs():
-        jobs.append((label, t, d, period, 'default', '# default activity: inputs 0.1 transitions per clock period, duty 0.5'))
-        for load in ('05', '10'):
-            vcd = os.path.join(RAW, 'vcd', '%s__%s.vcd' % (d['tag'], load))
-            if os.path.exists(vcd) or os.path.exists(vcd + '.gz'):
-                jobs.append((label, t, d, period, 'vcd' + load, 'read_vcd -scope tb/dut %s' % (vcd if os.path.exists(vcd) else vcd + '.gz')))
+    cells_file()
+    acts = ['default', 'default_static'] + ['sim' + lt for lt in E4_LOADS]
+    jobs = [(label, t, d, a) for label, t, d in power_designs() for a in acts if not extra or re.search(extra, '%s_%s_%s' % (label, t, a))]
     with Pool(nthreads) as pool:
+        pool.map(clean_netlist, [d for _, _, d in power_designs()], chunksize=1)
         res = pool.map(power_one, jobs, chunksize=1)
-    rows = []
-    for label, t, act, out in res:
-        if not out or 'total' not in out:
-            rows.append(dict(design=label, rtype=t, activity=act, clock_ns=period, internal_w='', switching_w='', leakage_w='', total_w='', note='no result'))
-            continue
-        i, s, l, tot = out['total']
-        rows.append(dict(design=label, rtype=t, activity=act, clock_ns=period, internal_w=i, switching_w=s, leakage_w=l, total_w=tot,
-                         sequential_w=out.get('sequential', ['', '', '', ''])[3], combinational_w=out.get('combinational', ['', '', '', ''])[3], note=out['annotation'][:300]))
-    with open(os.path.join(HW, 'power_runs.csv'), 'w', newline='') as fh:
-        keys = []
-        for r in rows:
-            keys += [k for k in r if k not in keys]
-        w = csv.DictWriter(fh, fieldnames=keys, lineterminator=NL)
+    path = os.path.join(HW, 'power_runs.csv')
+    old = []
+    if extra and os.path.exists(path):       # a partial run replaces its own rows only
+        done = {(r['design'], r['rtype'], r['activity']) for r in res}
+        old = [r for r in csv.DictReader(open(path)) if (r['design'], r['rtype'], r['activity']) not in done]
+    rows = old + res
+    keys = ['design', 'rtype', 'tag', 'activity', 'clock_ns', 'internal_w', 'switching_w', 'leakage_w', 'total_w', 'sequential_w', 'combinational_w', 'clock_w']
+    for r in rows:
+        keys += [k for k in r if k not in keys]
+    with open(path, 'w', newline='') as fh:
+        w = csv.DictWriter(fh, fieldnames=keys, lineterminator=NL, restval='')
         w.writeheader()
         w.writerows(rows)
-    for r in rows:
-        print(r['design'], r['rtype'], r['activity'], r['internal_w'], r['switching_w'], r['leakage_w'], r['total_w'])
-    return all(r['total_w'] != '' for r in rows)
+    ok = True
+    for r in res:
+        good = r.get('total_w', '') != '' and (not r['activity'].startswith('sim') or r.get('gate_equals_rtl') == 1)
+        ok = ok and good
+        print(r['design'], r['rtype'], r['activity'], r.get('internal_w', ''), r.get('switching_w', ''), r.get('leakage_w', ''), r.get('total_w', ''),
+              '' if good else '<-- ' + str(r.get('note', r.get('gate_result', ''))), flush=True)
+    return ok
 
 
 def run_stage(stage, nproc, extra):
@@ -505,7 +754,9 @@ def run_stage(stage, nproc, extra):
         sys.exit(0 if synth(extra, n) else 1)
     elif stage == 'e2_csv':
         sys.exit(0 if make_csv() else 1)
+    elif stage == 'e4_loads':
+        sys.exit(0 if loads(n) else 1)
     elif stage == 'e4_power':
-        sys.exit(0 if power(n) else 1)
+        sys.exit(0 if power(n, extra) else 1)
     else:
         raise SystemExit(__doc__)

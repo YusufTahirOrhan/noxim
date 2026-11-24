@@ -127,3 +127,19 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   load, not of recorded flits; the report says so next to the numbers. A replay of recorded flits through a router would need the
   credits of the simulator's neighbours, which arrive at other cycles than the RTL sends its flits (the simulator's router and the RTL
   differ in arbitration order and pipeline timing), and DeFT's RTL of round 18 has the VN rules of that round.
+
+## B0 and the drain tests on the new patterns
+* **No scenario needed the extended sweep.** DeFT_P saturates between 0.007 and 0.013 packets/cycle/source on the nine new cells
+  (`load_points_v29.md`), inside the usual sweep.
+* **The largest deviation of a table's sum is 3.2e-08 packets/cycle** once the tables of the ladders exist (`traffic_checks.md`; the
+  pre-registration quotes 1.6e-08 from the one table that existed then). It is the rounding of the nine decimals of a line over the 48 or
+  more destinations of a source under `neighbour` traffic.
+* **Drain tests: 114 / 114 pass** (`drain_traffic.csv`): every row of Part B (on 2x2 also `LB_b0`) on the three patterns at 0.5 and 1.0 x
+  Lsat on the three sizes delivers every packet with no dead-end event. They ran after B0 and before any evaluation run of a new pattern.
+
+## What ran next to the timing runs
+* The synthesis of E3 had started 11 minutes before the timing runs; its chain stops itself while they run (`chain_v29h.sh`, SIGSTOP to
+  its process group from the second the timing stage starts, 16:26:41) and goes on after them.
+* One compile of a Verilator checker (a try of the E2 vector check that I had started by hand) ran for about 30 seconds next to the
+  first timing set (2x2, the Part B runs) before I stopped it. One process next to twelve for half a minute of a set of several minutes:
+  the estimate of that set is high by well under 1 %, which errs towards dropping.

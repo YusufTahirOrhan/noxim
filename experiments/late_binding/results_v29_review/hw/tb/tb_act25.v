@@ -75,7 +75,7 @@ module tb_act25;
         for (t = 0; t < WARM + NCYC; t = t + 1) begin
             if (t == WARM && $value$plusargs("vcd=%s", vcdname)) begin
                 $dumpfile(vcdname);
-                $dumpvars(0, dut);
+                $dumpvars(1, dut);       // the nets of the router itself (in a netlist: every net)
             end
             for (i = 0; i < 2 * P; i = i + 1)
                 if (in_credit[i] === 1'b1) cred[i] = cred[i] + 1;
@@ -109,6 +109,9 @@ module tb_act25;
                         if (reach != 4'b0) begin
                             hmask = reach & $random(seed);
                             if (hmask == 4'b0) hmask = reach;
+                            // the heads that go up here are the class above: no other head has this router's VL among its candidates
+                            #0;
+                            if (hoff[4]) reach = 4'b0;
                         end
                     end
                     if (reach != 4'b0) begin
