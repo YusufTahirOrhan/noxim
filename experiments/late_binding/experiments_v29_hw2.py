@@ -340,11 +340,25 @@ def synth(pattern, nthreads):
     return not bad
 
 
+def report_bits(tag):
+    """How many of the 150 report inputs (five neighbours x five of their outputs x two VCs x three bits) the flattened netlist reads."""
+    import gzip
+    gz = os.path.join(RAW, 'flat', tag + '.net.v.gz')
+    if not os.path.exists(gz):
+        return ''
+    bits = set()
+    with gzip.open(gz, 'rt') as f:
+        for line in f:
+            if 'nb_report[' in line:
+                bits.update(int(x) for x in re.findall(r'nb_report\[(\d+)\]', line))
+    return len(bits)
+
+
 def make_csv():
     areas = S.lib_areas()
     ar, tm = [], []
     for d in designs_e2():
-        row = dict(design=d['design'], rtype=d['rtype'], size=d['size'], form='P', cuts=d['cuts'])
+        row = dict(design=d['design'], rtype=d['rtype'], size=d['size'], form='P', cuts=d['cuts'], report_bits=report_bits(d['tag']))
         ok = True
         for f in H.FORMS:
             if not os.path.exists(os.path.join(RAW, f, d['tag'] + '.stat.json')):
