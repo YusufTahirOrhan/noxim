@@ -234,14 +234,17 @@ def part_e2():
                 L.append('| %s | %s | ' % (nm, RV.CUTNAME[c]) + ' | '.join(cells) + ' | %s | %s |' % (', '.join(ffs), ', '.join(bits)))
         L.append('')
     # consistency: the main row built from lb29_units.v against the main row of the E3 run (lb25_units.v of round 25)
-    same = []
+    same = {f: [] for f in FORMS}
     for z in ('2x2', '4x4'):
         for t in ITYPES:
             for f in FORMS:
                 a, b = float(area[('LF_main', t, z, '010')]['area_%s_um2' % f]), float(A3[('LF_X', t, z)]['area_%s_um2' % f])
-                same.append(abs(a - b))
-    L += ['The main row built from `lb29_units.v` against the main row built from the units of round 25 (the E3 run), cuts M: largest difference of an area %.3f um^2 over' % max(same),
-          'the 12 netlists (%s).' % ('the same netlists' if max(same) < 0.01 else 'not the same netlists: the two texts are synthesised differently'), '']
+                same[f].append(100.0 * abs(a - b) / b)
+    L += ['The main row built from `lb29_units.v` against the main row built from the units of round 25 (`lb25_units.v`, the E3 run), cuts M, four routers: the areas',
+          'differ by at most %s (%s). The two texts describe the same logic (the vectors above) but are not synthesised to the same' % (
+              ' / '.join('%.2f %%' % max(same[f]) for f in FORMS), ' / '.join(FNAME[f] for f in FORMS)),
+          'netlists, so every comparison of this part is between designs built from the one file. The 3x3 rows of the system table use the 4x4 interposer routers, and',
+          'the timing tables the routers of 2x2 and 4x4, as in round 25.', '']
 
     # ---- system ratios ----
     L += ['## E2.3 System: average router area relative to DeFT (%s)' % ' / '.join(FNAME[f] for f in FORMS), '',

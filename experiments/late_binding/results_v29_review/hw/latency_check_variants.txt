@@ -1,0 +1,105 @@
+# v29 E2: cycles of a head through an idle interposer router of each variant (experiments_v29.py e2_lat; tb_lat25.v of round 25, Icarus Verilog)
+
+Two-flit packets, one at a time, into an idle router with free outputs: cycles from the cycle the head is on the input link to the cycle it is on the output link.
+Expected as for the main row (round 25): 4 cycles for a head with one offered output, 4 + max(0, cuts - 1) for a head with a choice.
+
+| variant and size | Up link | cuts (A M B) | heads with one output: n, cycles | heads with a choice: n, cycles | expected | result |
+|---|---|---|---|---|---|---|
+| main_2x2 | no | 0 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| main_2x2 | no | 0 0 1 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| main_2x2 | no | 0 1 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| main_2x2 | no | 0 1 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| main_2x2 | no | 1 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| main_2x2 | no | 1 0 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| main_2x2 | no | 1 1 0 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| main_2x2 | no | 1 1 1 | 1606, 4-4 | 394, 6-6 | 6 | OK |
+| main_2x2 | yes | 0 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| main_2x2 | yes | 0 0 1 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| main_2x2 | yes | 0 1 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| main_2x2 | yes | 0 1 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| main_2x2 | yes | 1 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| main_2x2 | yes | 1 0 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| main_2x2 | yes | 1 1 0 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| main_2x2 | yes | 1 1 1 | 1608, 4-4 | 392, 6-6 | 6 | OK |
+| main_4x4 | no | 0 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| main_4x4 | no | 0 0 1 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| main_4x4 | no | 0 1 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| main_4x4 | no | 0 1 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| main_4x4 | no | 1 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| main_4x4 | no | 1 0 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| main_4x4 | no | 1 1 0 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| main_4x4 | no | 1 1 1 | 1734, 4-4 | 247, 6-6 | 6 | OK |
+| main_4x4 | yes | 0 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| main_4x4 | yes | 0 0 1 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| main_4x4 | yes | 0 1 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| main_4x4 | yes | 0 1 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| main_4x4 | yes | 1 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| main_4x4 | yes | 1 0 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| main_4x4 | yes | 1 1 0 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| main_4x4 | yes | 1 1 1 | 1718, 4-4 | 281, 6-6 | 6 | OK |
+| noVLrep_2x2 | no | 0 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noVLrep_2x2 | no | 0 0 1 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noVLrep_2x2 | no | 0 1 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noVLrep_2x2 | no | 0 1 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noVLrep_2x2 | no | 1 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noVLrep_2x2 | no | 1 0 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noVLrep_2x2 | no | 1 1 0 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noVLrep_2x2 | no | 1 1 1 | 1606, 4-4 | 394, 6-6 | 6 | OK |
+| noVLrep_2x2 | yes | 0 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noVLrep_2x2 | yes | 0 0 1 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noVLrep_2x2 | yes | 0 1 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noVLrep_2x2 | yes | 0 1 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noVLrep_2x2 | yes | 1 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noVLrep_2x2 | yes | 1 0 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noVLrep_2x2 | yes | 1 1 0 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noVLrep_2x2 | yes | 1 1 1 | 1608, 4-4 | 392, 6-6 | 6 | OK |
+| noVLrep_4x4 | no | 0 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noVLrep_4x4 | no | 0 0 1 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noVLrep_4x4 | no | 0 1 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noVLrep_4x4 | no | 0 1 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noVLrep_4x4 | no | 1 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noVLrep_4x4 | no | 1 0 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noVLrep_4x4 | no | 1 1 0 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noVLrep_4x4 | no | 1 1 1 | 1734, 4-4 | 247, 6-6 | 6 | OK |
+| noVLrep_4x4 | yes | 0 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noVLrep_4x4 | yes | 0 0 1 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noVLrep_4x4 | yes | 0 1 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noVLrep_4x4 | yes | 0 1 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noVLrep_4x4 | yes | 1 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noVLrep_4x4 | yes | 1 0 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noVLrep_4x4 | yes | 1 1 0 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noVLrep_4x4 | yes | 1 1 1 | 1718, 4-4 | 281, 6-6 | 6 | OK |
+| noLA_2x2 | no | 0 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noLA_2x2 | no | 0 0 1 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noLA_2x2 | no | 0 1 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noLA_2x2 | no | 0 1 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noLA_2x2 | no | 1 0 0 | 1606, 4-4 | 394, 4-4 | 4 | OK |
+| noLA_2x2 | no | 1 0 1 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noLA_2x2 | no | 1 1 0 | 1606, 4-4 | 394, 5-5 | 5 | OK |
+| noLA_2x2 | no | 1 1 1 | 1606, 4-4 | 394, 6-6 | 6 | OK |
+| noLA_2x2 | yes | 0 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noLA_2x2 | yes | 0 0 1 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noLA_2x2 | yes | 0 1 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noLA_2x2 | yes | 0 1 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noLA_2x2 | yes | 1 0 0 | 1608, 4-4 | 392, 4-4 | 4 | OK |
+| noLA_2x2 | yes | 1 0 1 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noLA_2x2 | yes | 1 1 0 | 1608, 4-4 | 392, 5-5 | 5 | OK |
+| noLA_2x2 | yes | 1 1 1 | 1608, 4-4 | 392, 6-6 | 6 | OK |
+| noLA_4x4 | no | 0 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noLA_4x4 | no | 0 0 1 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noLA_4x4 | no | 0 1 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noLA_4x4 | no | 0 1 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noLA_4x4 | no | 1 0 0 | 1734, 4-4 | 247, 4-4 | 4 | OK |
+| noLA_4x4 | no | 1 0 1 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noLA_4x4 | no | 1 1 0 | 1734, 4-4 | 247, 5-5 | 5 | OK |
+| noLA_4x4 | no | 1 1 1 | 1734, 4-4 | 247, 6-6 | 6 | OK |
+| noLA_4x4 | yes | 0 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noLA_4x4 | yes | 0 0 1 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noLA_4x4 | yes | 0 1 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noLA_4x4 | yes | 0 1 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noLA_4x4 | yes | 1 0 0 | 1718, 4-4 | 281, 4-4 | 4 | OK |
+| noLA_4x4 | yes | 1 0 1 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noLA_4x4 | yes | 1 1 0 | 1718, 4-4 | 281, 5-5 | 5 | OK |
+| noLA_4x4 | yes | 1 1 1 | 1718, 4-4 | 281, 6-6 | 6 | OK |
+
+configurations 96, all as expected: **yes**

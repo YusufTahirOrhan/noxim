@@ -53,6 +53,9 @@ Yes to both.
 * **The best reference is RC** in 15 of the 18 cells of THR and LAT and MTR in the other three; no DeFT variant is the best anywhere.
 * The 2x2 loss under `randperm` is a loss of throughput beyond saturation only: at 1.0 x Lsat the main row has the lowest latency of
   all rows there (66 cycles against 73 for MTR and 112 for DeFT_P), and its P99 is 24 % below the best reference's.
+* Below saturation (B.4): at 0.2 x Lsat the main row's latency is 2 to 5 % below DeFT_P's and 1.5 to 3.2 % **above** the best
+  reference's; at 0.5 x Lsat it is 1 to 3 % below the best reference's and at 0.8 x Lsat 2 to 7 % below. The advantage over the best
+  reference is an advantage at load, as in round 25.
 * Held against what I wrote in advance: I expected 9 or 10 of 12 with at most one against, the 2x2 tests against the best reference
   unsupported and the THR one possibly against. The THR test is against, as expected; the LAT test on 2x2 is supported, which I did not
   expect. I expected the main row ahead of DeFT_P in every cell (wrong for `randperm` on 2x2), a loss under `neighbour` on 2x2 (wrong:
