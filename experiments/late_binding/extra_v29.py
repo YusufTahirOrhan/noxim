@@ -8,6 +8,8 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
   python3 extra_v29.py c        ->  results_v29_review/report/extra_C.md, extra_C_area.csv
      X.2  the comparisons of Part C read at the area of the main row (defined before the results of C1 were read)
      X.3  THR and LAT of every row per scenario, and which reference is the best of the four at each depth (added after they were read)
+     X.5  under faults (C3), counted over the masks: which DeFT variant with 6-flit buffers is the better one, and on how many masks the
+          main row is ahead of it (added after the results of C3 were read)
   python3 extra_v29.py e        ->  results_v29_review/report/extra_E.md, extra_E_noLA.csv
      X.4  LB_noLA against the references with 4-flit, 5-flit and 6-flit buffers, next to the main row, with the areas of E2 and E3
 """
@@ -159,6 +161,38 @@ def part_c():
     for t, name in zip(tags, ('4-flit (round 25)', '5-flit', '6-flit')):
         L.append('| %s | %s |' % (name, ' | '.join(str(count[t][b]) for b in RV.REFS4)))
     L.append('')
+    # X.5 was added after the results of C3 had been read (DECISIONS.md): counts over the masks behind C.8
+    ff = os.path.join(RES, 'depth_fault_runs.csv')
+    if os.path.exists(ff):
+        F = RV.Faults(RV.load(os.path.join(RV.V26, 'fault_rate_runs.csv'), ff))
+        mean2 = lambda row, e, p, n: sum(F.val(row, e, p, s, n) for s in F.SEEDS) / len(F.SEEDS)  # noqa: E731
+        L += ['## X.5 Under faults (C3), counted over the masks: which DeFT variant is the better one, and on how many masks the main row is ahead', '',
+              'Added on 26 November after the results of C3 had been read: C.8 gives effects with intervals over the 16 masks of a size and rate and does not say which variant',
+              '"the best" is nor how the masks split. Per mask and traffic pattern the mean over the two seeds; THR over the four loads, LAT at 1.0 x Lsat of DeFT_P on the mask.',
+              '*Ahead*: the main row (4-flit buffers) has the higher THR, or the lower LAT, than the better of the two variants on that mask.', '',
+              '| size | rate | traffic | `DeFT_B_d6` is the better variant: THR | LAT | the main row ahead of the better variant with 6-flit buffers: THR | LAT | with 4-flit buffers (round 26): THR | LAT |',
+              '|---|---|---|---|---|---|---|---|---|']
+        tot = defaultdict(int)
+        for z in RV.SIZES:
+            for rate in ('1/16', '4/16'):
+                es = [e for e in F.masks if e['size'] == z and e['rate'] == rate]
+                for p in F.PATS:
+                    cells = []
+                    for n in ('THR', 'LAT'):
+                        k = sum(1 for e in es if F.best(('DeFT_P_d6', 'DeFT_B_d6'), e, p, n) == 'DeFT_B_d6')
+                        tot[(p, n, 'B')] += k
+                        cells.append('%d of %d' % (k, len(es)))
+                    for refs in (('DeFT_P_d6', 'DeFT_B_d6'), ('DeFT_P', 'DeFT_B')):
+                        for n in ('THR', 'LAT'):
+                            sign = 1 if n == 'THR' else -1
+                            k = sum(1 for e in es if sign * (mean2(RV.MAIN, e, p, n) - mean2(F.best(refs, e, p, n), e, p, n)) > 0)
+                            tot[(p, n, refs[0])] += k
+                            cells.append('%d of %d' % (k, len(es)))
+                    tot[(p, 'masks')] += len(es)
+                    L.append('| %s | %s | %s | %s |' % (z, rate, p, ' | '.join(cells)))
+        for p in F.PATS:
+            L.append('| all | both | %s | %s |' % (p, ' | '.join('%d of %d' % (tot[(p, n, c)], tot[(p, 'masks')]) for c in ('B', 'DeFT_P_d6', 'DeFT_P') for n in ('THR', 'LAT'))))
+        L.append('')
     write('extra_C.md', L)
     with open(os.path.join(OUT, 'extra_C_area.csv'), 'w', newline='') as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)

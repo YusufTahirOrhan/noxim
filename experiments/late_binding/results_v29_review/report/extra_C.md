@@ -162,3 +162,26 @@ The best of the four references, counted over the 36 cells of size, scenario and
 | 5-flit | 1 | 7 | 8 | 20 |
 | 6-flit | 1 | 7 | 7 | 21 |
 
+## X.5 Under faults (C3), counted over the masks: which DeFT variant is the better one, and on how many masks the main row is ahead
+
+Added on 26 November after the results of C3 had been read: C.8 gives effects with intervals over the 16 masks of a size and rate and does not say which variant
+"the best" is nor how the masks split. Per mask and traffic pattern the mean over the two seeds; THR over the four loads, LAT at 1.0 x Lsat of DeFT_P on the mask.
+*Ahead*: the main row (4-flit buffers) has the higher THR, or the lower LAT, than the better of the two variants on that mask.
+
+| size | rate | traffic | `DeFT_B_d6` is the better variant: THR | LAT | the main row ahead of the better variant with 6-flit buffers: THR | LAT | with 4-flit buffers (round 26): THR | LAT |
+|---|---|---|---|---|---|---|---|---|
+| 2x2 | 1/16 | uniform | 14 of 16 | 1 of 16 | 1 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 2x2 | 1/16 | hotspot | 16 of 16 | 16 of 16 | 7 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 2x2 | 4/16 | uniform | 9 of 16 | 4 of 16 | 1 of 16 | 13 of 16 | 13 of 16 | 16 of 16 |
+| 2x2 | 4/16 | hotspot | 16 of 16 | 16 of 16 | 5 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 3x3 | 1/16 | uniform | 15 of 16 | 10 of 16 | 10 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 3x3 | 1/16 | hotspot | 16 of 16 | 16 of 16 | 15 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 3x3 | 4/16 | uniform | 9 of 16 | 5 of 16 | 5 of 16 | 10 of 16 | 16 of 16 | 15 of 16 |
+| 3x3 | 4/16 | hotspot | 16 of 16 | 14 of 16 | 10 of 16 | 13 of 16 | 15 of 16 | 16 of 16 |
+| 4x4 | 1/16 | uniform | 8 of 16 | 2 of 16 | 15 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 4x4 | 1/16 | hotspot | 16 of 16 | 16 of 16 | 15 of 16 | 16 of 16 | 16 of 16 | 16 of 16 |
+| 4x4 | 4/16 | uniform | 7 of 16 | 7 of 16 | 10 of 16 | 9 of 16 | 15 of 16 | 16 of 16 |
+| 4x4 | 4/16 | hotspot | 15 of 16 | 14 of 16 | 11 of 16 | 15 of 16 | 15 of 16 | 16 of 16 |
+| all | both | uniform | 62 of 96 | 29 of 96 | 42 of 96 | 80 of 96 | 92 of 96 | 95 of 96 |
+| all | both | hotspot | 95 of 96 | 92 of 96 | 63 of 96 | 92 of 96 | 94 of 96 | 96 of 96 |
+

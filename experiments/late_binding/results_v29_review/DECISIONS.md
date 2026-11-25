@@ -267,3 +267,9 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   of a reference with 5-flit buffers on 3x3 and 4x4 within 0.6 points (1.170 and 1.172 against 1.167 and 1.166). That makes the
   one comparison at equal area of this round that is measured on both sides and not interpolated; the runs are those of E1 and C1
   on the same seeds and ladders. Seen before it was defined: the tables of C1 and of E1, so it is a description and no test.
+* **`report/extra_C.md`, X.5** (added on 26 November at 00:52, after the results of C3 had been read): under faults, per size, rate
+  and traffic pattern, on how many of the 16 masks `DeFT_B_d6` is the better of the two variants with 6-flit buffers, and on how
+  many masks the main row is ahead of the better variant (with 6-flit buffers, and with 4-flit buffers from the runs of round
+  26). Reason: C.8 gives effects with intervals over the masks; it does not say which variant "the best" is, and an interval
+  that includes 0 does not say whether the masks are split or each of them is a tie. Counts of signs of the per-mask means, no
+  test.

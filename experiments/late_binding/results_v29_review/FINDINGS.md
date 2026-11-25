@@ -9,8 +9,8 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 5, 8, 11 and 12 are final; answer 6 lacks the rows of C2 and
-answer 10 what D1 adds; the others follow.**
+**This file is written part by part as the runs finish. Answers 1 to 5, 7, 8, 11 and 12 are final; answer 6 lacks the rows of C2
+and answer 10 what D1 adds; the others follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -213,6 +213,57 @@ two neighbouring depths; a reading aid defined before the results were read, not
   and 0 to +4 % on 3x3 and 4x4 (+4.8 / +4.0 %: at the top or above); LAT within -5 to +10 % (-5.1 / -4.7 / -7.8 %: at the favourable
   end or beyond). Against the DeFT variants with 5-flit buffers I expected the main row ahead on 3x3 and 4x4 and level on 2x2; it is
   ahead on every size.
+
+## 7. Under faults: the main row against the DeFT variants with 6-flit buffers
+
+`DeFT_P_d6` and `DeFT_B_d6` on the 96 masks of round 26 in which 1/16 or 4/16 of the VLs are faulty (16 random masks per size and
+rate), uniform and hotspot traffic, four loads, seeds 151 and 152: 3,072 runs, no dead-end event (`report/summary_C.md`, C.8;
+`paper_data/equal_area_faults.csv`). The main row and the variants with 4-flit buffers are the runs of round 26. The unit is the mask:
+effects with the 95 % interval over the 16 masks; THR is the largest accepted throughput over the four loads, LAT the mean latency at
+1.0 x Lsat of DeFT_P on the mask. No test.
+
+| the main row (4-flit buffers), both traffic patterns | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| 1/16 of the VLs faulty: THR against the best of `DeFT_P_d6`, `DeFT_B_d6` | **-2.0 [-2.8, -1.1]** | +0.7 [+0.1, +1.3] | +5.3 [+4.1, +6.5] |
+| 1/16: LAT | -7.9 [-9.0, -6.8] | -8.7 [-9.5, -7.8] | -9.0 [-10.4, -7.6] |
+| 4/16 of the VLs faulty: THR | **-2.3 [-3.1, -1.5]** | -0.3 [-1.5, +0.8] | +1.6 [+0.2, +3.0] |
+| 4/16: LAT | -4.6 [-6.0, -3.1] | -0.4 [-7.0, +6.7] | -2.8 [-7.9, +2.5] |
+| *4-flit buffers on both sides (round 26), 1/16: THR; LAT* | *+3.3; -18.9* | *+5.5; -18.4* | *+8.9; -19.6* |
+| *4-flit buffers on both sides (round 26), 4/16: THR; LAT* | *+2.6; -16.9* | *+3.3; -16.1* | *+5.2; -19.6* |
+
+* **Against DeFT variants with 6-flit buffers the main row is behind in throughput on 2x2, level on 3x3 and ahead on 4x4.** With
+  1/16 of the VLs faulty: 2.0 % behind on 2x2, 0.7 % ahead on 3x3, 5.3 % ahead on 4x4, with 8 to 9 % less latency on every size.
+  With 4/16 faulty: 2.3 % behind on 2x2, level on 3x3, 1.6 % ahead on 4x4; its latency is 4.6 % lower on 2x2 and level on 3x3 and
+  4x4 (both intervals include 0). With 4-flit buffers on both sides it was ahead on every size at both rates, by 3 to 9 % in
+  throughput and 16 to 20 % in latency.
+* **By traffic.** Under uniform traffic (1/16; 4/16): THR -3.6; -3.4 % on 2x2, +0.3; -0.8 % on 3x3 (level), +8.1; +1.9 % on 4x4 (the
+  second level); LAT -7.1; -4.2 % on 2x2, -11.6; -2.2 % on 3x3 and -13.5; +0.8 % on 4x4 (the second of each pair level). Under
+  hotspot traffic: THR -0.3; -1.2 % on 2x2, +1.1; +0.2 % on 3x3, +2.6; +1.3 % on 4x4; LAT -8.7; -5.0 % on 2x2, -5.7; +1.5 % on 3x3
+  (the second level) and -4.3; -6.3 % on 4x4.
+* **Which variant is the one to beat** (`report/extra_C.md`, X.5, a table added after the results were seen). Under hotspot traffic
+  `DeFT_B_d6`: it is the better of the two on 95 of the 96 masks in THR and on 92 in LAT. Under uniform traffic `DeFT_B_d6` has
+  the higher throughput on 62 of the 96 masks and `DeFT_P_d6` the lower latency on 67. Against `DeFT_B_d6` alone the main row has
+  THR -1.9 / +0.7 / +5.9 % at 1/16 and -1.9 / +0.2 / +2.8 % at 4/16; against `DeFT_P_d6` alone it is ahead by 6 to 15 % in
+  throughput and 20 to 36 % in latency at both rates.
+* **Counted over the masks** (X.5; 192 cells of mask and traffic pattern, 64 per size). Against the better variant with 6-flit
+  buffers the main row has the higher throughput in 105 cells (14 / 40 / 51 of 64 on 2x2 / 3x3 / 4x4) and the lower latency in
+  172 (61 / 55 / 56 of 64). With 4-flit buffers on both sides it was 186 and 191 of 192. So "level" on 3x3 is a split over the
+  masks, not a tie on each, and on 2x2 the main row keeps the lower latency on nearly every mask while it has the lower
+  throughput in 50 of the 64 cells.
+* **What the buffers buy a DeFT variant under faults**: `DeFT_P_d6` +5.2 to +6.0 % of throughput and 26 to 31 % less latency,
+  `DeFT_B_d6` +3.3 to +5.5 % and 11 to 18 % less latency, at both rates. That is what they buy without faults (answer 5) for
+  DeFT_P and a little less for DeFT_B.
+* **Area.** The variants of this comparison have 1.32 to 1.34 times DeFT's router area, the main row 1.08 to 1.25 times (answer 6).
+  No variant with 5-flit buffers was run under faults, so a DeFT variant with the main row's area lies between the two measured
+  comparisons of the table: between rows on which the main row is ahead on every size and rows on which it is behind on 2x2.
+* The prompt wrote that if the gain over MTR and RC did not survive equal area, the case for late binding would rest on the
+  references that tolerate VL faults. Against those, with two more flits in every buffer than the main row has, the case holds
+  on 4x4, is a draw in throughput with less or equal latency on 3x3, and is lost in throughput on 2x2 (by 2 %), where the main row
+  keeps 5 to 8 % of latency.
+* Held against what I wrote in advance: THR at 4/16 behind on every size by 1 to 6 % (right on 2x2 with -2.3 %; level on 3x3 and
+  ahead on 4x4); at 1/16 between -3 and +2 % (2x2 and 3x3 inside, 4x4 above with +5.3 %); LAT between -5 and +15 % (inside at
+  4/16, at the favourable end; beyond it at 1/16 with -8 to -9 %). As in C1 the buffers buy the DeFT variants less against the main
+  row than I expected, and least on 4x4.
 
 ## 8. `LB_d6`: does the gain hold when the main row and the references both have 6-flit buffers?
 
