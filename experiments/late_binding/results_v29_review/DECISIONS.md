@@ -179,6 +179,12 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   round 25 reports its trace runs), G.3 (the same ratios as effects with the interval over the three seeds, and the main row against
   MTR and against RC, which follow from the ratios to DeFT_P) and G.4 (the same traces without compression, from the rows of round
   25). `paper_data/apps_loaded.csv` is not in the prompt's list of files; it holds G.2 and G.3.
+* **Three smoke runs of the parts taken back** (25 November, 10:25 to 10:29, into a scratch folder that was deleted; next to the twelve
+  processes of C1): the first tuning cell of `EB_best16` and of `EB_best256` on 2x2, and the search run of Part G for blackscholes at
+  S = 32, to see that the stages start with the build of this round. Read from them: that each run ended, its dead-end count (0), the
+  period it reports (16 and 256), and for the trace that every packet of the window was delivered (14,067 of 14,067) and the cycle at
+  which the window was complete (767,156). No latency and no throughput of the three runs was read. The stages run the three cells
+  again.
 * **What is not reopened.** Nothing else had been dropped, so no other part changes. The order of the parts, the seeds, the grids and
   the tuning rule of F2 are those of `PREREGISTRATION.md` and of `tuning_v29.md`; the tuned values of F2 are added to the
   pre-registration as "Addendum F2" before any evaluation run of its rows, as for F1.
