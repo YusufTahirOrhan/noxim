@@ -189,6 +189,19 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   the tuning rule of F2 are those of `PREREGISTRATION.md` and of `tuning_v29.md`; the tuned values of F2 are added to the
   pre-registration as "Addendum F2" before any evaluation run of its rows, as for F1.
 
+## The hand-over from the tuning of Part F to its evaluation (25 November, 13:25)
+* **`addendum_v29.py` writes the addenda.** An addendum with tuned values is a record of what `f1_choose` and `f2_choose` chose by the
+  rule of `tuning_v29.md`: the values, their scores, the values that were run, whether a score is below 0. It is generated from
+  `tuning_choice_v29.json`, so the text is the same whoever runs the script, and it is refused if an evaluation run of the rows exists
+  (a file in the raw folder of the part, or its per-run CSV). The addenda are put in front of the section "Stated in advance", which
+  the pre-registration says runs to the end of the file. Tried on a copy of the file with a stand-in choice.
+* **`after_c_v29.sh` does the hand-over if nobody is there.** The session that runs this round was cut off twice (a usage limit on
+  24 November from 17:30 to 23:45, a connection error on 25 November from 11:16 to 13:20), and the evaluation of Part F cannot start
+  before the addendum. The watcher waits 30 minutes after the end of chain c for chain d to be started by hand. If it was not, it runs
+  `addendum_v29.py`, commits the results folder inside WSL (author as in the last commit; no push from there) and starts chain d.
+  It chooses nothing; a chain c that failed or an addendum that is refused starts nothing. Its three paths were tried with stand-in
+  logs.
+
 ## E2 and E4 as run
 * **The main row is synthesised twice.** Once from the units of round 25 (in the E3 run, for the area ratios that Part C is read with;
   those netlists equal round 25's) and once from `lb29_units.v` with both macros on (in the E2 run, next to the two variants). The two
