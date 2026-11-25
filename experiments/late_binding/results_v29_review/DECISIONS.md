@@ -173,6 +173,12 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   come back is the clock, not a result.
 * **Part G keeps its own limit of 3 h.** "Optional, at most 3 h" is part of its definition in the prompt, not of the time rule. G is
   run because the only reason not to run it was the 48 h.
+* **The report of Part G was written on 25 November, before any run of the part** (`report_v29.py`, `part_g`; tried on stand-in data
+  made from the trace runs of round 25). The pre-registration asks for the mean latency per trace and the geometric mean over the
+  traces, relative to DeFT_P: that is G.2. Added to it, also before any run: the p99 and the completion time in the same table (as
+  round 25 reports its trace runs), G.3 (the same ratios as effects with the interval over the three seeds, and the main row against
+  MTR and against RC, which follow from the ratios to DeFT_P) and G.4 (the same traces without compression, from the rows of round
+  25). `paper_data/apps_loaded.csv` is not in the prompt's list of files; it holds G.2 and G.3.
 * **What is not reopened.** Nothing else had been dropped, so no other part changes. The order of the parts, the seeds, the grids and
   the tuning rule of F2 are those of `PREREGISTRATION.md` and of `tuning_v29.md`; the tuned values of F2 are added to the
   pre-registration as "Addendum F2" before any evaluation run of its rows, as for F1.

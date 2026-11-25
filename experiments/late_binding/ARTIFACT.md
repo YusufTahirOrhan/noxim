@@ -117,6 +117,7 @@ Printed from the drivers themselves (`experiments_v25.row_args`, `experiments_v2
 | `LB_d6` (round 29) | the main row and `-buffer 6` |
 | `MTR_static`, `RC_static` (rounds 23 and 29) | `MTR` and `RC` without `-vc_per_hop 1` |
 | `EB_first` (round 29) | the main row with its own `lut_bias` (section 6) and `-deft_lb entry_commit first -deft_lb entry_stats 1` |
+| `EB_best16`, `EB_best256` (round 29) | `EB_best` with its own T (section 6) and `-deft_lb oracle_period 16` or `256` |
 
 What the options of the VN-based rows mean (`src/ConfigurationManager.cpp`): `-deft_vn_rr 1` DeFT's round-robin VN reassignment at the
 Down port, with a counter per router; `-deft_up_keep 1` the Up VL keeps the packet's VN, and VN1 is assigned at the destination boundary
@@ -139,6 +140,7 @@ ln(THR / THR of DeFT_P) - ln(LAT at 1.0 x Lsat / DeFT_P's) - ln(LAT at 0.5 x Lsa
 | `EB_best64` | S, P, B of `EB_best`; T | 32 (bias 16) | 16 (bias 16) | 16 (bias 16) | the same |
 | `EB_down_t` | `lut_bias` D | 4 | 4 | 4 | the same |
 | `EB_first` | `lut_bias` D | see `results_v29_review/tuning_v29.md` | | | `results_v29_review/tuning_choice_v29.json` |
+| `EB_best16`, `EB_best256` | S, P, B of `EB_best`; T | see `results_v29_review/tuning_v29.md` | | | the same |
 
 * The main row's grid was W in {1, 2} x B in {0, 4} x G in {1, 2} x D in {0, 2, 4}; among the configurations within 0.02 of the best
   score the rule prefers D = 0, then G = 1, then B = 0, then W = 1. `heur_lookahead 1` is part of the row's definition, not tuned. The
@@ -246,6 +248,7 @@ takes its results folder from an environment variable if set (`V25_RES` ... `V29
 | | `vc_policy.csv`, `deft_paper_setup.csv` | `report_v29.py` (d) | one VC per packet for MTR and RC; the set-up of the DeFT paper |
 | | `nola_effects.csv` | `report_v29.py` (e) | the main row without the lookahead term |
 | | `early_more.csv` | `report_v29.py` (f) | `EB_first` and the age of the source's knowledge |
+| | `apps_loaded.csv` | `report_v29.py` (g) | the application traces of round 25 with `-netrace_compress S` (S per trace: the smallest of 2, 4, 8, 16, 32 at which DeFT_P's mean latency is 1.5 times its latency at S = 1), relative to DeFT_P |
 | | `hw_variants.csv` | `report_v29_hw.py` | area, timing, link budget and power of DeFT, the main row and its two variants |
 
 The independent second computation of the tested families is `check_v25_families.py`, `check_v26_family.py`, `check_v27_family.py`,
