@@ -1,0 +1,163 @@
+size,row,against,buffers,metric,effect_pct,ci_low,ci_high,n_seeds
+2x2,LB_noLA,the best of the four references,4-flit (round 25),THR,-0.34,-0.69,0.02,10
+2x2,LB_noLA,the best of the four references,4-flit (round 25),LAT,-10.68,-12.57,-8.75,10
+2x2,LB_noLA,the best of the four references,4-flit (round 25),P99,-23.73,-29.17,-17.86,10
+2x2,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),THR,0.0,-0.31,0.31,10
+2x2,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),LAT,-11.05,-13.24,-8.8,10
+2x2,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),P99,-24.36,-29.81,-18.48,10
+2x2,LB_noLA,the best of the four references,5-flit,THR,-2.12,-2.49,-1.75,10
+2x2,LB_noLA,the best of the four references,5-flit,LAT,-4.74,-7.06,-2.37,10
+2x2,LB_noLA,the best of the four references,5-flit,P99,-11.57,-17.04,-5.73,10
+2x2,CI_heurLA_X_LF,the best of the four references,5-flit,THR,-1.79,-2.06,-1.51,10
+2x2,CI_heurLA_X_LF,the best of the four references,5-flit,LAT,-5.14,-7.85,-2.35,10
+2x2,CI_heurLA_X_LF,the best of the four references,5-flit,P99,-12.3,-18.29,-5.88,10
+2x2,LB_noLA,the best of the four references,6-flit,THR,-3.76,-4.1,-3.42,10
+2x2,LB_noLA,the best of the four references,6-flit,LAT,-0.77,-2.53,1.03,10
+2x2,LB_noLA,the best of the four references,6-flit,P99,-5.89,-11.82,0.43,10
+2x2,CI_heurLA_X_LF,the best of the four references,6-flit,THR,-3.43,-3.65,-3.21,10
+2x2,CI_heurLA_X_LF,the best of the four references,6-flit,LAT,-1.18,-3.38,1.07,10
+2x2,CI_heurLA_X_LF,the best of the four references,6-flit,P99,-6.67,-13.2,0.34,10
+3x3,LB_noLA,the best of the four references,4-flit (round 25),THR,6.09,5.7,6.49,10
+3x3,LB_noLA,the best of the four references,4-flit (round 25),LAT,-6.18,-7.49,-4.85,10
+3x3,LB_noLA,the best of the four references,4-flit (round 25),P99,-22.51,-24.81,-20.13,10
+3x3,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),THR,6.68,6.34,7.01,10
+3x3,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),LAT,-9.66,-10.91,-8.39,10
+3x3,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),P99,-27.29,-29.87,-24.62,10
+3x3,LB_noLA,the best of the four references,5-flit,THR,4.18,3.69,4.66,10
+3x3,LB_noLA,the best of the four references,5-flit,LAT,-1.05,-2.21,0.12,10
+3x3,LB_noLA,the best of the four references,5-flit,P99,-11.37,-13.64,-9.04,10
+3x3,CI_heurLA_X_LF,the best of the four references,5-flit,THR,4.75,4.33,5.17,10
+3x3,CI_heurLA_X_LF,the best of the four references,5-flit,LAT,-4.72,-5.71,-3.73,10
+3x3,CI_heurLA_X_LF,the best of the four references,5-flit,P99,-16.84,-18.84,-14.8,10
+3x3,LB_noLA,the best of the four references,6-flit,THR,2.31,1.93,2.69,10
+3x3,LB_noLA,the best of the four references,6-flit,LAT,1.57,0.52,2.62,10
+3x3,LB_noLA,the best of the four references,6-flit,P99,-4.44,-6.89,-1.93,10
+3x3,CI_heurLA_X_LF,the best of the four references,6-flit,THR,2.87,2.45,3.29,10
+3x3,CI_heurLA_X_LF,the best of the four references,6-flit,LAT,-2.2,-3.09,-1.3,10
+3x3,CI_heurLA_X_LF,the best of the four references,6-flit,P99,-10.34,-12.46,-8.17,10
+4x4,LB_noLA,the best of the four references,4-flit (round 25),THR,5.31,4.92,5.71,10
+4x4,LB_noLA,the best of the four references,4-flit (round 25),LAT,-10.52,-12.02,-9.0,10
+4x4,LB_noLA,the best of the four references,4-flit (round 25),P99,-25.11,-27.22,-22.94,10
+4x4,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),THR,5.99,5.68,6.3,10
+4x4,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),LAT,-13.17,-14.64,-11.69,10
+4x4,CI_heurLA_X_LF,the best of the four references,4-flit (round 25),P99,-29.59,-31.92,-27.18,10
+4x4,LB_noLA,the best of the four references,5-flit,THR,3.28,2.86,3.7,10
+4x4,LB_noLA,the best of the four references,5-flit,LAT,-4.94,-6.05,-3.82,10
+4x4,LB_noLA,the best of the four references,5-flit,P99,-16.57,-18.66,-14.42,10
+4x4,CI_heurLA_X_LF,the best of the four references,5-flit,THR,3.95,3.57,4.32,10
+4x4,CI_heurLA_X_LF,the best of the four references,5-flit,LAT,-7.76,-8.82,-6.69,10
+4x4,CI_heurLA_X_LF,the best of the four references,5-flit,P99,-21.55,-23.69,-19.36,10
+4x4,LB_noLA,the best of the four references,6-flit,THR,1.66,1.37,1.95,10
+4x4,LB_noLA,the best of the four references,6-flit,LAT,-1.42,-2.93,0.1,10
+4x4,LB_noLA,the best of the four references,6-flit,P99,-10.08,-13.03,-7.02,10
+4x4,CI_heurLA_X_LF,the best of the four references,6-flit,THR,2.32,2.07,2.56,10
+4x4,CI_heurLA_X_LF,the best of the four references,6-flit,LAT,-4.34,-5.78,-2.88,10
+4x4,CI_heurLA_X_LF,the best of the four references,6-flit,P99,-15.45,-18.4,-12.4,10
+2x2,LB_noLA,the best of the two DeFT variants,4-flit (round 25),THR,4.07,3.79,4.35,10
+2x2,LB_noLA,the best of the two DeFT variants,4-flit (round 25),LAT,-23.58,-26.43,-20.62,10
+2x2,LB_noLA,the best of the two DeFT variants,4-flit (round 25),P99,-38.63,-43.89,-32.87,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),THR,4.43,4.26,4.59,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),LAT,-23.9,-26.83,-20.85,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),P99,-39.14,-44.27,-33.52,10
+2x2,LB_noLA,the best of the two DeFT variants,5-flit,THR,1.29,0.93,1.64,10
+2x2,LB_noLA,the best of the two DeFT variants,5-flit,LAT,-14.95,-17.42,-12.41,10
+2x2,LB_noLA,the best of the two DeFT variants,5-flit,P99,-26.14,-31.01,-20.92,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,THR,1.63,1.37,1.9,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,LAT,-15.31,-17.96,-12.56,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,P99,-26.75,-31.22,-21.98,10
+2x2,LB_noLA,the best of the two DeFT variants,6-flit,THR,-0.82,-1.2,-0.43,10
+2x2,LB_noLA,the best of the two DeFT variants,6-flit,LAT,-9.68,-11.72,-7.59,10
+2x2,LB_noLA,the best of the two DeFT variants,6-flit,P99,-17.87,-22.13,-13.37,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,THR,-0.48,-0.75,-0.2,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,LAT,-10.05,-12.36,-7.68,10
+2x2,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,P99,-18.55,-22.3,-14.61,10
+3x3,LB_noLA,the best of the two DeFT variants,4-flit (round 25),THR,8.56,8.11,9.01,10
+3x3,LB_noLA,the best of the two DeFT variants,4-flit (round 25),LAT,-22.25,-24.1,-20.36,10
+3x3,LB_noLA,the best of the two DeFT variants,4-flit (round 25),P99,-43.73,-46.69,-40.6,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),THR,9.16,8.74,9.58,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),LAT,-25.14,-26.68,-23.56,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),P99,-47.2,-50.09,-44.14,10
+3x3,LB_noLA,the best of the two DeFT variants,5-flit,THR,5.81,5.24,6.38,10
+3x3,LB_noLA,the best of the two DeFT variants,5-flit,LAT,-11.84,-12.99,-10.68,10
+3x3,LB_noLA,the best of the two DeFT variants,5-flit,P99,-28.67,-30.95,-26.33,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,THR,6.39,5.89,6.89,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,LAT,-15.11,-16.06,-14.15,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,P99,-33.08,-35.52,-30.54,10
+3x3,LB_noLA,the best of the two DeFT variants,6-flit,THR,3.32,3.09,3.55,10
+3x3,LB_noLA,the best of the two DeFT variants,6-flit,LAT,-6.47,-7.65,-5.28,10
+3x3,LB_noLA,the best of the two DeFT variants,6-flit,P99,-19.12,-21.44,-16.74,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,THR,3.89,3.55,4.23,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,LAT,-9.94,-10.73,-9.14,10
+3x3,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,P99,-24.11,-26.84,-21.29,10
+4x4,LB_noLA,the best of the two DeFT variants,4-flit (round 25),THR,7.74,7.38,8.11,10
+4x4,LB_noLA,the best of the two DeFT variants,4-flit (round 25),LAT,-23.48,-25.52,-21.38,10
+4x4,LB_noLA,the best of the two DeFT variants,4-flit (round 25),P99,-41.68,-45.7,-37.35,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),THR,8.43,8.13,8.74,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),LAT,-25.74,-27.71,-23.72,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,4-flit (round 25),P99,-45.16,-49.08,-40.95,10
+4x4,LB_noLA,the best of the two DeFT variants,5-flit,THR,5.37,5.0,5.73,10
+4x4,LB_noLA,the best of the two DeFT variants,5-flit,LAT,-13.48,-14.75,-12.19,10
+4x4,LB_noLA,the best of the two DeFT variants,5-flit,P99,-27.31,-30.07,-24.44,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,THR,6.05,5.67,6.42,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,LAT,-16.04,-17.37,-14.68,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,5-flit,P99,-31.66,-34.41,-28.78,10
+4x4,LB_noLA,the best of the two DeFT variants,6-flit,THR,3.17,2.89,3.44,10
+4x4,LB_noLA,the best of the two DeFT variants,6-flit,LAT,-7.3,-8.49,-6.11,10
+4x4,LB_noLA,the best of the two DeFT variants,6-flit,P99,-18.27,-20.3,-16.2,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,THR,3.83,3.61,4.05,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,LAT,-10.05,-11.17,-8.92,10
+4x4,CI_heurLA_X_LF,the best of the two DeFT variants,6-flit,P99,-23.16,-25.13,-21.14,10
+2x2,LB_noLA,the best of MTR and RC,4-flit (round 25),THR,1.16,0.7,1.63,10
+2x2,LB_noLA,the best of MTR and RC,4-flit (round 25),LAT,-11.43,-13.93,-8.85,10
+2x2,LB_noLA,the best of MTR and RC,4-flit (round 25),P99,-27.76,-33.45,-21.59,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),THR,1.51,1.1,1.92,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),LAT,-11.79,-14.4,-9.11,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),P99,-28.36,-33.89,-22.36,10
+2x2,LB_noLA,the best of MTR and RC,5-flit,THR,-0.7,-1.11,-0.29,10
+2x2,LB_noLA,the best of MTR and RC,5-flit,LAT,-4.74,-7.2,-2.22,10
+2x2,LB_noLA,the best of MTR and RC,5-flit,P99,-14.31,-20.43,-7.71,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,5-flit,THR,-0.36,-0.71,-0.01,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,5-flit,LAT,-5.14,-7.92,-2.27,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,5-flit,P99,-15.02,-21.48,-8.01,10
+2x2,LB_noLA,the best of MTR and RC,6-flit,THR,-2.43,-2.75,-2.1,10
+2x2,LB_noLA,the best of MTR and RC,6-flit,LAT,-0.77,-2.53,1.03,10
+2x2,LB_noLA,the best of MTR and RC,6-flit,P99,-6.49,-12.29,-0.31,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,6-flit,THR,-2.09,-2.33,-1.85,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,6-flit,LAT,-1.18,-3.38,1.07,10
+2x2,CI_heurLA_X_LF,the best of MTR and RC,6-flit,P99,-7.27,-13.57,-0.5,10
+3x3,LB_noLA,the best of MTR and RC,4-flit (round 25),THR,8.59,8.01,9.18,10
+3x3,LB_noLA,the best of MTR and RC,4-flit (round 25),LAT,-11.95,-14.42,-9.41,10
+3x3,LB_noLA,the best of MTR and RC,4-flit (round 25),P99,-38.5,-42.92,-33.74,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),THR,9.19,8.77,9.61,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),LAT,-15.22,-17.67,-12.69,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),P99,-42.3,-46.86,-37.34,10
+3x3,LB_noLA,the best of MTR and RC,5-flit,THR,6.81,6.13,7.5,10
+3x3,LB_noLA,the best of MTR and RC,5-flit,LAT,-5.54,-7.57,-3.47,10
+3x3,LB_noLA,the best of MTR and RC,5-flit,P99,-26.99,-31.14,-22.58,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,5-flit,THR,7.4,6.9,7.91,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,5-flit,LAT,-9.05,-10.97,-7.09,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,5-flit,P99,-31.49,-35.8,-26.9,10
+3x3,LB_noLA,the best of MTR and RC,6-flit,THR,5.27,4.68,5.86,10
+3x3,LB_noLA,the best of MTR and RC,6-flit,LAT,-2.26,-4.26,-0.21,10
+3x3,LB_noLA,the best of MTR and RC,6-flit,P99,-19.01,-23.27,-14.51,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,6-flit,THR,5.85,5.34,6.36,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,6-flit,LAT,-5.88,-7.79,-3.94,10
+3x3,CI_heurLA_X_LF,the best of MTR and RC,6-flit,P99,-24.0,-28.2,-19.56,10
+4x4,LB_noLA,the best of MTR and RC,4-flit (round 25),THR,8.05,7.4,8.7,10
+4x4,LB_noLA,the best of MTR and RC,4-flit (round 25),LAT,-17.31,-21.24,-13.19,10
+4x4,LB_noLA,the best of MTR and RC,4-flit (round 25),P99,-43.7,-49.11,-37.71,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),THR,8.75,8.23,9.27,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),LAT,-19.76,-23.55,-15.79,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,4-flit (round 25),P99,-47.06,-52.2,-41.38,10
+4x4,LB_noLA,the best of MTR and RC,5-flit,THR,5.72,5.02,6.42,10
+4x4,LB_noLA,the best of MTR and RC,5-flit,LAT,-10.88,-14.65,-6.94,10
+4x4,LB_noLA,the best of MTR and RC,5-flit,P99,-34.71,-41.1,-27.63,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,5-flit,THR,6.4,5.81,7.0,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,5-flit,LAT,-13.52,-17.14,-9.74,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,5-flit,P99,-38.61,-44.68,-31.88,10
+4x4,LB_noLA,the best of MTR and RC,6-flit,THR,3.99,3.38,4.59,10
+4x4,LB_noLA,the best of MTR and RC,6-flit,LAT,-7.0,-10.73,-3.12,10
+4x4,LB_noLA,the best of MTR and RC,6-flit,P99,-28.46,-35.26,-20.95,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,6-flit,THR,4.66,4.17,5.15,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,6-flit,LAT,-9.76,-13.35,-6.01,10
+4x4,CI_heurLA_X_LF,the best of MTR and RC,6-flit,P99,-32.74,-39.18,-25.62,10

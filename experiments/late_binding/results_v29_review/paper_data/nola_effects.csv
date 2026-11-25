@@ -1,0 +1,586 @@
+size,row,reference,scenarios,metric,effect_pct,ci_low,ci_high,p,n_seeds
+2x2,LB_noLA,CI_heurLA_X_LF,all six,THR,-0.34,-0.57,-0.12,0.007487,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,THR,-0.55,-0.83,-0.26,0.001804,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,THR,-0.64,-0.84,-0.44,4.749e-05,10
+2x2,LB_noLA,CI_heurLA_X_LF,all six,LAT,0.42,-0.39,1.23,0.2712,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,LAT,3.85,3.31,4.4,5.729e-08,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,LAT,3.05,2.69,3.41,1.178e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,all six,P99,0.83,-1.17,2.88,0.3729,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,P99,6.58,4.87,8.31,9.248e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,P99,6.36,5.48,7.25,4.293e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,all six,LAT02,-0.06,-0.1,-0.02,0.01038,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,LAT02,-0.11,-0.18,-0.03,0.01131,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,LAT02,-0.05,-0.11,0.02,0.1224,10
+2x2,LB_noLA,CI_heurLA_X_LF,all six,LAT05,-0.14,-0.29,0.02,0.07323,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,LAT05,0.39,0.27,0.51,3.594e-05,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,LAT05,0.45,0.38,0.52,1.322e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,all six,LAT08,0.45,0.2,0.69,0.002438,10
+3x3,LB_noLA,CI_heurLA_X_LF,all six,LAT08,2.34,2.06,2.62,1.405e-08,10
+4x4,LB_noLA,CI_heurLA_X_LF,all six,LAT08,3.14,2.84,3.45,1.918e-09,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,THR,-0.29,-0.51,-0.06,0.01702,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,THR,-0.47,-0.73,-0.21,0.00256,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,THR,-0.48,-0.66,-0.3,0.0002035,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT,0.78,0.37,1.19,0.001992,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT,1.61,1.29,1.94,1.275e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT,2.82,2.55,3.08,1.73e-09,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,P99,0.98,-0.88,2.87,0.2652,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,P99,3.25,1.47,5.06,0.002448,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,P99,6.61,5.45,7.77,3.127e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT02,-0.08,-0.15,0.0,0.05565,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT02,-0.12,-0.2,-0.04,0.008187,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT02,-0.07,-0.11,-0.02,0.01052,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT05,-0.09,-0.23,0.05,0.1761,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT05,0.27,0.11,0.42,0.004106,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT05,0.22,0.16,0.27,1.078e-05,10
+2x2,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT08,-0.1,-0.32,0.13,0.3473,10
+3x3,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT08,0.83,0.68,0.98,6.598e-07,10
+4x4,LB_noLA,CI_heurLA_X_LF,the four tuning scenarios,LAT08,1.18,1.07,1.3,2.713e-09,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,THR,-0.45,-0.98,0.08,0.08653,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,THR,-0.69,-1.32,-0.06,0.03571,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,THR,-0.96,-1.54,-0.38,0.004602,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT,-0.31,-2.66,2.1,0.7766,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT,8.48,6.94,10.05,4.318e-07,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT,3.53,2.67,4.39,5.926e-06,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,P99,0.55,-5.46,6.94,0.8455,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,P99,13.56,10.0,17.23,8.298e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,P99,5.87,5.0,6.73,7.253e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT02,-0.02,-0.13,0.08,0.6338,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT02,-0.08,-0.2,0.04,0.1668,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT02,-0.01,-0.15,0.13,0.9256,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT05,-0.23,-0.47,0.01,0.06259,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT05,0.63,0.41,0.85,0.0001027,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT05,0.92,0.76,1.08,3.672e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT08,1.55,1.08,2.02,3.744e-05,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT08,5.42,4.67,6.18,4.615e-08,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized and movinghot,LAT08,7.18,6.2,8.17,3.602e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,THR,-0.19,-0.68,0.3,0.4091,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,THR,-1.01,-1.44,-0.57,0.0005709,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,THR,-0.89,-1.12,-0.66,1.228e-05,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,LAT,1.22,0.49,1.96,0.004405,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,LAT,3.96,3.37,4.55,8.929e-08,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,LAT,3.32,2.72,3.92,4.629e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,P99,3.85,-0.1,7.96,0.0549,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,P99,7.41,5.82,9.03,1.86e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,P99,7.26,5.48,9.06,5.516e-06,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,LAT02,-0.06,-0.26,0.15,0.5287,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,LAT02,-0.04,-0.17,0.1,0.5779,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,LAT02,-0.09,-0.21,0.02,0.1071,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,LAT05,0.06,-0.2,0.32,0.62,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,LAT05,0.4,0.14,0.66,0.006956,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,LAT05,0.14,-0.07,0.35,0.1569,10
+2x2,LB_noLA,CI_heurLA_X_LF,uniform,LAT08,0.06,-0.51,0.64,0.8182,10
+3x3,LB_noLA,CI_heurLA_X_LF,uniform,LAT08,1.81,1.38,2.23,4.494e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,uniform,LAT08,1.2,0.99,1.42,4.714e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,THR,0.02,-0.49,0.53,0.9245,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,THR,-1.05,-1.83,-0.27,0.01398,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,THR,-1.02,-1.56,-0.47,0.002409,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,LAT,0.93,0.06,1.8,0.03894,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,LAT,4.01,2.89,5.15,1.822e-05,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,LAT,3.03,2.48,3.59,5.124e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,P99,5.03,2.15,8.0,0.003144,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,P99,7.83,4.66,11.1,0.0002877,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,P99,7.19,5.74,8.66,1.078e-06,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,LAT02,-0.06,-0.2,0.07,0.3218,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,LAT02,-0.06,-0.22,0.11,0.4381,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,LAT02,-0.11,-0.18,-0.05,0.003487,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,LAT05,-0.33,-0.55,-0.11,0.00791,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,LAT05,0.3,0.07,0.52,0.01562,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,LAT05,0.15,-0.03,0.33,0.09341,10
+2x2,LB_noLA,CI_heurLA_X_LF,localized,LAT08,-0.19,-0.63,0.25,0.35,10
+3x3,LB_noLA,CI_heurLA_X_LF,localized,LAT08,1.8,1.49,2.12,3.836e-07,10
+4x4,LB_noLA,CI_heurLA_X_LF,localized,LAT08,1.12,0.91,1.33,8.172e-07,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,THR,-0.5,-1.19,0.19,0.1351,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,THR,-0.51,-1.7,0.69,0.3574,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,THR,0.33,-0.38,1.04,0.319,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,LAT,0.17,-0.56,0.91,0.6158,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,LAT,0.05,-0.44,0.55,0.8247,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,LAT,0.3,0.15,0.46,0.001473,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,P99,-1.84,-5.79,2.28,0.3345,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,P99,2.73,-2.95,8.75,0.3115,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,P99,2.23,-0.31,4.82,0.07837,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,LAT02,-0.03,-0.17,0.11,0.6235,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,LAT02,-0.1,-0.23,0.02,0.08805,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,LAT02,-0.04,-0.14,0.05,0.3619,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,LAT05,0.03,-0.21,0.27,0.7922,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,LAT05,-0.08,-0.27,0.11,0.3486,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,LAT05,-0.04,-0.17,0.09,0.4645,10
+2x2,LB_noLA,CI_heurLA_X_LF,hotspot,LAT08,-0.29,-0.72,0.14,0.1642,10
+3x3,LB_noLA,CI_heurLA_X_LF,hotspot,LAT08,0.14,-0.29,0.56,0.4895,10
+4x4,LB_noLA,CI_heurLA_X_LF,hotspot,LAT08,0.08,-0.09,0.25,0.2988,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,THR,-0.65,-0.83,-0.46,2.369e-05,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,THR,-0.41,-0.85,0.04,0.07169,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,THR,-1.36,-1.54,-1.18,3.81e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,LAT,1.61,0.62,2.61,0.005086,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,LAT,0.87,0.5,1.25,0.0004903,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,LAT,7.35,6.49,8.21,8.881e-09,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,P99,3.69,0.77,6.69,0.01845,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,P99,1.85,-0.16,3.91,0.0675,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,P99,21.15,18.68,23.68,5.84e-09,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,LAT02,-0.07,-0.19,0.06,0.2552,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,LAT02,-0.12,-0.25,0.01,0.06831,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,LAT02,-0.04,-0.12,0.04,0.3118,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,LAT05,-0.15,-0.33,0.03,0.09535,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,LAT05,0.41,0.19,0.64,0.002328,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,LAT05,0.57,0.45,0.69,1.765e-06,10
+2x2,LB_noLA,CI_heurLA_X_LF,chipperm,LAT08,0.27,-0.08,0.61,0.112,10
+3x3,LB_noLA,CI_heurLA_X_LF,chipperm,LAT08,0.52,0.28,0.77,0.0008401,10
+4x4,LB_noLA,CI_heurLA_X_LF,chipperm,LAT08,2.4,2.11,2.7,1.656e-08,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,THR,0.19,0.02,0.35,0.02896,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,THR,0.03,-0.07,0.13,0.4873,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,THR,0.02,-0.05,0.1,0.5279,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT,0.14,-0.6,0.88,0.6863,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT,1.61,0.89,2.33,0.0006578,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT,0.45,-0.18,1.08,0.1433,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,P99,-1.65,-4.91,1.74,0.2956,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,P99,1.11,-1.67,3.98,0.3932,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,P99,-2.77,-4.75,-0.75,0.01286,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT02,-0.14,-0.27,-0.02,0.02809,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT02,-0.21,-0.35,-0.08,0.006538,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT02,-0.1,-0.22,0.02,0.1026,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT05,-0.31,-0.62,0.01,0.05461,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT05,0.34,0.09,0.58,0.01381,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT05,0.19,0.05,0.33,0.01179,10
+2x2,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT08,-0.43,-0.76,-0.09,0.01802,10
+3x3,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT08,0.86,0.6,1.11,3.281e-05,10
+4x4,LB_noLA,CI_heurLA_X_LF,chiptrans,LAT08,1.06,0.78,1.34,1.225e-05,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,THR,-0.92,-1.59,-0.24,0.01318,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,THR,-0.33,-1.5,0.85,0.5427,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,THR,-0.91,-1.93,0.11,0.07438,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,LAT,-1.53,-5.99,3.14,0.4719,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,LAT,13.14,10.3,16.06,1.638e-06,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,LAT,4.02,2.22,5.86,0.000649,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,P99,-3.75,-13.68,7.33,0.4482,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,P99,19.59,13.41,26.1,3.232e-05,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,P99,4.55,2.74,6.4,0.0002757,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,LAT02,0.02,-0.2,0.24,0.8485,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,LAT02,-0.1,-0.34,0.13,0.338,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,LAT02,0.1,-0.16,0.36,0.4127,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,LAT05,-0.13,-0.46,0.2,0.3904,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,LAT05,0.97,0.48,1.46,0.001423,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,LAT05,1.7,1.34,2.05,1.83e-06,10
+2x2,LB_noLA,CI_heurLA_X_LF,movinghot,LAT08,3.32,2.56,4.08,3.335e-06,10
+3x3,LB_noLA,CI_heurLA_X_LF,movinghot,LAT08,9.17,7.51,10.86,4.054e-07,10
+4x4,LB_noLA,CI_heurLA_X_LF,movinghot,LAT08,13.61,11.39,15.87,1.383e-07,10
+2x2,LB_noLA,DeFT_P,all six,THR,6.96,6.52,7.4,3.974e-11,10
+3x3,LB_noLA,DeFT_P,all six,THR,13.46,12.83,14.1,2.096e-12,10
+4x4,LB_noLA,DeFT_P,all six,THR,11.29,10.75,11.83,2.734e-12,10
+2x2,LB_noLA,DeFT_P,all six,LAT,-32.75,-37.05,-28.16,2.661e-07,10
+3x3,LB_noLA,DeFT_P,all six,LAT,-31.81,-34.54,-28.97,5.393e-09,10
+4x4,LB_noLA,DeFT_P,all six,LAT,-31.85,-35.2,-28.33,3.375e-08,10
+2x2,LB_noLA,DeFT_P,all six,P99,-51.39,-56.66,-45.49,1.783e-07,10
+3x3,LB_noLA,DeFT_P,all six,P99,-59.32,-63.27,-54.96,9.264e-09,10
+4x4,LB_noLA,DeFT_P,all six,P99,-59.53,-63.77,-54.8,1.792e-08,10
+2x2,LB_noLA,DeFT_P,all six,LAT02,-1.88,-1.96,-1.8,1.523e-12,10
+3x3,LB_noLA,DeFT_P,all six,LAT02,-2.84,-2.92,-2.75,4.701e-14,10
+4x4,LB_noLA,DeFT_P,all six,LAT02,-2.28,-2.33,-2.22,9.2e-15,10
+2x2,LB_noLA,DeFT_P,all six,LAT05,-2.12,-2.22,-2.02,5.469e-12,10
+3x3,LB_noLA,DeFT_P,all six,LAT05,-1.91,-2.05,-1.77,2.252e-10,10
+4x4,LB_noLA,DeFT_P,all six,LAT05,-1.15,-1.31,-0.99,7.264e-08,10
+2x2,LB_noLA,DeFT_P,all six,LAT08,-6.46,-7.81,-5.08,2.643e-06,10
+3x3,LB_noLA,DeFT_P,all six,LAT08,-5.12,-5.85,-4.39,8.846e-08,10
+4x4,LB_noLA,DeFT_P,all six,LAT08,-3.18,-4.36,-1.98,0.0002116,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,THR,9.62,9.11,10.12,6.643e-12,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,THR,18.41,17.75,19.08,1.622e-13,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,THR,13.89,13.08,14.7,1.363e-11,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,LAT,-37.77,-42.92,-32.17,5.649e-07,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,LAT,-36.65,-40.71,-32.3,8.197e-08,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,LAT,-39.07,-42.61,-35.32,1.601e-08,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,P99,-59.3,-65.28,-52.3,4.415e-07,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,P99,-67.94,-72.35,-62.82,3.119e-08,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,P99,-70.12,-73.6,-66.18,3.786e-09,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,LAT02,-1.92,-2.06,-1.78,2.163e-10,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,LAT02,-3.09,-3.17,-3.01,2.643e-14,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,LAT02,-2.52,-2.58,-2.47,2.499e-15,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,LAT05,-2.15,-2.26,-2.04,8.645e-12,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,LAT05,-2.57,-2.73,-2.41,4.895e-11,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,LAT05,-1.69,-1.86,-1.52,3.417e-09,10
+2x2,LB_noLA,DeFT_P,the four tuning scenarios,LAT08,-6.98,-8.59,-5.34,6.235e-06,10
+3x3,LB_noLA,DeFT_P,the four tuning scenarios,LAT08,-7.99,-8.85,-7.12,9.147e-09,10
+4x4,LB_noLA,DeFT_P,the four tuning scenarios,LAT08,-6.04,-6.9,-5.17,9.39e-08,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,THR,1.84,1.03,2.66,0.000586,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,THR,4.16,3.15,5.19,5.917e-06,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,THR,6.27,5.43,7.13,3.426e-08,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,LAT,-21.45,-24.15,-18.64,8.176e-08,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,LAT,-21.0,-27.41,-14.04,0.0001392,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,LAT,-14.73,-18.05,-11.28,7.948e-06,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,P99,-30.66,-34.26,-26.86,8.295e-08,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,P99,-34.53,-44.73,-22.44,0.0003116,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,P99,-25.78,-33.19,-17.54,0.0001241,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,LAT02,-1.79,-1.92,-1.67,1.573e-10,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,LAT02,-2.32,-2.53,-2.11,1.294e-09,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,LAT02,-1.78,-1.89,-1.67,5.443e-11,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,LAT05,-2.06,-2.23,-1.88,8.152e-10,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,LAT05,-0.57,-0.82,-0.31,0.0006856,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,LAT05,-0.06,-0.31,0.19,0.5886,10
+2x2,LB_noLA,DeFT_P,localized and movinghot,LAT08,-5.4,-6.74,-4.04,1.009e-05,10
+3x3,LB_noLA,DeFT_P,localized and movinghot,LAT08,0.88,-0.05,1.82,0.06186,10
+4x4,LB_noLA,DeFT_P,localized and movinghot,LAT08,2.81,-0.46,6.19,0.08464,10
+2x2,LB_noLA,DeFT_P,uniform,THR,5.76,5.15,6.38,4.302e-09,10
+3x3,LB_noLA,DeFT_P,uniform,THR,14.28,13.36,15.21,3.478e-11,10
+4x4,LB_noLA,DeFT_P,uniform,THR,17.33,16.68,17.98,2.357e-13,10
+2x2,LB_noLA,DeFT_P,uniform,LAT,-16.97,-21.05,-12.68,1.567e-05,10
+3x3,LB_noLA,DeFT_P,uniform,LAT,-37.66,-41.75,-33.29,7.292e-08,10
+4x4,LB_noLA,DeFT_P,uniform,LAT,-28.77,-33.78,-23.39,2.324e-06,10
+2x2,LB_noLA,DeFT_P,uniform,P99,-34.25,-43.65,-23.28,0.0001689,10
+3x3,LB_noLA,DeFT_P,uniform,P99,-64.91,-71.35,-57.04,9.565e-07,10
+4x4,LB_noLA,DeFT_P,uniform,P99,-55.87,-63.46,-46.7,4.215e-06,10
+2x2,LB_noLA,DeFT_P,uniform,LAT02,-2.02,-2.22,-1.81,3.774e-09,10
+3x3,LB_noLA,DeFT_P,uniform,LAT02,-2.65,-2.77,-2.53,2.313e-12,10
+4x4,LB_noLA,DeFT_P,uniform,LAT02,-2.5,-2.61,-2.39,3.115e-12,10
+2x2,LB_noLA,DeFT_P,uniform,LAT05,-1.96,-2.3,-1.62,4.139e-07,10
+3x3,LB_noLA,DeFT_P,uniform,LAT05,-1.85,-2.03,-1.68,1.98e-09,10
+4x4,LB_noLA,DeFT_P,uniform,LAT05,-2.04,-2.27,-1.8,1.229e-08,10
+2x2,LB_noLA,DeFT_P,uniform,LAT08,-5.46,-6.66,-4.25,3.781e-06,10
+3x3,LB_noLA,DeFT_P,uniform,LAT08,-6.77,-8.08,-5.44,1.392e-06,10
+4x4,LB_noLA,DeFT_P,uniform,LAT08,-6.12,-6.67,-5.57,1.493e-09,10
+2x2,LB_noLA,DeFT_P,localized,THR,1.51,0.94,2.08,0.0001923,10
+3x3,LB_noLA,DeFT_P,localized,THR,7.43,6.53,8.34,1.278e-08,10
+4x4,LB_noLA,DeFT_P,localized,THR,11.03,10.7,11.36,3.816e-14,10
+2x2,LB_noLA,DeFT_P,localized,LAT,-12.63,-15.14,-10.04,2.477e-06,10
+3x3,LB_noLA,DeFT_P,localized,LAT,-32.89,-38.44,-26.84,2.466e-06,10
+4x4,LB_noLA,DeFT_P,localized,LAT,-28.04,-32.36,-23.44,7.599e-07,10
+2x2,LB_noLA,DeFT_P,localized,P99,-25.26,-31.35,-18.62,2.871e-05,10
+3x3,LB_noLA,DeFT_P,localized,P99,-57.41,-65.78,-46.98,1.008e-05,10
+4x4,LB_noLA,DeFT_P,localized,P99,-52.88,-60.68,-43.54,5.919e-06,10
+2x2,LB_noLA,DeFT_P,localized,LAT02,-1.75,-1.84,-1.67,6.01e-12,10
+3x3,LB_noLA,DeFT_P,localized,LAT02,-2.24,-2.45,-2.04,1.466e-09,10
+4x4,LB_noLA,DeFT_P,localized,LAT02,-2.05,-2.13,-1.96,1.872e-12,10
+2x2,LB_noLA,DeFT_P,localized,LAT05,-1.86,-2.01,-1.7,6.061e-10,10
+3x3,LB_noLA,DeFT_P,localized,LAT05,-1.24,-1.42,-1.05,9.706e-08,10
+4x4,LB_noLA,DeFT_P,localized,LAT05,-1.3,-1.51,-1.08,2.636e-07,10
+2x2,LB_noLA,DeFT_P,localized,LAT08,-3.84,-4.69,-2.97,3.923e-06,10
+3x3,LB_noLA,DeFT_P,localized,LAT08,-3.18,-3.82,-2.53,1.651e-06,10
+4x4,LB_noLA,DeFT_P,localized,LAT08,-4.37,-4.7,-4.05,2.789e-10,10
+2x2,LB_noLA,DeFT_P,hotspot,THR,20.67,19.26,22.1,4.646e-11,10
+3x3,LB_noLA,DeFT_P,hotspot,THR,20.92,18.95,22.91,8.226e-10,10
+4x4,LB_noLA,DeFT_P,hotspot,THR,24.83,21.43,28.32,2.11e-08,10
+2x2,LB_noLA,DeFT_P,hotspot,LAT,-59.92,-68.55,-48.92,1.324e-05,10
+3x3,LB_noLA,DeFT_P,hotspot,LAT,-54.65,-64.2,-42.57,3.428e-05,10
+4x4,LB_noLA,DeFT_P,hotspot,LAT,-52.35,-61.34,-41.27,2.164e-05,10
+2x2,LB_noLA,DeFT_P,hotspot,P99,-79.86,-84.66,-73.55,3.165e-07,10
+3x3,LB_noLA,DeFT_P,hotspot,P99,-85.84,-91.13,-77.41,5.646e-06,10
+4x4,LB_noLA,DeFT_P,hotspot,P99,-88.83,-92.35,-83.69,3.662e-07,10
+2x2,LB_noLA,DeFT_P,hotspot,LAT02,-2.81,-3.02,-2.61,2.372e-10,10
+3x3,LB_noLA,DeFT_P,hotspot,LAT02,-5.68,-5.97,-5.39,9.234e-12,10
+4x4,LB_noLA,DeFT_P,hotspot,LAT02,-5.0,-5.22,-4.77,2.785e-12,10
+2x2,LB_noLA,DeFT_P,hotspot,LAT05,-3.57,-4.01,-3.12,2.477e-08,10
+3x3,LB_noLA,DeFT_P,hotspot,LAT05,-6.72,-7.25,-6.19,4.983e-10,10
+4x4,LB_noLA,DeFT_P,hotspot,LAT05,-5.99,-6.3,-5.68,1.277e-11,10
+2x2,LB_noLA,DeFT_P,hotspot,LAT08,-11.09,-13.96,-8.14,1.935e-05,10
+3x3,LB_noLA,DeFT_P,hotspot,LAT08,-15.68,-18.68,-12.57,2.132e-06,10
+4x4,LB_noLA,DeFT_P,hotspot,LAT08,-12.57,-14.29,-10.82,9.525e-08,10
+2x2,LB_noLA,DeFT_P,chipperm,THR,9.26,8.8,9.73,4.453e-12,10
+3x3,LB_noLA,DeFT_P,chipperm,THR,34.23,32.76,35.71,4.577e-13,10
+4x4,LB_noLA,DeFT_P,chipperm,THR,7.17,6.73,7.62,3.424e-11,10
+2x2,LB_noLA,DeFT_P,chipperm,LAT,-35.22,-40.17,-29.86,6.007e-07,10
+3x3,LB_noLA,DeFT_P,chipperm,LAT,-32.82,-36.77,-28.62,1.232e-07,10
+4x4,LB_noLA,DeFT_P,chipperm,LAT,-15.66,-18.33,-12.9,7.941e-07,10
+2x2,LB_noLA,DeFT_P,chipperm,P99,-56.7,-64.71,-46.86,6.845e-06,10
+3x3,LB_noLA,DeFT_P,chipperm,P99,-65.92,-71.76,-58.88,3.983e-07,10
+4x4,LB_noLA,DeFT_P,chipperm,P99,-23.88,-29.08,-18.31,1.084e-05,10
+2x2,LB_noLA,DeFT_P,chipperm,LAT02,-1.51,-1.65,-1.37,2.075e-09,10
+3x3,LB_noLA,DeFT_P,chipperm,LAT02,-2.14,-2.26,-2.01,2.567e-11,10
+4x4,LB_noLA,DeFT_P,chipperm,LAT02,-1.2,-1.31,-1.1,1.013e-09,10
+2x2,LB_noLA,DeFT_P,chipperm,LAT05,-1.68,-1.92,-1.44,8.256e-08,10
+3x3,LB_noLA,DeFT_P,chipperm,LAT05,-2.18,-2.54,-1.82,2.919e-07,10
+4x4,LB_noLA,DeFT_P,chipperm,LAT05,1.46,1.24,1.68,9.01e-08,10
+2x2,LB_noLA,DeFT_P,chipperm,LAT08,-5.84,-7.25,-4.42,8.112e-06,10
+3x3,LB_noLA,DeFT_P,chipperm,LAT08,-7.79,-8.4,-7.18,5.061e-10,10
+4x4,LB_noLA,DeFT_P,chipperm,LAT08,-1.34,-1.99,-0.69,0.001247,10
+2x2,LB_noLA,DeFT_P,chiptrans,THR,3.53,3.12,3.95,1.009e-08,10
+3x3,LB_noLA,DeFT_P,chiptrans,THR,6.0,5.76,6.25,7.943e-13,10
+4x4,LB_noLA,DeFT_P,chiptrans,THR,7.17,6.87,7.47,8.635e-13,10
+2x2,LB_noLA,DeFT_P,chiptrans,LAT,-30.45,-36.35,-24.01,6.673e-06,10
+3x3,LB_noLA,DeFT_P,chiptrans,LAT,-15.17,-18.66,-11.54,9.58e-06,10
+4x4,LB_noLA,DeFT_P,chiptrans,LAT,-51.86,-54.24,-49.37,1.152e-10,10
+2x2,LB_noLA,DeFT_P,chiptrans,P99,-52.17,-60.43,-42.17,1.033e-05,10
+3x3,LB_noLA,DeFT_P,chiptrans,P99,-37.6,-43.93,-30.54,3.694e-06,10
+4x4,LB_noLA,DeFT_P,chiptrans,P99,-78.75,-80.85,-76.43,8.607e-11,10
+2x2,LB_noLA,DeFT_P,chiptrans,LAT02,-1.32,-1.54,-1.1,2.795e-07,10
+3x3,LB_noLA,DeFT_P,chiptrans,LAT02,-1.85,-1.99,-1.71,2.65e-10,10
+4x4,LB_noLA,DeFT_P,chiptrans,LAT02,-1.35,-1.49,-1.21,3.713e-09,10
+2x2,LB_noLA,DeFT_P,chiptrans,LAT05,-1.4,-1.65,-1.14,6.955e-07,10
+3x3,LB_noLA,DeFT_P,chiptrans,LAT05,0.61,0.32,0.9,0.001035,10
+4x4,LB_noLA,DeFT_P,chiptrans,LAT05,-0.03,-0.44,0.39,0.8788,10
+2x2,LB_noLA,DeFT_P,chiptrans,LAT08,-5.39,-7.05,-3.71,5.601e-05,10
+3x3,LB_noLA,DeFT_P,chiptrans,LAT08,-1.12,-1.95,-0.29,0.01413,10
+4x4,LB_noLA,DeFT_P,chiptrans,LAT08,-3.74,-5.65,-1.8,0.001945,10
+2x2,LB_noLA,DeFT_P,movinghot,THR,2.17,0.8,3.57,0.005908,10
+3x3,LB_noLA,DeFT_P,movinghot,THR,1.0,-0.7,2.72,0.2168,10
+4x4,LB_noLA,DeFT_P,movinghot,THR,1.72,0.26,3.2,0.02593,10
+2x2,LB_noLA,DeFT_P,movinghot,LAT,-29.37,-33.13,-25.41,1.594e-07,10
+3x3,LB_noLA,DeFT_P,movinghot,LAT,-7.01,-16.94,4.11,0.1794,10
+4x4,LB_noLA,DeFT_P,movinghot,LAT,1.03,-3.9,6.21,0.6547,10
+2x2,LB_noLA,DeFT_P,movinghot,P99,-35.67,-41.04,-29.81,1.15e-06,10
+3x3,LB_noLA,DeFT_P,movinghot,P99,0.64,-16.38,21.13,0.9396,10
+4x4,LB_noLA,DeFT_P,movinghot,P99,16.92,9.05,25.35,0.0006692,10
+2x2,LB_noLA,DeFT_P,movinghot,LAT02,-1.84,-2.08,-1.59,4.226e-08,10
+3x3,LB_noLA,DeFT_P,movinghot,LAT02,-2.4,-2.69,-2.1,2.126e-08,10
+4x4,LB_noLA,DeFT_P,movinghot,LAT02,-1.51,-1.72,-1.3,6.319e-08,10
+2x2,LB_noLA,DeFT_P,movinghot,LAT05,-2.25,-2.56,-1.94,5.451e-08,10
+3x3,LB_noLA,DeFT_P,movinghot,LAT05,0.11,-0.38,0.6,0.6283,10
+4x4,LB_noLA,DeFT_P,movinghot,LAT05,1.19,0.66,1.73,0.0006653,10
+2x2,LB_noLA,DeFT_P,movinghot,LAT08,-6.94,-9.36,-4.47,0.0001598,10
+3x3,LB_noLA,DeFT_P,movinghot,LAT08,5.1,3.07,7.17,0.0002693,10
+4x4,LB_noLA,DeFT_P,movinghot,LAT08,10.53,3.59,17.94,0.006808,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,-0.34,-0.69,0.02,0.06003,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,6.09,5.7,6.49,5.432e-11,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,5.31,4.92,5.71,1.673e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-10.68,-12.57,-8.75,7.931e-07,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-6.18,-7.49,-4.85,2.921e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-10.52,-12.02,-9.0,1.206e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-23.73,-29.17,-17.86,1.691e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-22.51,-24.81,-20.13,1.356e-08,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-25.11,-27.22,-22.94,2.742e-09,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,1.9,1.72,2.09,2.323e-09,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,1.35,1.26,1.44,7.776e-11,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,0.83,0.65,1.02,3.328e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,-0.67,-0.81,-0.54,1.646e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,0.36,0.22,0.49,0.0002223,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,0.87,0.71,1.04,7.154e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT08,0.35,-0.28,0.98,0.2435,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT08,1.75,1.32,2.18,6.27e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT08,3.86,3.27,4.46,1.196e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,2.63,2.25,3.01,6.906e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,9.96,9.51,10.4,1.485e-12,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,7.08,6.52,7.64,2.702e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-17.18,-19.26,-15.03,4.459e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-14.07,-15.76,-12.35,3.208e-08,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-18.53,-19.66,-17.38,1.02e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-34.48,-40.3,-28.1,2.816e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-35.91,-38.0,-33.75,2.215e-10,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-37.08,-38.53,-35.59,6.623e-12,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.46,1.28,1.64,2.105e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.52,1.45,1.59,3.165e-12,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.07,0.92,1.22,6.68e-08,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,-1.05,-1.22,-0.88,2.398e-07,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,0.03,-0.11,0.16,0.6662,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,0.64,0.47,0.81,1.25e-05,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT08,-1.64,-2.42,-0.86,0.001119,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT08,-1.56,-2.0,-1.12,2.32e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT08,-0.24,-0.52,0.05,0.08984,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,-6.02,-6.64,-5.4,5.242e-09,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,-1.23,-2.03,-0.42,0.007668,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,1.86,1.0,2.73,0.0008047,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,3.88,0.58,7.29,0.02568,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,11.84,7.52,16.32,0.0001204,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,7.92,4.21,11.77,0.0008145,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,3.37,-4.74,12.18,0.3824,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,13.29,3.16,24.42,0.01467,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,6.09,0.96,11.48,0.02457,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,2.8,2.47,3.13,1.255e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,1.02,0.74,1.3,1.554e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,0.37,-0.09,0.83,0.101,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,0.08,-0.2,0.37,0.5223,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,1.02,0.77,1.27,7.495e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,1.35,1.11,1.59,4.623e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT08,4.45,3.13,5.79,2.87e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT08,8.7,7.74,9.68,5.474e-09,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT08,12.58,10.68,14.5,7.285e-08,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,THR,-1.58,-2.31,-0.84,0.0009481,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,THR,8.93,8.32,9.53,6.517e-11,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,THR,12.2,11.25,13.16,2.083e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT,2.06,-0.44,4.62,0.09614,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT,-13.44,-16.96,-9.78,2.52e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT,-8.2,-9.9,-6.47,2.618e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,P99,-3.91,-12.56,5.6,0.3643,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,P99,-38.25,-43.35,-32.69,4.911e-07,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,P99,-25.3,-29.47,-20.87,1.139e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT02,1.64,1.24,2.05,6.985e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT02,0.95,0.56,1.34,0.0003397,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT02,0.82,0.68,0.97,3.667e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT05,0.0,-0.33,0.33,0.9966,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT05,-0.08,-0.29,0.13,0.4351,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT05,-0.62,-0.86,-0.37,0.0003155,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT08,2.19,1.19,3.2,0.0007635,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT08,1.1,0.44,1.76,0.004445,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",uniform,LAT08,-0.29,-0.7,0.11,0.1382,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,THR,-7.61,-8.26,-6.96,1.1e-09,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,THR,-0.37,-1.23,0.5,0.3574,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,THR,4.45,3.7,5.21,2.663e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT,9.4,7.85,10.98,1.786e-07,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT,-0.53,-3.3,2.32,0.6799,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT,-1.84,-3.43,-0.22,0.03031,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,P99,7.88,1.37,14.8,0.02217,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,P99,-22.33,-29.03,-15.01,0.000134,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,P99,-17.01,-21.3,-12.48,2.34e-05,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT02,1.79,1.33,2.25,9.166e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT02,0.57,0.29,0.85,0.001212,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT02,0.43,0.25,0.62,0.0005193,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT05,1.04,0.75,1.33,1.976e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT05,1.41,1.24,1.58,1.636e-08,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT05,0.73,0.53,0.94,2.03e-05,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT08,5.58,4.91,6.25,1.265e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT08,5.73,5.28,6.18,2.837e-10,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized,LAT08,3.14,2.9,3.39,3.013e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,THR,2.38,1.16,3.62,0.001653,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,THR,1.97,0.75,3.21,0.005141,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,THR,2.77,1.22,4.34,0.002774,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT,-13.71,-15.38,-12.01,3.609e-08,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT,-5.19,-5.72,-4.65,5.196e-09,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT,-4.49,-4.7,-4.27,5.481e-12,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,P99,-21.5,-26.34,-16.34,1.232e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,P99,-1.1,-5.7,3.73,0.6127,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,P99,0.1,-2.98,3.27,0.9448,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT02,4.78,4.51,5.05,1.649e-11,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT02,2.49,2.31,2.67,1.384e-10,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT02,2.34,2.17,2.52,2.391e-10,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT05,-1.85,-2.18,-1.51,5.52e-07,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT05,1.32,1.04,1.61,2.04e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT05,1.4,1.07,1.73,4.895e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT08,-2.9,-3.78,-2.01,4.51e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT08,-2.12,-3.38,-0.85,0.004516,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",hotspot,LAT08,-0.7,-1.44,0.06,0.06577,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,THR,7.05,6.58,7.52,6.473e-11,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,THR,24.86,24.39,25.33,3.867e-16,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,THR,7.17,6.73,7.62,3.424e-11,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT,-28.3,-33.18,-23.06,2.076e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT,-25.36,-29.44,-21.05,9.038e-07,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT,-8.06,-9.33,-6.78,2.452e-07,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,P99,-51.04,-60.52,-39.29,3.647e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,P99,-59.07,-66.6,-49.83,3.791e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,P99,-14.4,-17.71,-10.96,9.187e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT02,-1.51,-1.65,-1.37,2.075e-09,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT02,0.47,0.25,0.7,0.001146,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT02,-0.23,-0.51,0.05,0.09364,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT05,-1.54,-1.79,-1.29,2.276e-07,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT05,-1.82,-2.2,-1.44,1.976e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT05,1.65,1.45,1.85,1.426e-08,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT08,-3.08,-3.91,-2.25,1.749e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT08,-5.57,-6.11,-5.01,3.508e-09,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chipperm,LAT08,1.25,0.8,1.71,0.000149,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,THR,2.85,2.63,3.08,3.093e-10,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,THR,5.4,4.94,5.86,5.791e-10,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,THR,6.38,6.17,6.59,9.774e-14,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT,-25.47,-31.64,-18.75,2.99e-05,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT,-10.99,-13.52,-8.39,7.456e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT,-45.35,-48.52,-41.98,2.775e-09,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,P99,-50.1,-58.13,-40.54,8.802e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,P99,-32.52,-39.57,-24.66,2.062e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,P99,-75.51,-78.37,-72.27,1.021e-09,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT02,1.02,0.55,1.5,0.0008255,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT02,2.17,1.97,2.38,1.726e-09,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT02,1.35,1.01,1.69,8.062e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT05,-0.81,-1.11,-0.5,0.0002016,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT05,0.71,0.4,1.01,0.0005153,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT05,0.14,-0.25,0.54,0.4342,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT08,-2.68,-3.8,-1.54,0.0004998,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT08,0.49,-0.35,1.33,0.2202,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",chiptrans,LAT08,-1.2,-2.29,-0.09,0.037,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,THR,-4.41,-5.48,-3.33,7.978e-06,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,THR,-2.08,-3.39,-0.75,0.006441,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,THR,-0.66,-2.23,0.93,0.3686,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT,-1.36,-7.89,5.63,0.6616,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT,25.74,18.5,33.43,1.09e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT,18.66,10.64,27.26,0.0003667,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,P99,-0.94,-18.75,20.78,0.9165,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,P99,65.26,47.78,84.8,3.121e-06,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,P99,35.61,26.3,45.62,4.678e-06,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT02,3.82,3.52,4.12,2.976e-10,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT02,1.47,1.03,1.92,3.398e-05,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT02,0.3,-0.53,1.14,0.4315,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT05,-0.86,-1.19,-0.53,0.0002464,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT05,0.63,0.12,1.14,0.02119,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT05,1.97,1.43,2.5,1.505e-05,10
+2x2,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT08,3.33,0.86,5.87,0.01356,10
+3x3,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT08,11.76,9.62,13.95,3.883e-07,10
+4x4,LB_noLA,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",movinghot,LAT08,22.87,18.8,27.08,2.28e-07,10
+2x2,CI_heurLA_X_LF,DeFT_P,all six,THR,7.33,7.0,7.65,1.521e-12,10
+3x3,CI_heurLA_X_LF,DeFT_P,all six,THR,14.08,13.5,14.67,6.945e-13,10
+4x4,CI_heurLA_X_LF,DeFT_P,all six,THR,12.01,11.56,12.45,2.587e-13,10
+2x2,CI_heurLA_X_LF,DeFT_P,all six,LAT,-33.03,-37.4,-28.35,2.925e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,all six,LAT,-34.34,-36.95,-31.62,2.194e-09,10
+4x4,CI_heurLA_X_LF,DeFT_P,all six,LAT,-33.87,-37.13,-30.44,1.796e-08,10
+2x2,CI_heurLA_X_LF,DeFT_P,all six,P99,-51.79,-57.13,-45.8,1.95e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,all six,P99,-61.83,-65.79,-57.42,9.48e-09,10
+4x4,CI_heurLA_X_LF,DeFT_P,all six,P99,-61.95,-65.96,-57.48,1.054e-08,10
+2x2,CI_heurLA_X_LF,DeFT_P,all six,LAT02,-1.82,-1.88,-1.76,1.318e-13,10
+3x3,CI_heurLA_X_LF,DeFT_P,all six,LAT02,-2.73,-2.8,-2.66,1.298e-14,10
+4x4,CI_heurLA_X_LF,DeFT_P,all six,LAT02,-2.23,-2.29,-2.17,4.081e-14,10
+2x2,CI_heurLA_X_LF,DeFT_P,all six,LAT05,-1.99,-2.15,-1.82,7.622e-10,10
+3x3,CI_heurLA_X_LF,DeFT_P,all six,LAT05,-2.29,-2.44,-2.14,9.039e-11,10
+4x4,CI_heurLA_X_LF,DeFT_P,all six,LAT05,-1.59,-1.75,-1.43,3.474e-09,10
+2x2,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,THR,9.93,9.55,10.32,3.935e-13,10
+3x3,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,THR,18.98,18.24,19.72,2.974e-13,10
+4x4,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,THR,14.43,13.63,15.24,9.089e-12,10
+2x2,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT,-38.26,-43.33,-32.72,4.708e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT,-37.65,-41.67,-33.35,6.326e-08,10
+4x4,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT,-40.74,-44.21,-37.05,1.086e-08,10
+2x2,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,P99,-59.7,-65.54,-52.87,3.555e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,P99,-68.95,-73.36,-63.81,3.305e-08,10
+4x4,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,P99,-71.97,-75.19,-68.34,2.091e-09,10
+2x2,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT02,-1.84,-1.94,-1.74,1.494e-11,10
+3x3,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT02,-2.98,-3.06,-2.89,4.004e-14,10
+4x4,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT02,-2.46,-2.52,-2.4,1.057e-14,10
+2x2,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT05,-2.06,-2.23,-1.9,4.467e-10,10
+3x3,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT05,-2.83,-3.02,-2.64,9.366e-11,10
+4x4,CI_heurLA_X_LF,DeFT_P,the four tuning scenarios,LAT05,-1.9,-2.05,-1.75,4.559e-10,10
+2x2,CI_heurLA_X_LF,DeFT_P,localized and movinghot,THR,2.3,1.63,2.97,2.525e-05,10
+3x3,CI_heurLA_X_LF,DeFT_P,localized and movinghot,THR,4.89,4.15,5.63,9.253e-08,10
+4x4,CI_heurLA_X_LF,DeFT_P,localized and movinghot,THR,7.31,6.7,7.92,4.466e-10,10
+2x2,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT,-21.2,-24.24,-18.04,2.48e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT,-27.18,-32.28,-21.69,3.988e-06,10
+4x4,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT,-17.64,-20.6,-14.56,7.83e-07,10
+2x2,CI_heurLA_X_LF,DeFT_P,localized and movinghot,P99,-31.04,-36.8,-24.75,4.869e-06,10
+3x3,CI_heurLA_X_LF,DeFT_P,localized and movinghot,P99,-42.34,-50.72,-32.54,2.361e-05,10
+4x4,CI_heurLA_X_LF,DeFT_P,localized and movinghot,P99,-29.89,-37.0,-21.97,3.663e-05,10
+2x2,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT02,-1.77,-1.88,-1.67,3.108e-11,10
+3x3,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT02,-2.24,-2.45,-2.03,1.583e-09,10
+4x4,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT02,-1.77,-1.85,-1.69,3.145e-12,10
+2x2,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT05,-1.83,-2.13,-1.53,2.363e-07,10
+3x3,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT05,-1.19,-1.41,-0.97,6.686e-07,10
+4x4,CI_heurLA_X_LF,DeFT_P,localized and movinghot,LAT05,-0.97,-1.23,-0.71,1.613e-05,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,0.0,-0.31,0.31,0.9853,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,6.68,6.34,7.01,5.018e-12,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,THR,5.99,5.68,6.3,7.324e-12,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-11.05,-13.24,-8.8,2.2e-06,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-9.66,-10.91,-8.39,4.9e-08,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT,-13.17,-14.64,-11.69,1.551e-08,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-24.36,-29.81,-18.48,1.447e-05,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-27.29,-29.87,-24.62,9.146e-09,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,P99,-29.59,-31.92,-27.18,2.109e-09,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,1.96,1.75,2.18,6.437e-09,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,1.46,1.33,1.59,1.399e-09,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT02,0.88,0.69,1.07,2.115e-06,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,-0.54,-0.73,-0.35,0.0001305,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,-0.03,-0.18,0.12,0.6381,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",all six,LAT05,0.42,0.27,0.57,0.0001193,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,2.93,2.59,3.26,8.458e-09,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,10.48,9.99,10.97,2.133e-12,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,THR,7.59,7.0,8.19,2.53e-10,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-17.82,-19.73,-15.86,1.533e-08,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-15.43,-17.13,-13.71,1.587e-08,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT,-20.76,-21.93,-19.57,5.771e-11,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-35.12,-40.55,-29.19,1.387e-06,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-37.93,-40.54,-35.21,1.195e-09,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,P99,-40.98,-42.6,-39.31,1.029e-11,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.54,1.3,1.78,1.46e-07,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.64,1.53,1.75,9.416e-11,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT02,1.14,0.95,1.32,1.747e-07,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,-0.96,-1.13,-0.79,3.926e-07,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,-0.24,-0.43,-0.04,0.02123,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",the four tuning scenarios,LAT05,0.42,0.28,0.57,0.0001033,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,-5.6,-6.16,-5.03,4.072e-09,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,-0.54,-0.99,-0.09,0.02484,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,THR,2.85,2.04,3.68,2.282e-05,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,4.2,-0.06,8.65,0.05278,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,3.09,0.15,6.12,0.04113,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT,4.25,1.02,7.58,0.01525,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,2.81,-9.22,16.44,0.6266,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,-0.24,-7.61,7.72,0.9462,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,P99,0.21,-4.97,5.68,0.9303,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,2.82,2.48,3.17,1.524e-08,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,1.1,0.85,1.36,4.137e-06,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT02,0.37,-0.07,0.82,0.0908,10
+2x2,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,0.31,-0.07,0.7,0.09546,10
+3x3,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,0.38,0.18,0.59,0.002152,10
+4x4,CI_heurLA_X_LF,"best of DeFT_P, DeFT_B, MTR, RC, XY_SP",localized and movinghot,LAT05,0.43,0.18,0.67,0.003631,10
+2x2,LB_noLA,share of the gain of the main row over DeFT_P,all six,THR,95.2,,,,10
+2x2,LB_noLA,share of the gain of the main row over DeFT_P,all six,LAT,99.0,,,,10
+2x2,LB_noLA,share of the gain of the main row over DeFT_P,all six,P99,98.9,,,,10
+3x3,LB_noLA,share of the gain of the main row over DeFT_P,all six,THR,95.8,,,,10
+3x3,LB_noLA,share of the gain of the main row over DeFT_P,all six,LAT,91.0,,,,10
+3x3,LB_noLA,share of the gain of the main row over DeFT_P,all six,P99,93.4,,,,10
+4x4,LB_noLA,share of the gain of the main row over DeFT_P,all six,THR,94.3,,,,10
+4x4,LB_noLA,share of the gain of the main row over DeFT_P,all six,LAT,92.7,,,,10
+4x4,LB_noLA,share of the gain of the main row over DeFT_P,all six,P99,93.6,,,,10

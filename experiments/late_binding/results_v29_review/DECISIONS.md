@@ -260,3 +260,10 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   of `LB_d6` and of each reference with 4-flit, 5-flit and 6-flit buffers per size and scenario (mean over the ten seeds), with the
   best of the four marked, and the count of which reference is the best. Reason: C.3 and C.4 compare with "the best of the four"
   and do not say which row that is, and the report of Part C has no table of absolute values.
+* **`report/extra_E.md`, X.4** (added on 25 November at 20:55, after the results of C1 and of E1 had been read): `LB_noLA` against
+  the best reference with 4-flit, 5-flit and 6-flit buffers (the best of the four, of the two DeFT variants, of MTR and RC), with
+  the main row next to it and the areas of E2 and E3. Reason: the pre-registered tables of E1 compare the row with the main row,
+  with DeFT_P and with the references with 4-flit buffers only, and E2 had shown that with the hierarchy kept the row has the area
+  of a reference with 5-flit buffers on 3x3 and 4x4 within 0.6 points (1.170 and 1.172 against 1.167 and 1.166). That makes the
+  one comparison at equal area of this round that is measured on both sides and not interpolated; the runs are those of E1 and C1
+  on the same seeds and ladders. Seen before it was defined: the tables of C1 and of E1, so it is a description and no test.

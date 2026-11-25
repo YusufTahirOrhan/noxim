@@ -9,8 +9,8 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 5, 8 and 12 are final; answer 6 lacks the rows of C2, answer 10
-what D1 adds and answer 11 its simulation half; the others follow.**
+**This file is written part by part as the runs finish. Answers 1 to 5, 8, 11 and 12 are final; answer 6 lacks the rows of C2 and
+answer 10 what D1 adds; the others follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -303,9 +303,52 @@ interposer router under every chiplet router; the MTR and RC papers use a 4x4 in
 chosen VC is busy, its exact entry selection, how its Noxim gave VCs to MTR and RC, and whether its links carried one flit in two
 cycles as Noxim's do.
 
-## 11. `LB_noLA` and the reports across the VLs: what they cost in hardware (E2)
+## 11. `LB_noLA`: what the lookahead term buys in simulation and what it costs in area, wires and link budget. The same for the reports across the VLs
 
-*(The simulation half of this answer, what the lookahead term buys, follows with E1.)*
+**The lookahead term buys half a per cent of throughput and, on 3x3 and 4x4, 3 to 4 % of latency at the saturation load; it costs a
+fifth of the main row's area above DeFT, every report wire and three of the six to eight points of its extra power. The reports
+across the VLs buy nothing that can be measured and cost one per cent of the overhead.**
+
+### In simulation (E1)
+
+`LB_noLA` is the main row with `heur_lookahead 0`: the cost of an output is twice the fill of the buffer behind it plus the hops left
+(plus `lut_bias`); lookahead routing, the fallback and the busy state stay. 1,620 runs on the six scenarios of round 25, seeds 121-130,
+paired with the main row's runs of round 25; no dead-end event (`report/summary_E.md`).
+
+| `LB_noLA`, over the six scenarios | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| THR against the main row | -0.3 [-0.6, -0.1] | -0.6 [-0.8, -0.3] | -0.6 [-0.8, -0.4] |
+| LAT at 1.0 x Lsat against the main row | +0.4 [-0.4, +1.2] | +3.9 [+3.3, +4.4] | +3.0 [+2.7, +3.4] |
+| P99 against the main row | +0.8 [-1.2, +2.9] | +6.6 [+4.9, +8.3] | +6.4 [+5.5, +7.2] |
+| the share of the main row's gain over DeFT_P that it keeps (THR / LAT / P99) | 95 / 99 / 99 % | 96 / 91 / 93 % | 94 / 93 / 94 % |
+| THR against the best of the five references (the main row: 0.0 / +6.7 / +6.0) | -0.3 [-0.7, 0.0] | +6.1 [+5.7, +6.5] | +5.3 [+4.9, +5.7] |
+| LAT against the best of the five references (the main row: -11.1 / -9.7 / -13.2) | -10.7 [-12.6, -8.8] | -6.2 [-7.5, -4.8] | -10.5 [-12.0, -9.0] |
+
+* **Without the lookahead term the row keeps 94 to 99 % of the main row's gain over DeFT_P.** Against DeFT_P it has THR +7.0 / +13.5 /
+  +11.3 % and LAT -32.8 / -31.8 / -31.9 % (the main row: +7.3 / +14.1 / +12.0 % and -33.0 / -34.3 / -33.9 %).
+* **Below saturation the term buys nothing**: at 0.2 and 0.5 x Lsat the two rows are within 0.5 % of each other on every size; at
+  0.8 x Lsat the row without it is 0.5 / 2.3 / 3.1 % slower.
+* **Where it counts.** Under `movinghot` on 3x3 (LAT +13.1 %, P99 +19.6 % without it; on 4x4 +13.6 % at 0.8 x Lsat), under `chipperm`
+  on 4x4 (LAT +7.3 %, P99 +21.1 %) and under uniform and localized traffic on 3x3 and 4x4 (LAT +3 to +4 %, THR -1 %). Under hotspot
+  traffic and `chiptrans` nothing (LAT within 1.6 %, THR within 0.5 %), and on 2x2 nothing beyond 1.6 % in THR or LAT in any
+  scenario.
+* **On the two scenarios outside the tuning** the row without the term is further behind the best reference in latency than the
+  main row is: +3.9 / +11.8 / +7.9 % against +4.2 / +3.1 / +4.2 %; in throughput it is -6.0 / -1.2 / +1.9 % against -5.6 / -0.5 / +2.9 %.
+* **Against references of equal area** (`report/extra_E.md`, X.4, a table added after the results were seen). With the hierarchy
+  kept `LB_noLA` has 1.203 / 1.170 / 1.172 times DeFT's area and a reference with 5-flit buffers 1.168 / 1.167 / 1.166: on 3x3 and 4x4
+  the two have the same area within 0.6 points, and this comparison is measured, not interpolated. There `LB_noLA` has THR
+  +4.2 [+3.7, +4.7] and +3.3 [+2.9, +3.7] % against the best of the four references with 5-flit buffers, LAT -1.1 [-2.2, +0.1] and
+  -4.9 [-6.0, -3.8] %, P99 -11.4 and -16.6 %; on 2x2 (3 points more area than the reference) THR -2.1 % and LAT -4.7 %. Against the
+  best DeFT variant with 5-flit buffers: THR +1.3 / +5.8 / +5.4 %, LAT -14.9 / -11.8 / -13.5 %. With the core kept and flattened
+  `LB_noLA` has less area than a reference with 5-flit buffers (1.10 to 1.13 and 1.05 to 1.08 against 1.17).
+* Held against what I wrote in advance (THR -1 to -2 %, LAT +4 to +10 %): the term buys less than I expected, about a third of the
+  throughput and, on 3x3 and 4x4, the bottom of my range in latency; on 2x2 nothing.
+
+**The reports across the VLs in simulation** were measured in rounds 27 and 28 and not run again: without faults `LB_noVLrep` is
+within 0.2 % of the main row in THR and 0.1 % in LAT (round 27); under random VL faults at four rates it is within 0.3 % in both, with
+all 24 intervals inside the margin stated before the runs (round 28).
+
+### In hardware (E2)
 
 Two RTL variants of the main row's interposer router, each checked against 1.85 million recorded selections of its own simulator row
 in all eight cut configurations (0 mismatches; the same vectors through the main row's units give 9,181 and 309,078 mismatches) and

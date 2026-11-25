@@ -8,6 +8,8 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
   python3 extra_v29.py c        ->  results_v29_review/report/extra_C.md, extra_C_area.csv
      X.2  the comparisons of Part C read at the area of the main row (defined before the results of C1 were read)
      X.3  THR and LAT of every row per scenario, and which reference is the best of the four at each depth (added after they were read)
+  python3 extra_v29.py e        ->  results_v29_review/report/extra_E.md, extra_E_noLA.csv
+     X.4  LB_noLA against the references with 4-flit, 5-flit and 6-flit buffers, next to the main row, with the areas of E2 and E3
 """
 import csv
 import json
@@ -163,6 +165,62 @@ def part_c():
         w.writeheader()
         w.writerows(rows)
     print('wrote report/extra_C_area.csv (%d rows)' % len(rows))
+
+
+def part_e():
+    """X.4: LB_noLA next to the references of each buffer depth, with the areas of E2 and E3. Added on 25 November after the results of
+    C1 and of E1 had been read (DECISIONS.md); not in the pre-registration and no test."""
+    import report_v29 as RV
+    P = RV.ladders()
+    R = RV.load(os.path.join(RV.V25, 'eval_runs.csv'), os.path.join(RES, 'depth_runs.csv'), os.path.join(RES, 'nola_runs.csv'))
+    D = RV.Design(R, P, range(121, 131))
+    A = RV.area_ratios()
+    six = lambda z: RV.scen(z, RV.SIX)  # noqa: E731
+    f = os.path.join(RES, 'paper_data', 'hw_variants.csv')
+    if not A or not os.path.exists(f) or ('LB_noLA', '2x2-uniform', RV.FREE['2x2'], D.lad('2x2', ('uniform', RV.FREE['2x2']))[3], 121) not in R:
+        print('extra part e needs hw/system_ratios.csv, paper_data/hw_variants.csv and nola_runs.csv; not written')
+        return
+    hv = {(r['design'], r['size']): r for r in csv.DictReader(open(f))}
+
+    def area(design, z, form):
+        """System area relative to DeFT; the variants with the cut of the main row, as summary_hw_E2.md prints them."""
+        r = hv[(design, z)]
+        return float(r.get('system_area_rel_deft_%s_cutM' % form) or r['system_area_rel_deft_%s' % form])
+
+    forms = [x for x, _ in RV.FORMS]
+    tri = lambda g: ' / '.join('%.3f' % (g(x) + 1e-9) for x in forms)  # noqa: E731  (the files hold four decimals: a 5 in the fourth goes up, as in the hardware report)
+    L = ['# v29 Part E1: a table added after the results were seen (extra_v29.py e)', '',
+         'Descriptive; not in the pre-registration and no test. Added on 25 November after the results of C1 and of E1 had been read (`DECISIONS.md`, "Tables added after the',
+         'results").', '',
+         '## X.4 `LB_noLA` against the references of each buffer depth, with the areas', '',
+         'The row without the lookahead term needs no report wire and no report register (E2). The table puts it where Part C puts the main row: against the best reference with',
+         '4-flit buffers (round 25), with 5-flit and with 6-flit buffers (C1); six scenarios, seeds 121-130, the best row of a set per scenario and metric, effect [95 % interval',
+         'over the seeds]. The main row stands next to it (the figures of C.3). Areas: all routers of a system relative to DeFT with 4-flit buffers, hierarchy kept / core kept /',
+         'flattened (`report/summary_hw_E2.md`, `summary_hw_E3.md`; the variant with the register cut of the main row).', '',
+         '| size | `LB_noLA` | the main row (the netlists of E2) | references with 5-flit buffers | with 6-flit buffers |', '|---|---|---|---|---|']
+    for z in RV.SIZES:
+        L.append('| %s | %s | %s | %s | %s |' % (z, tri(lambda x: area('LB_noLA', z, x)), tri(lambda x: area('main', z, x)), tri(lambda x: A[('d5', z, x)]), tri(lambda x: A[('d6', z, x)])))
+    L.append('')
+    rows = []
+    for gname, g in (('the best of the four references', tuple(RV.REFS4)), ('the best of the two DeFT variants', ('DeFT_P', 'DeFT_B')), ('the best of MTR and RC', ('MTR', 'RC'))):
+        L += ['### Against %s' % gname, '', '| size | buffers of the references | `LB_noLA`: THR | LAT at 1.0 x Lsat | P99 | the main row: THR | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|---|---|---|']
+        for z in RV.SIZES:
+            for t, tname in (('', '4-flit (round 25)'), ('_d5', '5-flit'), ('_d6', '6-flit')):
+                ref = tuple(b + t for b in g)
+                cells = []
+                for row in ('LB_noLA', RV.MAIN):
+                    for n in ('THR', 'LAT', 'P99'):
+                        x = D.test(row, ref, z, six(z), n)
+                        cells.append(RV.eci(x))
+                        rows.append(dict(size=z, row=row, against=gname, buffers=tname, metric=n, effect_pct=x['effect_pct'], ci_low=x['ci_low'], ci_high=x['ci_high'], n_seeds=x['n_seeds']))
+                L.append('| %s | %s | %s |' % (z, tname, ' | '.join(cells)))
+        L.append('')
+    write('extra_E.md', L)
+    with open(os.path.join(OUT, 'extra_E_noLA.csv'), 'w', newline='') as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)
+        w.writeheader()
+        w.writerows(rows)
+    print('wrote report/extra_E_noLA.csv (%d rows)' % len(rows))
 
 
 if __name__ == '__main__':
