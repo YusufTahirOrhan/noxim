@@ -195,7 +195,7 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
   `randperm` alone, where the main row's THR is even below DeFT_P's, while its latency at 1.0 x Lsat is the lowest of all rows. The
   table shows where on the ladder the rows part: THR is a number from the last load.
-* **`report/extra_C.md`, X.2** (defined on 25 November at 07:30, while C1 was at about 6,500 of 14,580 runs and none of its results had
+* **`report/extra_C.md`, X.2** (defined on 25 November at 06:35, while C1 was at 6,067 of 14,580 runs and none of its results had
   been read; the code was run on stand-in data only): the three measured comparisons of the main row against the best reference
   (references with 4-flit buffers of round 25, with 5-flit and 6-flit buffers of C1) read at the area of the main row, by linear
   interpolation of the per-seed log ratio in the system area of E3, in each form of the synthesis, and the buffer depth at which the
