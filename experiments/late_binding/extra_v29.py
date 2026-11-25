@@ -5,6 +5,9 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
      X.1  the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from randperm: accepted
           throughput and latency of every row at each of the nine loads on 2x2 randperm (mean over the ten seeds), and the load at which
           each row's accepted throughput is the largest
+  python3 extra_v29.py c        ->  results_v29_review/report/extra_C.md, extra_C_area.csv
+     X.2  the comparisons of Part C read at the area of the main row (defined before the results of C1 were read)
+     X.3  THR and LAT of every row per scenario, and which reference is the best of the four at each depth (added after they were read)
 """
 import csv
 import json
@@ -90,9 +93,9 @@ def part_c():
                 return xs[i] + w * (xs[i + 1] - xs[i])
         return None
 
-    L = ['# v29 Part C: a table added to the report (extra_v29.py c)', '',
-         'Descriptive; not in the pre-registration and no test. Defined on 25 November while C1 was running, before any of its results had been read (`DECISIONS.md`,',
-         '"Tables added after the results").', '',
+    L = ['# v29 Part C: tables added to the report (extra_v29.py c)', '',
+         'Descriptive; not in the pre-registration and no test. X.2 was defined on 25 November while C1 was running, before any of its results had been read; X.3 was',
+         'added after they had been read (`DECISIONS.md`, "Tables added after the results").', '',
          '## X.2 The main row against the best reference, read at the area of the main row', '',
          'A reference with 5-flit buffers has less area than the main row when the hierarchy is kept and more in the other two forms of the synthesis; one with 6-flit',
          'buffers has more in every form (`report/summary_hw_E3.md`). The table reads the three measured comparisons (references with 4-flit buffers: round 25; with 5-flit and',
@@ -132,6 +135,28 @@ def part_c():
                                      effect_at_main_area=sa['effect_pct'] if sa else '', ci_low=sa['ci_low'] if sa else '', ci_high=sa['ci_high'] if sa else '',
                                      break_even=be))
         L.append('')
+    # X.3 was added after the results of C1 had been read (DECISIONS.md): the values behind C.3 and C.4 and which row "the best" is
+    L += ['## X.3 Absolute values per scenario (mean over the ten seeds), and which reference is the best of the four at each depth', '',
+          'Added on 25 November after the results of C1 had been read: C.3 and C.4 compare with "the best of the four" and do not say which row that is in a scenario.',
+          'THR in flits/node/cycle (the largest accepted throughput over the nine loads), LAT in cycles at 1.0 x Lsat of DeFT_P with 4-flit buffers. Each reference with',
+          '4-flit / 5-flit / 6-flit buffers; **bold**: the best of the four at that depth, which is the row that the main row is compared with.', '']
+    tags = ('', '_d5', '_d6')
+    count = {t: defaultdict(int) for t in tags}
+    for n, f in (('THR', '%.4f'), ('LAT', '%.1f')):
+        for z in RV.SIZES:
+            L += ['### %s, %s' % (n, z), '', '| scenario | the main row | `LB_d6` | ' + ' | '.join(RV.REFS4) + ' |', '|---|---|---|' + '---|' * len(RV.REFS4)]
+            for sc in six(z):
+                best = {t: D.best(tuple(b + t for b in RV.REFS4), z, sc, n) for t in tags}
+                for t in tags:
+                    count[t][best[t][:len(best[t]) - len(t)]] += 1
+                cells = [' / '.join(('**%s**' if best[t] == b + t else '%s') % (f % D.smean(b + t, z, sc, n)) for t in tags) for b in RV.REFS4]
+                L.append('| %s | %s | %s | %s |' % (sc[0], f % D.smean(RV.MAIN, z, sc, n), f % D.smean('LB_d6', z, sc, n), ' | '.join(cells)))
+            L.append('')
+    L += ['The best of the four references, counted over the 36 cells of size, scenario and metric (THR and LAT):', '',
+          '| buffers of the references | ' + ' | '.join(RV.REFS4) + ' |', '|---|' + '---|' * len(RV.REFS4)]
+    for t, name in zip(tags, ('4-flit (round 25)', '5-flit', '6-flit')):
+        L.append('| %s | %s |' % (name, ' | '.join(str(count[t][b]) for b in RV.REFS4)))
+    L.append('')
     write('extra_C.md', L)
     with open(os.path.join(OUT, 'extra_C_area.csv'), 'w', newline='') as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)
