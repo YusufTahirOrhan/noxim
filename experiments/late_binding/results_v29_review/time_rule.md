@@ -18,3 +18,13 @@ Time since the start of the timing runs: 6.25 h. Runs finished in it: B1 5130 of
 
 * Part F2 (`EB_best16`, `EB_best256`: tuning and evaluation): about 6.03 h; 6.25 + 38.44 + 6.03 = 50.73 h, above 48 h: **stays dropped**.
 
+## 2026-11-25 10:18:29: the limit of 48 h is lifted by the user
+
+Not a decision of the rule. At 09:44 on 25 November the rule was looked at without writing anything (speed 0.989 times the estimate; 16.83 h spent, 27.58 h of the kept
+parts still to run; Part F2 about 6.00 h, so 16.83 + 27.58 + 6.00 = 50.41 h, above 48 h: it would have stayed dropped, and Part G behind it). The user was told so and
+answered: "Its ok to be above of 48h limit." With that the reason for the two drops is gone: **Part F2 and Part G are taken back** and are run in the order of the
+prompt (F1, F2, G). Part G keeps its own limit of 3 h, which belongs to its definition and not to this rule. Nothing else had been dropped. With both parts the
+estimate is 16.83 + 27.58 + 6.00 + 3.00 = 53.4 h since the start of the timing runs. No run of F2 or G existed at this moment, and no result of Parts C, D, E1 or F had
+been read (`DECISIONS.md`, "The limit of 48 h lifted by the user"). The entries that follow are written by the script at the end of every part as before; with nothing
+dropped they have nothing to decide.
+

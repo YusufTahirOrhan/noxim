@@ -159,6 +159,24 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   next to the twelve simulator processes. Their share of the machine (3 of 15 runnable processes for as long as they run) is written as
   a second number into `~/lbraw/v29/b_start.txt` and is not counted as time of Parts B to G; `time_rule.md` shows it at each decision.
 
+## The limit of 48 h lifted by the user (25 November, 10:18)
+* **What happened.** On 25 November the user asked when the runs would finish. A look at the rule at 09:44 that wrote nothing (speed
+  0.989 times the estimate, 16.83 h spent, 27.58 h of the kept parts still to run) gave 50.41 h with Part F2, so F2 and Part G would
+  have stayed dropped; the user was told so and answered: "Its ok to be above of 48h limit." The limit is the prompt's own rule, and the
+  prompt is the user's, so their word replaces it: **Part F2 and Part G are taken back and run**, in the order of the prompt (F1, F2,
+  G). `drops.json` (`dropped` empty, `restored` F2 and G, `limit_lifted` with the words and the time) and `time_rule.md` (an entry that
+  says it is not a decision of the rule) were changed by hand at 10:18:29; `restore_v29.py` is unchanged and from now on finds nothing
+  to decide. With both parts the estimate is 53.4 h since the start of the timing runs.
+* **What was known at that moment.** The results of Part B and of the hardware parts (E2, E3, E4) had been read and are in
+  `FINDINGS.md`. C1 was at 8,735 of 14,580 runs (10:17) and none of its results had been read; of D2 and C3 only the timing runs
+  existed, which were not looked at; no run of D1, E1, C2, F1, F2 or G existed. F2 and G are descriptive parts without a test, and the reason they
+  come back is the clock, not a result.
+* **Part G keeps its own limit of 3 h.** "Optional, at most 3 h" is part of its definition in the prompt, not of the time rule. G is
+  run because the only reason not to run it was the 48 h.
+* **What is not reopened.** Nothing else had been dropped, so no other part changes. The order of the parts, the seeds, the grids and
+  the tuning rule of F2 are those of `PREREGISTRATION.md` and of `tuning_v29.md`; the tuned values of F2 are added to the
+  pre-registration as "Addendum F2" before any evaluation run of its rows, as for F1.
+
 ## E2 and E4 as run
 * **The main row is synthesised twice.** Once from the units of round 25 (in the E3 run, for the area ratios that Part C is read with;
   those netlists equal round 25's) and once from `lb29_units.v` with both macros on (in the E2 run, next to the two variants). The two

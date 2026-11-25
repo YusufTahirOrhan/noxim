@@ -1,8 +1,5 @@
 {
- "dropped": [
-  "G",
-  "F2"
- ],
+ "dropped": [],
  "nproc": 12,
  "timing": {
   "B_2x2": {
@@ -150,7 +147,10 @@
    "runs": 0
   }
  },
- "restored": [],
+ "restored": [
+  "F2",
+  "G"
+ ],
  "time_rule": [
   {
    "at": 1795548651.0,
@@ -179,6 +179,26 @@
      "fits": false
     }
    ]
+  },
+  {
+   "at": 1795591109.3158262,
+   "label": "the limit of 48 h lifted by the user: F2 and G taken back (not a decision of the rule)",
+   "decisions": []
   }
- ]
+ ],
+ "limit_lifted": {
+  "at": 1795591109.3158262,
+  "when": "2026-11-25 10:18:29",
+  "by": "the user",
+  "words": "Its ok to be above of 48h limit.",
+  "taken_back": [
+   "F2",
+   "G"
+  ],
+  "spent_hours_at_the_last_look": 16.83,
+  "remaining_hours_of_the_kept_parts": 27.58,
+  "F2_hours": 6.0,
+  "G_hours": 3.0,
+  "estimate_hours_with_all": 53.41
+ }
 }
