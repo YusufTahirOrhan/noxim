@@ -28,3 +28,10 @@ estimate is 16.83 + 27.58 + 6.00 + 3.00 = 53.4 h since the start of the timing r
 been read (`DECISIONS.md`, "The limit of 48 h lifted by the user"). The entries that follow are written by the script at the end of every part as before; with nothing
 dropped they have nothing to decide.
 
+## 2026-11-25 18:31:18: the end of C1
+
+Time since the start of the timing runs: 25.61 h (0.47 h are not counted, `DECISIONS.md`). Runs finished in it: B1 5130 of 5130; B2 540 of 540; C1 14580 of 14580; D2 373 of 1800; E1 0 of 1620; C3 192 of 3072; D1 0 of 3240; C2 0 of 2880; F1 0 of 1620 rows runs, 0 tuning runs; by the seconds per run of the timing sets they are 26.45 h, so the speed is
+0.968 times the estimate. Still to run of the kept parts: 17.88 h at this speed. Dropped at this moment: nothing.
+
+Nothing to decide: nothing is dropped.
+

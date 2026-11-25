@@ -184,6 +184,11 @@
    "at": 1795591109.3158262,
    "label": "the limit of 48 h lifted by the user: F2 and G taken back (not a decision of the rule)",
    "decisions": []
+  },
+  {
+   "at": 1795620725.014641,
+   "label": "the end of C1",
+   "decisions": []
   }
  ],
  "limit_lifted": {

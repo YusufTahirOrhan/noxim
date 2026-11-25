@@ -5,6 +5,7 @@ The tests of `PREREGISTRATION.md` computed from the per-run CSVs by a script tha
 
 * Part B: 4860 runs; scenarios neighbour, randperm, tornado; seeds 181-190. The best reference of (b) per scenario, THR: 2x2: RC, RC, RC; 3x3: MTR, RC, RC; 4x4: RC, RC, RC.
 * **Family 1 (Part B): 12 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0049 percentage points (the report rounds to 0.01); verdicts: 11 supported, 1 against, 0 n.s..
-* Part C: no depth_runs.csv yet.
+* Part C: 8100 runs read (the four references at depth 6 and the main row of round 25); scenarios chipperm, chiptrans, hotspot, localized, movinghot, uniform; seeds 121-130.
+* **Family 2 (Part C): 12 tests, 0 different.** Largest difference of an effect or of an interval end: 0.0049 percentage points (the report rounds to 0.01); verdicts: 9 supported, 2 against, 1 n.s..
 
 **All compared tests agree: yes.**

@@ -1,0 +1,13 @@
+size,row,reference,metric,scenarios,group,n_seeds,effect_pct,ci_low,ci_high,p,p_holm,verdict
+2x2,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,-0.48,-0.75,-0.2,0.003758,0.007517,against
+2x2,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,-10.05,-12.36,-7.68,7.076e-06,3.538e-05,supported
+2x2,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,-3.43,-3.65,-3.21,6.516e-11,7.168e-10,against
+2x2,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,-1.18,-3.38,1.07,0.2647,0.2647,n.s.
+3x3,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,3.89,3.55,4.23,7.45e-10,6.705e-09,supported
+3x3,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,-9.94,-10.73,-9.14,6.638e-10,6.638e-09,supported
+3x3,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,2.87,2.45,3.29,7.349e-08,4.409e-07,supported
+3x3,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,-2.2,-3.09,-1.3,0.0003873,0.001162,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,3.83,3.61,4.05,1.57e-11,1.884e-10,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,a,10,-10.05,-11.17,-8.92,1.335e-08,9.347e-08,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",THR,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,2.32,2.07,2.56,4.303e-09,3.442e-08,supported
+4x4,CI_heurLA_X_LF,"best of DeFT_P_d6, DeFT_B_d6, MTR_d6, RC_d6",LAT,uniform+localized+hotspot+chipperm+chiptrans+movinghot,b,10,-4.34,-5.78,-2.88,9.652e-05,0.0003861,supported
