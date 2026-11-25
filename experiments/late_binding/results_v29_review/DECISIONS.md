@@ -256,7 +256,7 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   reaches it, and no measured depth has that area (5.3 to 5.5 flits with the hierarchy kept, 4.5 to 4.9 in the other two forms). It
   is a reading aid for the measured columns, which stand next to it; no reference with such buffers was run, and the areas are taken
   as exact. Not in the pre-registration, so no claim of the round rests on an interpolated figure alone.
-* **`report/extra_C.md`, X.3** (added on 25 November at 18:50, after the results of C1 had been read): THR and LAT of the main row,
+* **`report/extra_C.md`, X.3** (added on 25 November at 18:37, after the results of C1 had been read): THR and LAT of the main row,
   of `LB_d6` and of each reference with 4-flit, 5-flit and 6-flit buffers per size and scenario (mean over the ten seeds), with the
   best of the four marked, and the count of which reference is the best. Reason: C.3 and C.4 compare with "the best of the four"
   and do not say which row that is, and the report of Part C has no table of absolute values.
