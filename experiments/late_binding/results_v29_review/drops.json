@@ -199,6 +199,11 @@
    "at": 1795629222.5305452,
    "label": "the end of E1",
    "decisions": []
+  },
+  {
+   "at": 1795643356.7129755,
+   "label": "the end of C3",
+   "decisions": []
   }
  ],
  "limit_lifted": {
