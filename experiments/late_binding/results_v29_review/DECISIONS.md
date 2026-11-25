@@ -195,3 +195,11 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
   `randperm` alone, where the main row's THR is even below DeFT_P's, while its latency at 1.0 x Lsat is the lowest of all rows. The
   table shows where on the ladder the rows part: THR is a number from the last load.
+* **`report/extra_C.md`, X.2** (defined on 25 November at 07:30, while C1 was at about 6,500 of 14,580 runs and none of its results had
+  been read; the code was run on stand-in data only): the three measured comparisons of the main row against the best reference
+  (references with 4-flit buffers of round 25, with 5-flit and 6-flit buffers of C1) read at the area of the main row, by linear
+  interpolation of the per-seed log ratio in the system area of E3, in each form of the synthesis, and the buffer depth at which the
+  interpolated effect stops being in favour of the main row. Reason: question 6 asks where a reference with the main row's area
+  reaches it, and no measured depth has that area (5.3 to 5.5 flits with the hierarchy kept, 4.5 to 4.9 in the other two forms). It
+  is a reading aid for the measured columns, which stand next to it; no reference with such buffers was run, and the areas are taken
+  as exact. Not in the pre-registration, so no claim of the round rests on an interpolated figure alone.

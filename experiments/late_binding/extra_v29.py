@@ -54,6 +54,92 @@ def part_b():
     write('extra_B.md', L)
 
 
+def part_c():
+    """X.2: the comparisons of Part C read at the area of the main row. Written on 25 November while C1 was running, before any of its
+    results had been read (DECISIONS.md); it is not in the pre-registration and it is no test."""
+    import math
+    import report_v29 as RV
+    P = RV.ladders()
+    R = RV.load(os.path.join(RV.V25, 'eval_runs.csv'), os.path.join(RES, 'depth_runs.csv'))
+    D = RV.Design(R, P, range(121, 131))
+    A = RV.area_ratios()
+    six = lambda z: RV.scen(z, RV.SIX)  # noqa: E731
+    have_d5 = ('DeFT_P_d5', '2x2-uniform', RV.FREE['2x2'], D.lad('2x2', ('uniform', RV.FREE['2x2']))[3], 121) in R
+    if not A or not have_d5:
+        print('extra part c needs hw/system_ratios.csv and the rows at depth 5; not written')
+        return
+    groups = [('the best of the two DeFT variants', ('DeFT_P', 'DeFT_B')), ('the best of MTR and RC', ('MTR', 'RC')), ('the best of the four', tuple(RV.REFS4))]
+    pct = lambda v: 100 * (math.exp(v) - 1)  # noqa: E731
+
+    def at(xs, ys, x):
+        """Piecewise linear through (xs, ys), xs ascending; None outside."""
+        for i in range(len(xs) - 1):
+            if xs[i] <= x <= xs[i + 1]:
+                w = (x - xs[i]) / (xs[i + 1] - xs[i])
+                return [(1 - w) * a + w * b for a, b in zip(ys[i], ys[i + 1])]
+        return None
+
+    def zero(xs, m, name):
+        """The first x at which the piecewise linear mean effect stops being in favour of the main row (THR: > 0, LAT: < 0)."""
+        good = (lambda v: v > 0) if name == 'THR' else (lambda v: v < 0)
+        if not good(m[0]):
+            return 'behind or level already with 4-flit buffers'
+        for i in range(len(xs) - 1):
+            if good(m[i]) and not good(m[i + 1]):
+                w = m[i] / (m[i] - m[i + 1])
+                return xs[i] + w * (xs[i + 1] - xs[i])
+        return None
+
+    L = ['# v29 Part C: a table added to the report (extra_v29.py c)', '',
+         'Descriptive; not in the pre-registration and no test. Defined on 25 November while C1 was running, before any of its results had been read (`DECISIONS.md`,',
+         '"Tables added after the results").', '',
+         '## X.2 The main row against the best reference, read at the area of the main row', '',
+         'A reference with 5-flit buffers has less area than the main row when the hierarchy is kept and more in the other two forms of the synthesis; one with 6-flit',
+         'buffers has more in every form (`report/summary_hw_E3.md`). The table reads the three measured comparisons (references with 4-flit buffers: round 25; with 5-flit and',
+         '6-flit buffers: C1; six scenarios, ten seeds, the best row of the set per scenario and metric at each depth) at the area of the main row: per seed the log ratio is',
+         'interpolated linearly in the system area between the two neighbouring depths, then the effect and its 95 % interval over the seeds are computed as everywhere.',
+         'No router with 4.6 or 5.4-flit buffers exists; the column says where the main row would stand against a reference that spent the same area on buffers, if the',
+         'effect moved evenly with the area. The areas are taken as exact (the flow spreads by about 1 % on unchanged logic). **Break-even**: the buffer depth of the',
+         'references (and its area relative to DeFT at depth 4, in the form of the block) at which the interpolated mean effect stops being in favour of the main row.', '']
+    rows = []
+    for f, ftitle in RV.FORMS:
+        L += ['### %s' % ftitle, '', '| size | area: main row; d5; d6 | against | metric | 4-flit | 5-flit | 6-flit | at the area of the main row | break-even depth (area) |',
+              '|---|---|---|---|---|---|---|---|---|']
+        for z in RV.SIZES:
+            xs = [1.0, A[('d5', z, f)], A[('d6', z, f)]]
+            am = A[('main', z, f)]
+            for gname, g in groups:
+                for n in ('THR', 'LAT'):
+                    ys = [D.lr(RV.MAIN, tuple('%s%s' % (b, t) for b in g), z, six(z), n) for t in ('', '_d5', '_d6')]
+                    if len(set(len(y) for y in ys)) != 1 or not ys[0]:
+                        raise SystemExit('unequal seed sets in %s %s %s' % (z, gname, n))
+                    st = [RV.stat(y) for y in ys]
+                    m = [sum(y) / len(y) for y in ys]
+                    ya = at(xs, ys, am)
+                    sa = RV.stat(ya) if ya else None
+                    x0 = zero(xs, m, n)
+                    if x0 is None:
+                        be = 'not up to 6-flit buffers'
+                    elif isinstance(x0, str):
+                        be = x0
+                    else:
+                        i = 0 if x0 <= xs[1] else 1
+                        dep = 4 + i + (x0 - xs[i]) / (xs[i + 1] - xs[i])
+                        be = '%.1f flits (%.3f)' % (dep, x0)
+                    L.append('| %s | %.3f; %.3f; %.3f | %s | %s | %s | %s | %s | %s | %s |' % (z, am, xs[1], xs[2], gname, n, RV.eci(st[0]), RV.eci(st[1]), RV.eci(st[2]),
+                                                                                  '**%s**' % RV.eci(sa) if sa else 'outside the measured areas', be))
+                    rows.append(dict(form=f, size=z, against=gname, metric=n, area_main=am, area_d5=xs[1], area_d6=xs[2], effect_d4=pct(m[0]), effect_d5=pct(m[1]), effect_d6=pct(m[2]),
+                                     effect_at_main_area=sa['effect_pct'] if sa else '', ci_low=sa['ci_low'] if sa else '', ci_high=sa['ci_high'] if sa else '',
+                                     break_even=be))
+        L.append('')
+    write('extra_C.md', L)
+    with open(os.path.join(OUT, 'extra_C_area.csv'), 'w', newline='') as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)
+        w.writeheader()
+        w.writerows(rows)
+    print('wrote report/extra_C_area.csv (%d rows)' % len(rows))
+
+
 if __name__ == '__main__':
     parts = sys.argv[1:] or ['b']
     for p in parts:
