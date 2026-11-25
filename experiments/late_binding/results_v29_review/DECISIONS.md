@@ -233,6 +233,16 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   hand in that time (the table comparison of ARTIFACT.md with two processes for 3.5 minutes, single tries of the E2 and E4 stages).
   1,680 s are written as the second number of `b_start.txt` and are not counted by the time rule from the end of C1 on.
 
+## The report: what answer 15 is written against (25 November, 14:59; before a result of C1, D, E1, F or G was read)
+* **The paper is not in this repository.** Question 15 asks which sentences of the paper's abstract no longer hold and which hold with
+  a new number. Neither draft (v7, v8) is among the files of the repository, so the wording of its abstract cannot be quoted or
+  checked. Answer 15 is therefore written against the statements that the prompt attributes to the paper ("Where we are", points 1
+  to 3) and the headline results of rounds 25 to 28 that the paper's tables are built from (`paper_data/` of those rounds): the main
+  row against the best reference in THR, LAT and P99; against DeFT without and with VL faults; its cost in area and its timing; the
+  share of the gain that needs late binding. Each is given as a claim with the number of the earlier round and marked "does not
+  hold", "holds with a new number" or "not touched by this round". Whoever holds the draft maps the list to its sentences; a sentence
+  of the abstract that makes none of these claims is not judged here.
+
 ## Tables added after the results (`extra_v29.py`; none is a test, none changes a pre-registered table)
 * **`report/extra_B.md`, X.1** (after Part B): the accepted throughput and the latency of every row at each of the nine loads on five
   cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
