@@ -1,0 +1,145 @@
+pattern,pipe_all,load_x_lsat,rate,policy,better_other,effect_pct,ci_low,ci_high,verdict
+uniform,2,0.1,0.0013,per-hop,RC,-1.57,-1.71,-1.42,lowest
+uniform,2,0.1,0.0013,static,RC_static,-2.13,-2.28,-1.97,lowest
+uniform,2,0.2,0.0026,per-hop,RC,-0.71,-0.86,-0.56,lowest
+uniform,2,0.2,0.0026,static,RC_static,-2.03,-2.27,-1.79,lowest
+uniform,2,0.3,0.0039,per-hop,RC,0.16,-0.18,0.51,"not the lowest, within the interval"
+uniform,2,0.3,0.0039,static,RC_static,-1.9,-2.32,-1.47,lowest
+uniform,2,0.4,0.0052,per-hop,RC,0.99,0.77,1.2,not the lowest
+uniform,2,0.4,0.0052,static,RC_static,-1.89,-2.04,-1.74,lowest
+uniform,2,0.5,0.0065,per-hop,RC,1.9,1.33,2.47,not the lowest
+uniform,2,0.5,0.0065,static,RC_static,-1.84,-2.1,-1.57,lowest
+uniform,2,0.6,0.0078,per-hop,RC,3.57,3.1,4.04,not the lowest
+uniform,2,0.6,0.0078,static,RC_static,-1.47,-1.76,-1.18,lowest
+uniform,2,0.7,0.0091,per-hop,RC,5.37,4.97,5.78,not the lowest
+uniform,2,0.7,0.0091,static,RC_static,-1.04,-1.53,-0.55,lowest
+uniform,2,0.8,0.0104,per-hop,RC,7.81,7.23,8.4,not the lowest
+uniform,2,0.8,0.0104,static,RC_static,-0.81,-1.9,0.29,"lowest, within the interval"
+uniform,2,0.9,0.0117,per-hop,RC,11.88,11.15,12.61,not the lowest
+uniform,2,0.9,0.0117,static,RC_static,0.81,-0.8,2.45,"not the lowest, within the interval"
+uniform,2,1.0,0.013,per-hop,RC,22.18,19.8,24.6,not the lowest
+uniform,2,1.0,0.013,static,RC_static,-0.46,-13.11,14.03,"lowest, within the interval"
+uniform,2,1.1,0.0143,per-hop,RC,54.2,38.4,71.81,not the lowest
+uniform,2,1.1,0.0143,static,RC_static,-1.71,-8.9,6.05,"lowest, within the interval"
+uniform,2,1.2,0.0156,per-hop,RC,94.9,68.44,125.51,not the lowest
+uniform,2,1.2,0.0156,static,RC_static,0.46,-9.46,11.48,"not the lowest, within the interval"
+uniform,0,0.1,0.0012,per-hop,RC,-2.74,-3.05,-2.44,lowest
+uniform,0,0.1,0.0012,static,RC_static,-3.54,-3.83,-3.25,lowest
+uniform,0,0.2,0.0023,per-hop,RC,-1.58,-2.5,-0.65,lowest
+uniform,0,0.2,0.0023,static,MTR_static,-2.73,-3.47,-1.97,lowest
+uniform,0,0.3,0.0035,per-hop,RC,-0.23,-0.99,0.54,"lowest, within the interval"
+uniform,0,0.3,0.0035,static,RC_static,-2.3,-3.2,-1.39,lowest
+uniform,0,0.4,0.0046,per-hop,RC,1.54,1.11,1.96,not the lowest
+uniform,0,0.4,0.0046,static,RC_static,-1.58,-2.34,-0.8,lowest
+uniform,0,0.5,0.0058,per-hop,RC,3.14,2.12,4.18,not the lowest
+uniform,0,0.5,0.0058,static,RC_static,-1.04,-1.96,-0.1,lowest
+uniform,0,0.6,0.0069,per-hop,RC,5.46,3.78,7.17,not the lowest
+uniform,0,0.6,0.0069,static,RC_static,0.49,-0.82,1.82,"not the lowest, within the interval"
+uniform,0,0.7,0.0081,per-hop,RC,8.13,6.73,9.56,not the lowest
+uniform,0,0.7,0.0081,static,RC_static,1.17,0.44,1.9,not the lowest
+uniform,0,0.8,0.0092,per-hop,RC,10.79,10.14,11.45,not the lowest
+uniform,0,0.8,0.0092,static,RC_static,2.57,1.84,3.31,not the lowest
+uniform,0,0.9,0.0104,per-hop,RC,14.7,13.7,15.71,not the lowest
+uniform,0,0.9,0.0104,static,RC_static,4.02,2.17,5.91,not the lowest
+uniform,0,1.0,0.0115,per-hop,RC,19.2,16.42,22.04,not the lowest
+uniform,0,1.0,0.0115,static,RC_static,4.56,0.73,8.53,not the lowest
+uniform,0,1.1,0.0127,per-hop,RC,33.93,19.74,49.8,not the lowest
+uniform,0,1.1,0.0127,static,RC_static,10.46,0.89,20.95,not the lowest
+uniform,0,1.2,0.0138,per-hop,RC,57.07,48.73,65.88,not the lowest
+uniform,0,1.2,0.0138,static,RC_static,0.7,-7.64,9.78,"not the lowest, within the interval"
+localized,2,0.1,0.0016,per-hop,RC,-1.14,-1.38,-0.89,lowest
+localized,2,0.1,0.0016,static,RC_static,-1.85,-2.06,-1.64,lowest
+localized,2,0.2,0.0032,per-hop,RC,-0.41,-0.68,-0.14,lowest
+localized,2,0.2,0.0032,static,RC_static,-1.93,-2.1,-1.76,lowest
+localized,2,0.3,0.0048,per-hop,RC,0.74,0.53,0.96,not the lowest
+localized,2,0.3,0.0048,static,RC_static,-1.71,-2.04,-1.38,lowest
+localized,2,0.4,0.0064,per-hop,RC,1.71,1.46,1.95,not the lowest
+localized,2,0.4,0.0064,static,RC_static,-1.66,-1.82,-1.5,lowest
+localized,2,0.5,0.008,per-hop,RC,2.97,2.65,3.3,not the lowest
+localized,2,0.5,0.008,static,RC_static,-1.27,-1.44,-1.1,lowest
+localized,2,0.6,0.0096,per-hop,RC,4.43,4.15,4.7,not the lowest
+localized,2,0.6,0.0096,static,RC_static,-0.95,-1.1,-0.79,lowest
+localized,2,0.7,0.0112,per-hop,RC,6.7,5.98,7.42,not the lowest
+localized,2,0.7,0.0112,static,RC_static,-0.16,-0.85,0.54,"lowest, within the interval"
+localized,2,0.8,0.0128,per-hop,RC,9.89,8.71,11.08,not the lowest
+localized,2,0.8,0.0128,static,RC_static,0.51,0.34,0.69,not the lowest
+localized,2,0.9,0.0144,per-hop,RC,14.46,12.68,16.26,not the lowest
+localized,2,0.9,0.0144,static,RC_static,2.34,1.21,3.49,not the lowest
+localized,2,1.0,0.016,per-hop,RC,29.22,20.25,38.87,not the lowest
+localized,2,1.0,0.016,static,RC_static,7.06,1.19,13.28,not the lowest
+localized,2,1.1,0.0176,per-hop,RC,73.04,34.89,121.98,not the lowest
+localized,2,1.1,0.0176,static,RC_static,15.56,-2.82,37.42,"not the lowest, within the interval"
+localized,2,1.2,0.0192,per-hop,RC,148.52,86.72,230.76,not the lowest
+localized,2,1.2,0.0192,static,RC_static,3.96,-12.4,23.37,"not the lowest, within the interval"
+localized,0,0.1,0.0015,per-hop,RC,-2.46,-2.99,-1.93,lowest
+localized,0,0.1,0.0015,static,RC_static,-3.36,-3.66,-3.05,lowest
+localized,0,0.2,0.0029,per-hop,RC,-1.18,-1.53,-0.83,lowest
+localized,0,0.2,0.0029,static,RC_static,-3.07,-3.68,-2.46,lowest
+localized,0,0.3,0.0044,per-hop,RC,1.3,0.54,2.06,not the lowest
+localized,0,0.3,0.0044,static,MTR_static,-1.2,-2.23,-0.15,lowest
+localized,0,0.4,0.0058,per-hop,RC,2.29,1.46,3.12,not the lowest
+localized,0,0.4,0.0058,static,RC_static,-1.75,-2.49,-1.0,lowest
+localized,0,0.5,0.0073,per-hop,RC,4.39,3.46,5.32,not the lowest
+localized,0,0.5,0.0073,static,RC_static,-0.66,-1.4,0.07,"lowest, within the interval"
+localized,0,0.6,0.0087,per-hop,RC,6.55,5.66,7.46,not the lowest
+localized,0,0.6,0.0087,static,RC_static,0.54,-0.37,1.46,"not the lowest, within the interval"
+localized,0,0.7,0.0102,per-hop,RC,10.33,9.32,11.36,not the lowest
+localized,0,0.7,0.0102,static,RC_static,2.26,1.66,2.85,not the lowest
+localized,0,0.8,0.0116,per-hop,RC,12.67,11.14,14.22,not the lowest
+localized,0,0.8,0.0116,static,RC_static,3.03,2.76,3.3,not the lowest
+localized,0,0.9,0.0131,per-hop,RC,17.85,15.34,20.42,not the lowest
+localized,0,0.9,0.0131,static,RC_static,5.41,3.19,7.67,not the lowest
+localized,0,1.0,0.0145,per-hop,RC,25.18,20.56,29.98,not the lowest
+localized,0,1.0,0.0145,static,RC_static,9.26,7.77,10.78,not the lowest
+localized,0,1.1,0.016,per-hop,RC,50.81,42.7,59.37,not the lowest
+localized,0,1.1,0.016,static,RC_static,21.68,14.96,28.8,not the lowest
+localized,0,1.2,0.0174,per-hop,RC,129.12,83.21,186.54,not the lowest
+localized,0,1.2,0.0174,static,RC_static,32.42,19.38,46.88,not the lowest
+hotspot,2,0.1,0.0008,per-hop,RC,-1.59,-1.82,-1.35,lowest
+hotspot,2,0.1,0.0008,static,RC_static,-1.95,-2.14,-1.75,lowest
+hotspot,2,0.2,0.0015,per-hop,RC,-0.97,-1.56,-0.37,lowest
+hotspot,2,0.2,0.0015,static,RC_static,-1.83,-2.23,-1.43,lowest
+hotspot,2,0.3,0.0023,per-hop,RC,-0.42,-0.83,-0.01,lowest
+hotspot,2,0.3,0.0023,static,RC_static,-1.84,-2.12,-1.56,lowest
+hotspot,2,0.4,0.003,per-hop,RC,0.36,0.19,0.54,not the lowest
+hotspot,2,0.4,0.003,static,RC_static,-1.51,-1.8,-1.22,lowest
+hotspot,2,0.5,0.0038,per-hop,RC,1.51,0.96,2.05,not the lowest
+hotspot,2,0.5,0.0038,static,RC_static,-1.12,-1.55,-0.7,lowest
+hotspot,2,0.6,0.0045,per-hop,RC,2.48,1.31,3.68,not the lowest
+hotspot,2,0.6,0.0045,static,RC_static,-0.63,-1.53,0.27,"lowest, within the interval"
+hotspot,2,0.7,0.0053,per-hop,RC,5.51,3.45,7.62,not the lowest
+hotspot,2,0.7,0.0053,static,RC_static,0.81,-0.26,1.9,"not the lowest, within the interval"
+hotspot,2,0.8,0.006,per-hop,RC,9.96,8.11,11.85,not the lowest
+hotspot,2,0.8,0.006,static,RC_static,4.14,2.25,6.07,not the lowest
+hotspot,2,0.9,0.0068,per-hop,RC,44.1,1.1,105.39,not the lowest
+hotspot,2,0.9,0.0068,static,RC_static,31.22,-8.53,88.26,"not the lowest, within the interval"
+hotspot,2,1.0,0.0075,per-hop,RC,135.95,48.28,275.45,not the lowest
+hotspot,2,1.0,0.0075,static,RC_static,86.93,29.57,169.7,not the lowest
+hotspot,2,1.1,0.0083,per-hop,RC,157.18,34.03,393.51,not the lowest
+hotspot,2,1.1,0.0083,static,RC_static,62.49,2.66,157.18,not the lowest
+hotspot,2,1.2,0.009,per-hop,RC,73.53,43.09,110.45,not the lowest
+hotspot,2,1.2,0.009,static,RC_static,35.19,18.49,54.25,not the lowest
+hotspot,0,0.1,0.0007,per-hop,MTR,-1.43,-2.07,-0.78,lowest
+hotspot,0,0.1,0.0007,static,MTR_static,-1.79,-2.58,-0.99,lowest
+hotspot,0,0.2,0.0014,per-hop,MTR,-0.96,-1.97,0.07,"lowest, within the interval"
+hotspot,0,0.2,0.0014,static,MTR_static,-1.75,-2.55,-0.95,lowest
+hotspot,0,0.3,0.0021,per-hop,MTR,-0.36,-1.4,0.69,"lowest, within the interval"
+hotspot,0,0.3,0.0021,static,MTR_static,-1.78,-2.67,-0.89,lowest
+hotspot,0,0.4,0.0028,per-hop,MTR,1.32,-0.09,2.76,"not the lowest, within the interval"
+hotspot,0,0.4,0.0028,static,MTR_static,-0.34,-1.57,0.9,"lowest, within the interval"
+hotspot,0,0.5,0.0035,per-hop,MTR,2.31,0.34,4.32,not the lowest
+hotspot,0,0.5,0.0035,static,MTR_static,0.33,-1.33,2.01,"not the lowest, within the interval"
+hotspot,0,0.6,0.0042,per-hop,MTR,4.8,3.37,6.26,not the lowest
+hotspot,0,0.6,0.0042,static,RC_static,1.77,0.69,2.86,not the lowest
+hotspot,0,0.7,0.0049,per-hop,RC,8.06,6.46,9.68,not the lowest
+hotspot,0,0.7,0.0049,static,MTR_static,3.59,2.01,5.19,not the lowest
+hotspot,0,0.8,0.0056,per-hop,RC,13.19,8.79,17.77,not the lowest
+hotspot,0,0.8,0.0056,static,RC_static,7.87,2.25,13.8,not the lowest
+hotspot,0,0.9,0.0063,per-hop,RC,29.12,19.63,39.37,not the lowest
+hotspot,0,0.9,0.0063,static,RC_static,18.51,10.44,27.16,not the lowest
+hotspot,0,1.0,0.007,per-hop,RC,101.05,39.42,189.9,not the lowest
+hotspot,0,1.0,0.007,static,RC_static,71.67,28.7,129.0,not the lowest
+hotspot,0,1.1,0.0077,per-hop,RC,177.93,77.43,335.36,not the lowest
+hotspot,0,1.1,0.0077,static,RC_static,94.6,28.76,194.1,not the lowest
+hotspot,0,1.2,0.0084,per-hop,RC,113.19,46.17,210.92,not the lowest
+hotspot,0,1.2,0.0084,static,RC_static,57.87,4.72,137.99,not the lowest

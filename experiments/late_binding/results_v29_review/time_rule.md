@@ -35,3 +35,10 @@ Time since the start of the timing runs: 25.61 h (0.47 h are not counted, `DECIS
 
 Nothing to decide: nothing is dropped.
 
+## 2026-11-25 18:54:07: the end of D2
+
+Time since the start of the timing runs: 25.99 h (0.47 h are not counted, `DECISIONS.md`). Runs finished in it: B1 5130 of 5130; B2 540 of 540; C1 14580 of 14580; D2 1800 of 1800; E1 0 of 1620; C3 192 of 3072; D1 0 of 3240; C2 0 of 2880; F1 0 of 1620 rows runs, 0 tuning runs; by the seconds per run of the timing sets they are 26.80 h, so the speed is
+0.970 times the estimate. Still to run of the kept parts: 17.58 h at this speed. Dropped at this moment: nothing.
+
+Nothing to decide: nothing is dropped.
+
