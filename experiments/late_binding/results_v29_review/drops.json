@@ -219,6 +219,11 @@
    "at": 1795686747.1098514,
    "label": "the end of F1",
    "decisions": []
+  },
+  {
+   "at": 1795700414.3244493,
+   "label": "the end of F2",
+   "decisions": []
   }
  ],
  "limit_lifted": {

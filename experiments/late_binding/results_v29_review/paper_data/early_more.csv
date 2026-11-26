@@ -17,6 +17,18 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 2x2,EB_best,CI_heurLA_X_LF,all six,LAT,effect,-3.72,-4.63,-2.8,8.542e-06
 3x3,EB_best,CI_heurLA_X_LF,all six,LAT,effect,3.06,2.13,3.99,3.571e-05
 4x4,EB_best,CI_heurLA_X_LF,all six,LAT,effect,8.5,7.01,10.01,3.075e-07
+2x2,EB_best16,DeFT_P,all six,THR,effect,7.93,7.51,8.34,6.51e-12
+3x3,EB_best16,DeFT_P,all six,THR,effect,8.26,7.84,8.67,4.777e-12
+4x4,EB_best16,DeFT_P,all six,THR,effect,8.62,8.05,9.19,5.629e-11
+2x2,EB_best16,DeFT_P,all six,LAT,effect,-35.54,-39.09,-31.8,2.823e-08
+3x3,EB_best16,DeFT_P,all six,LAT,effect,-32.05,-35.2,-28.75,1.847e-08
+4x4,EB_best16,DeFT_P,all six,LAT,effect,-28.91,-32.21,-25.44,5.682e-08
+2x2,EB_best16,CI_heurLA_X_LF,all six,THR,effect,0.67,0.31,1.03,0.002205
+3x3,EB_best16,CI_heurLA_X_LF,all six,THR,effect,-4.77,-5.11,-4.42,2.043e-10
+4x4,EB_best16,CI_heurLA_X_LF,all six,THR,effect,-3.0,-3.29,-2.71,2.892e-09
+2x2,EB_best16,CI_heurLA_X_LF,all six,LAT,effect,-0.06,-1.06,0.94,0.8868
+3x3,EB_best16,CI_heurLA_X_LF,all six,LAT,effect,5.74,4.86,6.62,9.972e-08
+4x4,EB_best16,CI_heurLA_X_LF,all six,LAT,effect,11.08,9.48,12.71,5.333e-08
 2x2,EB_best64,DeFT_P,all six,THR,effect,5.91,5.6,6.22,7.659e-12
 3x3,EB_best64,DeFT_P,all six,THR,effect,6.01,5.66,6.37,2.186e-11
 4x4,EB_best64,DeFT_P,all six,THR,effect,6.79,6.23,7.36,4.745e-10
@@ -29,6 +41,18 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 2x2,EB_best64,CI_heurLA_X_LF,all six,LAT,effect,12.99,11.86,14.14,5.453e-10
 3x3,EB_best64,CI_heurLA_X_LF,all six,LAT,effect,26.01,24.35,27.7,2.167e-11
 4x4,EB_best64,CI_heurLA_X_LF,all six,LAT,effect,24.42,22.62,26.24,8.214e-11
+2x2,EB_best256,DeFT_P,all six,THR,effect,2.78,2.42,3.14,2.591e-08
+3x3,EB_best256,DeFT_P,all six,THR,effect,-0.57,-0.97,-0.17,0.01011
+4x4,EB_best256,DeFT_P,all six,THR,effect,2.27,1.73,2.81,5.096e-06
+2x2,EB_best256,DeFT_P,all six,LAT,effect,-7.61,-11.82,-3.19,0.003994
+3x3,EB_best256,DeFT_P,all six,LAT,effect,-6.29,-10.63,-1.75,0.01266
+4x4,EB_best256,DeFT_P,all six,LAT,effect,-9.33,-12.83,-5.68,0.0003281
+2x2,EB_best256,CI_heurLA_X_LF,all six,THR,effect,-4.13,-4.37,-3.9,2.492e-11
+3x3,EB_best256,CI_heurLA_X_LF,all six,THR,effect,-12.53,-12.93,-12.13,2.181e-13
+4x4,EB_best256,CI_heurLA_X_LF,all six,THR,effect,-8.67,-9.01,-8.33,9.565e-13
+2x2,EB_best256,CI_heurLA_X_LF,all six,LAT,effect,43.25,40.31,46.25,2.27e-11
+3x3,EB_best256,CI_heurLA_X_LF,all six,LAT,effect,45.82,42.32,49.42,6.159e-11
+4x4,EB_best256,CI_heurLA_X_LF,all six,LAT,effect,41.67,38.3,45.14,1.167e-10
 2x2,EB_down_t,DeFT_P,all six,THR,effect,5.29,4.87,5.72,3.296e-10
 3x3,EB_down_t,DeFT_P,all six,THR,effect,6.09,5.54,6.65,1.05e-09
 4x4,EB_down_t,DeFT_P,all six,THR,effect,5.28,4.81,5.76,9.487e-10
@@ -71,6 +95,24 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 2x2,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share,113.7,105.8,121.2,
 3x3,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share,90.4,84.9,95.8,
 4x4,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share,73.7,64.0,80.8,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share,109.6,96.8,127.9,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share,61.9,56.2,65.9,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share,73.1,66.8,78.9,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share,100.1,95.7,104.5,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share,87.4,80.2,90.8,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share,76.4,72.1,82.4,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,hotspot,THR,share,95.2,76.5,114.1,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,hotspot,THR,share,95.5,79.9,111.0,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,hotspot,THR,share,94.9,83.6,103.5,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,hotspot,LAT,share,99.8,97.2,100.5,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,hotspot,LAT,share,97.9,97.1,98.5,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,hotspot,LAT,share,97.5,93.6,98.3,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share,122.2,113.0,142.2,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share,51.7,45.9,55.0,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share,62.5,54.9,69.4,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share,100.4,90.2,109.9,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share,81.4,75.5,85.1,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share,65.8,56.4,75.9,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share,82.5,79.1,93.3,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share,45.6,39.6,51.6,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share,58.1,51.5,64.9,
@@ -89,6 +131,24 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 2x2,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share,56.2,41.9,66.2,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share,21.1,2.4,35.4,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share,28.6,21.1,39.2,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share,39.4,31.4,45.7,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share,-4.5,-11.1,2.0,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share,19.8,10.2,26.0,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share,18.0,-2.4,31.8,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share,14.7,-5.2,32.2,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share,21.9,1.8,31.4,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,hotspot,THR,share,84.3,75.4,92.1,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,hotspot,THR,share,96.2,87.1,102.7,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,hotspot,THR,share,92.1,86.1,106.5,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,hotspot,LAT,share,39.0,-14.4,56.4,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,hotspot,LAT,share,77.6,63.1,83.7,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,hotspot,LAT,share,79.8,52.1,84.3,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share,-0.0,-17.6,10.6,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share,-34.9,-43.5,-27.6,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share,-15.1,-24.6,-4.7,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share,2.5,-17.2,13.1,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share,-20.9,-54.2,-3.8,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share,-7.4,-13.9,4.3,
 2x2,EB_down_t,share of the gain of the main row over DeFT_P,all six,THR,share,74.1,65.2,80.3,
 3x3,EB_down_t,share of the gain of the main row over DeFT_P,all six,THR,share,46.1,39.5,55.3,
 4x4,EB_down_t,share of the gain of the main row over DeFT_P,all six,THR,share,45.5,36.5,50.8,
@@ -291,41 +351,86 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 3x3,EB_first,,all six,load 1.4 x Lsat,share of the bound heads bound below the exit VL,22.5,,,
 4x4,EB_first,,all six,load 1.4 x Lsat,share of the bound heads bound below the exit VL,14.0,,,
 2x2,EB_best,share of the gain of the main row over DeFT_P,all six,THR,share by age 0,113.4,101.9,132.5,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share by age 16,109.6,96.8,127.9,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share by age 64,82.5,79.1,93.3,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share by age 256,39.4,31.4,45.7,
 3x3,EB_best,share of the gain of the main row over DeFT_P,all six,THR,share by age 0,66.1,62.1,70.9,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share by age 16,61.9,56.2,65.9,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share by age 64,45.6,39.6,51.6,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share by age 256,-4.5,-11.1,2.0,
 4x4,EB_best,share of the gain of the main row over DeFT_P,all six,THR,share by age 0,75.1,70.3,79.8,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,all six,THR,share by age 16,73.1,66.8,78.9,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,all six,THR,share by age 64,58.1,51.5,64.9,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,all six,THR,share by age 256,19.8,10.2,26.0,
 2x2,EB_best,share of the gain of the main row over DeFT_P,all six,LAT,share by age 0,108.6,104.9,112.7,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share by age 16,100.1,95.7,104.5,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,all six,LAT,share by age 64,72.1,59.1,78.6,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share by age 256,18.0,-2.4,31.8,
 3x3,EB_best,share of the gain of the main row over DeFT_P,all six,LAT,share by age 0,93.2,87.5,96.9,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share by age 16,87.4,80.2,90.8,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,all six,LAT,share by age 64,47.7,35.1,61.1,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share by age 256,14.7,-5.2,32.2,
 4x4,EB_best,share of the gain of the main row over DeFT_P,all six,LAT,share by age 0,81.7,77.2,85.9,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,all six,LAT,share by age 16,76.4,72.1,82.4,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,all six,LAT,share by age 64,51.0,33.8,59.3,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,all six,LAT,share by age 256,21.9,1.8,31.4,
 2x2,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 0,96.0,71.9,114.6,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 16,95.2,76.5,114.1,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 64,96.9,90.2,105.7,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 256,84.3,75.4,92.1,
 3x3,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 0,93.4,75.6,103.5,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 16,95.5,79.9,111.0,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 64,93.4,83.3,104.4,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 256,96.2,87.1,102.7,
 4x4,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 0,94.9,86.3,103.1,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 16,94.9,83.6,103.5,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 64,95.3,88.7,109.5,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,THR,share by age 256,92.1,86.1,106.5,
 2x2,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 0,101.8,100.6,104.4,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 16,99.8,97.2,100.5,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 64,93.6,85.3,96.8,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 256,39.0,-14.4,56.4,
 3x3,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 0,98.1,96.5,99.0,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 16,97.9,97.1,98.5,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 64,94.7,89.3,96.4,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 256,77.6,63.1,83.7,
 4x4,EB_best,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 0,97.5,93.2,98.4,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 16,97.5,93.6,98.3,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 64,95.3,88.8,97.2,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,hotspot alone,LAT,share by age 256,79.8,52.1,84.3,
 2x2,EB_best,share of the gain of the main row over DeFT_P,the other five,THR,share by age 0,128.7,116.0,151.2,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share by age 16,122.2,113.0,142.2,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,the other five,THR,share by age 64,69.9,61.4,80.3,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share by age 256,-0.0,-17.6,10.6,
 3x3,EB_best,share of the gain of the main row over DeFT_P,the other five,THR,share by age 0,57.9,54.2,61.0,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share by age 16,51.7,45.9,55.0,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,the other five,THR,share by age 64,31.1,23.4,37.8,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share by age 256,-34.9,-43.5,-27.6,
 4x4,EB_best,share of the gain of the main row over DeFT_P,the other five,THR,share by age 0,65.5,57.8,69.5,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,the other five,THR,share by age 16,62.5,54.9,69.4,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,the other five,THR,share by age 64,40.1,30.1,46.0,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,the other five,THR,share by age 256,-15.1,-24.6,-4.7,
 2x2,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 0,113.7,105.8,121.2,
+2x2,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 16,100.4,90.2,109.9,
 2x2,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 64,56.2,41.9,66.2,
+2x2,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 256,2.5,-17.2,13.1,
 3x3,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 0,90.4,84.9,95.8,
+3x3,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 16,81.4,75.5,85.1,
 3x3,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 64,21.1,2.4,35.4,
+3x3,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 256,-20.9,-54.2,-3.8,
 4x4,EB_best,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 0,73.7,64.0,80.8,
+4x4,EB_best16,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 16,65.8,56.4,75.9,
 4x4,EB_best64,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 64,28.6,21.1,39.2,
+4x4,EB_best256,share of the gain of the main row over DeFT_P,the other five,LAT,share by age 256,-7.4,-13.9,4.3,
+2x2,EB_best16,EB_best,all six,THR,effect,-0.27,-0.46,-0.08,0.01066
+3x3,EB_best16,EB_best,all six,THR,effect,-0.54,-0.74,-0.34,0.0001825
+4x4,EB_best16,EB_best,all six,THR,effect,-0.23,-0.64,0.18,0.2378
+2x2,EB_best16,EB_best,all six,LAT,effect,3.79,3.02,4.57,1.304e-06
+3x3,EB_best16,EB_best,all six,LAT,effect,2.6,2.3,2.9,9.268e-09
+4x4,EB_best16,EB_best,all six,LAT,effect,2.38,1.51,3.26,0.0001576
+2x2,EB_best16,EB_best,all six,P99,effect,4.93,3.34,6.56,5.669e-05
+3x3,EB_best16,EB_best,all six,P99,effect,6.06,5.42,6.7,3.906e-09
+4x4,EB_best16,EB_best,all six,P99,effect,4.41,2.0,6.88,0.002367
 2x2,EB_best64,EB_best,all six,THR,effect,-2.13,-2.4,-1.85,3.134e-08
 3x3,EB_best64,EB_best,all six,THR,effect,-2.6,-2.97,-2.22,8.091e-08
 4x4,EB_best64,EB_best,all six,THR,effect,-1.9,-2.17,-1.64,5.528e-08
@@ -335,3 +440,12 @@ size,row,reference,scenarios,metric,kind,value,ci_low,ci_high,p
 2x2,EB_best64,EB_best,all six,P99,effect,32.71,29.17,36.36,2.068e-09
 3x3,EB_best64,EB_best,all six,P99,effect,41.01,36.62,45.55,1.48e-09
 4x4,EB_best64,EB_best,all six,P99,effect,25.21,22.18,28.32,6.571e-09
+2x2,EB_best256,EB_best,all six,THR,effect,-5.02,-5.3,-4.75,1.771e-11
+3x3,EB_best256,EB_best,all six,THR,effect,-8.65,-8.91,-8.39,1.01e-13
+4x4,EB_best256,EB_best,all six,THR,effect,-6.06,-6.47,-5.65,1.316e-10
+2x2,EB_best256,EB_best,all six,LAT,effect,48.78,46.0,51.62,4.058e-12
+3x3,EB_best256,EB_best,all six,LAT,effect,41.5,38.38,44.68,5.846e-11
+4x4,EB_best256,EB_best,all six,LAT,effect,30.57,28.38,32.8,5.321e-11
+2x2,EB_best256,EB_best,all six,P99,effect,113.13,102.54,124.28,9.111e-11
+3x3,EB_best256,EB_best,all six,P99,effect,106.23,97.23,115.63,4.085e-11
+4x4,EB_best256,EB_best,all six,P99,effect,76.57,68.39,85.16,6.17e-10
