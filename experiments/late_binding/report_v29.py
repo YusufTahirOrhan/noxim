@@ -1050,8 +1050,11 @@ def part_f():
     age = [(0, 'EB_best'), (16, 'EB_best16'), (64, 'EB_best64'), (256, 'EB_best256')]
     if True:
         notrun = [r for _, r in age if r not in rows]
+        fd = os.path.join(RES, 'drops.json')
+        why = ('Part F2 was dropped by the time rule: `runtime_estimate.md`, `time_rule.md`' if os.path.exists(fd) and 'F2' in json.load(open(fd)).get('dropped', [])
+               else 'the runs of Part F2 were not finished when this table was written')
         L += ['## F.4 The share of the main row\'s gain against the age of the source\'s knowledge', ''] + ([
-            '**Not run: %s** (Part F2 was dropped by the time rule: `runtime_estimate.md`, `time_rule.md`). The table has the ages that were run.' % ', '.join('`%s`' % r for r in notrun), ''] if notrun else [])
+            '**Not run: %s** (%s). The table has the ages that were run.' % (', '.join('`%s`' % r for r in notrun), why), ''] if notrun else [])
         L += ['The occupancies and the counts of the bound packets that the source reads are sampled every 0 (read at the moment of the choice), 16, 64 or 256 cycles; T is tuned for',
               'each age. Share of the main row\'s gain over DeFT_P [range of the per-seed shares].', '',
               '| scenarios | metric | size | ' + ' | '.join('%d cycles (`%s`)' % a for a in age) + ' |', '|---|---|---|' + '---|' * len(age)]

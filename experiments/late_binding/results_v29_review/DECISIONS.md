@@ -267,6 +267,16 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   +0.006, against +0.105 at T = 128: with a larger threshold the row falls back to DeFT_P, whose score is 0. **The cap did not bind
   the choice; T = 128 is the best T on 2x2 too, and no extra row is run.** `extra_v29_age.py eval` was not started.
 
+## Part G: a clock for its 3 h (26 November, 12:32; before Part G started)
+* The prompt gives Part G "at most 3 h", and the 48 h rule that the user lifted is another rule: the 3 h stay. `chain_v29c.sh d` runs
+  `g_find`, `g_eval` and `g_csv` without a clock, and the session that drives the round was interrupted twice before. So a watcher,
+  `g_clock_v29.sh` (session `lb_v29g`, log `~/lbraw/logs/v29g.log`), started at 12:32:37 while chain d was in the evaluation of F1,
+  reads the start time of `g_find` from the chain's log and stops the chain when 3 h have passed since then and it has not ended
+  (dry runs on stand-in logs before the start: a start 100 s ago with a limit of 60 s, a chain that has ended, a start 10 s ago
+  with a limit of 25 s). The 3 h are wall time from the start of `g_find` to the end of `g_csv`, with nothing else on the machine.
+* If the clock stops the part: the search and the traces whose runs are complete by then are reported as they are, the others as
+  "not finished inside the 3 h", and nothing of Part G is started again.
+
 ## Tables added after the results (`extra_v29.py`; none is a test, none changes a pre-registered table)
 * **`report/extra_B.md`, X.1** (after Part B): the accepted throughput and the latency of every row at each of the nine loads on five
   cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
