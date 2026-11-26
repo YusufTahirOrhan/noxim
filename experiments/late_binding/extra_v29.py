@@ -10,6 +10,9 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
      X.3  THR and LAT of every row per scenario, and which reference is the best of the four at each depth (added after they were read)
      X.5  under faults (C3), counted over the masks: which DeFT variant with 6-flit buffers is the better one, and on how many masks the
           main row is ahead of it (added after the results of C3 were read)
+  python3 extra_v29.py d        ->  results_v29_review/report/extra_D.md
+     X.6  D1 in the direction of the question (the per-hop row against its static row), which reference is the best of the five with
+          each VC policy, and the main row against the best per scenario (added after the results of D1 were read)
   python3 extra_v29.py e        ->  results_v29_review/report/extra_E.md, extra_E_noLA.csv
      X.4  LB_noLA against the references with 4-flit, 5-flit and 6-flit buffers, next to the main row, with the areas of E2 and E3
 """
@@ -255,6 +258,69 @@ def part_e():
         w.writeheader()
         w.writerows(rows)
     print('wrote report/extra_E_noLA.csv (%d rows)' % len(rows))
+
+
+def part_d():
+    """X.6: D1 in the direction the question asks (what the per-hop VC choice gives), which reference is the best with each VC policy,
+    and the main comparison per scenario. Added on 26 November after the results of D1 had been read (DECISIONS.md); no test."""
+    import report_v29 as RV
+    P = RV.ladders()
+    f = os.path.join(RES, 'vc_static_runs.csv')
+    if not os.path.exists(f):
+        print('extra part d needs vc_static_runs.csv; not written')
+        return
+    R = RV.load(os.path.join(RV.V25, 'eval_runs.csv'), f)
+    D = RV.Design(R, P, range(121, 131))
+    six = lambda z: RV.scen(z, RV.SIX)  # noqa: E731
+    S5 = ('DeFT_P', 'DeFT_B', 'MTR_static', 'RC_static', 'XY_SP')
+    R5 = tuple(RV.REFS5)
+    tri = lambda a, ref, so, n: ' / '.join(RV.eci(D.test(a, ref, z, so(z), n)) for z in RV.SIZES)  # noqa: E731
+    L = ['# v29 Part D1: tables added after the results were seen (extra_v29.py d)', '',
+         'Descriptive; not in the pre-registration and no test. Added on 26 November after the results of D1 had been read (`DECISIONS.md`, "Tables added after the results").',
+         'Runs: `vc_static_runs.csv` (D1) and the rows of round 25, seeds 121-130; effect [95 % interval over the seeds]; 2x2 / 3x3 / 4x4.', '',
+         '## X.6 One VC per packet for MTR and RC: what the per-hop choice gives, which reference is then the best, and the main comparison per scenario', '',
+         '### The per-hop row against its static row (D.1.1 in the other direction: what the per-hop VC choice gives MTR and RC)', '',
+         '| row | scenarios | THR | LAT at 0.5 x Lsat | LAT at 0.8 x Lsat | LAT at 1.0 x Lsat | LAT at 1.2 x Lsat | P99 |', '|---|---|---|---|---|---|---|---|']
+    for b in ('MTR', 'RC'):
+        L.append('| %s against %s_static | all six | %s |' % (b, b, ' | '.join(tri(b, b + '_static', six, n) for n in ('THR', 'LAT05', 'LAT08', 'LAT', 'LAT12', 'P99'))))
+    for p in RV.SIX:
+        so = lambda z, p=p: RV.scen(z, [p])  # noqa: E731
+        for b in ('MTR', 'RC'):
+            L.append('| %s against %s_static | %s | %s | | | %s | | %s |' % (b, b, p, tri(b, b + '_static', so, 'THR'), tri(b, b + '_static', so, 'LAT'), tri(b, b + '_static', so, 'P99')))
+    L += ['', '### Which reference is the best of the five (the mean over the ten seeds)', '',
+          '*static*: of DeFT_P, DeFT_B, `MTR_static`, `RC_static`, XY_SP; *per hop*: of DeFT_P, DeFT_B, MTR, RC, XY_SP (round 25).', '',
+          '| size | metric | VC policy of MTR and RC | ' + ' | '.join(RV.SIX) + ' |', '|---|---|---|' + '---|' * len(RV.SIX)]
+    count = {'static': defaultdict(int), 'per hop': defaultdict(int)}
+    for z in RV.SIZES:
+        for n in ('THR', 'LAT', 'P99'):
+            for name, refs in (('static', S5), ('per hop', R5)):
+                best = [D.best(refs, z, sc, n) for sc in six(z)]
+                if n != 'P99':
+                    for x in best:
+                        count[name][x.replace('_static', '')] += 1
+                L.append('| %s | %s | %s | %s |' % (z, n, name, ' | '.join(best)))
+    L += ['', 'Counted over the 36 cells of size, scenario and metric (THR and LAT):', '', '| VC policy of MTR and RC | DeFT_P | DeFT_B | MTR | RC | XY_SP |', '|---|---|---|---|---|---|']
+    for name in ('static', 'per hop'):
+        L.append('| %s | %s |' % (name, ' | '.join(str(count[name][b]) for b in ('DeFT_P', 'DeFT_B', 'MTR', 'RC', 'XY_SP'))))
+    L += ['', '### The main row against the best of the five, per scenario', '',
+          '| scenario | THR: with static MTR and RC | with per-hop MTR and RC (round 25) | LAT at 1.0 x Lsat: with static MTR and RC | with per-hop MTR and RC (round 25) |', '|---|---|---|---|---|']
+    for p in RV.SIX:
+        so = lambda z, p=p: RV.scen(z, [p])  # noqa: E731
+        L.append('| %s | %s | %s | %s | %s |' % (p, tri(RV.MAIN, S5, so, 'THR'), tri(RV.MAIN, R5, so, 'THR'), tri(RV.MAIN, S5, so, 'LAT'), tri(RV.MAIN, R5, so, 'LAT')))
+    L += ['', 'The main row against each row alone, over the six scenarios:', '', '| against | THR | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|']
+    for ref in ('DeFT_P', 'DeFT_B', 'MTR_static', 'RC_static', 'MTR', 'RC', ('DeFT_P', 'DeFT_B')):
+        L.append('| %s | %s |' % (RV.label(ref), ' | '.join(tri(RV.MAIN, ref, six, n) for n in ('THR', 'LAT', 'P99'))))
+    L += ['', 'DeFT_P against each static row, over the six scenarios:', '', '| against | THR | LAT at 0.5 x Lsat | LAT at 0.8 x Lsat | LAT at 1.0 x Lsat | LAT at 1.2 x Lsat |', '|---|---|---|---|---|---|']
+    for ref in ('MTR_static', 'RC_static'):
+        L.append('| %s | %s |' % (ref, ' | '.join(tri('DeFT_P', ref, six, n) for n in ('THR', 'LAT05', 'LAT08', 'LAT', 'LAT12'))))
+    rows = ['DeFT_P', 'DeFT_B', 'MTR', 'RC', 'MTR_static', 'RC_static', RV.MAIN]
+    L += ['', '### Absolute values: THR (flits/node/cycle) and mean latency at 1.0 x Lsat of DeFT_P (cycles), mean over the ten seeds', '',
+          '| size | scenario | ' + ' | '.join(rows) + ' |', '|---|---|' + '---|' * len(rows)]
+    for z in RV.SIZES:
+        for sc in six(z):
+            L.append('| %s | %s | %s |' % (z, sc[0], ' | '.join('%.4f; %.1f' % (D.smean(r, z, sc, 'THR'), D.smean(r, z, sc, 'LAT')) for r in rows)))
+    L.append('')
+    write('extra_D.md', L)
 
 
 if __name__ == '__main__':

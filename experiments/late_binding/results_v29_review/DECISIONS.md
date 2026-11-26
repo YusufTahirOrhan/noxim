@@ -273,3 +273,10 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   26). Reason: C.8 gives effects with intervals over the masks; it does not say which variant "the best" is, and an interval
   that includes 0 does not say whether the masks are split or each of them is a tie. Counts of signs of the per-mask means, no
   test.
+* **`report/extra_D.md`, X.6** (added on 26 November at 04:34, after the results of D1 had been read): the per-hop rows against
+  their static rows (D.1.1 gives the static row against the per-hop row; question 9 asks what the per-hop choice gives, and the
+  two directions differ where the effects are large), which of the five references is the best per size, scenario and metric
+  with each VC policy and the count over the 36 cells, the main row against the best of the five per scenario with each policy,
+  the main row and DeFT_P against each static row alone, and the absolute values. Reason: D.1.3 compares the main row with "the
+  best of DeFT_P, DeFT_B, `MTR_static`, `RC_static`, XY_SP" and does not say which row that is; it turned out to be a DeFT
+  variant in 25 of 36 cells, which changes what the comparison is a comparison with. Same runs and statistic as D.1, no test.

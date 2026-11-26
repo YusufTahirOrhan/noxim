@@ -9,8 +9,8 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 5, 7, 8, 11 and 12 are final; answer 6 lacks the rows of C2
-and answer 10 what D1 adds; the others follow.**
+**This file is written part by part as the runs finish. Answers 1 to 5 and 7 to 12 are final; answer 6 lacks the rows of C2; answers
+13 to 15 and Part G follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -295,6 +295,74 @@ the weights tuned for 4-flit buffers).
   best reference at depth 6 "about what the main row has against the best reference at depth 4 or a little less", -1 / +5 / +5 %
   (+0.6 / +7.6 / +6.7 %: not less, and above my figures).
 
+## 9. D1: what the per-hop VC choice gives MTR and RC at pipe_all 2, and how the main comparison changes with one VC per packet
+
+`MTR_static` and `RC_static` (a packet keeps the VC drawn at injection: the rows of round 23, here with the four-cycle router) on the
+six fault-free scenarios, three sizes, nine loads, seeds 121-130: 3,240 runs, no dead-end event, paired with the rows of round 25
+(`report/summary_D.md`, D.1; `report/extra_D.md`, X.6, tables added after the results were seen; `paper_data/vc_policy.csv`). No test.
+
+**The per-hop VC choice gives MTR and RC 2.4 to 4.1 % of throughput and a fifth of their latency at DeFT's saturation load. With one
+VC per packet they are within 2 % of DeFT_P in throughput and no faster than it up to 0.8 x Lsat, and the main row is ahead of the
+best reference in both metrics on every size, in the tuning scenarios and outside them.**
+
+| the per-hop row against its static row | THR | LAT at 0.5 x Lsat | at 0.8 x Lsat | at 1.0 x Lsat | at 1.2 x Lsat | P99 |
+|---|---|---|---|---|---|---|
+| MTR against `MTR_static` | +4.1 / +3.0 / +2.4 | -2.9 / -2.3 / -1.9 | -7.3 / -5.9 / -5.7 | -20.8 / -20.1 / -19.2 | -33.2 / -25.2 / -22.1 | -28.8 / -30.8 / -30.2 |
+| RC against `RC_static` | +3.6 / +3.1 / +2.6 | -3.1 / -2.4 / -2.0 | -7.1 / -5.9 / -5.5 | -19.0 / -17.8 / -17.6 | -33.5 / -22.8 / -22.5 | -25.7 / -25.5 / -28.4 |
+
+* **Where the choice counts.** By load: up to 1 % of latency at 0.2 x Lsat, 2 to 3 % at 0.5, 5 to 7 % at 0.8, 18 to 21 % at 1.0 and
+  22 to 34 % at 1.2 x Lsat, less above. By scenario (THR; LAT at 1.0 x Lsat): under uniform and localized traffic +4.8 to +6.5 % and
+  16 to 34 % less latency; under `movinghot` +3.2 to +6.8 % and 12 to 23 % less; under `chipperm` +3.4 and +3.7 % on 2x2, +0.8 % on
+  3x3 and -1.0 and -0.6 % on 4x4 (there the static rows accept a little more), with 16 to 24 % less latency; under hotspot traffic
+  and `chiptrans` +0.2 to +1.7 % (under hotspot traffic four of the six intervals include 0) with 6 to 20 % less latency.
+* **DeFT_P against MTR and RC, by VC policy** (D.1.2; mean latency over the six scenarios, negative = DeFT_P is faster):
+
+  | DeFT_P against the better of | 0.2 x Lsat | 0.5 x Lsat | 0.8 x Lsat | 1.0 x Lsat | 1.2 x Lsat | THR |
+  |---|---|---|---|---|---|---|
+  | `MTR_static` and `RC_static` | -1.9 / -1.6 / -1.4 | -1.6 / -1.4 / -1.3 | -0.3 / -0.3 / -0.2 (all n.s.) | +6.2 / +6.2 / -0.6 (n.s.) | +7.5 / -0.9 (n.s.) / -3.0 | -1.6 / -1.5 / -0.6 |
+  | MTR and RC (round 25) | -0.9 / -0.8 / -0.8 | +1.5 / +1.0 / +0.8 | +7.3 / +6.0 / +5.6 | +31.7 / +29.1 / +21.3 | +65.2 / +29.8 / +26.3 | -5.4 / -4.3 / -2.9 |
+
+  With one VC per packet DeFT_P has the lowest mean latency of the three at 0.2 and at 0.5 x Lsat in all 18 cells of size and
+  scenario (with the per-hop rows only at 0.2 x Lsat, in all 18), is level at 0.8 x Lsat, 6 % slower at 1.0 x Lsat on 2x2 and 3x3
+  and level on 4x4, and accepts 0.6 to 1.6 % less. `RC_static` is the stronger of the two: against `MTR_static` alone DeFT_P is level
+  or faster at every load of the table (at 1.0 x Lsat -1.6 [-7.3, +4.4] / +0.5 [-4.4, +5.6] / -3.9 [-5.7, -2.0] %).
+  By scenario at 1.0 x Lsat, against the better static row: DeFT_P is faster under `chipperm` (-15.3 / -6.5 / -11.0 %) and
+  `chiptrans` (-14.9 / -5.3 / -2.5 %, the last level), level under uniform traffic on 2x2 and 3x3 and faster on 4x4 (-4.3 %), and
+  slower under hotspot traffic (+75.8 / +34.9 / +12.2 %), under localized traffic on 2x2 (+4.8 %) and under `movinghot` on 3x3
+  (+17.2 %). That is what round 23 suggested with the one-cycle router: under uniform traffic DeFT_P is level with or faster than
+  the static rows at every load (2x2: faster up to 0.5 x Lsat, level above; 3x3 up to 0.8; 4x4 up to 1.0); under hotspot traffic it
+  stays behind both at and around saturation, with 5 to 7 % less throughput.
+* **The main comparison of the paper with the other VC policy** (D.1.3): the main row against the best of DeFT_P, DeFT_B, XY_SP and
+  the two rows named.
+
+  | with | scenarios | THR | LAT at 1.0 x Lsat | P99 |
+  |---|---|---|---|---|
+  | `MTR_static`, `RC_static` | all six | +3.6 [+3.4, +3.8] / +8.8 [+8.4, +9.2] / +8.3 [+8.0, +8.6] | -22.3 / -22.4 / -25.3 | -37.2 / -44.1 / -44.9 |
+  | MTR, RC (round 25) | all six | 0.0 [-0.3, +0.3] / +6.7 [+6.3, +7.0] / +6.0 [+5.7, +6.3] | -11.1 / -9.7 / -13.2 | -24.4 / -27.3 / -29.6 |
+  | `MTR_static`, `RC_static` | the four tuning scenarios | +5.2 / +11.3 / +9.0 | -25.1 / -24.1 / -29.5 | -43.0 / -49.5 / -51.5 |
+  | MTR, RC (round 25) | the four tuning scenarios | +2.9 / +10.5 / +7.6 | -17.8 / -15.4 / -20.8 | -35.1 / -37.9 / -41.0 |
+  | `MTR_static`, `RC_static` | localized and movinghot | +0.6 [+0.1, +1.2] / +3.9 / +6.8 | -16.3 / -18.9 / -16.2 | -23.7 / -31.6 / -28.9 |
+  | MTR, RC (round 25) | localized and movinghot | -5.6 / -0.5 / +2.9 | +4.2 (n.s.) / +3.1 / +4.2 | +2.8 / -0.2 / +0.2 (all n.s.) |
+
+  With one VC per packet for MTR and RC the main row's lead over the best reference is 3.6 / 2.1 / 2.3 points larger in throughput
+  and 11 to 13 points larger in latency. The tie in throughput on 2x2 becomes a lead of 3.6 %, and on `localized` and `movinghot`,
+  where the main row is behind the per-hop rows or level with them, it is ahead in both metrics on every size. Per scenario (X.6)
+  it has the higher throughput in 16 of the 18 cells of size and scenario (not under localized traffic on 2x2, -1.7 %, and level
+  under `movinghot` on 3x3) and the lower latency in 16 (level under `movinghot` on 3x3 and 4x4).
+* **The best reference is then a DeFT variant** (X.6). Of the 36 cells of size, scenario and metric DeFT_P is the best of the five
+  in 16, DeFT_B in 9, `RC_static` in 9 and `MTR_static` in 2; with the per-hop rows it is RC in 17, MTR in 11, DeFT_B in 7 and
+  DeFT_P in 1. So with one VC per packet the main comparison is for the most part the comparison with DeFT: against the best of
+  DeFT_P and DeFT_B the main row has THR +4.4 / +9.2 / +8.4 % and LAT -23.9 / -25.1 / -25.7 %, against the better of the two static
+  rows +5.6 / +12.3 / +11.3 % and -28.9 / -30.2 / -34.3 %.
+* **What this means for the paper.** MTR and RC are the strongest references of round 25 because they may take any free VC at
+  every hop, which DeFT's VNs and the main row's do not allow; Parts B and C of this round keep them that way, so every comparison
+  there is with the stronger form. With the policy under which the DeFT paper's order of the three holds (answer 10) the main row's
+  lead is larger on every size and has the same sign in the tuning scenarios and outside them.
+* Held against what I wrote in advance: the per-hop choice gives +2 to +5 % THR (+2.4 to +4.1 %: inside) and -5 to -15 % LAT at
+  1.0 x Lsat (-18 to -21 %: more than I expected); the main row about two points further ahead in THR against the best with the
+  static rows (+2.1 and +2.3 points on 3x3 and 4x4, +3.6 on 2x2). I had not expected that a DeFT variant would be the best
+  reference in most cells.
+
 ## 10. D2, the set-up of the DeFT paper: at which loads and for which VC policy is DeFT_P the fastest of the three? What remains unexplained?
 
 2x2 (4 chiplets, 4 VLs each), 8-flit packets, 4-flit buffers, two VCs, DeFT's table with rho = 0.01; uniform traffic, localized traffic
@@ -336,13 +404,15 @@ better of the two others is below 0; *level*: it includes 0; *slower*: it is abo
   router; 0.5 with the one-cycle router, where I had expected the same); under hotspot traffic at no load above 0.3 x Lsat (right
   against the per-hop rows; against the static rows it is the fastest up to 0.5 x Lsat with the four-cycle router).
 
-**What explains the difference between this simulator and the DeFT paper, and what remains unexplained.** *(D1, answer 9, will add
-the size of the VC policy's effect on every size and scenario.)* Explained: the order of DeFT against MTR and RC depends on how MTR
+**What explains the difference between this simulator and the DeFT paper, and what remains unexplained.** Explained: the order of DeFT against MTR and RC depends on how MTR
 and RC use the two VCs and on the load at which the latency is read. DeFT's deadlock avoidance gives a packet one VC in each segment
 of its path; MTR and RC need no such rule, and since round 23 this simulator lets them take any free VC at every hop. With that
 policy they are faster than DeFT_P from 0.3 to 0.4 x Lsat on and accept 3 to 4 % more. With one VC per packet DeFT_P is the fastest
 of the three under uniform traffic up to 0.7 x Lsat, level with them up to 1.2 x Lsat, and accepts as much: there the DeFT paper's
-order is this simulator's order, and at 0.1 to 0.2 x Lsat it is the order with either policy. Unexplained: (1) the margin. DeFT_P's
+order is this simulator's order, and at 0.1 to 0.2 x Lsat it is the order with either policy. On the three sizes and six scenarios
+of round 25 (D1, answer 9) it is the same: with one VC per packet DeFT_P is the fastest of the three at 0.2 and 0.5 x Lsat in every
+scenario and accepts 0.6 to 1.6 % less than the better of them, and the per-hop choice is worth 2.4 to 4.1 % of throughput and
+18 to 21 % of latency at DeFT's saturation load to MTR and RC. Unexplained: (1) the margin. DeFT_P's
 lead is never more than 2.1 % with the four-cycle router and 3.5 % with the one-cycle router, a fraction of a cycle; the DeFT paper
 gives no load, so it cannot be said from here whether that is what it shows, and if its figure shows a visible gap, no VC policy,
 load, pattern or router model run here produces one. (2) Localized and hotspot traffic at high load: with one VC per packet RC is
