@@ -9,7 +9,7 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 13 are final; answers 14 and 15 and Part G follow.**
+**This file is written part by part as the runs finish. Answers 1 to 14 are final; answer 15 and Part G follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -672,3 +672,93 @@ is the mean log ratio of the row against DeFT_P over that of the main row, with 
 * Held against what I wrote in advance ("50 to 80 % of the main row's THR gain and of its LAT gain, more than `EB_down_t` on 3x3 and
   4x4; its tuned `lut_bias` is 2 or 4"): the throughput share is at the top of the range (80 / 81 / 71 %), the latency share inside
   it (66 / 80 / 56 %); it is above `EB_down_t` on every size, 2x2 included; the tuned `lut_bias` is 4.
+
+## 14. The share of the main row's gain against the age of the source's knowledge
+
+**The share falls with the age on every size: little up to 16 cycles, a quarter to a half of the gain at 64 cycles, and at 256 cycles
+nearly all of it outside hotspot traffic. With the state of the whole network read at injection (`EB_best`) an early binder reaches
+113 / 66 / 75 % of the main row's throughput gain over DeFT_P and 109 / 93 / 82 % of its latency gain at 1.0 x Lsat; with a snapshot
+every 16 cycles 110 / 62 / 73 % and 100 / 87 / 76 %; every 64 cycles 82 / 46 / 58 % and 72 / 48 / 51 %; every 256 cycles 39 / -4 / 20 %
+and 18 / 15 / 22 %. Under hotspot traffic the age costs little in throughput (84 to 97 % of the gain at every age). In the other five
+scenarios nothing is left at 256 cycles (0 / -35 / -15 % and 3 / -21 / -7 %), and on 3x3 the row then accepts less than DeFT_P.**
+
+`EB_best16` and `EB_best256` are `EB_best` of round 28 (at injection: the entry VL with the least hops + B x (the occupancy at the VL +
+the packets already bound to it) + B x T for a VL that is not DeFT-P's) with the occupancies and the counts of the bound packets read
+from a snapshot that is taken every 16 or 256 cycles, as `EB_best64` reads one every 64. What the source knows is then 0 to 16, 64 or
+256 cycles old, half of that on average. The scope of the occupancy (the VL), the count of the bound packets and B are those of
+`EB_best`; T is tuned again for each age by the rule of round 24 (`tuning_v29.md`; 1,120 tuning runs, seeds 101 and 102). 3,240 runs
+on the six fault-free scenarios, seeds 171-180, paired with the rows of round 28; none missing, no dead-end event
+(`report/summary_F.md`, F.1, F.2 and F.4; `paper_data/early_more.csv`). Descriptive, no test; the shares as in answer 13. For scale: a
+packet of DeFT_P is 39 / 51 / 63 cycles under way at 0.2 x Lsat and 114 / 123 / 173 cycles at 1.0 x Lsat (`report/extra_F.md`, X.10),
+so 16 cycles are 0.25 to 0.4 of a packet's transit time at low load, 64 cycles 1.0 to 1.6 and 256 cycles 4.1 to 6.6.
+
+| the source's knowledge | read at injection (`EB_best`) | every 16 cycles (`EB_best16`) | every 64 cycles (`EB_best64`) | every 256 cycles (`EB_best256`) |
+|---|---|---|---|---|
+| **share of the main row's gain, all six scenarios: THR** | **113 / 66 / 75 %** | **110 / 62 / 73 %** | **82 / 46 / 58 %** | **39 / -4 / 20 %** |
+| **LAT** | **109 / 93 / 82 %** | **100 / 87 / 76 %** | **72 / 48 / 51 %** | **18 / 15 / 22 %** |
+| hotspot traffic alone: THR | 96 / 93 / 95 % | 95 / 96 / 95 % | 97 / 93 / 95 % | 84 / 96 / 92 % |
+| LAT | 102 / 98 / 97 % | 100 / 98 / 97 % | 94 / 95 / 95 % | 39 / 78 / 80 % |
+| the other five scenarios: THR | 129 / 58 / 66 % | 122 / 52 / 63 % | 70 / 31 / 40 % | 0 / -35 / -15 % |
+| LAT | 114 / 90 / 74 % | 100 / 81 / 66 % | 56 / 21 / 29 % | 3 / -21 / -7 % |
+| THR against DeFT_P (the main row: +7.2 / +13.7 / +12.0) | +8.2 / +8.8 / +8.9 | +7.9 / +8.3 / +8.6 | +5.9 / +6.0 / +6.8 | +2.8 / -0.6 / +2.3 |
+| LAT against DeFT_P (the main row: -35.5 / -35.7 / -36.0) | -37.9 / -33.8 / -30.6 | -35.5 / -32.0 / -28.9 | -27.1 / -19.0 / -20.4 | -7.6 / -6.3 / -9.3 |
+| THR against `EB_best` | - | -0.3 / -0.5 / -0.2 (n.s.) | -2.1 / -2.6 / -1.9 | -5.0 / -8.7 / -6.1 |
+| LAT against `EB_best` | - | +3.8 / +2.6 / +2.4 | +17.4 / +22.3 / +14.7 | +48.8 / +41.5 / +30.6 |
+| P99 against `EB_best` | - | +4.9 / +6.1 / +4.4 | +32.7 / +41.0 / +25.2 | +113.1 / +106.2 / +76.6 |
+| tuned T on 2x2; on 4x4 and 3x3 | 8; 2 | 16; 8 | 32; 16 | 128; 64 |
+| heads off DeFT-P's entry VL at 1.0 x Lsat | 24.5 / 49.9 / 50.3 % | 16.6 / 35.3 / 35.1 % | 10.4 / 34.4 / 32.0 % | 0.2 / 4.4 / 3.4 % |
+
+Over the six scenarios the per-seed shares lie within 20 points of these values (F.4 has the range of every cell); at 256 cycles the
+latency share is between -5 and 32 % on every size.
+
+* **Up to 16 cycles the age costs little.** `EB_best16` against `EB_best`: THR -0.3 / -0.5 / -0.2 (n.s.) %, LAT +3.8 / +2.6 / +2.4 %,
+  P99 +4.9 / +6.1 / +4.4 %; in shares, 2 to 4 points of the throughput gain and 6 to 9 points of the latency gain. On 2x2 the
+  16-cycle row is still not behind the main row (THR +0.7 %, LAT -0.1 % (n.s.)); on 3x3 and 4x4 it is behind it, as `EB_best` is
+  (THR -4.8 / -3.0 %, LAT +5.7 / +11.1 %).
+* **At 64 cycles a quarter to a half of the gain is gone, at 256 cycles most of it.** `EB_best64` against `EB_best`: THR -2.1 /
+  -2.6 / -1.9 %, LAT +17.4 / +22.3 / +14.7 % (round 28). `EB_best256`: THR -5.0 / -8.7 / -6.1 %, LAT +48.8 / +41.5 / +30.6 %, P99
+  +113.1 / +106.2 / +76.6 %; against DeFT_P it has THR +2.8 / -0.6 / +2.3 % and LAT -7.6 / -6.3 / -9.3 %, against the main row THR
+  -4.1 / -12.5 / -8.7 % and LAT +43.2 / +45.8 / +41.7 %. In points of the main row's gain, the step from 0 to 16 cycles is 3 / 4 / 2
+  (THR) and 9 / 6 / 6 (LAT), from 16 to 64 cycles 28 / 16 / 15 and 28 / 39 / 25, from 64 to 256 cycles 43 / 50 / 38 and 54 / 33 / 29.
+* **What is left at 256 cycles is the hotspot scenario.** Under hotspot traffic the 256-cycle row keeps THR +17.9 / +18.7 / +22.6 %
+  and LAT -35.4 / -52.5 / -51.3 % against DeFT_P (the main row: +21.5 / +19.5 / +24.8 % and -67.4 / -61.7 / -59.4 %; X.10, a table
+  added after the results were seen). The hot destinations do not move, and it is enough to move a few heads: the row leaves
+  DeFT-P's entry VL for 1.5 / 4.7 / 3.9 % of them at 1.0 x Lsat. Up to 64 cycles the row keeps its share under hotspot traffic (THR
+  93 to 97 %, LAT 94 to 102 %). In the other five scenarios the 256-cycle row is DeFT_P on 2x2: it leaves DeFT-P's entry VL
+  for 0.0 to 0.4 % of its heads at 1.0 x Lsat and is level with DeFT_P in THR and LAT in all five. On 3x3 it accepts 4.6 to 5.9 %
+  less than DeFT_P in four of the five (uniform, localized, chiptrans, movinghot; level under chipperm), on 4x4 0.7 to 1.1 % less in
+  three (localized, chipperm, chiptrans) and 3.6 % less under movinghot. Under movinghot, the one scenario whose hot chiplet changes
+  (every 2,000 cycles), it leaves DeFT-P's entry VL for 14.3 / 17.7 % of its heads on 3x3 and 4x4, more than in any other scenario,
+  and has 39.3 / 20.1 % more latency than DeFT_P.
+* **The older the knowledge, the less the tuning lets the row act on it.** The tuned T is 8; 2 for knowledge read at injection (2x2;
+  4x4 and 3x3), 16; 8 at 16 cycles, 32; 16 at 64 cycles and 128; 64 at 256 cycles: as a bias for DeFT-P's entry VL in flits
+  (`oracle_bias` = B x T) 4; 2, then 8; 8, 16; 16 and 64; 64. The heads that leave DeFT-P's entry VL at 1.0 x Lsat fall from
+  24.5 / 49.9 / 50.3 % to 16.6 / 35.3 / 35.1 %, 10.4 / 34.4 / 32.0 % and 0.2 / 4.4 / 3.4 %; at 0.5 x Lsat from 19.3 / 45.4 / 45.6 %
+  to 8.2 / 24.2 / 23.7 %, 1.1 / 11.6 / 11.1 % and none (X.9). With a small T a 256-cycle snapshot is far worse than no knowledge:
+  at T = 0 the tuning score is -2.34 on 2x2 and -1.13 on 4x4 (latency at 1.0 x Lsat +489 % and +148 % against DeFT_P), and it stays
+  below 0 up to T = 64 on 2x2 and T = 32 on 4x4. Every source reads the same snapshot until the next one, so the sources that
+  share candidates choose the same VL for up to 256 cycles (the herding of round 27's early rows). A 16-cycle snapshot scores
+  +0.37 / +0.40 already at T = 0. So the 256-cycle row of the table is the best member of its family by the tuning rule, and that
+  member takes DeFT-P's entry VL up to 0.5 x Lsat (0.0 % of the heads leave it) and for nearly every head at DeFT's saturation
+  load.
+* **T on 2x2 and on 3x3.** On 2x2 the tuned T of the 256-cycle row is 128, the largest value the rule allows. The check beyond it
+  (`tuning_v29_extra.md`, set up before an evaluation run of Part F was read: T = 256 scores +0.010 and T = 512 +0.006 against
+  +0.105) found no better value, so the cap did not bind the choice. 3x3 takes the T of 4x4, as every tuned row has done since round
+  24, the main row included. For the 256-cycle row that T is not a good one on 3x3: the row is behind DeFT_P there in four
+  scenarios, and a larger T leads back to DeFT_P's routing (T = infinity is DeFT_P's routing exactly; `anchor.md` of round 28). I ran
+  no other T on 3x3. The tuning score of the chosen value is above 0 (+0.152), so the rule of the pre-registration for a family
+  whose best member is DeFT_P did not apply and no share of "the better of the row and DeFT_P" is reported; with DeFT_P as the
+  floor the throughput share on 3x3 at 256 cycles would be 0 instead of -4 %.
+* **Where one late decision stands on this scale.** `EB_first` (answer 13) reaches 80 / 81 / 71 % of the throughput gain and
+  66 / 80 / 56 % of the latency gain from what one interposer router sees. In throughput that is about the 64-cycle row on 2x2
+  (82 %), more than the row that reads the whole network at injection on 3x3 (66 %), and about the 16-cycle row on 4x4 (73 %). In
+  latency it lies between the 16-cycle and the 64-cycle row on 3x3 and 4x4 (87 and 48 %; 76 and 51 %) and just below the 64-cycle
+  row on 2x2 (72 %). An early binder is level with the main row or ahead of it only on 2x2, with knowledge read at injection or
+  every 16 cycles; at 64 cycles it is behind there too, and on 3x3 and 4x4 none reaches the main row at any age.
+* **What the table does not price.** The snapshot is the simulator's: the occupancy of every entry VL and the count of the packets
+  bound to it reach every source at once and at no cost. A design would have to carry that state from every VL to every source
+  every 16 cycles to reach the second column; neither the wires nor the delay of such a network is modelled here, as in round 28.
+* Held against what I wrote in advance ("the share of the main row's gain falls with the age of the information on every size: with
+  16 cycles between `EB_best` and `EB_best64`, with 256 cycles 10 to 25 points below `EB_best64`"): over the six scenarios it falls
+  on every size, in THR and in LAT; the 16-cycle row lies between the two and close to `EB_best`; the 256-cycle row is 38 to 50
+  points below `EB_best64` in THR and 29 to 54 points in LAT, about twice what I expected. I had the fall after 64 cycles too flat.

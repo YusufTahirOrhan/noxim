@@ -340,3 +340,11 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   decision made late or of deciding at several routers, and the report of Part F gives the share that one decision reaches but
   not how many decisions a head of the main row has, nor how boldly each row uses its decision. Counters of the same runs
   (round 28 and F1; F2 when its runs are finished); no statistic, no test.
+* **`report/extra_F.md`, X.10** (added on 26 November at 16:43, after the results of F2 had been read): the main row and the
+  early binders with knowledge 0, 16, 64 and 256 cycles old against DeFT_P in each of the six scenarios (THR, LAT at 1.0 x Lsat,
+  with the statistic of the report and "(n.s.)" where the unadjusted interval includes 0), the share of the heads that move Up on
+  a VL that is not DeFT-P's entry VL at 1.0 x Lsat, and, for scale, the mean latency of a packet of DeFT_P at 0.2, 0.5 and
+  1.0 x Lsat. Reason: F.4 gives the shares for hotspot traffic alone and for the other five scenarios together, as
+  pre-registered; with knowledge 256 cycles old the share of the other five is negative on 3x3 and 4x4, and the table of the
+  report does not show in which of the five the row is behind DeFT_P. The same runs (round 28 and F2); no test, and F.4 is
+  unchanged.

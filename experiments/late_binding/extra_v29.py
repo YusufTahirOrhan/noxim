@@ -23,6 +23,7 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
   python3 extra_v29.py f        ->  results_v29_review/report/extra_F.md
      X.9  at how many interposer routers a head of the main row has a choice, and how often each row of Part F leaves DeFT-P's
           entry VL (added after the results of F1 were read)
+     X.10 the early binders of age 0, 16, 64 and 256 cycles against DeFT_P in each scenario (added after the results of F2 were read)
 """
 import csv
 import json
@@ -420,7 +421,8 @@ def part_d():
 
 def part_f():
     """X.9: at how many routers a head of the main row has a choice, and how often each row of Part F leaves DeFT-P's entry VL. Added
-    on 26 November after the results of F1 had been read (DECISIONS.md); no test."""
+    on 26 November after the results of F1 had been read (DECISIONS.md); no test. X.10: the aged rows against DeFT_P in each scenario,
+    added on the same day after the results of F2 had been read; written when the runs of F2 are there."""
     import report_v29 as RV
     P = RV.ladders()
     f0, f1, f2 = os.path.join(RV.V28, 'eval_runs.csv'), os.path.join(RES, 'early_first_runs.csv'), os.path.join(RES, 'early_age_runs.csv')
@@ -450,8 +452,9 @@ def part_f():
     per = lambda s, a, b, f='%.2f': '-' if not s or not s[b] else f % (s[a] / s[b])  # noqa: E731
     pc = lambda s: '-' if not s or not s['entry_up_moves'] else '%.1f %%' % (100.0 * s['entry_up_not_default'] / s['entry_up_moves'])  # noqa: E731
     have = [(t, r) for t, r in names if tot(r, '2x2', six('2x2'), 3)]
-    L = ['# v29 Part F: a table added after the results were seen (extra_v29.py f)', '',
-         'Descriptive; not in the pre-registration and no test. Added on 26 November after the results of F1 had been read (`DECISIONS.md`, "Tables added after the results").',
+    L = ['# v29 Part F: tables added after the results were seen (extra_v29.py f)', '',
+         'Descriptive; not in the pre-registration and no test. X.9 was added on 26 November after the results of F1 had been read, X.10 on the same day after those of F2',
+         '(`DECISIONS.md`, "Tables added after the results").',
          'Counters of the measured heads, summed over the scenarios named and the ten seeds (171-180); the main row, `EB_best`, `EB_best64` and `EB_down_t` are the runs of',
          'round 28 (`results_v28_anchor/eval_runs.csv`), `EB_first` and the two other aged rows those of this round. 2x2 / 3x3 / 4x4.', '',
          '## X.9 At how many routers a head of the main row has a choice, and how often each row leaves DeFT-P\'s entry VL', '',
@@ -473,6 +476,24 @@ def part_f():
           '| row | ' + ' | '.join(t for _, t in loads) + ' |', '|---|' + '---|' * len(loads)]
     for t, r in have:
         L.append('| %s | %s |' % (t, ' | '.join(' / '.join(pc(tot(r, z, six(z), i)) for z in RV.SIZES) for i, _ in loads)))
+    aged = [('0 cycles (`EB_best`)', 'EB_best'), ('16 cycles (`EB_best16`)', 'EB_best16'), ('64 cycles (`EB_best64`)', 'EB_best64'), ('256 cycles (`EB_best256`)', 'EB_best256')]
+    got = {r for _, r in have}
+    if all(r in got for _, r in aged):
+        def eff(row, so, n):
+            ts = [D.test(row, 'DeFT_P', z, so(z), n) for z in RV.SIZES]
+            return ' / '.join('%+.1f%s' % (t['effect_pct'], '' if t['ci_low'] > 0 or t['ci_high'] < 0 else ' (n.s.)') for t in ts)
+
+        L += ['', '## X.10 The early binders of age 0 to 256 cycles by scenario', '',
+              'Each row against DeFT_P in one scenario, in per cent; (n.s.) = the unadjusted 95 % interval over the ten seeds includes 0. THR is the largest accepted throughput',
+              'over the nine loads, LAT the mean latency at 1.0 x Lsat. Last column: the heads that move Up on a VL that is not DeFT-P\'s entry VL at 1.0 x Lsat.', '',
+              '| scenario | knowledge of the source | THR against DeFT_P | LAT against DeFT_P | off DeFT-P\'s entry VL at 1.0 x Lsat |', '|---|---|---|---|---|']
+        for p in RV.SIX:
+            so = lambda z, p=p: RV.scen(z, [p])  # noqa: E731
+            for t, r in [('(the main row, late)', RV.MAIN)] + aged:
+                L.append('| %s | %s | %s | %s | %s |' % (p, t, eff(r, so, 'THR'), eff(r, so, 'LAT'), ' / '.join(pc(tot(r, z, so(z), 3)) for z in RV.SIZES)))
+        lat = lambda n: ' / '.join('%.0f' % (sum(D.smean('DeFT_P', z, sc, n) for sc in six(z)) / len(six(z))) for z in RV.SIZES)  # noqa: E731
+        L += ['', 'For scale: the mean latency of a packet of DeFT_P, mean over the six scenarios and the ten seeds, is %s cycles at 0.2 x Lsat, %s at 0.5 x Lsat and %s at' % (
+            lat('LAT02'), lat('LAT05'), lat('LAT')), '1.0 x Lsat.']
     L.append('')
     write('extra_F.md', L)
 
