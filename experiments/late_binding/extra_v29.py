@@ -24,6 +24,9 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
      X.9  at how many interposer routers a head of the main row has a choice, and how often each row of Part F leaves DeFT-P's
           entry VL (added after the results of F1 were read)
      X.10 the early binders of age 0, 16, 64 and 256 cycles against DeFT_P in each scenario (added after the results of F2 were read)
+  python3 extra_v29.py g        ->  results_v29_review/report/extra_G.md
+     X.11 why a compression in time does not load eight of the nine traces: per trace and S the cycle at which the window completes,
+          the packets that wait for a dependency and the offered load (added after the results of Part G were read)
 """
 import csv
 import json
@@ -496,6 +499,38 @@ def part_f():
             lat('LAT02'), lat('LAT05'), lat('LAT')), '1.0 x Lsat.']
     L.append('')
     write('extra_F.md', L)
+
+
+def part_g():
+    """X.11: what the compression does to each trace (DeFT_P, seed 41: the search runs of Part G). Added on 26 November after the results
+    of Part G had been read (DECISIONS.md); no test."""
+    f = os.path.join(RES, 'trace_runs.csv')
+    if not os.path.exists(f):
+        print('extra part g needs trace_runs.csv; not written')
+        return
+    sat = 8 * json.load(open(os.path.join(HERE, 'results_v25_confirm', 'load_points_v25.json')))['2x2__uniform__0x0000__p2']['lsat']
+    K = {(r['benchmark'], int(r['compress'])): r for r in csv.DictReader(open(f)) if r['method'] == 'DeFT_P' and r['seed'] == '41'}
+    bench = list(dict.fromkeys(b for b, _ in K))
+    S = (1, 2, 4, 8, 16, 32)
+    L = ['# v29 Part G: a table added after the results were seen (extra_v29.py g)', '',
+         'Descriptive; not in the pre-registration and no test. Added on 26 November after the results of Part G had been read (`DECISIONS.md`, "Tables added after the',
+         'results"). The search runs of Part G (`trace_runs.csv`: DeFT_P, seed 41, 2x2, the first 700,000 cycles of region 2 of each trace, dependency mode).', '',
+         '## X.11 What the compression does to a trace', '',
+         'In dependency mode a packet is released when its time stamp has come and every packet it depends on has been delivered. `-netrace_compress S` divides the time',
+         'stamps by S; it does not shorten the wait for a dependency. *Completes at*: the cycle at which the last packet of the window is delivered, in thousands of',
+         'cycles (700 = the length of the window at S = 1). *Waited*: the packets that were not yet cleared by their dependencies when their time stamp came, as a share',
+         'of the packets that enter the network. *Offered*: received flits per node and cycle up to the completion, as a share of the load at which DeFT_P saturates',
+         'under uniform traffic (8 x Lsat = %.3f flits/node/cycle).' % sat, '',
+         '| trace | packets | completes at, S = ' + ', '.join(str(s) for s in S) + ' (thousand cycles) | waited, S = 1 | waited, S = 32 | offered, S = 1 | offered, S = 32 | latency at S = 32 / at S = 1 |',
+         '|---|---|---|---|---|---|---|---|']
+    for b in bench:
+        r1, r32 = K[(b, 1)], K[(b, 32)]
+        w = lambda r: '%.0f %%' % (100.0 * int(r['waited']) / int(r['injected']))  # noqa: E731
+        o = lambda r: '%.1f %%' % (100.0 * float(r['offered_flits_per_node_cycle']) / sat)  # noqa: E731
+        L.append('| %s | %s | %s | %s | %s | %s | %s | %.2f |' % (b.split('_')[0], r1['injected'], ' / '.join('%.0f' % (int(K[(b, s)]['completion_cycles']) / 1000.0) for s in S),
+                                                             w(r1), w(r32), o(r1), o(r32), float(r32['latency']) / float(r1['latency'])))
+    L.append('')
+    write('extra_G.md', L)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,14 @@
+workload,compress,row,latency_cycles,latency_rel_DeFT_P,p99_rel_DeFT_P,completion_rel_DeFT_P,offered_flits_per_node_cycle,effect_pct,ci_low,ci_high
+x264,16,DeFT_P,88.373,1.0,1.0,1.0,0.00411,,,
+x264,16,MTR,81.366,0.92072,0.85844,1.01132,0.00411,,,
+x264,16,RC,80.211,0.90765,0.82018,1.00922,0.00411,,,
+x264,16,CI_heurLA_X_LF,81.143,0.91818,0.84124,0.98519,0.00411,,,
+geometric mean,,DeFT_P,,1.0,1.0,1.0,,,,
+geometric mean,,MTR,,0.92072,0.85844,1.01132,,,,
+geometric mean,,RC,,0.90765,0.82018,1.00922,,,,
+geometric mean,,CI_heurLA_X_LF,,0.91818,0.84124,0.98519,,,,
+over the traces,,MTR,,,,,,MTR against DeFT_P: -7.930,-8.57,-7.28
+over the traces,,RC,,,,,,RC against DeFT_P: -9.230,-9.58,-8.89
+over the traces,,CI_heurLA_X_LF,,,,,,CI_heurLA_X_LF against DeFT_P: -8.180,-9.34,-7.01
+over the traces,,CI_heurLA_X_LF,,,,,,CI_heurLA_X_LF against MTR: -0.280,-1.53,0.99
+over the traces,,CI_heurLA_X_LF,,,,,,CI_heurLA_X_LF against RC: 1.160,-0.37,2.71

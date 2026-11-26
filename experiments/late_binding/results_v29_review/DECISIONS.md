@@ -348,3 +348,11 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   pre-registered; with knowledge 256 cycles old the share of the other five is negative on 3x3 and 4x4, and the table of the
   report does not show in which of the five the row is behind DeFT_P. The same runs (round 28 and F2); no test, and F.4 is
   unchanged.
+* **`report/extra_G.md`, X.11** (added on 26 November at 17:13, after the results of Part G had been read): for DeFT_P on each of
+  the nine traces and each S, the cycle at which the window completes, the share of the packets that wait for a dependency and
+  the offered load as a share of the saturation load under uniform traffic. Reason: the search of Part G finds an S for one trace
+  of nine, and its table (latency by S) does not say why the other eight are not loaded by a compression of up to 32. Values of
+  the 54 search runs in `trace_runs.csv`; no statistic, no test. In the same step the generated text of `report/summary_G.md` was
+  made to read correctly for a single trace ("the trace of G.2", "with one trace the geometric mean over the traces is that
+  trace") and the line of `paper_data/README.md` for `apps_loaded.csv` now says how many of the nine traces the file holds; no
+  number of the report changed.

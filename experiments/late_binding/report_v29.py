@@ -1172,13 +1172,15 @@ def part_g():
                             offered_flits_per_node_cycle=round(mean(float(x['offered_flits_per_node_cycle']) for x in base), 6), effect_pct='', ci_low='', ci_high=''))
     L += ['| **geometric mean** | | | | %s | %s | %s |' % (' | '.join('%.3f' % R25.gmean(g[(r, 'latency')]) for r in others), ' | '.join('%.3f' % R25.gmean(g[(r, 'p99')]) for r in others),
                                                         ' | '.join('%.4f' % R25.gmean(g[(r, 'completion_cycles')]) for r in others)), '',
-          'The lowest mean latency of the four rows: %s.' % '; '.join('%s in %d of %d traces' % (r, low[r], len(chosen)) for r in sorted(G_ROWS, key=lambda r: -low[r]) if low[r]), '']
+          'The lowest mean latency of the four rows: %s.%s' % ('; '.join('%s in %d of %d traces' % (r, low[r], len(chosen)) for r in sorted(G_ROWS, key=lambda r: -low[r]) if low[r]),
+                                                                ' With one trace the geometric mean over the traces is that trace.' if len(chosen) == 1 else ''), '']
     for r in G_ROWS:
         out.append(dict(workload='geometric mean', compress='', row=r, latency_cycles='', latency_rel_DeFT_P=1.0 if r == 'DeFT_P' else round(R25.gmean(g[(r, 'latency')]), 5),
                         p99_rel_DeFT_P=1.0 if r == 'DeFT_P' else round(R25.gmean(g[(r, 'p99')]), 5),
                         completion_rel_DeFT_P=1.0 if r == 'DeFT_P' else round(R25.gmean(g[(r, 'completion_cycles')]), 5), offered_flits_per_node_cycle='', effect_pct='', ci_low='', ci_high=''))
     L += ['## G.3 Over the traces, in the form of the other parts', '',
-          'Effect in per cent = 100 x (exp(mean over the seeds of R_s) - 1), R_s = the mean over the %d traces of ln(row / reference) for seed s; unadjusted 95 %% interval over the' % len(chosen),
+          'Effect in per cent = 100 x (exp(mean over the seeds of R_s) - 1), R_s = the mean over the %s of ln(row / reference) for seed s; unadjusted 95 %% interval over the' % (
+              'one trace of G.2' if len(chosen) == 1 else '%d traces' % len(chosen)),
           'three seeds (two degrees of freedom: the intervals are wide by construction). Negative = lower.', '',
           '| comparison | mean latency | p99 | completion time |', '|---|---|---|---|']
     for a, ref in (('MTR', 'DeFT_P'), ('RC', 'DeFT_P'), (MAIN, 'DeFT_P'), (MAIN, 'MTR'), (MAIN, 'RC')):
@@ -1193,7 +1195,7 @@ def part_g():
         L += ['', '## G.4 The same traces without compression (S = 1, the runs of round 25)', '',
               'Geometric mean over the traces of the mean latency relative to DeFT_P (geometric mean over seeds 41-43 per trace), next to the value at the chosen S.', '',
               '| traces | ' + ' | '.join('%s: S = 1 | chosen S' % r for r in others) + ' |', '|---|' + '---|---|' * len(others)]
-        for lab, bs in (('the %d traces of G.2' % len(chosen), chosen), ('all nine', bench)):
+        for lab, bs in (('the trace of G.2' if len(chosen) == 1 else 'the %d traces of G.2' % len(chosen), chosen), ('all nine', bench)):
             cs = []
             for r in others:
                 one = R25.gmean([R25.gmean([float(K25[(b, r, sd)]['latency']) / float(K25[(b, 'DeFT_P', sd)]['latency']) for sd in G_SEEDS]) for b in bs])
@@ -1203,6 +1205,15 @@ def part_g():
     write(os.path.join(PD, 'apps_loaded.csv'), out)
     wmd('summary_G.md', L)
     return L
+
+
+def g_count():
+    """' (n of the m traces)' from trace_compress.json, or '' when Part G has not been run."""
+    f = os.path.join(RES, 'trace_compress.json')
+    if not os.path.exists(f):
+        return ''
+    ch = json.load(open(f))
+    return ' (%d of the %d: %s)' % (sum(1 for v in ch.values() if v['S']), len(ch), ', '.join('%s at S = %d' % (b.split('_')[0], v['S']) for b, v in ch.items() if v['S']) or 'none')
 
 
 def paper_readme():
@@ -1229,9 +1240,10 @@ def paper_readme():
           'the average router with each activity', 'design x size'),
          ('early_more.csv', 'Part F: `EB_first` (and the aged rows `EB_best16`, `EB_best256` if they were run) against DeFT_P, the main row, `EB_best` and `EB_down_t`; the '
           'share of the main row' + chr(39) + 's gain over DeFT_P; the share of the bound heads whose commit is made below the exit VL', 'size x row x reference x scenario set x metric'),
-         ('apps_loaded.csv', 'Part G: the PARSEC traces of round 25 on 2x2, each compressed in time by the smallest S at which the latency of DeFT_P is at least 1.5 times its '
-          'latency at S = 1: mean latency, p99 and completion time of DeFT_P, MTR, RC and the main row relative to DeFT_P, per trace, as the geometric mean over the traces, '
-          'and as an effect with its 95 % interval over the three seeds', 'trace x row')]
+         ('apps_loaded.csv', 'Part G: the PARSEC traces of round 25 on 2x2 that a compression in time can load%s, each at the smallest S in {2, ..., 32} at which the latency '
+          'of DeFT_P is at least 1.5 times its latency at S = 1: mean latency, p99 and completion time of DeFT_P, MTR, RC and the main row relative to DeFT_P, per trace, '
+          'as the geometric mean over the traces, and as an effect with its 95 %% interval over the three seeds. The search over S for all nine traces is in '
+          '`../trace_compress.md`' % g_count(), 'trace x row')]
     L = ['# paper_data (round 29)', '',
          'One CSV per table or figure. Written by `report_v29.py` and `report_v29_hw.py` from the per-run CSVs of `results_v29_review/` and of the rounds whose rows are',
          'reused (`results_v25_confirm/eval_runs.csv`, `results_v26_faults/fault_rate_runs.csv`, `results_v28_anchor/eval_runs.csv`; `../reuse_check.md`); nothing here is',
