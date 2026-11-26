@@ -333,3 +333,10 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   +3.1 % in the other five), so the mean over the six scenarios, on which the tests of primary family 2 are made, does not show
   what it rests on. The verdicts of family 2 are not touched: they are what was pre-registered. The table is a description of
   the same runs with the same statistic, and what it shows is against the main row on 3x3.
+* **`report/extra_F.md`, X.9** (added on 26 November at 12:54, after the results of F1 had been read): from the counters of the
+  measured heads, at how many interposer routers a head of the main row is offered more than one output (per head that moves Up,
+  by load and by scenario), and the share of the heads that move Up on a VL that is not DeFT-P's entry VL for the main row,
+  `EB_first`, `EB_down_t`, `EB_best` and the aged rows. Reason: question 13 asks whether the gain of late binding is that of one
+  decision made late or of deciding at several routers, and the report of Part F gives the share that one decision reaches but
+  not how many decisions a head of the main row has, nor how boldly each row uses its decision. Counters of the same runs
+  (round 28 and F1; F2 when its runs are finished); no statistic, no test.

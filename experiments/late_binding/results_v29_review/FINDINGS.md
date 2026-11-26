@@ -9,7 +9,7 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 12 are final; answers 13 to 15 and Part G follow.**
+**This file is written part by part as the runs finish. Answers 1 to 13 are final; answers 14 and 15 and Part G follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -23,7 +23,8 @@ Yes to both.
 * **`entry_commit first`** (`anchor_first.md`, `unit_checks_first.md`, `drain_first.csv`, `drain_first_tuned.csv`): with `lut_bias 1e9`
   every packet takes DeFT_P's entry VL (21 / 21 runs; byte-identical to DeFT_P with the tie-breaks on their own random stream); the
   committed VL is a least-cost candidate of the selected output for 12,000 heads per size; no head is bound twice and no hop offers a
-  head more than one output; the drain tests pass (36 / 36).
+  head more than one output; the drain tests pass (36 / 36 before the tuning, with `lut_bias` 4 and with the main row's value; 18 / 18
+  after it with the tuned value, which is 4 on every size).
 * **Traffic tables** (`traffic_checks.md`, `drain_traffic.csv`): every table of `tornado`, `neighbour` and `randperm` is what its
   definition says; all rows of Part B drain on them at 0.5 and 1.0 x Lsat (114 / 114).
 * **The referee's check** (`formal_independent/`): `formal/lb_cdg_check.py`, unedited, run with `python3 -I`: no dead end, no path longer
@@ -597,3 +598,77 @@ Per router with the simulated activity: interposer router 1.14, interposer route
   * The power is nearly flat in the load: DeFT's average router takes 11.20 mW at 0.5 x Lsat and 11.18 mW at 1.0 x Lsat.
   So: the direction and the size class (several per cent at system level, about a sixth in an interposer router) can be quoted; the
   second digit cannot, and a figure after layout with clock gating could differ in either direction.
+
+## 13. `EB_first`: the share of the main row's gain it reaches. Is the gain of late binding that of one decision made late, or of deciding at several routers?
+
+**For the larger part it is the gain of one decision made late. `EB_first` reaches 80 / 81 / 71 % of the main row's throughput gain over
+DeFT_P and 66 / 80 / 56 % of its latency gain at 1.0 x Lsat. Deciding again at later routers adds the rest: against the main row
+`EB_first` accepts 1.4 / 2.4 / 3.3 % less and has 16 / 9 / 22 % more latency at DeFT's saturation load, most of it under `chipperm`
+and `chiptrans` and from saturation on. Where the one decision is made counts as well: made at the Down move (`EB_down_t`), the same
+decision reaches 74 / 46 / 46 % of the throughput gain and 56 / 58 / 43 % of the latency gain, so on 3x3 and 4x4 the step from the Down
+move to the first choice is as large in throughput as the step from one decision to several.**
+
+`EB_first` is the main row until the head is forwarded to the first interposer router that offers it more than one output. There the
+entry VL is bound, from the cost that the main row computes at that router, and the packet has one candidate from then on. Its
+`lut_bias` is tuned by the rule of the main row's tuning: 4 on every size (the main row has 2 on 2x2 and 0 elsewhere). 1,620 runs on
+the six fault-free scenarios, seeds 171-180, paired with the rows of round 28; none missing, no dead-end event, no head bound twice
+(`report/summary_F.md`, F.1 to F.3; `paper_data/early_more.csv`). Descriptive, no test. The share of the main row's gain over DeFT_P
+is the mean log ratio of the row against DeFT_P over that of the main row, with the range of the ten per-seed shares.
+
+| `EB_first`, over the six scenarios | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| THR against DeFT_P (the main row: +7.2 / +13.7 / +12.0) | +5.8 [+5.4, +6.1] | +11.0 [+10.6, +11.4] | +8.3 [+7.8, +8.8] |
+| LAT against DeFT_P (the main row: -35.5 / -35.7 / -36.0) | -25.1 [-29.2, -20.8] | -29.9 [-32.9, -26.7] | -22.1 [-25.1, -18.9] |
+| THR against the main row | -1.4 [-1.7, -1.0] | -2.4 [-2.7, -2.0] | -3.3 [-3.6, -3.0] |
+| LAT against the main row | +16.1 [+13.5, +18.7] | +9.2 [+8.0, +10.3] | +21.8 [+19.6, +24.1] |
+| **share of the main row's gain, THR** | **80 % [71, 88]** | **81 % [76, 85]** | **71 % [65, 75]** |
+| **share of the main row's gain, LAT** | **66 % [46, 77]** | **80 % [73, 84]** | **56 % [50, 60]** |
+| share under hotspot traffic alone, THR; LAT | 99 %; 91 % | 95 %; 86 % | 94 %; 82 % |
+| share in the other five scenarios, THR; LAT | 64 %; 48 % | 77 %; 77 % | 59 %; 43 % |
+| *for comparison (round 28): `EB_down_t`, THR; LAT* | *74 %; 56 %* | *46 %; 58 %* | *46 %; 43 %* |
+| *`EB_best`, THR; LAT* | *113 %; 109 %* | *66 %; 93 %* | *75 %; 82 %* |
+| *`EB_best64`, THR; LAT* | *82 %; 72 %* | *46 %; 48 %* | *58 %; 51 %* |
+
+* **One decision of about two.** A head of the main row is offered more than one output at about two interposer routers on its way
+  (1.7 to 2.2 per head that crosses, more at higher load; `report/extra_F.md`, X.9, a table added after the results were seen).
+  `EB_first` takes the first of them and is bound. With that it keeps four fifths of the main row's throughput gain on 2x2 and 3x3
+  and 71 % on 4x4, and 66 / 80 / 56 % of the latency gain. Against the main row it has THR -1.4 / -2.4 / -3.3 %, LAT
+  +16.1 / +9.2 / +21.8 % and P99 +34.3 / +25.6 / +56.5 %.
+* **Where the later decisions count.** By scenario (`EB_first` against the main row; THR, then LAT at 1.0 x Lsat): under `chipperm`
+  -8.6 / -7.2 / -7.8 % and +45.6 / +15.1 / +23.3 %; under `chiptrans` -2.9 / -5.3 / -5.9 % and +28.8 / +10.6 / +82.2 %; under uniform
+  traffic +0.1 (n.s.) / -2.2 / -4.5 % and +6.9 / +10.9 / +10.2 %; under hotspot traffic -0.3 (n.s.) / -1.0 / -1.4 % and
+  +10.9 / +14.8 / +17.6 %. Under `localized` and `movinghot`, the two scenarios in which the main row is weakest against MTR and RC,
+  the single decision accepts as much as the main row or a little more (+2.5 / +0.3 (n.s.) / -0.5 (n.s.) % and +1.5 / +1.4 /
+  +0.6 (n.s.) %), with 5 to 8 % more latency under `localized` and the same latency under `movinghot` (+4.5 (n.s.) / -2.6 (n.s.) /
+  +3.9 %). By load it is 1.7 / 2.8 / 2.2 % slower than the main row at 0.2 x Lsat, 1.1 to 1.7 % at 0.5 x Lsat, 3.1 to 3.6 % at
+  0.8 x Lsat and 49 to 51 % at 1.2 x Lsat: above DeFT's saturation load the main row carries on where the single decision no longer
+  does. Under hotspot traffic alone `EB_first` reaches 94 to 99 % of the throughput gain and 82 to 91 % of the latency gain; in
+  the other five scenarios together 64 / 77 / 59 % and 48 / 77 / 43 %.
+* **What the place of the single decision is worth.** `EB_down_t` of round 28 is the same row with the commit at the Down move: the
+  same cost, the same tuned `lut_bias` of 4, one decision. Against it `EB_first` has THR +0.4 / +4.6 / +2.9 %, LAT -4.5 / -9.5 /
+  -5.5 %, P99 -8.7 / -25.3 / -13.7 % and 7 / 34 / 23 % less latency at 1.2 x Lsat. Only 21 to 23 / 22 / 13 to 14 % of its heads are
+  bound at the router below the exit VL (the same at 0.5, 1.0 and 1.4 x Lsat); the others meet their first choice further on, at
+  the first column of a candidate. In shares of the main row's gain, the step from the Down move to the first choice is 6 / 35 / 25
+  points of the throughput gain and 10 / 22 / 13 points of the latency gain; the step from one decision to several is 20 / 19 / 29
+  and 34 / 20 / 44 points. By scenario `EB_first` is ahead of `EB_down_t` in throughput by 3.1 / 5.5 / 9.0 % under hotspot traffic
+  and by up to 16.4 % (`chipperm` on 3x3), and has less latency in every scenario but `movinghot` (+2.0 (n.s.) / +0.4 (n.s.) /
+  +7.7 %).
+* **A single decision is a cautious one** (X.9). At 1.0 x Lsat `EB_first` sends 14.1 / 12.8 / 13.6 % of its heads Up on a VL that
+  is not DeFT-P's entry VL, `EB_down_t` 5.6 / 5.0 / 3.4 %, the main row 36.5 / 56.5 / 57.5 % and `EB_best` 24.5 / 49.9 / 50.3 %; at
+  0.5 x Lsat `EB_first` 3.5 / 3.9 / 4.4 % and the main row 21.3 / 51.5 / 52.1 %. The tuning chose `lut_bias` 4 for it: with the main
+  row's values it scores +0.19 on 2x2 (bias 2) and -0.03 on 4x4 (bias 0) against +0.33 and +0.34 with 4 (`tuning_v29.md`). A row
+  that can decide again can leave DeFT-P's entry VL for half of its packets; a row that decides once does best when it leaves it
+  for one in seven. At low load it then has DeFT_P's latency (-0.1 % at 0.2 x Lsat, -0.5 to -0.6 % at 0.5 x Lsat); the main row,
+  which leaves DeFT-P's entry VL for 15.8 / 49.6 / 50.3 % of its heads at 0.2 x Lsat, is 1.7 / 2.8 / 2.2 % faster than `EB_first`
+  there.
+* **Against the strongest early binder.** `EB_best` of round 28 reads every buffer at the entry VLs and every packet already bound
+  at the moment of injection. Against it `EB_first` has THR -2.3 / +2.0 / -0.5 % and LAT +20.6 / +5.9 / +12.2 %. On 3x3 and 4x4 one
+  late decision from local occupancies reaches the throughput of an early choice with ideal knowledge of the whole network (81
+  against 66 % and 71 against 75 % of the main row's gain), on 2x2 less (80 against 113 %); in latency at the saturation load the
+  early choice with ideal knowledge is ahead on every size. By the shares `EB_first` is level with `EB_best64`, the same knowledge
+  up to 64 cycles old, on 2x2 (80 against 82 % and 66 against 72 %) and above it on 3x3 and 4x4.
+* **`EB_first` is a decomposition, not a cheaper design.** Any interposer router can be a head's first choice, so every one of
+  them reads what the main row reads; the row saves none of the report wires and registers of answer 11.
+* Held against what I wrote in advance ("50 to 80 % of the main row's THR gain and of its LAT gain, more than `EB_down_t` on 3x3 and
+  4x4; its tuned `lut_bias` is 2 or 4"): the throughput share is at the top of the range (80 / 81 / 71 %), the latency share inside
+  it (66 / 80 / 56 %); it is above `EB_down_t` on every size, 2x2 included; the tuned `lut_bias` is 4.

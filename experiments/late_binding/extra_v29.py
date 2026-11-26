@@ -20,6 +20,9 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
           each VC policy, and the main row against the best per scenario (added after the results of D1 were read)
   python3 extra_v29.py e        ->  results_v29_review/report/extra_E.md, extra_E_noLA.csv
      X.4  LB_noLA against the references with 4-flit, 5-flit and 6-flit buffers, next to the main row, with the areas of E2 and E3
+  python3 extra_v29.py f        ->  results_v29_review/report/extra_F.md
+     X.9  at how many interposer routers a head of the main row has a choice, and how often each row of Part F leaves DeFT-P's
+          entry VL (added after the results of F1 were read)
 """
 import csv
 import json
@@ -413,6 +416,65 @@ def part_d():
             L.append('| %s | %s | %s |' % (z, sc[0], ' | '.join('%.4f; %.1f' % (D.smean(r, z, sc, 'THR'), D.smean(r, z, sc, 'LAT')) for r in rows)))
     L.append('')
     write('extra_D.md', L)
+
+
+def part_f():
+    """X.9: at how many routers a head of the main row has a choice, and how often each row of Part F leaves DeFT-P's entry VL. Added
+    on 26 November after the results of F1 had been read (DECISIONS.md); no test."""
+    import report_v29 as RV
+    P = RV.ladders()
+    f0, f1, f2 = os.path.join(RV.V28, 'eval_runs.csv'), os.path.join(RES, 'early_first_runs.csv'), os.path.join(RES, 'early_age_runs.csv')
+    if not os.path.exists(f1):
+        print('extra part f needs early_first_runs.csv; not written')
+        return
+    X = {}
+    for f in (f0, f1, f2):
+        X.update(RV.raw_rows(f))
+    D = RV.Design(RV.load(f0, f1, f2), P, range(171, 181))
+    six = lambda z: RV.scen(z, RV.SIX)  # noqa: E731
+    loads = ((0, '0.2 x Lsat'), (1, '0.5 x Lsat'), (3, '1.0 x Lsat'), (5, '1.4 x Lsat'))
+    names = [('the main row', RV.MAIN), ('`EB_first`', 'EB_first'), ('`EB_down_t`', 'EB_down_t'), ('`EB_best`', 'EB_best'), ('`EB_best16`', 'EB_best16'),
+             ('`EB_best64`', 'EB_best64'), ('`EB_best256`', 'EB_best256')]
+
+    def tot(row, z, scs, i):
+        s = defaultdict(int)
+        for sc in scs:
+            for seed in D.seeds:
+                x = X.get((row, '%s-%s' % (z, sc[0]), sc[1], D.lad(z, sc)[i], seed))
+                if x is None:
+                    return None
+                for k in ('hops_ipos', 'hops_ipos_multi', 'entry_up_moves', 'entry_up_not_default'):
+                    s[k] += int(x[k] or 0)
+        return s
+
+    per = lambda s, a, b, f='%.2f': '-' if not s or not s[b] else f % (s[a] / s[b])  # noqa: E731
+    pc = lambda s: '-' if not s or not s['entry_up_moves'] else '%.1f %%' % (100.0 * s['entry_up_not_default'] / s['entry_up_moves'])  # noqa: E731
+    have = [(t, r) for t, r in names if tot(r, '2x2', six('2x2'), 3)]
+    L = ['# v29 Part F: a table added after the results were seen (extra_v29.py f)', '',
+         'Descriptive; not in the pre-registration and no test. Added on 26 November after the results of F1 had been read (`DECISIONS.md`, "Tables added after the results").',
+         'Counters of the measured heads, summed over the scenarios named and the ten seeds (171-180); the main row, `EB_best`, `EB_best64` and `EB_down_t` are the runs of',
+         'round 28 (`results_v28_anchor/eval_runs.csv`), `EB_first` and the two other aged rows those of this round. 2x2 / 3x3 / 4x4.', '',
+         '## X.9 At how many routers a head of the main row has a choice, and how often each row leaves DeFT-P\'s entry VL', '',
+         'A head of the main row has a choice at every interposer router that offers it more than one output; a head of `EB_first` is bound at the first such router and has',
+         'one output from then on. *Choices per head*: the hops of the main row on the interposer at which more than one output was offered, divided by the heads that move',
+         'Up through an entry VL. *Share of the interposer hops*: the same hops as a share of all its hops on the interposer.', '',
+         '| load | choices per head of the main row, six scenarios | share of its interposer hops |', '|---|---|---|']
+    for i, t in loads:
+        s = [tot(RV.MAIN, z, six(z), i) for z in RV.SIZES]
+        L.append('| %s | %s | %s |' % (t, ' / '.join(per(x, 'hops_ipos_multi', 'entry_up_moves') for x in s),
+                                       ' / '.join('-' if not x or not x['hops_ipos'] else '%.1f %%' % (100.0 * x['hops_ipos_multi'] / x['hops_ipos']) for x in s)))
+    L += ['', 'Per scenario at 1.0 x Lsat: the choices per head of the main row, and the heads that move Up on a VL that is not DeFT-P\'s entry VL.', '',
+          '| scenario | choices per head of the main row | off DeFT-P\'s entry VL: the main row | `EB_first` | `EB_down_t` |', '|---|---|---|---|---|']
+    for p in RV.SIX:
+        so = lambda z, p=p: RV.scen(z, [p])  # noqa: E731
+        L.append('| %s | %s | %s |' % (p, ' / '.join(per(tot(RV.MAIN, z, so(z), 3), 'hops_ipos_multi', 'entry_up_moves') for z in RV.SIZES),
+                                       ' | '.join(' / '.join(pc(tot(r, z, so(z), 3)) for z in RV.SIZES) for r in (RV.MAIN, 'EB_first', 'EB_down_t'))))
+    L += ['', 'The heads that move Up on a VL that is not DeFT-P\'s entry VL, six scenarios, by load:', '',
+          '| row | ' + ' | '.join(t for _, t in loads) + ' |', '|---|' + '---|' * len(loads)]
+    for t, r in have:
+        L.append('| %s | %s |' % (t, ' | '.join(' / '.join(pc(tot(r, z, six(z), i)) for z in RV.SIZES) for i, _ in loads)))
+    L.append('')
+    write('extra_F.md', L)
 
 
 if __name__ == '__main__':
