@@ -329,6 +329,49 @@ functional candidate of the head's own set and the buffer options change no rout
 
 ---
 
+## Addendum F1 (26 Nov 2026, 10:50): the tuned `lut_bias` of `EB_first`, frozen before any evaluation run of the row
+Written by `addendum_v29.py` from `tuning_choice_v29.json`: the choice of `experiments_v29.py f1_choose` by the rule of `tuning_v29.md` ("The rule", committed on
+25 November before any tuning run). Tuning runs: 560 rows in `tune_first_runs.csv` (seeds 101 and 102: the values of `lut_bias`, DeFT-P and the main row), dead-end
+events 0. No evaluation run of `EB_first` existed at this moment (no file in its raw folder, no `early_first_runs.csv`). Scores against DeFT-P in natural-log
+units, higher is better; DeFT_P scores 0.
+
+| row | 2x2 | 3x3 (the 4x4 choice) | 4x4 |
+|---|---|---|---|
+| `EB_first` | `lut_bias` 4; score +0.3322 | `lut_bias` 4; score +0.3445 | `lut_bias` 4; score +0.3445 |
+| main row (frozen, not tuned) | score +0.5303 | score +0.6479 | score +0.6479 |
+
+* Values of `lut_bias` that were run: 2x2 {0, 1, 2, 4, 8}, chosen 4; 4x4 {0, 1, 2, 4, 8}, chosen 4.
+* No chosen value scores below 0, so the rule for a best member at `lut_bias` = infinity (DeFT_P) does not apply and no "better of the row and DeFT_P" share is reported.
+* DeFT-P and the main row on the tuning cells, run again with the build of this round, against the rows of `results_v27_early/tune_runs.csv` (every column, as text): **160 / 160 identical.**
+* Hops of the tuning runs of the early rows that offer more than one output after the commit (must be 0): 0. The same for the tuning runs of F2: 0.
+* The drain tests of `EB_first` are run again with these values before its evaluation (`drain_first_tuned.csv`, `chain_v29c.sh d`); a failure stops the round
+  before the evaluation of the row.
+* What I had stated in advance: "its tuned `lut_bias` is 2 or 4".
+
+---
+
+## Addendum F2 (26 Nov 2026, 10:50): the tuned T of `EB_best16` and `EB_best256`, frozen before any evaluation run of the two rows
+Written by `addendum_v29.py` from `tuning_choice_v29.json`: the choice of `experiments_v29.py f2_choose` by the rule of `tuning_v29.md` (B2 of round 28, unchanged:
+S, P and B of `EB_best`, T tuned for each age). Tuning runs: 1120 rows in `tune_age_runs.csv` (seeds 101 and 102), dead-end events 0. No evaluation run of the two rows
+existed at this moment (no file in their raw folder, no `early_age_runs.csv`). Part F2 is run because the user lifted the limit of 48 h on 25 November
+(`DECISIONS.md`, `time_rule.md`); its definition above is unchanged. Scores as in Addendum F1.
+
+| row | 2x2 | 3x3 (the 4x4 choice) | 4x4 |
+|---|---|---|---|
+| `EB_best16` | S vl, P 1, B 0.5, T 16 (`oracle_bias` 8), `oracle_period 16`; score +0.4901 | S vl, P 1, B 1, T 8 (`oracle_bias` 8), `oracle_period 16`; score +0.4584 | S vl, P 1, B 1, T 8 (`oracle_bias` 8), `oracle_period 16`; score +0.4584 |
+| `EB_best256` | S vl, P 1, B 0.5, T 128 (`oracle_bias` 64), `oracle_period 256`; score +0.1047 | S vl, P 1, B 1, T 64 (`oracle_bias` 64), `oracle_period 256`; score +0.1521 | S vl, P 1, B 1, T 64 (`oracle_bias` 64), `oracle_period 256`; score +0.1521 |
+| for comparison, round 28: `EB_best` (age 0) | T 8; score +0.5505 | T 2; score +0.4936 | T 2; score +0.4936 |
+| `EB_best64` (age 64) | T 32; score +0.3473 | T 16; score +0.3446 | T 16; score +0.3446 |
+| main row (frozen, not tuned) | score +0.5303 | score +0.6479 | score +0.6479 |
+
+* Values of T for `EB_best16` that were run: 2x2 {0, 2, 4, 8, 16, 32}, chosen 16; 4x4 {0, 2, 4, 8, 16, 32}, chosen 8.
+* Values of T for `EB_best256` that were run: 2x2 {0, 2, 4, 8, 16, 32, 64, 128} (extension: 64, 128), chosen 128: **the largest value run**; 4x4 {0, 2, 4, 8, 16, 32, 64, 128} (extension: 64, 128), chosen 64.
+* No chosen value scores below 0, so the rule for a best member at T = infinity (DeFT_P) does not apply and no "better of the row and DeFT_P" share is reported.
+* Hops of the tuning runs of the early rows that offer more than one output after the commit (must be 0): 0. The same for the tuning runs of F2: 0.
+* What I had stated in advance: the share of the main row's gain falls with the age of the information on every size.
+
+---
+
 ## Stated in advance
 The file `stated_in_advance.md` as committed before the gates (commits 0c3988c and 8429055), unchanged from the next line to the end.
 

@@ -1,0 +1,156 @@
+{
+ "2x2": {
+  "EB_first": {
+   "D": 4.0,
+   "name": "EBfirst_D4",
+   "score": 0.33217808527861276,
+   "below_zero": false
+  },
+  "main": {
+   "score": 0.5302906946644772
+  },
+  "grids": {
+   "EB_first": [
+    0.0,
+    1.0,
+    2.0,
+    4.0,
+    8.0
+   ],
+   "EB_best16": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0
+   ],
+   "EB_best256": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0,
+    128.0
+   ]
+  },
+  "EB_best16": {
+   "T": 16.0,
+   "name": "EBf16_vl_P1_B0.5_T16",
+   "score": 0.4901435055188929,
+   "below_zero": false
+  },
+  "EB_best256": {
+   "T": 128.0,
+   "name": "EBf256_vl_P1_B0.5_T128",
+   "score": 0.1047172767094912,
+   "below_zero": false
+  }
+ },
+ "4x4": {
+  "EB_first": {
+   "D": 4.0,
+   "name": "EBfirst_D4",
+   "score": 0.3444894928685711,
+   "below_zero": false
+  },
+  "main": {
+   "score": 0.6478923824149183
+  },
+  "grids": {
+   "EB_first": [
+    0.0,
+    1.0,
+    2.0,
+    4.0,
+    8.0
+   ],
+   "EB_best16": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0
+   ],
+   "EB_best256": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0,
+    128.0
+   ]
+  },
+  "EB_best16": {
+   "T": 8.0,
+   "name": "EBf16_vl_P1_B1_T8",
+   "score": 0.4584150112576316,
+   "below_zero": false
+  },
+  "EB_best256": {
+   "T": 64.0,
+   "name": "EBf256_vl_P1_B1_T64",
+   "score": 0.1521485458234715,
+   "below_zero": false
+  }
+ },
+ "3x3": {
+  "EB_first": {
+   "D": 4.0,
+   "name": "EBfirst_D4",
+   "score": 0.3444894928685711,
+   "below_zero": false
+  },
+  "main": {
+   "score": 0.6478923824149183
+  },
+  "grids": {
+   "EB_first": [
+    0.0,
+    1.0,
+    2.0,
+    4.0,
+    8.0
+   ],
+   "EB_best16": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0
+   ],
+   "EB_best256": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0,
+    128.0
+   ]
+  },
+  "EB_best16": {
+   "T": 8.0,
+   "name": "EBf16_vl_P1_B1_T8",
+   "score": 0.4584150112576316,
+   "below_zero": false
+  },
+  "EB_best256": {
+   "T": 64.0,
+   "name": "EBf256_vl_P1_B1_T64",
+   "score": 0.1521485458234715,
+   "below_zero": false
+  }
+ },
+ "notes": {
+  "repro": "DeFT-P and the main row on the tuning cells, run again with the build of this round, against the rows of `results_v27_early/tune_runs.csv` (every column, as text): **160 / 160 identical.**",
+  "multi": "Hops of the tuning runs of the early rows that offer more than one output after the commit (must be 0): 0. The same for the tuning runs of F2: 0."
+ }
+}

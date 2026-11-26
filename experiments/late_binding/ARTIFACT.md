@@ -139,8 +139,9 @@ ln(THR / THR of DeFT_P) - ln(LAT at 1.0 x Lsat / DeFT_P's) - ln(LAT at 0.5 x Lsa
 | `EB_best` | scope S, pending P, `oracle_beta` B, threshold T (`oracle_bias` = B x T) | vl, 1, 0.5, 8 (bias 4) | vl, 1, 1, 2 (bias 2) | vl, 1, 1, 2 (bias 2) | `results_v28_anchor/tuning_choice_v28.json` |
 | `EB_best64` | S, P, B of `EB_best`; T | 32 (bias 16) | 16 (bias 16) | 16 (bias 16) | the same |
 | `EB_down_t` | `lut_bias` D | 4 | 4 | 4 | the same |
-| `EB_first` | `lut_bias` D | see `results_v29_review/tuning_v29.md` | | | `results_v29_review/tuning_choice_v29.json` |
-| `EB_best16`, `EB_best256` | S, P, B of `EB_best`; T | see `results_v29_review/tuning_v29.md` | | | the same |
+| `EB_first` | `lut_bias` D | 4 | 4 | 4 | `results_v29_review/tuning_choice_v29.json` (`tuning_v29.md`) |
+| `EB_best16` | S, P, B of `EB_best`; T | 16 (bias 8) | 8 (bias 8) | 8 (bias 8) | the same |
+| `EB_best256` | S, P, B of `EB_best`; T | 128 (bias 64) | 64 (bias 64) | 64 (bias 64) | the same |
 
 * The main row's grid was W in {1, 2} x B in {0, 4} x G in {1, 2} x D in {0, 2, 4}; among the configurations within 0.02 of the best
   score the rule prefers D = 0, then G = 1, then B = 0, then W = 1. `heur_lookahead 1` is part of the row's definition, not tuned. The
