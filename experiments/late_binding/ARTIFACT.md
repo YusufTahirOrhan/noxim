@@ -249,7 +249,7 @@ takes its results folder from an environment variable if set (`V25_RES` ... `V29
 | | `vc_policy.csv`, `deft_paper_setup.csv` | `report_v29.py` (d) | one VC per packet for MTR and RC; the set-up of the DeFT paper |
 | | `nola_effects.csv` | `report_v29.py` (e) | the main row without the lookahead term |
 | | `early_more.csv` | `report_v29.py` (f) | `EB_first` and the age of the source's knowledge |
-| | `apps_loaded.csv` | `report_v29.py` (g) | the application traces of round 25 with `-netrace_compress S` (S per trace: the smallest of 2, 4, 8, 16, 32 at which DeFT_P's mean latency is 1.5 times its latency at S = 1), relative to DeFT_P |
+| | `apps_loaded.csv` | `report_v29.py` (g) | the application traces of round 25 with `-netrace_compress S` (S per trace: the smallest of 2, 4, 8, 16, 32 at which DeFT_P's mean latency is 1.5 times its latency at S = 1), relative to DeFT_P; one trace of the nine reaches the factor (x264 at S = 16), the search for all nine is in `results_v29_review/trace_compress.md` |
 | | `hw_variants.csv` | `report_v29_hw.py` | area, timing, link budget and power of DeFT, the main row and its two variants |
 
 The independent second computation of the tested families is `check_v25_families.py`, `check_v26_family.py`, `check_v27_family.py`,

@@ -356,3 +356,20 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   made to read correctly for a single trace ("the trace of G.2", "with one trace the geometric mean over the traces is that
   trace") and the line of `paper_data/README.md` for `apps_loaded.csv` now says how many of the nine traces the file holds; no
   number of the report changed.
+
+## The end of the round (26 November, 17:19)
+* **Part G ended inside its limit.** `g_find` started at 16:40:14 and chain d was complete at 17:11:40, 31 minutes later; the watcher
+  `g_clock_v29.sh` ended with "chain d has ended with code 0: nothing to stop". One trace has an S (x264, 16), so `g_eval` ran its
+  12 runs and `g_csv` wrote `trace_runs.csv` (65 rows: the 54 search runs and the 12 runs at the chosen S, one of which is a
+  search run).
+* **The time rule has no entry for the end of Part G**: chain d calls `restore_v29.py` after F1 and F2 only. Its last entry
+  (16:39:51, the end of F2) counts 47.75 h; Part G ended 0.53 h later, at 48.3 h by the same count. `FINDINGS.md` ("Limits") and
+  the README give that figure from the times of the log.
+* **Raw outputs.** Every stage that writes a CSV deletes its raw folder when the CSV is complete; that happened for every part
+  (`~/lbraw/v29/age` after `f2_csv`, `~/lbraw/v29/trace` after `g_csv`). The folder of the hardware flow (`~/lbraw/v29/hw`, 7.0 GB:
+  6.2 GB of recorded vectors, the netlists of the three forms, the logs of the synthesis and of OpenSTA) was deleted at 17:18,
+  after `report_v29_hw.py` had written its tables from `results_v29_review/hw/` alone; the report was then written again without
+  the folder and is unchanged. What a reader needs to run the flow again is in `results_v29_review/hw/` (RTL, benches, the
+  checks and the CSVs). The five small state files of the chains stay in `~/lbraw/v29` (they are not results).
+* **Reports written again at the end** (`report_v29.py all`, `report_v29_hw.py`, `check_v29_family.py`, `extra_v29.py b c d e f g`):
+  no committed table changed; the second computation of both primary families agrees with the report in every test.

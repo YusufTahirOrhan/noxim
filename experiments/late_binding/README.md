@@ -1088,3 +1088,337 @@ unnecessary if at every size and rate the 95 % interval over the masks lies with
 Start with `results_v28_anchor/FINDINGS.md` (the twelve questions, the comparison with what was stated in advance, the limits). Every
 table of the report is in `results_v28_anchor/report/summary.md`; the tables for the paper are in `results_v28_anchor/paper_data/`
 (`paper_data/README.md` lists them).
+
+## Round 29 (results_v29_review/): what two reviews of the paper ask for. Held-out scenarios, references with the area of the main row, the VC policy of MTR and RC, the cost of the lookahead term, power
+Two reviews of the paper draft raised three objections that only runs can answer: the advantage over the best reference rests on the four
+scenarios used for tuning; the cost (22 to 25 % more router area) is never weighed against the gain; and MTR and RC are ahead of DeFT here
+while the DeFT paper has them behind. This round runs three traffic patterns that no round had used (Part B), gives the references the main
+row's area as buffers (Part C), runs MTR and RC with one VC per packet and the set-up of the DeFT paper (Part D), prices the lookahead term
+and the reports across the VLs in simulation and in RTL and measures power (Part E), adds two more early binders in three rows (Part F),
+and compresses the application traces of round 25 in time to see which of them then load the network (Part G). The frozen
+configuration of round 25 is not retuned and no existing row is changed. The simulator gets two options and one diagnostic, all off by
+default (`results_v29_review/regression.md`: the 84-configuration set is byte-identical to the e7569b1 build with the options absent and with
+every option given at its default). Rows, tests and what I expected are fixed in `results_v29_review/PREREGISTRATION.md` (the expectations
+committed separately before the gates, `stated_in_advance.md`); `ARTIFACT.md` in this folder collects what a reader needs to run a row again.
+
+**The answer.** Of the three objections, the first holds for the smallest system, the second takes away most of the lead over MTR and RC
+and leaves the lead over DeFT, and the third has its cause in the VC policy of MTR and RC. On three scenarios that no round had run the
+main row is ahead of the best of the five references on 3x3 and 4x4 (THR +6.8 / +7.5 %, LAT -29.9 / -20.0 %) and behind it in throughput
+on 2x2 (-1.7 %); primary family 1: 11 of 12 supported, 1 against. With 4-flit buffers it is ahead of every reference with 6-flit buffers on
+3x3 and 4x4 and behind in throughput on 2x2; primary family 2: 9 of 12 supported, 2 against, 1 not significant. Against a reference that
+has the main row's area as buffers in its interposer routers it has THR -3.4 / +3.4 / +1.8 % and LAT -0.5 (n.s.) / -1.6 / -2.4 %, is
+behind under `localized` and `movinghot` traffic on every size, and keeps its throughput lead on 3x3 through one scenario. Against DeFT
+with that area it has THR +0.1 (n.s.) / +5.5 / +3.6 % and 9 to 11 % less latency. Its routers take 6 to 8 % more power than DeFT's (before
+layout, without clock gating); the lookahead term is a fifth of the area overhead and buys half a per cent of throughput and at most 4 %
+of latency. MTR and RC are ahead of DeFT here because they may take any free VC at every hop, which is worth 2.4 to 4.1 % of throughput
+and a fifth of the latency at DeFT's saturation load; with one VC per packet DeFT is the fastest of the three at low and medium load, by
+at most 2.1 %, and the main row is ahead of the best reference on every size (THR +3.6 / +8.8 / +8.3 %, LAT -22.3 / -22.4 / -25.3 %). On
+early against late binding: most of the gain is that of one decision made late (71 to 81 % of the throughput gain when the entry VL is
+bound once, at the first interposer router with a choice), and a source that binds at injection keeps what ideal knowledge gives it
+only while its knowledge of the whole network is at most 16 cycles old. Compressed in time by up to 32, one of the nine application
+traces of round 25 loads the network (x264 at S = 16); on it MTR, RC and the main row have 8 to 9 % less latency than DeFT_P, and the main
+row is level with MTR and RC.
+
+* **New options:** `-buffer_ipos N` (the depth of every input buffer of an interposer router; 0 = as `-buffer`), `-deft_lb entry_commit first`
+  (the main row until the head is forwarded to the first interposer router that would offer it more than one output; there the entry VL is
+  bound to the least-cost candidate of the selected output), the diagnostic `-deft_lb buffer_stats 1`, and the traffic patterns `tornado`,
+  `neighbour` and `randperm` of `gen_traffic.py`. `-buffer 5` and `-buffer 6` stopped the simulator before this round (its power table has
+  the depths 2, 4, 8, ...); the entry is now interpolated.
+* **Rows** (pipe_all 2 unless a part says otherwise; `-traffic_rng 1`; LUTs `luts/v23`).
+
+  | row | definition |
+  |---|---|
+  | `DeFT_P`, `DeFT_B`, `MTR`, `RC`, `XY_SP`, `CI_heurLA_X_LF` (**main**) | round 25, unchanged |
+  | `LB_b0` | the main row with `lut_bias 0` (2x2 only, where the main row has 2) |
+  | `X_d5`, `X_d6`, `X_i7` | reference X with `-buffer 5`, `-buffer 6`, or `-buffer_ipos 7` (X = DeFT_P, DeFT_B, MTR, RC) |
+  | `LB_d6` | the main row with `-buffer 6`, nothing retuned |
+  | `MTR_static`, `RC_static` | MTR and RC without `-vc_per_hop 1`: a packet keeps the VC drawn at injection |
+  | `LB_noLA` | the main row with `heur_lookahead 0` |
+  | `EB_first` | the main row with `entry_commit first` and its own tuned `lut_bias` |
+  | `EB_best16`, `EB_best256` | `EB_best` of round 28 with information 16 or 256 cycles old and its own tuned T |
+
+* **Drivers.** `experiments_v29.py` (the regression; dispatches to `experiments_v29_gates.py` for `a2_*`, `experiments_v29_eval.py` for the
+  ladders, the timing runs, the parts `b1` ... `f2` and the tuning of Part F, `experiments_v29_hw.py` and `experiments_v29_hw2.py` for
+  `e3_*`, `e2_*`, `e4_*`, `experiments_v29_apps.py` for `g_*`); `experiments_v29_rows.py` builds every row from the arguments of an existing row. `chain_v29.sh a|b`,
+  `chain_v29c.sh c|d` and `chain_v29h.sh e3|e2|e4` run the round unattended and stop at the first failed check; `restore_v29.py` is the time
+  rule after the timing runs. `report_v29.py` and `report_v29_hw.py` write `report/` and `paper_data/`; `check_v29_family.py` computes both
+  primary families a second time without the report's code (`report/families_check.md`); `extra_v29.py` writes the descriptive tables that
+  were added after results were seen; `lut_rho_v29.py` is the table comparison of `ARTIFACT.md`. Helpers of the unattended run:
+  `restore_watch.sh` (the time rule at the ends of the parts of chain b, then chain c), `after_c_v29.sh` and `addendum_v29.py` (the
+  addenda with the tuned values of Part F between chain c and chain d), `g_clock_v29.sh` (the 3 h of Part G), `extra_v29_age.py` (a
+  check of T beyond the cap of the tuning rule for `EB_best256` on 2x2).
+```
+bash build_ref.sh e7569b1 && python3 experiments_v29.py regress 12 before && make && python3 experiments_v29.py regress 12 after
+bash chain_v29.sh a          # the gates: a2_bufid a2_fanchor a2_funits a2_traffic a2_reuse a2_fdrain a2_bufdrain a2_formal
+bash chain_v29.sh b          # b_sat b_points a2_traffic a2_tdrain t_timing, then b1 b2 c1 d2 e1 (each <part>_eval, _check, _csv)
+bash chain_v29c.sh c         # c3 d1 c2, f_rule f1_tune f1_choose f2_tune f2_choose (restore_v29.py after every part)
+bash chain_v29c.sh d         # after the two addenda: a2_fdrain tuned, f1, f2, g_find g_eval g_csv
+bash chain_v29h.sh all 3     # e3_tb e3_synth e3_csv, e2_build e2_vec e2_smoke e2_lat e2_synth e2_csv, e4_loads e4_power
+python3 report_v29.py all && python3 report_v29_hw.py && python3 check_v29_family.py && python3 extra_v29.py b c d e f g && python3 lut_rho_v29.py
+```
+(The raw outputs stay under `~/lbraw/v29` until the stage that writes the CSV.)
+
+### Gates
+* **Regression** (`regression_before.md`, `regression.md`): 84 / 84 byte-identical to the e7569b1 build before the change, and after it with
+  the options absent and with every option given at its default.
+* **Buffer options** (`buffer_checks.md`, `drain_buffers.csv`): `-buffer_ipos 4` with `-buffer 4` is byte-identical to the option absent
+  (12 / 12); every buffer has the depth asked for (24 / 24); drain tests with `-buffer 5`, `-buffer 6`, `-buffer_ipos 7`: 72 / 72.
+* **`entry_commit first`** (`anchor_first.md`, `unit_checks_first.md`, `drain_first.csv`, `drain_first_tuned.csv`): with `lut_bias 1e9` every
+  packet takes DeFT-P's entry VL (byte-identical to DeFT_P in 21 / 21 runs with `tie_stream 1`); the committed VL is a least-cost candidate
+  of the selected output for 12,000 heads per size; no head is bound twice and no hop offers a head more than one output; drain tests 36 / 36
+  before the tuning (with `lut_bias` 4 and with the main row's value) and 18 / 18 with the tuned value.
+* **Traffic tables** (`traffic_checks.md`, `drain_traffic.csv`): every table of the three new patterns is what its definition says; the rows
+  of Part B drain on them at 0.5 and 1.0 x Lsat (114 / 114).
+* **The referee's check** (`formal_independent/`): `formal/lb_cdg_check.py`, unedited, with `python3 -I`: no dead end, no path longer than
+  d0 and an acyclic channel dependency graph for XY and for the VN-split order on 4, 9 and 16 chiplets; a cycle when R1, R2 or R3 is dropped.
+* **Reuse** (`reuse_check.md`): the rows of rounds 25, 26 and 28 are reproduced by this round's build (24 / 24, 24 / 24, 60 / 60 runs).
+* **Time rule** (`runtime_estimate.md`, `time_rule.md`): the timing runs estimate Parts B to G at 54.0 h against the limit of 48 h, so Part G
+  and Part F2 were dropped in the pre-registered order. On 25 November the user lifted the limit, and both were taken back and run
+  (`DECISIONS.md`). The parts that the rule had kept ended 43.96 h after the start of the timing runs (0.98 times their estimate), F2 at
+  47.75 h and Part G at 48.3 h; Part G took 31 minutes of its 3 h, which `g_clock_v29.sh` would have enforced.
+
+### Part B: three scenarios that no round had run (`report/summary_B.md`; 5,130 + 540 runs, seeds 181-190)
+`tornado`, `neighbour` and `randperm`, fault-free, with their own ladders (`load_points_v29.md`). **Primary family 1 (Holm over 12): 11 of 12
+supported, 1 against.**
+
+| the main row over the three scenarios | 2x2 | 3x3 | 4x4 |
+|---|---|---|---|
+| THR against DeFT_P | +6.6 [+6.2, +7.0] | +11.9 [+11.5, +12.2] | +11.1 [+10.5, +11.7] |
+| LAT against DeFT_P | -33.8 [-36.5, -31.1] | -37.6 [-40.1, -35.0] | -31.6 [-34.6, -28.5] |
+| THR against the best of the five references | **-1.7 [-2.0, -1.4] (against)** | +6.8 [+6.5, +7.0] | +7.5 [+7.1, +7.9] |
+| LAT against the best of the five references | -11.7 [-13.3, -10.1] | -29.9 [-32.5, -27.1] | -20.0 [-22.6, -17.3] |
+
+* The best reference is RC in 15 of the 18 cells and MTR in the other three. The test against comes from `randperm` on 2x2 (THR -10.8 %
+  against RC, -4.3 % against DeFT_P): up to 1.2 x Lsat the main row carries the most traffic there with the lowest latency; from 1.4 x Lsat
+  on MTR and RC accept more (`report/extra_B.md`).
+* **The five scenarios that the tuning never saw** (these three with localized and movinghot of round 25), mean of the five per-scenario
+  effects against the best reference: THR -3.3 / +3.8 / +5.6 %, LAT -5.7 / -18.2 / -11.1 % (2x2 / 3x3 / 4x4); against the best of DeFT_P and
+  DeFT_B: THR +4.9 / +9.0 / +9.6 %, LAT -29.0 / -33.6 / -26.3 %. Behind the best reference in throughput on 2x2, ahead on 3x3 and 4x4;
+  under movinghot the main row stays slower than the best reference on 3x3 and 4x4.
+* **`LB_b0`:** `lut_bias 2` buys the main row 1 % of throughput and 4 % of latency on 2x2 (THR -1.0 %, LAT +4.1 % without it on the new
+  scenarios; -0.8 % and +4.2 % on the six of round 25). The paper can use one configuration for all sizes at that price.
+
+### Part C: references with the area of the main row (`report/summary_C.md`, `report/extra_C.md`; C1 14,580 runs, seeds 121-130; C2 2,880 runs on four loads; C3 3,072 runs, seeds 151 and 152; no dead-end event)
+The four references with 5-flit and 6-flit buffers everywhere (C1) and with 7-flit buffers in the interposer routers only (C2), on the six
+fault-free scenarios of round 25 at the loads of DeFT_P's ladder with 4-flit buffers; the main row and the references with 4-flit buffers are
+the runs of round 25. **Primary family 2 (Holm over 12: the main row with 4-flit buffers against the best of `DeFT_P_d6` and `DeFT_B_d6` and
+against the best of the four references with 6-flit buffers; THR and LAT at 1.0 x Lsat): 9 of 12 supported, 2 against, 1 not significant.**
+Computed a second time by `check_v29_family.py`: all 12 tests agree.
+
+| the main row with 4-flit buffers against | system area of the references | THR (2x2 / 3x3 / 4x4) | LAT at 1.0 x Lsat |
+|---|---|---|---|
+| the best of the four references with 4-flit buffers (round 25) | 1.00 | 0.0 / +6.7 / +6.0 | -11.1 / -9.7 / -13.2 |
+| with 5-flit buffers | 1.17 | -1.8 / +4.8 / +4.0 | -5.1 / -4.7 / -7.8 |
+| with 6-flit buffers | 1.32 to 1.34 | **-3.4 (against)** / +2.9 / +2.3 | -1.2 (n.s.) / -2.2 / -4.3 |
+| with 7-flit buffers in the interposer routers (C2; THR over the four loads of C2 for both rows) | 1.24 to 1.25 | **-3.4** / +3.4 / +1.8 | -0.5 (n.s.) / -1.6 / -2.4 |
+| the best of `DeFT_P_d6` and `DeFT_B_d6` | 1.32 to 1.34 | **-0.5 (against)** / +3.9 / +3.8 | -10.1 / -9.9 / -10.1 |
+
+* **What the buffers buy a reference** (against itself with 4-flit buffers): with 6-flit buffers THR +5.1 to +6.4 % for DeFT_P and DeFT_B and
+  +3.0 to +4.1 % for MTR and RC, LAT at 1.0 x Lsat -16 to -23 % and -10 to -12 %; with 5-flit buffers a little more than half of that.
+* **On 3x3 and 4x4 no reference that was run reaches the main row over the six scenarios**: not with 6-flit buffers in every router
+  (8 to 24 % more area than the main row has) and not with 7-flit buffers in the interposer routers.
+* **At the area of the main row.** With the hierarchy kept (the main row: 1.22 to 1.25 times DeFT's area) an `X_i7` reference has the
+  main row's area within two points, so that comparison is measured: against the best of the four THR -3.4 / +3.4 / +1.8 %, LAT
+  -0.5 (n.s.) / -1.6 / -2.4 %, P99 -4.4 (n.s.) / -8.6 / -12.5 %. On 3x3 and 4x4 a half and a quarter of the throughput lead over references
+  with 4-flit buffers and a sixth of the latency lead are left; on 2x2 nothing. With the core kept or flattened the main row (1.13 to
+  1.16 and 1.08 to 1.10 times DeFT's area) is smaller than every reference with deeper buffers that was run; read between the measured
+  rows (`extra_C.md`, X.2 and X.7: linear in the area, on the way to deeper buffers everywhere and on the way to `X_i7`) it keeps THR
+  +4.0 to +5.8 % and LAT -5.5 to -10.7 % on 3x3 and 4x4 and is 1.1 to 2.2 % behind in throughput on 2x2 with 4 to 8 % less latency.
+* **The interposer is where a reference should spend the area** (`extra_C.md`, X.7, added after the results were seen; THR over the
+  same four loads for every row): the best `X_i7` reference is level with the best reference with 6-flit buffers in every router (THR
+  0.0 / -0.5 / +0.9 %, LAT -0.7 / -0.6 / -2.0 %), which has 8 to 9 points more area. MTR and RC get from the interposer buffers alone
+  what 6-flit buffers everywhere give them; the DeFT variants get less on 2x2 and 3x3.
+* **On 2x2 a reference with the main row's area is ahead in throughput** (the main row is 1.1 to 3.4 % behind; level with 4-flit
+  buffers on both sides) and reaches the main row's latency with 6-flit buffers or with 7-flit buffers in the interposer routers.
+* **By scenario.** The main row keeps its lead over the references with 6-flit buffers under `chipperm` and `chiptrans` on every size and
+  under uniform traffic on 3x3 and 4x4; under hotspot traffic it is level in THR with 5 to 8 % less latency; under `localized` and
+  `movinghot` it is behind in both metrics on every size (THR -9.9 / -4.5 / -1.6 %, LAT +15.2 / +13.4 / +18.1 % over the two). RC is the
+  best reference with 6-flit buffers in 21 of the 36 cells of size, scenario and metric, MTR in 7, DeFT_B in 7, DeFT_P in 1.
+  Against the `X_i7` references the split is the same (over `localized` and `movinghot` THR -9.6 / -5.5 / -2.3 %, LAT +14.6 / +13.5 /
+  +20.2 %).
+* **How much one scenario carries** (`extra_C.md`, X.8, each comparison with one scenario left out; added after the results were
+  seen). On 3x3 the throughput lead over references with deeper buffers is the lead under `chipperm`: without that scenario the main
+  row has THR -0.9 % against the best `X_i7` and -0.3 % (n.s.) against the best reference with 6-flit buffers. On 4x4 the throughput
+  lead holds whichever scenario is left out (+1.1 to +3.3 %), and the latency lead is the lead under `chiptrans`.
+* **`LB_d6`** (the main row with 6-flit buffers, nothing retuned): THR +4.2 / +4.6 / +4.3 % and LAT -6.6 / -4.9 / -6.2 % against the main
+  row; against the best of the four references with 6-flit buffers THR +0.6 / +7.6 / +6.7 % and LAT -7.7 / -7.0 / -10.3 %. The throughput
+  gain of late binding is the same with 6-flit buffers on both sides as with 4-flit buffers on both sides (0.0 / +6.7 / +6.0 %); the
+  latency gain at DeFT's saturation load is about three quarters of it.
+* **C3, under random VL faults** (`DeFT_P_d6` and `DeFT_B_d6` on the 96 masks of the rates 1/16 and 4/16 of round 26, uniform and hotspot
+  traffic, four loads; unit = mask, no test). Against the better of the two the main row with 4-flit buffers has THR -2.0 / +0.7 / +5.3 %
+  and LAT -7.9 / -8.7 / -9.0 % with 1/16 of the VLs faulty, and THR -2.3 / -0.3 (n.s.) / +1.6 % and LAT -4.6 / -0.4 (n.s.) / -2.8 (n.s.) %
+  with 4/16. With 4-flit buffers on both sides (round 26) it was ahead on every size: THR +3.3 / +5.5 / +8.9 % and +2.6 / +3.3 / +5.2 %,
+  LAT -16 to -20 %. The variant to beat is `DeFT_B_d6`. Counted over the 64 cells of mask and traffic pattern per size, the main row has
+  the higher throughput in 14 / 40 / 51 and the lower latency in 61 / 55 / 56 (`extra_C.md`, X.5, added after the results were seen).
+
+### Part D: the references against the DeFT paper (`report/summary_D.md`, `report/extra_D.md`, figures `report/deft_setup_*.png`; descriptive, no test; no dead-end event)
+* **D1, one VC per packet for MTR and RC** (`MTR_static`, `RC_static`: the rows of round 23 at pipe_all 2; 3,240 runs, seeds 121-130,
+  paired with the rows of round 25). The per-hop VC choice gives MTR THR +4.1 / +3.0 / +2.4 % and RC +3.6 / +3.1 / +2.6 % (2x2 / 3x3 /
+  4x4) and both 18 to 21 % less latency at 1.0 x Lsat (2 to 3 % at 0.5 x Lsat); most under uniform and localized traffic (THR +4.8 to
+  +6.5 %), least under hotspot traffic and `chiptrans` (under 2 %). With one VC per packet DeFT_P is the fastest of the three at 0.2 and
+  0.5 x Lsat in all 18 cells of size and scenario (with the per-hop rows only at 0.2 x Lsat), level with the better static row at
+  0.8 x Lsat, 6 % slower at 1.0 x Lsat on 2x2 and 3x3 and level on 4x4, and accepts 0.6 to 1.6 % less (against the per-hop rows it is
+  21 to 32 % slower at 1.0 x Lsat and accepts 2.9 to 5.4 % less). **The main comparison with that policy:** against the best of DeFT_P,
+  DeFT_B, `MTR_static`, `RC_static` and XY_SP the main row has THR +3.6 / +8.8 / +8.3 % and LAT -22.3 / -22.4 / -25.3 % (with the
+  per-hop rows 0.0 / +6.7 / +6.0 % and -11.1 / -9.7 / -13.2 %), and on localized and movinghot THR +0.6 / +3.9 / +6.8 % and LAT -16.3 /
+  -18.9 / -16.2 % (with the per-hop rows -5.6 / -0.5 / +2.9 % and +4.2 / +3.1 / +4.2 %). The best of the five is then a DeFT variant in
+  25 of the 36 cells of size, scenario and metric (`report/extra_D.md`, added after the results were seen); with the per-hop rows it
+  is MTR or RC in 28.
+* **D2, the set-up of the DeFT paper** (1,800 runs, seeds 191-195): 2x2, 8-flit packets, 4-flit buffers, two VCs, rho = 0.01; uniform,
+  localized (40 % in the chiplet) and hotspot traffic; DeFT_P, MTR, RC, `MTR_static`, `RC_static` at twelve loads from 0.1 to 1.2 x Lsat of
+  DeFT_P, at pipe_all 2 and at pipe_all 0. Loads (x Lsat) at which DeFT_P has the lowest mean latency of the three (the interval of its
+  effect against the better of the two others is below 0):
+
+  | traffic | pipe_all | against `MTR` and `RC` (a VC per hop) | against `MTR_static` and `RC_static` (a VC per packet) |
+  |---|---|---|---|
+  | uniform | 2 | 0.1, 0.2 (slower from 0.4) | 0.1 to 0.7 (level from 0.8 to 1.2, nowhere slower) |
+  | localized | 2 | 0.1, 0.2 (slower from 0.3) | 0.1 to 0.6 (slower at 0.8 to 1.0) |
+  | hotspot | 2 | 0.1 to 0.3 (slower from 0.4) | 0.1 to 0.5 (slower at 0.8 and from 1.0) |
+  | uniform | 0 | 0.1, 0.2 (slower from 0.4) | 0.1 to 0.5 (slower from 0.7 to 1.1) |
+  | localized | 0 | 0.1, 0.2 (slower from 0.3) | 0.1 to 0.4 (slower from 0.7) |
+  | hotspot | 0 | 0.1 (slower from 0.5) | 0.1 to 0.3 (slower from 0.6) |
+
+  Where DeFT_P is the fastest it is by 0.4 to 2.1 % at pipe_all 2 (under a cycle) and by up to 3.5 % at pipe_all 0. Against the per-hop
+  rows it is 22 % (uniform), 29 % (localized) and 136 % (hotspot) slower than RC at 1.0 x Lsat (pipe_all 2); against the static rows
+  -0.5 [-13.1, +14.0] %, +7.1 [+1.2, +13.3] % and +87 [+30, +170] %. At 1.2 x Lsat `MTR` and `RC` accept 3.0 to 3.8 % more than DeFT_P under
+  uniform and localized traffic and the static rows what DeFT_P accepts (-0.7 to +0.8 %). So the order of the DeFT paper (DeFT the
+  fastest of the three) is this simulator's order with one VC per packet for MTR and RC under uniform traffic, and with either policy
+  at 0.1 to 0.2 x Lsat; it is not its order with the per-hop VC choice above 0.3 x Lsat, nor under localized and hotspot traffic near
+  saturation with either policy. Not explained: the size of DeFT's lead in the DeFT paper (here never more than 2.1 % at pipe_all 2
+  and 3.5 % at pipe_all 0), and what
+  `review_v22/REVIEW.md`, section 6, lists as not testable here (the DeFT paper's interposer size, its round-robin on a busy VC, its entry
+  selection, its VC allocation for MTR and RC, its link timing).
+
+### Part E1: the main row without the lookahead term (`report/summary_E.md`, `report/extra_E.md`; 1,620 runs, seeds 121-130, no dead-end event)
+`LB_noLA` on the six fault-free scenarios of round 25, paired with the main row's runs of round 25. Descriptive, no test.
+* **Against the main row** (2x2 / 3x3 / 4x4): THR -0.3 / -0.6 / -0.6 %, LAT at 1.0 x Lsat +0.4 / +3.9 / +3.0 %, P99 +0.8 / +6.6 / +6.4 %; within
+  0.5 % at 0.2 and 0.5 x Lsat. The row keeps 94 to 99 % of the main row's gain over DeFT_P (THR 95 / 96 / 94 %, LAT 99 / 91 / 93 %).
+* **Against the best of the five references:** THR -0.3 / +6.1 / +5.3 % and LAT -10.7 / -6.2 / -10.5 % (the main row: 0.0 / +6.7 / +6.0 % and
+  -11.1 / -9.7 / -13.2 %). The term counts under `movinghot` on 3x3 (LAT +13.1 % without it), under `chipperm` on 4x4 (+7.3 %) and under
+  uniform and localized traffic on 3x3 and 4x4 (+3 to +4 %); under hotspot traffic and `chiptrans` it buys nothing.
+* **At equal area, measured** (`extra_E.md`, added after the results were seen): with the hierarchy kept `LB_noLA` has the area of a
+  reference with 5-flit buffers on 3x3 and 4x4 (1.170 and 1.172 against 1.167 and 1.166 times DeFT's). Against the best of the four
+  references with 5-flit buffers it has THR +4.2 and +3.3 %, LAT -1.1 [-2.2, +0.1] and -4.9 %, P99 -11.4 and -16.6 %; on 2x2 (1.203 against
+  1.168) THR -2.1 % and LAT -4.7 %.
+* With E2 below: the lookahead term costs a fifth of the main row's area above DeFT, all report wires and three of the six to eight
+  points of its extra power, and buys half a per cent of throughput and, on 3x3 and 4x4, 3 to 4 % of latency at the saturation load.
+
+### Part E, hardware (`report/summary_hw_E3.md`, `summary_hw_E2.md`, `summary_hw_E4.md`; the flow of round 25: NanGate45 typical, Yosys + ABC at 1 GHz, OpenSTA on the flattened netlists, before layout)
+* **E3: what deeper buffers cost a reference.** DeFT's four routers with 5-flit and 6-flit buffers, and with 7-flit buffers in the interposer
+  routers only (`hw/rtl/router_core29.v`, the reference core of round 18 with the depths as macros; functional check of the depths with two
+  controls in `hw/buffer_core_check.txt`), synthesised in one run with DeFT at depth 4 and with the main row. The buffers are 59 to 64 % of
+  DeFT's router.
+
+  | system area relative to DeFT at depth 4 (hierarchy kept / core kept / flattened) | 2x2 | 3x3 | 4x4 |
+  |---|---|---|---|
+  | `X_d5` | 1.168 / 1.175 / 1.175 | 1.167 / 1.172 / 1.170 | 1.166 / 1.171 / 1.168 |
+  | `X_d6` | 1.321 / 1.341 / 1.340 | 1.319 / 1.336 / 1.333 | 1.317 / 1.335 / 1.332 |
+  | `X_i7` | 1.239 / 1.249 / 1.254 | 1.237 / 1.246 / 1.247 | 1.236 / 1.246 / 1.246 |
+  | the main row (identical to round 25) | 1.251 / 1.161 / 1.103 | 1.217 / 1.130 / 1.077 | 1.218 / 1.133 / 1.079 |
+
+  The main row has the area of a reference with 5.3 to 5.5-flit buffers when the hierarchy is kept, with 4.8 to 4.9 when the core is kept
+  and with 4.5 to 4.6 flattened. `X_d5` therefore has less area than the main row in the first form and more in the other two, `X_d6` has
+  more in every form, and `X_i7` has the paper's figure within two points.
+* **E2: two RTL variants of the interposer router** (`hw/rtl/lb29_units.v`, the units of round 25 with two macros): `LB_noVLrep` (no reports
+  across the VLs) and `LB_noLA` (no report wires or registers at all). Each is checked against 1.85 million recorded selections of its own
+  simulator row in all eight cut configurations (0 mismatches; the same vectors through the main row's units: 9,181 and 309,078), under
+  random packets (96 / 96) and for the cycles of a head through an idle router (96 / 96), and synthesised next to the main row.
+
+  | | main row | `LB_noVLrep` | `LB_noLA` |
+  |---|---|---|---|
+  | report inputs an interposer router reads (without / with a VL) | 72 / 84 | 72 / 72 | 0 / 0 |
+  | system area relative to DeFT, hierarchy kept (2x2 / 3x3 / 4x4) | 1.251 / 1.216 / 1.218 | 1.248 / 1.214 / 1.215 | 1.203 / 1.170 / 1.172 |
+  | core kept | 1.161 / 1.129 / 1.132 | 1.159 / 1.128 / 1.131 | 1.133 / 1.104 / 1.107 |
+  | flattened | 1.101 / 1.077 / 1.078 | 1.101 / 1.075 / 1.076 | 1.075 / 1.051 / 1.052 |
+  | registers in the decision unit at T_ref | 1 (after M) | 1 (after M) | 1 (after B, or after M) |
+  | left for an interposer link in the link cycle (DeFT 0.82 to 0.90 ns) | 0.25 to 0.41 ns | 0.19 to 0.44 ns | 0.35 to 0.53 ns (cut M) |
+
+  The lookahead term is about a fifth of the main row's area above DeFT (all 150 report wires into an interposer router and the 72 or 84
+  bits it registers); the reports across the VLs are about 1 % of it. No variant gets back to a one-cycle decision at DeFT's clock period,
+  and the link budget gains about 0.1 ns without the lookahead term, which is the spread of this flow on unchanged logic (0.13 ns).
+* **E4: power** (OpenSTA `report_power`, 4x4 routers, 1 ns clock). The recorded vectors are evaluations of the decision unit and cannot
+  drive a router, so the load is replayed: an instrumented copy of the simulator counts the flits per input port of every router (4x4,
+  uniform, 0.5 and 1.0 x Lsat; `hw/port_loads.csv`), the benches `hw/tb/tb_act18.v` and `tb_act25.v` drive each synthesised netlist with
+  random 8-flit packets at those rates, and OpenSTA reads the VCD (every pin annotated; the netlist prints the RTL's result line in 24 / 24
+  cases). Average router of a system, the main row relative to DeFT: **1.063** (0.5 x Lsat) and **1.077** (1.0 x Lsat); `LB_noVLrep` 1.061
+  and 1.075; `LB_noLA` 1.034 and 1.045; with the tool's default activity 1.123. Per router: interposer 1.14, interposer with a VL 1.17 to
+  1.18, chiplet and boundary 0.98 to 1.01. With the simulated activity 88 to 98 % of the power is in the flip-flops (no clock gating, no
+  clock tree, no wires, zero-delay simulation), so the ratio is close to the ratio of the flip-flop counts; the direction and the size
+  class can be quoted, the second digit cannot.
+
+### Part F: two more early binders, one bound at its first choice and one with aged knowledge (`report/summary_F.md`, `report/extra_F.md`; 4,860 runs; descriptive, no test; seeds 171-180, paired with the rows of round 28)
+* **Tuning** (`tuning_v29.md`: the rule of round 24, written out before the tuning runs; 2x2 and 4x4, 3x3 takes the 4x4 choice; five
+  scenarios, four loads, seeds 101 and 102; 560 + 1,120 runs). `EB_first`: `lut_bias` 4 on every size (score +0.33 on 2x2 and +0.34 on
+  4x4; the main row +0.53 and +0.65). `EB_best16`: T 16 / 8 / 8 (+0.49, +0.46). `EB_best256`: T 128 / 64 / 64 (+0.10, +0.15); on 2x2 that is
+  the largest T the rule allows, and a check beyond it (`extra_v29_age.py`, `tuning_v29_extra.md`, 80 runs) found no better T (T = 256:
+  +0.01). No score is below 0. The values went into `PREREGISTRATION.md` (Addenda F1 and F2) before any evaluation run of the rows; the
+  drain tests of `EB_first` were run again with its value.
+* **F1, `EB_first`** (1,620 runs; none missing, no dead-end event, no head bound twice): the main row with the entry VL bound at the first
+  interposer router that offers the head more than one output. Share of the main row's gain over DeFT_P: THR 80 / 81 / 71 %, LAT at
+  1.0 x Lsat 66 / 80 / 56 % (2x2 / 3x3 / 4x4); for comparison `EB_down_t`, the same decision made at the Down move, 74 / 46 / 46 % and
+  56 / 58 / 43 %, and `EB_best` 113 / 66 / 75 % and 109 / 93 / 82 %. Against the main row THR -1.4 / -2.4 / -3.3 % and LAT +16.1 / +9.2 /
+  +21.8 %; against `EB_down_t` THR +0.4 / +4.6 / +2.9 % and LAT -4.5 / -9.5 / -5.5 %. It is behind the main row under `chipperm` and
+  `chiptrans` (THR -2.9 to -8.6 %) and from saturation on (LAT +49 to +51 % at 1.2 x Lsat), and has the main row's throughput under
+  `localized` and `movinghot`. Only 21 to 23 / 22 / 13 to 14 % of its heads are bound at the router below the exit VL. A head of the main
+  row has a choice at about two interposer routers (1.7 to 2.2; `extra_F.md`, added after the results were seen); at 1.0 x Lsat
+  `EB_first` leaves DeFT-P's entry VL for 14.1 / 12.8 / 13.6 % of its heads, the main row for 36.5 / 56.5 / 57.5 %. So most of the gain of
+  late binding is the gain of one decision made late; deciding again adds a fifth to three tenths of the throughput gain.
+* **F2, `EB_best16` and `EB_best256`** (3,240 runs; none missing, no dead-end event): `EB_best` of round 28 with the occupancies and the
+  counts of the bound packets read from a snapshot that is taken every 16 or 256 cycles. Share of the main row's gain over DeFT_P against
+  the age of the source's knowledge (2x2 / 3x3 / 4x4):
+
+  | the source's knowledge | all six scenarios: THR | LAT at 1.0 x Lsat | hotspot alone: THR | LAT | the other five: THR | LAT |
+  |---|---|---|---|---|---|---|
+  | read at injection (`EB_best`, round 28) | 113 / 66 / 75 % | 109 / 93 / 82 % | 96 / 93 / 95 % | 102 / 98 / 97 % | 129 / 58 / 66 % | 114 / 90 / 74 % |
+  | every 16 cycles (`EB_best16`) | 110 / 62 / 73 % | 100 / 87 / 76 % | 95 / 96 / 95 % | 100 / 98 / 97 % | 122 / 52 / 63 % | 100 / 81 / 66 % |
+  | every 64 cycles (`EB_best64`, round 28) | 82 / 46 / 58 % | 72 / 48 / 51 % | 97 / 93 / 95 % | 94 / 95 / 95 % | 70 / 31 / 40 % | 56 / 21 / 29 % |
+  | every 256 cycles (`EB_best256`) | 39 / -4 / 20 % | 18 / 15 / 22 % | 84 / 96 / 92 % | 39 / 78 / 80 % | 0 / -35 / -15 % | 3 / -21 / -7 % |
+
+  Against `EB_best`: `EB_best16` THR -0.3 / -0.5 / -0.2 (n.s.) % and LAT +3.8 / +2.6 / +2.4 %; `EB_best256` THR -5.0 / -8.7 / -6.1 % and LAT
+  +48.8 / +41.5 / +30.6 %. Up to 16 cycles the age costs little; at 64 cycles a quarter to a half of the gain is gone; at 256 cycles what
+  is left is the hotspot scenario. Outside it the 256-cycle row is DeFT_P on 2x2 (it leaves DeFT-P's entry VL for at most 0.4 % of its
+  heads at 1.0 x Lsat) and behind DeFT_P on 3x3 in four of the five scenarios (THR -4.6 to -5.9 %; 3x3 takes the T of 4x4), and under
+  `movinghot` it has 39.3 / 20.1 % more latency than DeFT_P on 3x3 and 4x4 (`extra_F.md`, X.10, added after the results were seen). The
+  tuned T grows with the age (8; 2 at injection, then 16; 8, 32; 16 and 128; 64, on 2x2; on 4x4 and 3x3): the older the knowledge, the
+  less the tuning lets the row act on it. For scale, a packet of DeFT_P is 39 / 51 / 63 cycles under way at 0.2 x Lsat. One late
+  decision from local occupancies (`EB_first`) is worth about what a source reaches with the state of the whole network 16 to 64
+  cycles old, and on 3x3 more in throughput than a source reaches at any age.
+
+### Part G: application traces compressed in time (`trace_compress.md`, `report/summary_G.md`, `report/extra_G.md`; 65 runs, seeds 41-43, no dead-end event; optional, descriptive)
+The trace runs of round 25 (2x2, the first 700,000 cycles of region 2 of the nine PARSEC traces, dependency mode) with `-netrace_compress S`.
+Per trace the smallest S in {2, 4, 8, 16, 32} at which DeFT_P's mean latency is at least 1.5 times its latency at S = 1; at that S DeFT_P,
+MTR, RC and the main row on three seeds. The nine runs at S = 1 equal the rows of round 25.
+* **One trace of nine reaches the factor: x264 at S = 16** (88 cycles against 46 at S = 1; factor 1.92). For the other eight the largest
+  factor is 1.30 (ferret at S = 32); canneal and vips get faster under a mild compression (0.89 and 0.91 at S = 4).
+* **On x264 at S = 16**, relative to DeFT_P: mean latency 0.921 (MTR), 0.908 (RC) and 0.918 (the main row); P99 0.858, 0.820 and 0.841. The
+  main row against DeFT_P -8.2 [-9.3, -7.0] %, against MTR -0.3 [-1.5, +1.0] % and against RC +1.2 [-0.4, +2.7] % (interval over the three
+  seeds); it delivers the window 1.5 % earlier than DeFT_P. Without compression (round 25) the same trace gave 1.012, 1.013 and 0.980.
+* **Why the others are not loaded** (`extra_G.md`, X.11, added after the results were seen): a packet waits for its time stamp and for the
+  packets it depends on, and the compression moves only the time stamps. At S = 32 80 to 99 % of the packets wait for a dependency, the
+  windows stop getting shorter (blackscholes: 774,000 cycles at S = 1, 767,000 at S = 32), and the offered load is 2.4 to 7.2 % of the load
+  at which DeFT_P saturates under uniform traffic. x264 offers 4 % of it at S = 16: it is loaded by the criterion, a ratio of latencies,
+  and not by its mean load. So the comparisons under load rest on synthetic traffic.
+
+### Limits (`FINDINGS.md`, "Limits")
+* Only the two primary families are tested; everything else is descriptive. The tables of `extra_v29.py` (X.1 and X.3 to X.11) were added
+  after results were seen and are marked as such where they are quoted (`DECISIONS.md`).
+* The new scenarios are three synthetic patterns; `randperm` is one permutation per size, and the one test against the main row in family 1
+  comes from it at loads far beyond saturation.
+* "Equal area" is router area before layout from one synthesis flow in three forms, and the references spend it on buffers of flip-flops
+  only. With the hierarchy kept the comparison at the main row's area is measured (`X_i7`); in the other two forms it is read between
+  measured rows.
+* Against references with deeper buffers single scenarios carry the means over the six: the throughput lead on 3x3 is the lead under
+  `chipperm`, the latency lead on 4x4 the lead under `chiptrans`, and under `localized` and `movinghot` the main row is behind on every size.
+* Nothing was retuned (`LB_d6`, `LB_noLA`, `LB_b0`). Under faults: two traffic patterns, two seeds, four loads, no DeFT variant with 5-flit
+  buffers.
+* D2 is the set-up of the DeFT paper as far as the paper gives it; the size of DeFT's lead there stays unexplained.
+* Hardware: before layout, one corner, no clock gating, no wires; the power ratio is close to a ratio of flip-flop counts.
+* Part F: the knowledge of the `EB_best` rows is the simulator's, and carrying it to the sources is not priced; 3x3 takes the tuned values of
+  4x4. Part G: one trace of nine.
+* Answer 15 of `FINDINGS.md` (which sentences of the abstract no longer hold) is written without the paper draft, against the claims that
+  the prompt attributes to it.
+* By the count of the time rule the runs took 48.3 h from the start of the timing runs, above its 48 h, which the user had lifted.
+
+Start with `results_v29_review/FINDINGS.md` (the answer in short, the fifteen answers with what was stated in advance, Part G, the limits).
+Every table of the report is in `results_v29_review/report/summary.md`; the tables for the paper are in `results_v29_review/paper_data/`
+(`paper_data/README.md` lists them).
