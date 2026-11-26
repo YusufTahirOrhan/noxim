@@ -243,6 +243,27 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   hold", "holds with a new number" or "not touched by this round". Whoever holds the draft maps the list to its sentences; a sentence
   of the abstract that makes none of these claims is not judged here.
 
+## The hand-over as it happened (26 November, 10:50)
+* Chain c ended at 10:49:37 with both choices made. The hand-over was done by hand inside the watcher's 30 minutes: the watcher
+  `lb_v29w` was stopped, `addendum_v29.py` wrote Addendum F1 and Addendum F2 into `PREREGISTRATION.md` (10:50), the tuned values went
+  into `ARTIFACT.md`, the commit was pushed (3722f90) and chain d was started at 10:51:05. No evaluation run of a row of Part F existed
+  before the addenda were committed.
+
+## F2: the T of `EB_best256` on 2x2 is the cap of the rule (26 November, 10:53; before any evaluation run of Part F was read)
+* **What the tuning gave.** The rule of `tuning_v29.md` (B2 of round 28, unchanged) doubles T while the best T is the largest, "64,
+  128 at most". For `EB_best256` on 2x2 it chose T = 128, the cap, and the score still rises there (T 64: -0.19; T 128: +0.10). On
+  4x4 the same row peaks at T = 64 and falls at 128, so there the cap did not bind. On 2x2 a T that the rule does not allow may
+  serve the early row better, and then the share of the main row's gain that the pre-registered `EB_best256` reaches on 2x2 would
+  understate what an early binder with knowledge 256 cycles old can reach.
+* **What is done about it.** The pre-registered row is not touched: `EB_best256` on 2x2 is T = 128, as Addendum F2 says, and the
+  tables of Part F are those of the pre-registration. Next to it, `extra_v29_age.py tune` runs the 40 tuning cells of 2x2 with T =
+  256 and 512 (doubled further while the best T is the largest, 4096 at most) and writes `tuning_v29_extra.md`. If a T beyond the
+  cap scores higher than T = 128, `extra_v29_age.py eval` runs the 540 cells of the evaluation of Part F on 2x2 with it as an extra
+  row, `EB_best256x`, and `FINDINGS.md` gives its share next to the pre-registered one. If none does, the cap did not bind and
+  nothing more is run. This favours the early row, which is the side the standing rules say to favour in doubt; it is defined
+  here, after the tuning scores were seen and before any evaluation run of Part F was read.
+* The runs go next to chain d with two processes (2x2 runs of about 15 s each); they are not part of the time rule's account.
+
 ## Tables added after the results (`extra_v29.py`; none is a test, none changes a pre-registered table)
 * **`report/extra_B.md`, X.1** (after Part B): the accepted throughput and the latency of every row at each of the nine loads on five
   cells of Part B. Reason: the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from
