@@ -5,11 +5,16 @@ nothing of report_v29.py is changed; FINDINGS.md marks every number it takes fro
      X.1  the one test of family 1 that is against the main row (THR against the best reference on 2x2) comes from randperm: accepted
           throughput and latency of every row at each of the nine loads on 2x2 randperm (mean over the ten seeds), and the load at which
           each row's accepted throughput is the largest
-  python3 extra_v29.py c        ->  results_v29_review/report/extra_C.md, extra_C_area.csv
+  python3 extra_v29.py c        ->  results_v29_review/report/extra_C.md, extra_C_area.csv, extra_C_ipos7.csv
      X.2  the comparisons of Part C read at the area of the main row (defined before the results of C1 were read)
      X.3  THR and LAT of every row per scenario, and which reference is the best of the four at each depth (added after they were read)
      X.5  under faults (C3), counted over the masks: which DeFT variant with 6-flit buffers is the better one, and on how many masks the
           main row is ahead of it (added after the results of C3 were read)
+     X.7  the X_i7 rows of C2 next to the rows with 5-flit and 6-flit buffers, THR over the same four loads for every row, and the
+          comparison read at the area of the main row on the way from the 4-flit references to X_i7 (added after the results of C2
+          were read)
+     X.8  the main row against the best of the four references of each set with one scenario left out (added after the results of C2
+          were read)
   python3 extra_v29.py d        ->  results_v29_review/report/extra_D.md
      X.6  D1 in the direction of the question (the per-hop row against its static row), which reference is the best of the five with
           each VC policy, and the main row against the best per scenario (added after the results of D1 were read)
@@ -196,6 +201,93 @@ def part_c():
         for p in F.PATS:
             L.append('| all | both | %s | %s |' % (p, ' | '.join('%d of %d' % (tot[(p, n, c)], tot[(p, 'masks')]) for c in ('B', 'DeFT_P_d6', 'DeFT_P') for n in ('THR', 'LAT'))))
         L.append('')
+    # X.7 was added after the results of C2 had been read (DECISIONS.md): the X_i7 rows next to the rows with 5-flit and 6-flit buffers, THR over the same four loads
+    fi = os.path.join(RES, 'ipos7_runs.csv')
+    if os.path.exists(fi):
+        R7 = RV.load(os.path.join(RV.V25, 'eval_runs.csv'), os.path.join(RES, 'depth_runs.csv'), fi)
+        D4 = RV.Design(R7, P, range(121, 131), loads=(1, 3, 5, 7))
+        tri = lambda a, ref, n: ' / '.join(RV.eci(D4.test(a, ref, z, six(z), n)) for z in RV.SIZES)  # noqa: E731
+        area = lambda t, f: ' / '.join('%.3f' % A[(t, z, f)] for z in RV.SIZES)  # noqa: E731
+        L += ['## X.7 The references with 7-flit buffers in the interposer routers (C2) next to those with 5-flit and 6-flit buffers', '',
+              'Added on 26 November after the results of C2 had been read: C.2 and C.3 take THR over the four loads of C2 in the lines with `X_i7` and over the nine loads in the',
+              'lines with `X_d5` and `X_d6`, so the lines cannot be read against each other in THR. Here THR is the largest accepted throughput over the four loads (0.5, 1.0, 1.4,',
+              '2.0 x Lsat) for every row; LAT and P99 at 1.0 x Lsat of DeFT_P with 4-flit buffers, as everywhere. Six scenarios, ten seeds, 2x2 / 3x3 / 4x4. Area of all routers',
+              'relative to DeFT with 4-flit buffers (E3):', '', '| design | ' + ' | '.join(t for _, t in RV.FORMS) + ' |', '|---|' + '---|' * len(RV.FORMS)]
+        for t, name in (('main', 'the main row'), ('d5', '`X_d5`'), ('d6', '`X_d6`'), ('i7', '`X_i7`')):
+            L.append('| %s | %s |' % (name, ' | '.join(area(t, f) for f, _ in RV.FORMS)))
+        L += ['', '**Each `X_i7` against the same reference with deeper buffers in every router** (positive THR, negative LAT and P99: the 7-flit buffers in the interposer routers',
+              'alone give the reference more):', '', '| reference | against | THR | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|']
+        for b in RV.REFS4:
+            for t, name in (('_d5', 'itself with 5-flit buffers'), ('_d6', 'itself with 6-flit buffers')):
+                L.append('| %s_i7 | %s | %s |' % (b, name, ' | '.join(tri(b + '_i7', b + t, n) for n in ('THR', 'LAT', 'P99'))))
+        L += ['', '**The main row (4-flit buffers) against the best of each set, THR over the four loads for every set:**', '',
+              '| buffers of the references | against | THR | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|---|']
+        sets = (('', '4-flit (round 25)'), ('_d5', '5-flit'), ('_d6', '6-flit'), ('_i7', '7-flit in the interposer routers'))
+        for t, name in sets:
+            for gname, g in groups:
+                L.append('| %s | %s | %s |' % (name, gname, ' | '.join(tri(RV.MAIN, tuple(b + t for b in g), n) for n in ('THR', 'LAT', 'P99'))))
+        L += ['', '**The best of the four `X_i7` against the best of the four of the other sets** (the best row of each set per scenario and metric):', '',
+              '| the best `X_i7` against the best of the four with | THR | LAT at 1.0 x Lsat | P99 |', '|---|---|---|---|']
+        i7 = tuple(b + '_i7' for b in RV.REFS4)
+        for t, name in sets[:3]:
+            L.append('| %s buffers | %s |' % (name, ' | '.join(tri(i7, tuple(b + t for b in RV.REFS4), n) for n in ('THR', 'LAT', 'P99'))))
+        L += ['', '**Read at the area of the main row.** With the hierarchy kept an `X_i7` reference has the area of the main row within two points, and the line above is the',
+              'measured comparison at equal area. In the other two forms the main row is smaller. The table reads the comparison at the area of the main row on the way from the',
+              'references with 4-flit buffers to `X_i7`: per seed the log ratio is interpolated linearly in the system area between the two measured sets, as in X.2. It is a',
+              'reading aid defined after the results were seen; no reference with 5-flit or 6-flit buffers in the interposer routers alone was run or synthesized.', '',
+              '| form | size | area: main row; `X_i7` | against | THR | LAT at 1.0 x Lsat |', '|---|---|---|---|---|---|']
+        rows7 = []
+        for f, ftitle in RV.FORMS:
+            for z in RV.SIZES:
+                am, a7 = A[('main', z, f)], A[('i7', z, f)]
+                for gname, g in groups:
+                    cells = []
+                    for n in ('THR', 'LAT'):
+                        ys = [D4.lr(RV.MAIN, tuple(b + t for b in g), z, six(z), n) for t in ('', '_i7')]
+                        if len(ys[0]) != len(ys[1]) or not ys[0]:
+                            raise SystemExit('unequal seed sets in %s %s %s (X.7)' % (z, gname, n))
+                        ya = at([1.0, a7], ys, am)
+                        sa = RV.stat(ya) if ya else RV.stat(ys[1])
+                        cells.append(('%s' if ya else 'measured against `X_i7`, which has less area: %s') % RV.eci(sa))
+                        rows7.append(dict(form=f, size=z, against=gname, metric=n, area_main=am, area_i7=a7, interpolated=int(bool(ya)), effect_pct=sa['effect_pct'], ci_low=sa['ci_low'],
+                                          ci_high=sa['ci_high']))
+                    L.append('| %s | %s | %.3f; %.3f | %s | %s |' % (ftitle, z, am, a7, gname, ' | '.join(cells)))
+        L += ['', '**Absolute values per scenario** (mean over the ten seeds; THR in flits/node/cycle over the four loads, LAT in cycles at 1.0 x Lsat). Each reference with 4-flit',
+              'buffers / with 7-flit buffers in the interposer routers; **bold**: the best of the four `X_i7`, the row that the main row is compared with.', '']
+        cnt = {t: defaultdict(int) for t in ('', '_d5', '_d6', '_i7')}
+        for n, fm in (('THR', '%.4f'), ('LAT', '%.1f')):
+            for z in RV.SIZES:
+                L += ['### %s, %s' % (n, z), '', '| scenario | the main row | ' + ' | '.join(RV.REFS4) + ' |', '|---|---|' + '---|' * len(RV.REFS4)]
+                for sc in six(z):
+                    for t in cnt:
+                        bt = D4.best(tuple(b + t for b in RV.REFS4), z, sc, n)
+                        cnt[t][bt[:len(bt) - len(t)]] += 1
+                    b7 = D4.best(i7, z, sc, n)
+                    cells = ['%s / %s' % (fm % D4.smean(b, z, sc, n), ('**%s**' if b7 == b + '_i7' else '%s') % (fm % D4.smean(b + '_i7', z, sc, n))) for b in RV.REFS4]
+                    L.append('| %s | %s | %s |' % (sc[0], fm % D4.smean(RV.MAIN, z, sc, n), ' | '.join(cells)))
+                L.append('')
+        L += ['The best of the four references of each set, counted over the 36 cells of size, scenario and metric (THR over the four loads, and LAT):', '',
+              '| buffers of the references | ' + ' | '.join(RV.REFS4) + ' |', '|---|' + '---|' * len(RV.REFS4)]
+        for t, name in sets:
+            L.append('| %s | %s |' % (name, ' | '.join(str(cnt[t][b]) for b in RV.REFS4)))
+        L.append('')
+        # X.8 was added after the results of C2 had been read (DECISIONS.md): the comparisons with the best of the four with one scenario left out
+        L += ['## X.8 The main row against the best of the four references of each set with one scenario left out', '',
+              'Added on 26 November after the results of C2 had been read: against references with deeper buffers the main row is ahead in some scenarios and behind in others',
+              '(C.4), and the mean over the six does not show how much one scenario carries. Each line leaves one scenario out; effect [95 % interval over the ten seeds],',
+              '2x2 / 3x3 / 4x4. THR over the nine loads, and over the four loads of C2 in the column of `X_i7`. Descriptive, no test.', '',
+              '| left out | metric | 4-flit (round 25) | 5-flit | 6-flit | 7-flit in the interposer routers |', '|---|---|---|---|---|---|']
+        for out in [None] + list(RV.SIX):
+            pats = [p for p in RV.SIX if p != out]
+            for n in ('THR', 'LAT'):
+                cells = [' / '.join(RV.eci((D4 if t == '_i7' else D).test(RV.MAIN, tuple(b + t for b in RV.REFS4), z, RV.scen(z, pats), n)) for z in RV.SIZES) for t, _ in sets]
+                L.append('| %s | %s | %s |' % (out or 'none (the six scenarios)', n, ' | '.join(cells)))
+        L.append('')
+        with open(os.path.join(OUT, 'extra_C_ipos7.csv'), 'w', newline='') as fh:
+            w = csv.DictWriter(fh, fieldnames=list(rows7[0]), lineterminator=NL)
+            w.writeheader()
+            w.writerows(rows7)
+        print('wrote report/extra_C_ipos7.csv (%d rows)' % len(rows7))
     write('extra_C.md', L)
     with open(os.path.join(OUT, 'extra_C_area.csv'), 'w', newline='') as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator=NL)

@@ -9,8 +9,7 @@ run of Parts B to G, with what I expected at its end); choices the prompt left o
 THR is the largest accepted throughput over the loads of the ladder, LAT and P99 the mean and 99th-percentile latency at 1.0 x Lsat of
 DeFT_P. Only the two primary families are tested (Holm over 12 each); everything else is descriptive.
 
-**This file is written part by part as the runs finish. Answers 1 to 5 and 7 to 12 are final; answer 6 lacks the rows of C2; answers
-13 to 15 and Part G follow.**
+**This file is written part by part as the runs finish. Answers 1 to 12 are final; answers 13 to 15 and Part G follow.**
 
 ## 1. Regression and gates: all pass? Are the reused rows reproduced?
 
@@ -139,7 +138,9 @@ times (answer 6).
   every size. **On `localized` and `movinghot` it is behind the best reference at depth 6 in both metrics on every size**: THR
   -9.9 / -4.5 / -1.6 %, LAT +15.2 / +13.4 / +18.1 % (with 4-flit buffers on both sides: -5.6 / -0.5 / +2.9 % and +4.2 / +3.1 / +4.2 %).
   The tests over the six scenarios are supported on 3x3 and 4x4 because the lead on `chipperm`, `chiptrans` and uniform traffic is
-  larger than the deficit on these two.
+  larger than the deficit on these two. On 3x3 the throughput test is carried by `chipperm` alone: without that scenario the main
+  row has -0.3 [-0.8, +0.2] % against the best of the four at depth 6 (`report/extra_C.md`, X.8, added after the results were seen;
+  answer 6).
 * **Which reference is the best** (`report/extra_C.md`, X.3, a table added after the results were seen): of the 36 cells of size,
   scenario and metric RC is the best reference with 6-flit buffers in 21, MTR in 7, DeFT_B in 7 (five of the six cells of hotspot
   traffic, and in THR `chipperm` and uniform traffic on 3x3) and DeFT_P in 1 (`chipperm` on 4x4, THR). With 4-flit buffers the counts
@@ -158,7 +159,13 @@ times (answer 6).
 
 ## 6. The main row against references of depth 5 and 6 and with 7-flit buffers on the interposer: where does a reference with the main row's area reach it?
 
-*(The `X_i7` rows of C2 are not run yet; this answer is completed when they are.)*
+**It depends on where the reference spends the area, and on the size. With the hierarchy kept, the form whose 22 to 25 % the paper
+quotes, a reference with 7-flit buffers in the interposer routers alone has the main row's area within two points, so that comparison
+is measured (C2: 2,880 runs, none missing, no dead-end event). On 2x2 the main row accepts 3.4 % less than the best such reference and
+is no faster. On 3x3 and 4x4 the reference does not reach the main row over the six scenarios: the main row keeps +3.4 / +1.8 % of
+throughput, 1.6 / 2.4 % of latency at DeFT's saturation load and 8.6 / 12.5 % of P99. But the reference does reach it under `localized`
+and `movinghot` traffic on every size, and what is left on 3x3 is carried by one scenario: without `chipperm` the main row is 0.9 %
+behind there. In the other two forms of the synthesis the main row is smaller than every reference with deeper buffers that was run.**
 
 Area of all routers of a system relative to DeFT with 4-flit buffers (E3, `report/summary_hw_E3.md`; 2x2 / 3x3 / 4x4):
 
@@ -172,47 +179,103 @@ Area of all routers of a system relative to DeFT with 4-flit buffers (E3, `repor
 What "the main row's area" is depends on the form of the synthesis: a reference with 5.3 to 5.5-flit buffers when the hierarchy is
 kept, with 4.8 to 4.9-flit buffers when the core is kept, with 4.5 to 4.6-flit buffers flattened. A reference with 5-flit buffers has
 5 to 8 points less area than the main row in the first form and 1 to 4 and 7 to 9 points more in the other two; one with 6-flit
-buffers has 7 to 26 points more in every form.
+buffers has 7 to 26 points more in every form. A reference with 7-flit buffers in the interposer routers and 4-flit buffers in the
+chiplet routers (`X_i7`) has 1.2 points less area than the main row on 2x2 and 2.0 and 1.8 points more on 3x3 and 4x4 when the
+hierarchy is kept, and 9 to 12 and 15 to 17 points more in the other two forms.
 
-The main row with 4-flit buffers against the best of the four references of each depth (six scenarios; `report/summary_C.md`, C.3), and
-the same read at the area of the main row (`report/extra_C.md`: per seed the log ratio interpolated linearly in the area between the
-two neighbouring depths; a reading aid defined before the results were read, not a measurement, no router with such buffers was run):
+The main row with 4-flit buffers against the best of the four references of each set (six scenarios; `report/summary_C.md`, C.3), and
+the same read at the area of the main row (`report/extra_C.md`, X.2: per seed the log ratio interpolated linearly in the area between
+the two neighbouring depths; a reading aid defined before the results were read, not a measurement, no router with such buffers was
+run). In the two lines marked "four loads" THR is the largest accepted throughput over the four loads of C2 (0.5, 1.0, 1.4 and
+2.0 x Lsat) for both rows, as pre-registered for every comparison with an `X_i7` row; in the other lines it is taken over the nine
+loads.
 
 | references | THR | LAT at 1.0 x Lsat | P99 |
 |---|---|---|---|
 | 4-flit buffers (round 25) | 0.0 / +6.7 / +6.0 | -11.1 / -9.7 / -13.2 | -24.4 / -27.3 / -29.6 |
 | 5-flit buffers | -1.8 / +4.8 / +4.0 | -5.1 / -4.7 / -7.8 | -12.3 / -16.8 / -21.6 |
 | 6-flit buffers | -3.4 / +2.9 / +2.3 | -1.2 (n.s.) / -2.2 / -4.3 | -6.7 (n.s.) / -10.3 / -15.4 |
-| *at the main row's area, hierarchy kept* | *-2.7 / +4.1 / +3.4* | *-3.0 / -3.9 / -6.6* | |
-| *at the main row's area, core kept* | *-1.6 / +5.2 / +4.4* | *-5.6 / -6.0 / -9.0* | |
-| *at the main row's area, flattened* | *-1.1 / +5.8 / +5.0* | *-7.6 / -7.4 / -10.7* | |
+| **7-flit buffers in the interposer routers (C2), four loads** | **-3.4 / +3.4 / +1.8** | **-0.5 (n.s.) / -1.6 / -2.4** | **-4.4 (n.s.) / -8.6 / -12.5** |
+| 4-flit buffers (round 25), four loads | 0.0 / +6.5 / +6.6 | -11.1 / -9.7 / -13.2 | -24.4 / -27.3 / -29.6 |
+| *at the main row's area, hierarchy kept, read between 5-flit and 6-flit buffers* | *-2.7 / +4.1 / +3.4* | *-3.0 / -3.9 / -6.6* | |
+| *at the main row's area, core kept, read between 4-flit and 5-flit buffers* | *-1.6 / +5.2 / +4.4* | *-5.6 / -6.0 / -9.0* | |
+| *at the main row's area, flattened, read between 4-flit and 5-flit buffers* | *-1.1 / +5.8 / +5.0* | *-7.6 / -7.4 / -10.7* | |
 
-* **On 3x3 and 4x4 no reference reaches the main row up to 6-flit buffers**, which is 8 to 24 % more area than the main row has.
-  Every flit of depth takes about two points of the throughput lead and 2.5 to 5.5 points of the latency lead. Against a reference
-  that spends the main row's area on buffers the main row keeps 3 to 6 % of throughput and 4 to 11 % of latency at DeFT's
-  saturation load: 57 to 87 % of the throughput lead of round 25 and 40 to 81 % of its latency lead are left, the lower figures with
-  the hierarchy kept. The steps in throughput do not shrink with the depth (3x3: -1.9, -1.9 points; 4x4: -2.0, -1.7), so deeper
-  buffers would reach the main row: at this pace at about 7.5 flits, 1.5 to 1.6 times DeFT's area. That is an extrapolation; no
-  such row was run.
+* **Measured at the main row's area with the hierarchy kept** (the bold line). Against the best of the four `X_i7` the main row has
+  THR -3.4 [-3.7, -3.1] / +3.4 [+3.0, +3.9] / +1.8 [+1.4, +2.1] %, LAT -0.5 [-2.7, +1.8] / -1.6 [-2.5, -0.7] / -2.4 [-3.9, -0.9] % and
+  P99 -4.4 [-10.3, +1.8] / -8.6 [-10.6, -6.5] / -12.5 [-15.8, -9.0] %. Of its lead over references with 4-flit buffers, a half and a
+  quarter of the throughput, a sixth of the latency and 28 and 38 % of the P99 are left on 3x3 and 4x4; on 2x2 nothing is left.
+  Against the two DeFT variants with these buffers it is level in throughput on 2x2 (+0.1 [-0.1, +0.4] %) and ahead on 3x3 and 4x4
+  (+5.5 / +3.6 %), with 9 to 11 % less latency on every size. Against the better of `MTR_i7` and `RC_i7` it is 2.0 % behind on 2x2
+  with the same latency, and ahead on 3x3 and 4x4 (THR +5.7 / +5.2 %, LAT -5.3 / -7.1 %). At 0.5 x Lsat its latency is 0.4 to 1.2 %
+  below the best `X_i7` reference's (C.6); the `X_i7` rows were not run at 0.8 x Lsat.
+* **The interposer is where a reference should spend the area** (`report/extra_C.md`, X.7, a table added after the results were
+  seen; THR over the same four loads for every row). The best reference with 7-flit buffers in the interposer routers alone is level
+  with the best one with 6-flit buffers in every router (THR 0.0 / -0.5 / +0.9 %, LAT -0.7 / -0.6 / -2.0 %), which has 8 to 9 points
+  more area, and ahead of the best one with 5-flit buffers (THR +1.6 / +1.1 / +2.6 %, LAT -4.7 / -3.2 / -5.5 %), which has 7 to 8
+  points less. MTR and RC get from the interposer buffers alone what 6-flit buffers in every router give them (against their `X_d6`
+  rows THR -0.1 to +1.0 %, LAT +0.5 to -2.9 %). The DeFT variants get less on 2x2 and 3x3 (`DeFT_P_i7` against `DeFT_P_d6`: THR
+  -1.3 / -0.9 %, LAT +6.5 / +3.1 %; `DeFT_B_i7` against `DeFT_B_d6`: THR -4.1 / -3.1 %, LAT +9.3 / +7.2 %) and nearly the same on 4x4
+  (THR +0.2 and -1.1 %, LAT -0.5 and +2.2 %). Against itself with 4-flit buffers (C.2) an `X_i7` row gains 2.1 to 5.2 % of throughput
+  and 8 to 21 % of latency at DeFT's saturation load. The italic line "hierarchy kept" of the table assumes that the area goes into
+  every buffer; the measured line is less favourable to the main row, by 2.5 / 2.3 / 4.2 points of latency and by about one point of
+  throughput (0.7 / 0.7 / 1.6; the two lines take THR over different loads, which moves the comparison with 4-flit references by up
+  to 0.6 points).
+* **In the other two forms the main row has less area than every reference with deeper buffers that was run**, so a reference with
+  its area can only be read between measured rows: on the way to deeper buffers in every router (X.2, the italic lines) or on the
+  way to deeper buffers in the interposer routers alone (X.7: between the references with 4-flit buffers and `X_i7`, THR over the
+  four loads; defined after the results were seen). Core kept: THR -1.6 / +5.2 / +4.4 % on the first way and -2.2 / +4.8 / +4.0 % on
+  the second, LAT -5.6 / -6.0 / -9.0 % and -4.3 / -5.5 / -7.5 %. Flattened: THR -1.1 / +5.8 / +5.0 % and -1.4 / +5.5 / +5.0 %, LAT
+  -7.6 / -7.4 / -10.7 % and -6.9 / -7.2 / -9.9 %. The two readings agree within 0.6 points of throughput and 1.5 points of latency:
+  in these forms the main row keeps 4 to 6 % of throughput and 5 to 11 % of latency on 3x3 and 4x4, and on 2x2 it is 1 to 2 % behind
+  in throughput with 4 to 8 % less latency. No reference with 5-flit or 6-flit buffers in the interposer routers alone was run or
+  synthesized.
+* **On 3x3 and 4x4 no reference that was run reaches the main row over the six scenarios**: not with 6-flit buffers in every router,
+  which is 8 to 24 % more area than the main row has, and not with 7-flit buffers in the interposer routers. With deeper buffers in
+  every router each flit of depth takes about two points of the throughput lead and 2.5 to 5.5 points of the latency lead, and the
+  steps in throughput do not shrink with the depth (3x3: -1.9, -1.9 points; 4x4: -2.0, -1.7), so deeper buffers would reach the main
+  row: at this pace at about 7.5 flits, 1.5 to 1.6 times DeFT's area. That is an extrapolation; no such row was run, and none with
+  more than 7 flits in the interposer routers.
 * **On 2x2 a reference reaches it in throughput at once.** With 4-flit buffers on both sides the main row is level with the best
-  reference (0.0 [-0.3, +0.3] %); with the main row's area the best reference is 1.1 to 2.7 % ahead. MTR and RC alone are level
-  with it at 4.8 flits (1.14 times DeFT's area: more than the main row's area flattened, less than its area in the other two forms),
-  the DeFT variants at 5.8 flits (1.29 to 1.30, more than the main row's area in every form).
-* **On 2x2 in latency a reference reaches it at 6 flits**: -11.1 % with 4-flit buffers, -5.1 % with 5, -1.2 [-3.4, +1.1] % with 6. At the
-  main row's area it keeps 3 to 8 %.
-* **Against the two references that tolerate VL faults** the main row is ahead at every depth on 3x3 and 4x4 (6-flit buffers: THR
-  +3.9 / +3.8 %, LAT -10 %; at the main row's area THR +5.3 to +7.9 %, LAT -13 to -21 %). On 2x2 it is ahead with 5-flit buffers (THR
-  +1.6 %, LAT -15.3 %) and level in throughput with 6 (-0.5 %), with 10 % less latency.
-* **It differs by scenario** (C.4, references with 6-flit buffers; THR and LAT against the best of the four). The main row keeps
-  its lead under `chipperm` and `chiptrans` on every size (THR +1.5 to +20.3 %, LAT -4.8 to -36.4 %) and under uniform traffic on 3x3
-  and 4x4 (THR +3.2 / +6.6 %, LAT -6.1 / -4.8 %). Under hotspot traffic it is level in throughput (+0.7 to +1.6 %) with 5 to 8 % less
-  latency. It is behind under uniform traffic on 2x2 (THR -6.2 %, LAT +5.2 %), under `localized` (THR -12.8 / -4.6 / -0.9 %, LAT
-  +12.3 / +5.7 / +1.7 %) and under `movinghot` (THR -6.8 / -4.4 / -2.4 %, LAT +18.2 / +21.6 / +37.0 %); under `movinghot` it was behind
-  with 4-flit buffers on both sides already.
+  reference (0.0 [-0.3, +0.3] %); against a reference with its area it is 1.1 to 3.4 % behind (3.4 % measured with `X_i7`, the
+  other figures read between measured rows). MTR and RC alone are level with it at 4.8 flits (1.14 times DeFT's area: more than the
+  main row's area flattened, less than its area in the other two forms), the DeFT variants at 5.8 flits (1.29 to 1.30, more than the
+  main row's area in every form) or with 7-flit buffers in the interposer routers.
+* **On 2x2 in latency a reference reaches it at 6 flits, or at 7 flits in the interposer routers alone**: -11.1 % with 4-flit
+  buffers, -5.1 % with 5, -1.2 [-3.4, +1.1] % with 6, -0.5 [-2.7, +1.8] % with `X_i7`. At the main row's area in the other two forms
+  it keeps 4 to 8 %.
+* **Against the two references that tolerate VL faults** the main row is ahead in every set on 3x3 and 4x4 (6-flit buffers: THR
+  +3.9 / +3.8 %, LAT -10 %; 7-flit buffers in the interposer routers: THR +5.5 / +3.6 %, LAT -10.0 / -9.0 %; at the main row's area in
+  the other two forms THR +6.0 to +7.9 %, LAT -17 to -21 %). On 2x2 it is ahead with 5-flit buffers (THR +1.6 %, LAT -15.3 %) and
+  level in throughput with 6-flit buffers (-0.5 %) and with `X_i7` (+0.1 %), with 10 to 11 % less latency.
+* **It differs by scenario** (C.4; THR and LAT against the best of the four). Against references with 6-flit buffers the main row
+  keeps its lead under `chipperm` and `chiptrans` on every size (THR +1.5 to +20.3 %, LAT -4.8 to -36.4 %) and under uniform traffic
+  on 3x3 and 4x4 (THR +3.2 / +6.6 %, LAT -6.1 / -4.8 %). Under hotspot traffic it is level in throughput (+0.7 to +1.6 %) with 5 to
+  8 % less latency. It is behind under uniform traffic on 2x2 (THR -6.2 %, LAT +5.2 %), under `localized` (THR -12.8 / -4.6 / -0.9 %,
+  LAT +12.3 / +5.7 / +1.7 %) and under `movinghot` (THR -6.8 / -4.4 / -2.4 %, LAT +18.2 / +21.6 / +37.0 %); under `movinghot` it was
+  behind with 4-flit buffers on both sides already. Against the `X_i7` references the split is the same: ahead under `chipperm` and
+  `chiptrans` (THR +1.3 to +27.7 %, LAT -3.3 to -32.5 %), under uniform traffic on 3x3 and 4x4 (THR +3.1 / +5.2 %, LAT -5.1 / -3.9 %)
+  and under hotspot traffic (THR +2.1 / +1.1 / +2.4 %, not significant on 3x3; LAT -10.4 / -5.1 / -4.7 %); behind under uniform
+  traffic on 2x2 (THR -6.7 %, LAT +5.4 %), under `localized` (THR -13.4 / -6.6 / -2.0 %, LAT +11.5 / +6.3 / +2.0 %) and under
+  `movinghot` (THR -5.6 / -4.5 / -2.6 %, LAT +17.9 / +21.2 / +41.7 %). Over the four tuning scenarios it has THR -0.1 [-0.4, +0.2] /
+  +8.2 / +3.8 % and LAT -7.2 / -8.4 / -12.1 % against the best `X_i7`; over `localized` and `movinghot` THR -9.6 / -5.5 / -2.3 % and LAT
+  +14.6 / +13.5 / +20.2 %.
+* **How much one scenario carries** (`report/extra_C.md`, X.8, a table added after the results were seen: each comparison with one
+  of the six scenarios left out). On 3x3 the throughput lead over references with deeper buffers is the lead under `chipperm`
+  (+27.7 % against the best `X_i7`): without that scenario the main row has -0.9 [-1.3, -0.4] % against the best `X_i7` and
+  -0.3 [-0.8, +0.2] % against the best reference with 6-flit buffers, and its latency is 2.1 % and 1.6 % above theirs; with 4-flit
+  references it keeps +3.3 % and -6.0 % without `chipperm` (+6.7 % and -9.7 % with it). On 4x4 the throughput lead holds whichever
+  scenario is left out (+1.1 to +2.6 % against `X_i7`, +1.5 to +3.3 % against 6-flit buffers), and the latency lead is the lead
+  under `chiptrans`: without it the main row is 5.1 % and 3.8 % slower than the best reference of the two sets. On 2x2 the main row
+  is behind in throughput against both sets whichever scenario is left out (-1.2 to -4.9 %). The two tests of primary family 2 on
+  3x3 against the best of the four (answer 5) are supported as pre-registered, over the six scenarios; this table says what they
+  rest on.
 * Held against what I wrote in advance (references with 5-flit buffers, the best of the four): THR -4 to -1 % on 2x2 (-1.8 %: inside)
   and 0 to +4 % on 3x3 and 4x4 (+4.8 / +4.0 %: at the top or above); LAT within -5 to +10 % (-5.1 / -4.7 / -7.8 %: at the favourable
   end or beyond). Against the DeFT variants with 5-flit buffers I expected the main row ahead on 3x3 and 4x4 and level on 2x2; it is
-  ahead on every size.
+  ahead on every size. "`X_i7` buys about what `X_d6` buys (the interposer is where the buffers count)": right for MTR and RC and
+  for the best of the four on every size; wrong for the DeFT variants on 2x2 and 3x3, where the interposer buffers alone give
+  between a half (DeFT_B on 2x2) and nine tenths (DeFT_P on 3x3) of the latency gain of 6-flit buffers.
 
 ## 7. Under faults: the main row against the DeFT variants with 6-flit buffers
 

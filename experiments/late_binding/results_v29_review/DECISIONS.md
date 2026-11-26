@@ -280,3 +280,22 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   the main row and DeFT_P against each static row alone, and the absolute values. Reason: D.1.3 compares the main row with "the
   best of DeFT_P, DeFT_B, `MTR_static`, `RC_static`, XY_SP" and does not say which row that is; it turned out to be a DeFT
   variant in 25 of 36 cells, which changes what the comparison is a comparison with. Same runs and statistic as D.1, no test.
+* **`report/extra_C.md`, X.7** (added on 26 November at 08:57, after the results of C2 had been read): the `X_i7` rows next to
+  the rows with 5-flit and 6-flit buffers with THR over the same four loads for every row: each `X_i7` against the same reference
+  with 5-flit and with 6-flit buffers, the main row against the best of each set, the best `X_i7` against the best of each other
+  set, the absolute values with the best `X_i7` marked and the count of which reference is the best, and the comparison of the
+  main row with the 4-flit references and with `X_i7` read at the area of the main row in each form of the synthesis (the per-seed
+  log ratio interpolated linearly in the area between the two measured sets, as X.2 does between the depths). Reason: as
+  pre-registered, C.2 and C.3 take THR over the four loads of C2 in the lines with `X_i7` and over the nine loads in the lines
+  with `X_d5` and `X_d6`, so the report cannot say whether 7-flit buffers in the interposer routers give a reference more or less
+  than 6-flit buffers in every router; and with the hierarchy kept `X_i7` has the main row's area within two points, while in the
+  other two forms the main row is smaller, so question 6 needs a reading there as well. The interpolation on the way to `X_i7` was
+  defined after the results of C2 were seen (X.2 was defined before those of C1); `extra_C_ipos7.csv` holds its figures. No
+  reference with 5-flit or 6-flit buffers in the interposer routers alone was run or synthesized. No test.
+* **`report/extra_C.md`, X.8** (added on 26 November at 08:59, after the results of C2 had been read): the main row against the
+  best of the four references of each set (4-flit, 5-flit, 6-flit buffers; 7-flit buffers in the interposer routers) with one of
+  the six scenarios left out. Reason: C.4 shows that against references with deeper buffers the main row is far ahead in one or
+  two scenarios and behind in others (on 3x3 +27.7 % of throughput under `chipperm` against the best `X_i7`, and -6.6 % to
+  +3.1 % in the other five), so the mean over the six scenarios, on which the tests of primary family 2 are made, does not show
+  what it rests on. The verdicts of family 2 are not touched: they are what was pre-registered. The table is a description of
+  the same runs with the same statistic, and what it shows is against the main row on 3x3.
