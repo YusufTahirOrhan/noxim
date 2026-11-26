@@ -373,3 +373,7 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   checks and the CSVs). The five small state files of the chains stay in `~/lbraw/v29` (they are not results).
 * **Reports written again at the end** (`report_v29.py all`, `report_v29_hw.py`, `check_v29_family.py`, `extra_v29.py b c d e f g`):
   no committed table changed; the second computation of both primary families agrees with the report in every test.
+* **`after_c_v29.sh` after its use.** The script had the attribution line of its commit written into it. It now takes that line
+  from the variable `V29_COMMIT_TRAILER`, if set, so that the file names nobody; what it does is otherwise unchanged (syntax
+  checked, the assembly of the message tried in a scratch repository). The hand-over it was written for happened on 26 November
+  at 10:50 ("The hand-over as it happened").

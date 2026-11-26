@@ -7,11 +7,12 @@
 # appears). If it was not, it writes the addenda with addendum_v29.py (the record of what the tuning rule chose; refused if an evaluation
 # run of the rows exists), commits what chain c left in results_v29_review (no push: WSL holds no credentials) and starts chain d.
 # A chain c that ended with another code, or a failed addendum, ends the script with nothing started.
+# The commit message ends with the text of V29_COMMIT_TRAILER if that variable is set (the attribution line of whoever starts the script).
 # For a dry run: V29_LOGS=<folder with stand-in logs> V29_DRY=1 bash after_c_v29.sh 2
 main() {
     cd "$(dirname "$0")" || exit 9
     export PYTHONPATH=$HOME/lbpkgs
-    local L=${V29_LOGS:-$HOME/lbraw/logs} V=results_v29_review grace=${1:-1800} dry=${V29_DRY:-0} t=0 f an ae
+    local L=${V29_LOGS:-$HOME/lbraw/logs} V=results_v29_review grace=${1:-1800} dry=${V29_DRY:-0} t=0 f an ae msg
     say() { echo "=== $(date '+%F %T') $*"; }
     by_hand() { [ -f "$L/v29d.log" ] || tmux has-session -t lb_v29d 2>/dev/null; }
     # chain c runs in the session of restore_watch.sh (log v29r.log), or, started by hand, as v29c
@@ -40,15 +41,16 @@ main() {
     an=$(git log -1 --format=%an)
     ae=$(git log -1 --format=%ae)
     git add $V
-    if git -c user.name="$an" -c user.email="$ae" commit -q -F - <<'EOF'
+    msg=$(cat <<'EOF'
 v29: the addenda with the tuned values of Part F, written by after_c_v29.sh before chain d
 
 Nobody was at the keyboard when chain c ended. addendum_v29.py wrote the choices of the
 tuning rule into PREREGISTRATION.md; this commit holds them with what chain c left in the
 results folder. No evaluation run of the tuned rows exists at this moment.
-
-Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
 EOF
+)
+    if [ -n "${V29_COMMIT_TRAILER:-}" ]; then msg="$msg"$'\n\n'"$V29_COMMIT_TRAILER"; fi
+    if git -c user.name="$an" -c user.email="$ae" commit -q -m "$msg"
     then say "committed: $(git log --oneline -1)"; else say "the commit failed: the addenda are in the working tree, written before this line"; fi
     bash detach.sh v29d bash chain_v29c.sh d
     say "chain d started"
