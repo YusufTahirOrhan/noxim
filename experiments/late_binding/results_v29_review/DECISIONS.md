@@ -263,6 +263,9 @@ early rows are favoured. Each entry says what was open, what was chosen and why.
   nothing more is run. This favours the early row, which is the side the standing rules say to favour in doubt; it is defined
   here, after the tuning scores were seen and before any evaluation run of Part F was read.
 * The runs go next to chain d with two processes (2x2 runs of about 15 s each); they are not part of the time rule's account.
+* **Result (10:57, `tuning_v29_extra.md`, `tune_age_extra_runs.csv`; 80 runs, no dead-end event).** T = 256 scores +0.010 and T = 512
+  +0.006, against +0.105 at T = 128: with a larger threshold the row falls back to DeFT_P, whose score is 0. **The cap did not bind
+  the choice; T = 128 is the best T on 2x2 too, and no extra row is run.** `extra_v29_age.py eval` was not started.
 
 ## Tables added after the results (`extra_v29.py`; none is a test, none changes a pre-registered table)
 * **`report/extra_B.md`, X.1** (after Part B): the accepted throughput and the latency of every row at each of the nine loads on five
